@@ -108,4 +108,4 @@ call plug#begin()
 call plug#end() " Initialize plugin system 
 
 "colorscheme onedark
-"colorscheme codedark
+colorscheme codedark
