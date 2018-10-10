@@ -14,7 +14,7 @@ let g:ctrlp_cmd = 'CtrlP'
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
 
 " YCM config
-let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+" let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 
 " Markdown config
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
@@ -59,18 +59,17 @@ cnoreabbrev aG Ack
 cnoreabbrev Ag Ack                                                                           
 cnoreabbrev AG Ack  
 
-" Specify a directory for plugins " - For Neovim: ~/.local/share/nvim/plugged
-call plug#begin('~/.local/share/nvim/plugged')
+call plug#begin()
     Plug 'airblade/vim-gitgutter'
 	Plug 'ctrlpvim/ctrlp.vim'
-	Plug 'honza/vim-snippets'
+"	Plug 'honza/vim-snippets'
 	Plug 'joshdick/onedark.vim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'mileszs/ack.vim'
     Plug 'rhysd/vim-clang-format'
     Plug 'romgrk/winteract.vim'
 	Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-	Plug 'SirVer/ultisnips'
+"	Plug 'SirVer/ultisnips'
     Plug 'sjl/gundo.vim'
     Plug 'sheerun/vim-polyglot'
     Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -79,13 +78,12 @@ call plug#begin('~/.local/share/nvim/plugged')
     Plug 'tpope/vim-fugitive'
 	Plug 'tpope/vim-surround'
     Plug 'tpope/vim-obsession'
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+"    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
 	Plug 'vim-airline/vim-airline'
 	Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-syntastic/syntastic'
     Plug 'Xuyuanp/nerdtree-git-plugin'
 call plug#end() " Initialize plugin system 
 
-" colorscheme onedark
-colorscheme codedark
-syntax on
+"colorscheme onedark
+"colorscheme codedark
