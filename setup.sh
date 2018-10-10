@@ -16,3 +16,6 @@ ln -s $scriptDir/.tmux.conf ~/.tmux.conf
 
 # git config
 ln -s $scriptDir/.gitignore ~/.gitignore
+
+# zsh config
+ln -s $scriptDir/.zshrc ~/.zshrc
