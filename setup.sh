@@ -1,16 +1,18 @@
 #!/bin/sh
 
+# get the directory that this script resides in
+scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
 # vim conf
-dotfiles=~/dev/my/dotfiles
-ln -s $dotfiles/.vimrc ~/.vimrc  
+ln -s $scriptDir/.vimrc ~/.vimrc  
 
 # nvim conf
 nvim_config=.config/nvim
 mkdir ~/$nvim_config
-ln -s $dotfiles/$nvim_config/init.vm ~/$nvim_config/init.vm
+ln -s $scriptDir/$nvim_config/init.vim ~/$nvim_config/init.vim
 
 # tmux confg
-ln -s $dotfiles/.tmux.conf ~/.tmux.conf
+ln -s $scriptDir/.tmux.conf ~/.tmux.conf
 
 # git config
-ln -s $dotfiles/.gitignore ~/.gitignore
+ln -s $scriptDir/.gitignore ~/.gitignore
