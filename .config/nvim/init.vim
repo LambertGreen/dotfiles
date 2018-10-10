@@ -8,6 +8,10 @@ set softtabstop=4 " makes the spaces feel like real tabs<Paste>
 set autoread
 set cursorline
 
+" Show trailing white-space
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+
 " Set CtrlP config
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
