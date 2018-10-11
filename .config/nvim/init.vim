@@ -6,8 +6,11 @@ set shiftwidth=4
 set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
 set autoread
-set cursorline
+set nocursorline
+set hidden " allows switching from a buffer that has unwritten changes
 set mouse=a " enable mouse suppport in all modes
+" Show whitespace characters
+" TODO: Fixme: set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:< 
 
 " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
@@ -51,9 +54,7 @@ autocmd FileType cpp, ClangFormatAutoEnable
 
 " Set airline fonts
 let g:airline_powerline_fonts = 1
-" let g:airline_theme = 'onedark'
-let g:airline_theme = 'codedark'
-let g:airline#extensions#tabline#enabled = 1
+let g:airline_theme = 'base16'
 
 " Ack/Ag config
 if executable('ag')
@@ -63,24 +64,6 @@ cnoreabbrev ag Ack
 cnoreabbrev aG Ack                                                                           
 cnoreabbrev Ag Ack                                                                           
 cnoreabbrev AG Ack  
-
-"setup vim-plug {{{
-
-  "Note: install vim-plug if not present
-  if empty(glob('~/.config/nvim/autoload/plug.vim'))
-    silent !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall
-  endif
-
-  "Note: Skip initialization for vim-tiny or vim-small.
-  if !1 | finish | endif
-  if has('vim_starting')
-    set nocompatible               " Be iMproved
-    " Required:
-    call plug#begin()
-  endif
-
-"}}}
 
 call plug#begin()
     Plug 'airblade/vim-gitgutter'
@@ -109,4 +92,6 @@ call plug#begin()
 call plug#end() " Initialize plugin system 
 
 "colorscheme onedark
-colorscheme codedark
+"colorscheme codedark
+set background=dark
+set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
