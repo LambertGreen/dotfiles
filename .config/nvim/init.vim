@@ -7,6 +7,11 @@ set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
 set autoread
 set cursorline
+set mouse=a " enable mouse suppport in all modes
+
+" Show trailing white-space
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
 
 " Set CtrlP config
 let g:ctrlp_map = '<c-p>'
@@ -104,4 +109,4 @@ call plug#begin()
 call plug#end() " Initialize plugin system 
 
 "colorscheme onedark
-"colorscheme codedark
+colorscheme codedark
