@@ -19,7 +19,7 @@ match ExtraWhitespace /\s\+$/
 " }}}
 " Status line {{{
 let g:airline_powerline_fonts = 1
-let g:airline_theme = 'codedark'
+let g:airline_theme = 'jellybeans'
 " }}}
 " }}}
 
@@ -60,6 +60,7 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 call plug#begin()
     Plug 'airblade/vim-gitgutter'
 	Plug 'ctrlpvim/ctrlp.vim'
+    Plug 'flazz/vim-colorschemes'
 "	Plug 'honza/vim-snippets'
 	Plug 'joshdick/onedark.vim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -86,12 +87,18 @@ call plug#end() " Initialize plugin system
 
 " Themes {{{
 set background=dark
+" My favorite themes
+colorscheme jellybeans
 "colorscheme onedark
 "colorscheme codedark
+" }}}
+
+" TODOs {{{
+" TODO: YCM config
+" let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 " TODO: Add this to gvim: set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
 " }}}
 
-" TODO: YCM config
-" let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-
+" Folding {{{
 " vim:fdm=marker
+" }}}
