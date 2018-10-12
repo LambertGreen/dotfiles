@@ -1,5 +1,6 @@
-" Set noshowmode since we are using lightline.vim for status
-set noshowmode
+" Editor {{{
+" Basic options {{{
+set noshowmode " Set noshowmode since we are using lightline.vim for status
 set number
 set tabstop=4
 set shiftwidth=4
@@ -9,40 +10,38 @@ set autoread
 set nocursorline
 set hidden " allows switching from a buffer that has unwritten changes
 set mouse=a " enable mouse suppport in all modes
-" Show whitespace characters
-" TODO: Fixme: set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:< 
-
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set wildmode=longest,list,full
+set wildmenu
 " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
+" }}}
+" Status line {{{
+let g:airline_powerline_fonts = 1
+let g:airline_theme = 'codedark'
+" }}}
+" }}}
 
-" Set CtrlP config
+" Fuzzy finding {{{
+" Ctrl-P {{{
 let g:ctrlp_map = '<c-p>'
 let g:ctrlp_cmd = 'CtrlP'
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+" }}}
+" Ack/Ag/Grep {{{
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+cnoreabbrev ag Ack                                                                           
+cnoreabbrev aG Ack                                                                           
+cnoreabbrev Ag Ack                                                                           
+cnoreabbrev AG Ack  
+" }}}
+" }}}
 
-" YCM config
-" let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-
-" Markdown config
-let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
-
-" NERDTree config
-map <silent> <C-n> :NERDTreeFocus<CR>
-let g:NERDTreeIndicatorMapCustom = {
-    \ "Modified"  : "✹",
-    \ "Staged"    : "✚",
-    \ "Untracked" : "✭",
-    \ "Renamed"   : "➜",
-    \ "Unmerged"  : "",
-    \ "Deleted"   : "✖",
-    \ "Dirty"     : "✗",
-    \ "Clean"     : "✔︎",
-    \ 'Ignored'   : '☒',
-    \ "Unknown"   : "?"
-    \ }
-
-" Clang format config
+" Programming Lanuages {{{
+" C++ {{{
 let g:clang_format#auto_format = 0
 let g:clang_format#style_options = {
       \ "Standard" : "C++11",
@@ -51,20 +50,13 @@ let g:clang_format#style_options = {
       \ "AccessModifierOffset" : -4
       \ }
 autocmd FileType cpp, ClangFormatAutoEnable
+" }}}
+" Markdown {{{
+let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+" }}}
+" }}}
 
-" Set airline fonts
-let g:airline_powerline_fonts = 1
-let g:airline_theme = 'base16'
-
-" Ack/Ag config
-if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
-endif
-cnoreabbrev ag Ack                                                                           
-cnoreabbrev aG Ack                                                                           
-cnoreabbrev Ag Ack                                                                           
-cnoreabbrev AG Ack  
-
+" Plugins {{{
 call plug#begin()
     Plug 'airblade/vim-gitgutter'
 	Plug 'ctrlpvim/ctrlp.vim'
@@ -90,8 +82,16 @@ call plug#begin()
     Plug 'vim-syntastic/syntastic'
     Plug 'Xuyuanp/nerdtree-git-plugin'
 call plug#end() " Initialize plugin system 
+" }}}
 
+" Themes {{{
+set background=dark
 "colorscheme onedark
 "colorscheme codedark
-set background=dark
-set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
+" TODO: Add this to gvim: set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
+" }}}
+
+" TODO: YCM config
+" let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+
+" vim:fdm=marker
