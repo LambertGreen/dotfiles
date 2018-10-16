@@ -87,10 +87,18 @@ call plug#end() " Initialize plugin system
 
 " Themes {{{
 set background=dark
-" My favorite themes
-colorscheme jellybeans
-"colorscheme onedark
-"colorscheme codedark
+try
+  colorscheme jellybeans
+  catch
+  try
+    colorscheme slate
+    catch
+  endtry
+endtry
+" My favorite themes:
+" colorscheme jellybeans
+" colorscheme onedark
+" colorscheme codedark
 " }}}
 
 " TODOs {{{
