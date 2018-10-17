@@ -13,6 +13,9 @@ set mouse=a " enable mouse suppport in all modes
 set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
 set wildmode=longest,list,full
 set wildmenu
+" More natural window opening positions
+set splitbelow
+set splitright
 " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
@@ -22,7 +25,15 @@ let g:airline_powerline_fonts = 1
 let g:airline_theme = 'jellybeans'
 " }}}
 " }}}
-
+" Key-bindings {{{
+" Window navigation {{{
+tnoremap <C-W><C-W> <C-\><C-n><C-W><C-W>
+tnoremap <C-W><C-J> <C-\><C-n><C-W><C-J>
+tnoremap <C-W><C-H> <C-\><C-n><C-W><C-H>
+tnoremap <C-W><C-K> <C-\><C-n><C-W><C-K>
+tnoremap <C-W><C-L> <C-\><C-n><C-W><C-L>
+" }}}
+" }}}
 " Fuzzy finding {{{
 " Ctrl-P {{{
 let g:ctrlp_map = '<c-p>'
@@ -39,7 +50,6 @@ cnoreabbrev Ag Ack
 cnoreabbrev AG Ack  
 " }}}
 " }}}
-
 " Programming Lanuages {{{
 " C++ {{{
 let g:clang_format#auto_format = 0
@@ -55,7 +65,6 @@ autocmd FileType cpp, ClangFormatAutoEnable
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
-
 " Plugins {{{
 call plug#begin()
     Plug 'airblade/vim-gitgutter'
@@ -84,7 +93,6 @@ call plug#begin()
     Plug 'Xuyuanp/nerdtree-git-plugin'
 call plug#end() " Initialize plugin system 
 " }}}
-
 " Themes {{{
 set background=dark
 try
@@ -100,13 +108,11 @@ endtry
 " colorscheme onedark
 " colorscheme codedark
 " }}}
-
 " TODOs {{{
 " TODO: YCM config
 " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
 " TODO: Add this to gvim: set guifont=Source_Code_Pro_for_Powerline:h12:cANSI:qDRAFT
 " }}}
-
 " Folding {{{
 " vim:fdm=marker
 " }}}
