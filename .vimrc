@@ -12,7 +12,7 @@
 " Get the defaults that most users want.
 source $VIMRUNTIME/defaults.vim
 
-let $VIMHOME = $HOME."/.vim"
+let $VIMHOME = $HOME/.vim
 
 " Basic Editor options
 set number
@@ -20,9 +20,9 @@ set mouse=a
 set autoindent		" always set autoindenting on
 
 " Set swap/backup/undo to global dir rather working dir
-set backupdir=$HOME/.backup/
-set directory=$HOME/.swp/
-set undodir=$HOME/.undo/
+set backupdir=$VIMHOME/.backup/
+set directory=$VIMHOME/.swp/
+set undodir=$VIMHOME/.undo/
 
 
 " Set VIM colors bases on base16
