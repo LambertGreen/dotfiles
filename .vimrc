@@ -1,44 +1,49 @@
-" An example for a vimrc file.
-"
-" Maintainer:	Bram Moolenaar <Bram@vim.org>
-" Last change:	2017 Sep 20
-"
-" To use it, copy it to
-"     for Unix and OS/2:  ~/.vimrc
-"	      for Amiga:  s:.vimrc
-"  for MS-DOS and Win32:  $VIM\_vimrc
-"	    for OpenVMS:  sys$login:.vimrc
+" Lambert's VIMRC
 
-source $VIMRUNTIME/defaults.vim
 " Get the defaults that most users want.
-set runtimepath=~/.vim,$VIMRUNTIME " YESSS! here to
-" http://vimdoc.sourceforge.net/htmldoc/starting.html#:rviminfo
-" http://vimdoc.sourceforge.net/htmldoc/options.html#'viminfo'
-set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
+source $VIMRUNTIME/defaults.vim
 
-
-let $VIMHOME = $HOME."/.vim"
-
-" Basic Editor options
+" Editor {{{
 set number
-set mouse=a
-set autoindent		" always set autoindenting on
-
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set softtabstop=4 " makes the spaces feel like real tabs<Paste>
+set autoread
+set nocursorline
+set hidden " allows switching from a buffer that has unwritten changes
+set mouse=a " enable mouse suppport in all modes
+set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set wildmenu
+set wildmode=longest,list,full
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip
+" More natural window opening positions
+set splitbelow
+set splitright
+" Show trailing white-space
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+" }}}
+" Os Platform specifics {{{
+if has('win32')
+	set runtimepath=~/.vim,$VIMRUNTIME
+	set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
+endif
+let $VIMHOME = $HOME."/.vim"
 " Set swap/backup/undo to global dir rather working dir
 set backupdir=$VIMHOME/backup/
-set directory=$VIMHOME/swp/
+set directory=$VIMHOME/swap/
 set undodir=$VIMHOME/undo/
-
-
-" Set VIM colors bases on base16
-if filereadable(expand("~/.vimrc_background"))
-  let base16colorspace=256
-  source ~/.vimrc_background
-endif
-
-set guifont=Ubuntu_Mono_derivative_Powerlin:h12:cANSI:qDRAFT
-colorscheme slate
-
+" }}}
+" Functions {{{
+fun! TrimWhitespace()
+    let l:save = winsaveview()
+    keeppatterns %s/\s\+$//e
+    call winrestview(l:save)
+endfun
+" }}}
+" Plugins {{{
+" Native plugins {{{
 " The matchit plugin makes the % command work better, but it is not backwards
 " compatible.
 " The ! means the package won't be loaded right away but when plugins are
@@ -46,3 +51,60 @@ colorscheme slate
 if has('syntax') && has('eval')
   packadd! matchit
 endif
+" }}}
+" Vim-Plug {{{
+call plug#begin()
+    Plug 'airblade/vim-gitgutter'
+    Plug 'ctrlpvim/ctrlp.vim'
+    Plug 'flazz/vim-colorschemes'
+"   Plug 'honza/vim-snippets'
+    Plug 'joshdick/onedark.vim'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'mileszs/ack.vim'
+    Plug 'rhysd/vim-clang-format'
+    Plug 'romgrk/winteract.vim'
+    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+"   Plug 'SirVer/ultisnips'
+    Plug 'sjl/gundo.vim'
+    Plug 'sheerun/vim-polyglot'
+    Plug 'tmux-plugins/vim-tmux-focus-events'
+    Plug 'tomasiser/vim-code-dark'
+    Plug 'tpope/vim-commentary'
+    Plug 'tpope/vim-fugitive'
+    Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-obsession'
+"    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'vim-syntastic/syntastic'
+    Plug 'Xuyuanp/nerdtree-git-plugin'
+call plug#end() " Initialize plugin system
+" }}}
+" }}}
+" Plugins Config {{{
+" Airline {{{
+set noshowmode " Set noshowmode since we are using airline for status
+let g:airline_powerline_fonts = 1
+let g:airline_theme = 'jellybeans'
+" }}}
+" Ack/Ag/Grep {{{
+if executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+cnoreabbrev ag Ack
+cnoreabbrev aG Ack
+cnoreabbrev Ag Ack
+cnoreabbrev AG Ack
+" }}}
+" }}}
+" Programming Lanuages {{{
+" Markdown {{{
+let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
+" }}}
+" }}}
+"   Folding {{{
+" vim:fdm=marker
+" }}}
+
+" Check machine specific local config
+execute "silent! source ~/.vimrc_local"
