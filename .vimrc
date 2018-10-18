@@ -9,10 +9,15 @@
 "  for MS-DOS and Win32:  $VIM\_vimrc
 "	    for OpenVMS:  sys$login:.vimrc
 
-" Get the defaults that most users want.
 source $VIMRUNTIME/defaults.vim
+" Get the defaults that most users want.
+set runtimepath=~/.vim,$VIMRUNTIME " YESSS! here to
+" http://vimdoc.sourceforge.net/htmldoc/starting.html#:rviminfo
+" http://vimdoc.sourceforge.net/htmldoc/options.html#'viminfo'
+set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 
-let $VIMHOME = $HOME/.vim
+
+let $VIMHOME = $HOME."/.vim"
 
 " Basic Editor options
 set number
@@ -20,9 +25,9 @@ set mouse=a
 set autoindent		" always set autoindenting on
 
 " Set swap/backup/undo to global dir rather working dir
-set backupdir=$VIMHOME/.backup/
-set directory=$VIMHOME/.swp/
-set undodir=$VIMHOME/.undo/
+set backupdir=$VIMHOME/backup/
+set directory=$VIMHOME/swp/
+set undodir=$VIMHOME/undo/
 
 
 " Set VIM colors bases on base16
@@ -41,4 +46,3 @@ colorscheme slate
 if has('syntax') && has('eval')
   packadd! matchit
 endif
-
