@@ -9,7 +9,10 @@ endif
 " https://conemu.github.io/en/VimXterm.html
 if has('win32') && !has("gui_running")
     " Enable 256 colors
-    set term=xterm
+    if !has('nvim')
+       " Nvim does not support below term
+       set term=xterm
+    endif
     set t_Co=256
     let &t_AB="\e[48;5;%dm"
     let &t_AF="\e[38;5;%dm"
@@ -32,7 +35,8 @@ set autoread
 set nocursorline
 set hidden " allows switching from a buffer that has unwritten changes
 set mouse=a " enable mouse suppport in all modes
-set listchars=eol:$,tab:>-,trail:~,extends:>,precedes:<
+set listchars=tab:>-,trail:~,extends:>,precedes:<
+set list
 set wildmenu
 set wildmode=longest,list,full
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip
@@ -45,8 +49,8 @@ match ExtraWhitespace /\s\+$/
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
-	set runtimepath=~/.vim,$VIMRUNTIME
-	set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
+    set runtimepath=~/.vim,$VIMRUNTIME
+    set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 endif
 let $VIMHOME = $HOME."/.vim"
 " Set swap/backup/undo to global dir rather working dir
@@ -105,6 +109,9 @@ call plug#end() " Initialize plugin system
 " Plugins Config {{{
 " Airline {{{
 set noshowmode " Set noshowmode since we are using airline for status
+set encoding=utf-8 " Needed to show patched powerline fonts correctly.
+" NB: On Windows in a terminal the code page also has to be set using:
+" $>chcp 65001
 let g:airline_powerline_fonts = 1
 let g:airline_theme = 'jellybeans'
 " }}}
