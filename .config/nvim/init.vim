@@ -1,7 +1,7 @@
 if has('win32') || has('win64')
-	source ~/.vimrc
-else
 	source ~/_vimrc
+else
+	source ~/.vimrc
 endif
 
 " Key-bindings {{{

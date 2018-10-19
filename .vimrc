@@ -1,7 +1,26 @@
 " Lambert's VIMRC
 
-" Get the defaults that most users want.
-source $VIMRUNTIME/defaults.vim
+if !has('nvim')
+    " Get the defaults that most users want.
+    source $VIMRUNTIME/defaults.vim
+endif
+
+" ConEmu specific config
+" https://conemu.github.io/en/VimXterm.html
+if has('win32') && !has("gui_running")
+    " Enable 256 colors
+    set term=xterm
+    set t_Co=256
+    let &t_AB="\e[48;5;%dm"
+    let &t_AF="\e[38;5;%dm"
+    " Enable mouse support
+    set mouse=a
+    " Fix BS key
+    inoremap <Char-0x07F> <BS>
+    nnoremap <Char-0x07F> <BS>
+    tnoremap <Char-0x07F> <BS>
+    cnoremap <Char-0x07F> <BS>
+endif
 
 " Editor {{{
 set number
@@ -25,7 +44,7 @@ highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 " }}}
 " Os Platform specifics {{{
-if has('win32')
+if has('win32') && !has('nvim')
 	set runtimepath=~/.vim,$VIMRUNTIME
 	set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 endif
@@ -44,12 +63,14 @@ endfun
 " }}}
 " Plugins {{{
 " Native plugins {{{
-" The matchit plugin makes the % command work better, but it is not backwards
-" compatible.
-" The ! means the package won't be loaded right away but when plugins are
-" loaded during initialization.
-if has('syntax') && has('eval')
-  packadd! matchit
+if !has('nvim')
+    " The matchit plugin makes the % command work better, but it is not backwards
+    " compatible.
+    " The ! means the package won't be loaded right away but when plugins are
+    " loaded during initialization.
+    if has('syntax') && has('eval')
+      packadd! matchit
+    endif
 endif
 " }}}
 " Vim-Plug {{{
@@ -73,7 +94,7 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-obsession'
-"    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+"   Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-syntastic/syntastic'
@@ -102,7 +123,7 @@ cnoreabbrev AG Ack
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
-"   Folding {{{
+" Folding {{{
 " vim:fdm=marker
 " }}}
 

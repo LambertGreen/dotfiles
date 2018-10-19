@@ -1,3 +1,3 @@
 " Gvim specific config
 
-set guifont=Source_Code_Pro_for_Powerline:h10:cANSI:qDRAFT
+set guifont=Fira_Mono_for_Powerline:h10:cANSI:qDRAFT
