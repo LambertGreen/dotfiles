@@ -5,26 +5,36 @@ if !has('nvim')
     source $VIMRUNTIME/defaults.vim
 endif
 
-" ConEmu specific config
+" ConEmu specific config {{{
 " https://conemu.github.io/en/VimXterm.html
-if has('win32') && !has("gui_running")
-    " Enable 256 colors
-    if !has('nvim')
-       " Nvim does not support below term
-       set term=xterm
+if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
+    if has('nvim')
+        " Enable 256 colors
+        set termguicolors
+    else
+        set term=xterm
+        set t_Co=256
+        let &t_AB="\e[48;5;%dm"
+        let &t_AF="\e[38;5;%dm"
+        " Fix BS key
+        inoremap <Char-0x07F> <BS>
+        nnoremap <Char-0x07F> <BS>
+        cnoremap <Char-0x07F> <BS>
+        " Enable arrow keys in insert mode
+        " Keycode is discoverable by typing in Vim:-
+        "   CTRL-V and press arrow key
+        set t_ku=[A
+        set t_kd=[B
+        set t_kl=[D
+        set t_kr=[C
+        " Alternative method that I was trying:
+        " let &t_kb = nr2char(127)
+        " let &t_kD = "^[[3~"
+        " Fix BS for CtrlP
+        let g:ctrlp_prompt_mappings = { 'PrtBS()': ['<Char-0x075>'. '<c-h'] }
     endif
-    set t_Co=256
-    let &t_AB="\e[48;5;%dm"
-    let &t_AF="\e[38;5;%dm"
-    " Enable mouse support
-    set mouse=a
-    " Fix BS key
-    inoremap <Char-0x07F> <BS>
-    nnoremap <Char-0x07F> <BS>
-    tnoremap <Char-0x07F> <BS>
-    cnoremap <Char-0x07F> <BS>
 endif
-
+" }}}
 " Editor {{{
 set number
 set tabstop=4
@@ -103,6 +113,7 @@ call plug#begin()
     Plug 'vim-airline/vim-airline-themes'
     Plug 'vim-syntastic/syntastic'
     Plug 'Xuyuanp/nerdtree-git-plugin'
+    Plug 'nfvs/vim-perforce'
 call plug#end() " Initialize plugin system
 " }}}
 " }}}
@@ -113,7 +124,8 @@ set encoding=utf-8 " Needed to show patched powerline fonts correctly.
 " NB: On Windows in a terminal the code page also has to be set using:
 " $>chcp 65001
 let g:airline_powerline_fonts = 1
-let g:airline_theme = 'jellybeans'
+let g:airline_theme = 'codedark'
+let g:airline#extensions#tabline#enabled = 1
 " }}}
 " Ack/Ag/Grep {{{
 if executable('ag')
@@ -130,9 +142,13 @@ cnoreabbrev AG Ack
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
+" Theme {{{
+set background=dark
+colorscheme codedark
+" }}}
+" Check machine specific local config
+execute "silent! source ~/.vimrc_local"
+
 " Folding {{{
 " vim:fdm=marker
 " }}}
-
-" Check machine specific local config
-execute "silent! source ~/.vimrc_local"

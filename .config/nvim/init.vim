@@ -4,6 +4,24 @@ else
 	source ~/.vimrc
 endif
 
+" Set theme for terminal in window
+let g:terminal_color_0  = '#1b1d1e'
+let g:terminal_color_1  = '#f92672'
+let g:terminal_color_2  = '#82b414'
+let g:terminal_color_3  = '#fd971f'
+let g:terminal_color_4  = '#268bd2'
+let g:terminal_color_5  = '#8c54fe'
+let g:terminal_color_6  = '#56c2d6'
+let g:terminal_color_7  = '#ccccc6'
+let g:terminal_color_8  = '#505354'
+let g:terminal_color_9  = '#62ade3'
+let g:terminal_color_10 = '#b7eb46'
+let g:terminal_color_11 = '#94d8e5'
+let g:terminal_color_12 = '#ff5995'
+let g:terminal_color_13 = '#bfa0fe'
+let g:terminal_color_14 = '#feed6c'
+let g:terminal_color_15 = '#f8f8f2'
+
 " Key-bindings {{{
 " Window navigation {{{
 tnoremap <C-W><C-W> <C-\><C-n><C-W><C-W>
