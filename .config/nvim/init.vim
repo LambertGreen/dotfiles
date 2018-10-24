@@ -6,8 +6,10 @@ endif
 
 " Set theme for terminal in window
 let g:terminal_color_0  = '#1b1d1e'
+" Color 1 is switched with Color 4
 let g:terminal_color_1  = '#f92672'
 let g:terminal_color_2  = '#82b414'
+" Color 3 is switched with Color 6
 let g:terminal_color_3  = '#fd971f'
 let g:terminal_color_4  = '#268bd2'
 let g:terminal_color_5  = '#8c54fe'
