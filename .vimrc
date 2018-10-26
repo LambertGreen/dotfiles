@@ -68,6 +68,13 @@ set backupdir=$VIMHOME/backup/
 set directory=$VIMHOME/swap/
 set undodir=$VIMHOME/undo/
 " }}}
+" Keyboard bindings/mappings {{{
+:nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+" Swtich to implementation/header
+map <F5> :call CurtineIncSw()<CR>
+" Go-to-tag by default show list if there are more than one matches
+nnoremap <C-]> g<C-]>
+" }}}
 " Functions {{{
 fun! TrimWhitespace()
     let l:save = winsaveview()
@@ -92,14 +99,12 @@ call plug#begin()
     Plug 'airblade/vim-gitgutter'
     Plug 'ctrlpvim/ctrlp.vim'
     Plug 'flazz/vim-colorschemes'
-"   Plug 'honza/vim-snippets'
     Plug 'joshdick/onedark.vim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'mileszs/ack.vim'
     Plug 'rhysd/vim-clang-format'
     Plug 'romgrk/winteract.vim'
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-"   Plug 'SirVer/ultisnips'
     Plug 'sjl/gundo.vim'
     Plug 'sheerun/vim-polyglot'
     Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -108,12 +113,18 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-obsession'
-"   Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
-    Plug 'vim-syntastic/syntastic'
-    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'nfvs/vim-perforce'
+    Plug 'w0rp/ale'
+    Plug 'neomake/neomake'
+" Unused plugins {{{
+"   Plug 'honza/vim-snippets'
+"   Plug 'SirVer/ultisnips'
+"   Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+"   Plug 'vim-syntastic/syntastic'
+"   Plug 'Xuyuanp/nerdtree-git-plugin'
+" }}}
 call plug#end() " Initialize plugin system
 " }}}
 " }}}
@@ -124,7 +135,6 @@ set encoding=utf-8 " Needed to show patched powerline fonts correctly.
 " NB: On Windows in a terminal the code page also has to be set using:
 " $>chcp 65001
 let g:airline_powerline_fonts = 1
-let g:airline_theme = 'codedark'
 let g:airline#extensions#tabline#enabled = 1
 " }}}
 " Ack/Ag/Grep {{{
@@ -136,6 +146,9 @@ cnoreabbrev aG Ack
 cnoreabbrev Ag Ack
 cnoreabbrev AG Ack
 " }}}
+" ALE {{{
+let g:airline#extensions#ale#enabled = 1
+" }}}
 " }}}
 " Programming Lanuages {{{
 " Markdown {{{
@@ -144,11 +157,29 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " Theme {{{
 set background=dark
-colorscheme codedark
+colorscheme onedark
+let g:airline_theme = 'onedark'
 " }}}
 " Check machine specific local config
 execute "silent! source ~/.vimrc_local"
 
+" Tips & Tricks {{{
+" Sort includes/imports:
+"   1. visual select
+"   2. :%!sort -k2
+" Command auto completion:
+"   1. <C-d> to select option
+" Copy from command results window
+"   1. :refir @* | <command> | redir END
+" Command buffer
+"   1. <C-f> to access buffer: you can copy/paste/insert and use.
+" List variables:
+"   1. :let
+" Change tabs to spaces
+"   1. :retab
+" Get previous highlight selection
+"   1. gv
+" }}}
 " Folding {{{
 " vim:fdm=marker
 " }}}
