@@ -24,15 +24,6 @@ let g:terminal_color_13 = '#bfa0fe'
 let g:terminal_color_14 = '#feed6c'
 let g:terminal_color_15 = '#f8f8f2'
 
-" Key-bindings {{{
-" Window navigation {{{
-tnoremap <C-W><C-W> <C-\><C-n><C-W><C-W>
-tnoremap <C-W><C-J> <C-\><C-n><C-W><C-J>
-tnoremap <C-W><C-H> <C-\><C-n><C-W><C-H>
-tnoremap <C-W><C-K> <C-\><C-n><C-W><C-K>
-tnoremap <C-W><C-L> <C-\><C-n><C-W><C-L>
-" }}}
-" }}}
 " TODOs {{{
 " TODO: YCM config
 " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
