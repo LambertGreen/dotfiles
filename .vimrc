@@ -42,6 +42,7 @@ set shiftwidth=4
 set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
 set autoread
+set backspace=indent,eol,start
 set nocursorline
 set hidden " allows switching from a buffer that has unwritten changes
 set mouse=a " enable mouse suppport in all modes
@@ -74,6 +75,10 @@ set undodir=$VIMHOME/undo/
 map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
+" Open NERD with F3
+map <F2> :NERDTreeToggle<CR>
+" Open NERD with current file highlighted, with F4
+map <F3> :NERDTreeFind<CR>
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -118,6 +123,7 @@ call plug#begin()
     Plug 'nfvs/vim-perforce'
     Plug 'w0rp/ale'
     Plug 'neomake/neomake'
+    Plug 'will133/vim-dirdiff'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
@@ -139,7 +145,9 @@ let g:airline#extensions#tabline#enabled = 1
 " }}}
 " Ack/Ag/Grep {{{
 if executable('ag')
-  let g:ackprg = 'ag --vimgrep'
+    " Use ag over grep
+    set grepprg=ag\ --nogroup\ --nocolor
+    let g:ackprg = 'ag --vimgrep'
 endif
 cnoreabbrev ag Ack
 cnoreabbrev aG Ack
@@ -148,6 +156,18 @@ cnoreabbrev AG Ack
 " }}}
 " ALE {{{
 let g:airline#extensions#ale#enabled = 1
+" }}}
+" CtrlP {{{
+let g:ctrlp_max_files=0
+let g:ctrlp_max_depth=40
+if executable('ag')
+    " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+    if has('win32')
+        let g:ctrlp_user_command = 'ag -l --nocolor -g "" %s'
+    else
+        let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+    endif
+endif
 " }}}
 " }}}
 " Programming Lanuages {{{
