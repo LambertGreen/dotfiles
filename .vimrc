@@ -70,6 +70,25 @@ set directory=$VIMHOME/swap/
 set undodir=$VIMHOME/undo/
 " }}}
 " Keyboard bindings/mappings {{{
+if !exists("vimpager")
+  let g:mapleader=" "
+endif
+" Window switching {{{
+noremap <leader>l <C-w>l
+noremap <leader>h <C-w>h
+noremap <leader>j <C-w>j
+noremap <leader>k <C-w>k
+" }}}
+" Leader-b to switch buffers
+nmap <leader>b <C-^>
+" Leader-v to edit .vimrc
+nmap <leader>v :e $MYVIMRC<CR>
+" Leader-vv to reload .vimrc
+nmap <leader>vv :so $MYVIMRC<CR>
+" Leader-/ to replace word under cursor
+noremap <Leader>/ :%s//g<Left><Left>
+" Leader-h to toggle highlighting
+:nnoremap <silent><expr> <Leader>hh (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 " Swtich to implementation/header
 map <F5> :call CurtineIncSw()<CR>
@@ -124,6 +143,10 @@ call plug#begin()
     Plug 'w0rp/ale'
     Plug 'neomake/neomake'
     Plug 'will133/vim-dirdiff'
+    Plug 'editorconfig/editorconfig-vim'
+    Plug 'majutsushi/tagbar'
+    Plug 'easymotion/vim-easymotion'
+    Plug 'mileszs/ack.vim'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
