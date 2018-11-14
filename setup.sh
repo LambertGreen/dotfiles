@@ -4,18 +4,18 @@
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 # vim conf
-ln -sbf $scriptDir/.vimrc ~/.vimrc
+ln -sf $scriptDir/.vimrc ~/.vimrc
 
 # nvim conf
 nvim_config=.config/nvim
 mkdir ~/$nvim_config
-ln -sbf $scriptDir/$nvim_config/init.vim ~/$nvim_config/init.vim
+ln -sf $scriptDir/$nvim_config/init.vim ~/$nvim_config/init.vim
 
 # tmux confg
-ln -sbf $scriptDir/.tmux.conf ~/.tmux.conf
+ln -sf $scriptDir/.tmux.conf ~/.tmux.conf
 
 # git config
-ln -sbf $scriptDir/.gitignore ~/.gitignore
+ln -sf $scriptDir/.gitignore ~/.gitignore
 
 # zsh config
-ln -sbf $scriptDir/.zshrc ~/.zshrc
+ln -sf $scriptDir/.zshrc ~/.zshrc

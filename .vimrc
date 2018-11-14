@@ -125,6 +125,7 @@ call plug#begin()
     Plug 'flazz/vim-colorschemes'
     Plug 'joshdick/onedark.vim'
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
     Plug 'mileszs/ack.vim'
     Plug 'rhysd/vim-clang-format'
     Plug 'romgrk/winteract.vim'
