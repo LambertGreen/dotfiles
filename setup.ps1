@@ -30,5 +30,5 @@ InstallVimPlug
 make-link $scriptDir/.gvimrc $env:USERPROFILE/_gvimrc
 
 # nvim conf
-make-link $scriptDir/.config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim  
-make-link $scriptDir/.config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim  
+make-link $scriptDir/.config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim
+make-link $scriptDir/.config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim
