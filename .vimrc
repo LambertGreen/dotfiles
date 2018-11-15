@@ -181,6 +181,9 @@ cnoreabbrev AG Ack
 " ALE {{{
 let g:airline#extensions#ale#enabled = 1
 " }}}
+" FZF {{{
+let $FZF_DEFAULT_COMMAND = 'fd --type f'
+" }}}
 " CtrlP {{{
 let g:ctrlp_max_files=0
 let g:ctrlp_max_depth=40
