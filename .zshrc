@@ -13,6 +13,9 @@ ZSH_THEME="agnoster"
 # Setup FZF to use fd
 export FZF_DEFAULT_COMMAND='fd --type f'
 
+# Set P4Config
+export P4CONFIG=.p4config
+
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in ~/.oh-my-zsh/themes/
