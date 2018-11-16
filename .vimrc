@@ -65,9 +65,21 @@ if has('win32') && !has('nvim')
 endif
 let $VIMHOME = $HOME."/.vim"
 " Set swap/backup/undo to global dir rather working dir
+set backup
+set undofile
+set swapfile
 set backupdir=$VIMHOME/backup/
+if !isdirectory(&backupdir)
+    call mkdir(&backupdir, "p", 0700)
+endif
 set directory=$VIMHOME/swap/
+if !isdirectory(&directory)
+    call mkdir(&directory, "p", 0700)
+endif
 set undodir=$VIMHOME/undo/
+if !isdirectory(&undodir)
+    call mkdir(&undodir, "p", 0700)
+endif
 " }}}
 " Keyboard bindings/mappings {{{
 if !exists("vimpager")
