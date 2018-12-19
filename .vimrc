@@ -160,6 +160,7 @@ call plug#begin()
     Plug 'majutsushi/tagbar'
     Plug 'easymotion/vim-easymotion'
     Plug 'mileszs/ack.vim'
+    Plug 'severin-lemaignan/vim-minimap'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
