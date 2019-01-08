@@ -161,6 +161,7 @@ call plug#begin()
     Plug 'easymotion/vim-easymotion'
     Plug 'mileszs/ack.vim'
     Plug 'wincent/terminus'
+    Plug 'severin-lemaignan/vim-minimap'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
