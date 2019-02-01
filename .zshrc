@@ -93,20 +93,22 @@ prompt_end() {
 #---------------
 # Zplug
 #---------------
-source ~/.zplug/init.zsh
+#source ~/.zplug/init.zsh
+#
+#zplug "b4b4r07/enhancd", use:init.sh
+#
+## Install plugins if there are plugins that have not been installed
+#if ! zplug check --verbose; then
+#    printf "Install? [y/N]: "
+#    if read -q; then
+#        echo; zplug install
+#    fi
+#fi
+#
+## Then, source plugins and add commands to $PATH
+#zplug load --verbose
 
-zplug "b4b4r07/enhancd", use:init.sh
 
-# Install plugins if there are plugins that have not been installed
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-
-# Then, source plugins and add commands to $PATH
-zplug load --verbose
 #---------------
 
 # User configuration
@@ -139,3 +141,33 @@ zplug load --verbose
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+### Added by Zplugin's installer
+source '/home/lgreen/.zplugin/bin/zplugin.zsh'
+autoload -Uz _zplugin
+(( ${+_comps} )) && _comps[zplugin]=_zplugin
+### End of Zplugin's installer chunk
+
+#--------------------------------------------
+# Zplugin: https://github.com/zdharma/zplugin
+#--------------------------------------------
+. ~/.zplugin/bin/zplugin.zsh
+autoload -Uz _zplugin
+(( ${+_comps} )) && _comps[zplugin]=_zplugin
+
+ZPLGM[MUTE_WARNINGS]=1
+
+zplugin light raxod502/wdx
+zplugin light zsh-users/zsh-autosuggestions
+
+zplugin ice blockf
+zplugin light zsh-users/zsh-completions
+
+# For GNU ls (the binaries can be gls, gdircolors)
+#
+zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+zplugin light trapd00r/LS_COLORS
+
+autoload -Uz compinit
+compinit
+
