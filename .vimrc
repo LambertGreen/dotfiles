@@ -110,6 +110,8 @@ nnoremap <C-]> g<C-]>
 map <F2> :NERDTreeToggle<CR>
 " Open NERD with current file highlighted, with F4
 map <F3> :NERDTreeFind<CR>
+" Yank file path to clipboard
+ nnor <leader>yf :let @"=expand("%:p")<CR>    " Mnemonic: Yank File path
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -162,6 +164,7 @@ call plug#begin()
     Plug 'mileszs/ack.vim'
     Plug 'wincent/terminus'
     Plug 'severin-lemaignan/vim-minimap'
+    Plug 'tfnico/vim-gradle'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
