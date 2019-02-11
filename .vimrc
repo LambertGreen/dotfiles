@@ -30,8 +30,6 @@ if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
         " Alternative method that I was trying:
         " let &t_kb = nr2char(127)
         " let &t_kD = "^[[3~"
-        " Fix BS for CtrlP
-        let g:ctrlp_prompt_mappings = { 'PrtBS()': ['<Char-0x075>'. '<c-h'] }
     endif
 endif
 " }}}
@@ -83,25 +81,40 @@ endif
 " }}}
 " Keyboard bindings/mappings {{{
 if !exists("vimpager")
-  let g:mapleader=" "
+  let g:mapleader="\<Space>"
 endif
-" Window switching {{{
-noremap <leader>l <C-w>l
-noremap <leader>h <C-w>h
-noremap <leader>j <C-w>j
-noremap <leader>k <C-w>k
+" FZF mappings {{{
+" Git files selection
+nmap <leader>f :GFiles<CR>
+" All files selection
+nmap <leader>F :Files<CR>
+" Buffers selection
+nmap <leader>b :Buffers<CR>
+" History selection
+nmap <leader>h :History<CR>
+" Command history selection
+nmap <leader>: :History:<CR>
+" Search history selection
+nmap <leader>/ :History/<CR>
+" Tags in current buffer selection
+nmap <leader>t :BTags<CR>
+" Tags selection
+nmap <leader>T :Tags<CR>
+" Lines in current buffer selection
+nmap <leader>l :BLines<CR>
+" Lines selection
+nmap <leader>L :Lines<CR>
+" Rg
+nmap <leader>g :Rg<CR>
+" Commands selection
+nmap <leader>c :Commands<CR>
 " }}}
-" Leader-b to switch buffers
-nmap <leader>b <C-^>
-" Leader-v to edit .vimrc
+" Edit .vimrc
 nmap <leader>v :e $MYVIMRC<CR>
-" Leader-vv to reload .vimrc
-nmap <leader>vv :so $MYVIMRC<CR>
-" Leader-/ to replace word under cursor
-noremap <Leader>/ :%s//g<Left><Left>
-" Leader-h to toggle highlighting
-:nnoremap <silent><expr> <Leader>hh (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+" Replace word under cursor
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+" Toggle highlighting
+:nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 " Swtich to implementation/header
 map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
@@ -134,37 +147,48 @@ endif
 " }}}
 " Vim-Plug {{{
 call plug#begin()
-    Plug 'airblade/vim-gitgutter'
-    Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'flazz/vim-colorschemes'
-    Plug 'joshdick/onedark.vim'
+    " Frequently used
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
-    Plug 'mileszs/ack.vim'
-    Plug 'rhysd/vim-clang-format'
-    Plug 'romgrk/winteract.vim'
+
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-    Plug 'sjl/gundo.vim'
-    Plug 'sheerun/vim-polyglot'
-    Plug 'tmux-plugins/vim-tmux-focus-events'
+
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'airblade/vim-gitgutter'
+
+    Plug 'flazz/vim-colorschemes'
+    Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
+
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-obsession'
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
+    Plug 'tpope/vim-vinegar'
+
+    Plug 'sheerun/vim-polyglot'
+    Plug 'rhysd/vim-clang-format'
+    Plug 'ludovicchabant/vim-gutentags'
+
+    Plug 'romgrk/winteract.vim'
+    Plug 'sjl/gundo.vim'
+    Plug 'tmux-plugins/vim-tmux-focus-events'
     Plug 'nfvs/vim-perforce'
     Plug 'w0rp/ale'
     Plug 'neomake/neomake'
     Plug 'will133/vim-dirdiff'
-    Plug 'editorconfig/editorconfig-vim'
     Plug 'majutsushi/tagbar'
     Plug 'easymotion/vim-easymotion'
-    Plug 'mileszs/ack.vim'
     Plug 'wincent/terminus'
-    Plug 'severin-lemaignan/vim-minimap'
     Plug 'tfnico/vim-gradle'
+
+    " Not often used
+    Plug 'severin-lemaignan/vim-minimap'
+
+    " Subject to removal
+    Plug 'editorconfig/editorconfig-vim'
+    Plug 'mileszs/ack.vim'
 " Unused plugins {{{
 "   Plug 'honza/vim-snippets'
 "   Plug 'SirVer/ultisnips'
@@ -200,18 +224,6 @@ let g:airline#extensions#ale#enabled = 1
 " }}}
 " FZF {{{
 let $FZF_DEFAULT_COMMAND = 'fd --type f'
-" }}}
-" CtrlP {{{
-let g:ctrlp_max_files=0
-let g:ctrlp_max_depth=40
-if executable('ag')
-    " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-    if has('win32')
-        let g:ctrlp_user_command = 'ag -l --nocolor -g "" %s'
-    else
-        let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-    endif
-endif
 " }}}
 " }}}
 " Programming Lanuages {{{
