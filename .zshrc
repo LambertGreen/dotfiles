@@ -150,6 +150,7 @@ autoload -Uz _zplugin
 
 #--------------------------------------------
 # Zplugin: https://github.com/zdharma/zplugin
+# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
 . ~/.zplugin/bin/zplugin.zsh
 autoload -Uz _zplugin
