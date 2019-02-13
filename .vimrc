@@ -191,6 +191,7 @@ call plug#begin()
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-obsession'
     Plug 'tpope/vim-vinegar'
+    Plug 'tpope/vim-dispatch'
 
     " In probation
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
