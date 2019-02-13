@@ -83,9 +83,32 @@ if !isdirectory(&undodir)
 endif
 " }}}
 " Keyboard bindings/mappings {{{
+" General mappings {{{
 if !exists("vimpager")
   let g:mapleader="\<Space>"
 endif
+" Copy/paste into system clipboard
+vmap <leader>y "+y
+vmap <leader>d "+d
+nmap <leader>p "+p
+nmap <leader>P "+P
+vmap <leader>p "+p
+vmap <leader>P "+P
+" Replace word under cursor
+:nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+" Toggle highlighting
+:nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+" Swtich to implementation/header
+map <F5> :call CurtineIncSw()<CR>
+" Go-to-tag by default show list if there are more than one matches
+nnoremap <C-]> g<C-]>
+" }}}
+" NERDTree mappings {{{
+" Open NERD
+nmap <Leader>n :NERDTreeToggle<CR>
+" Open NERD with current file highlighted
+nmap <Leader>N :NERDTreeFind<CR>
+" }}}
 " FZF mappings {{{
 " Git files selection
 nmap <leader>f :GFiles<CR>
@@ -114,20 +137,6 @@ nmap <leader>G :Rg
 " Commands selection
 nmap <leader>c :Commands<CR>
 " }}}
-" Edit .vimrc
-nmap <leader>v :e $MYVIMRC<CR>
-" Replace word under cursor
-:nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
-" Toggle highlighting
-:nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
-" Swtich to implementation/header
-map <F5> :call CurtineIncSw()<CR>
-" Go-to-tag by default show list if there are more than one matches
-nnoremap <C-]> g<C-]>
-" Open NERD
-nmap <Leader>n :NERDTreeToggle<CR>
-" Open NERD with current file highlighted
-nmap <Leader>N :NERDTreeFind<CR>
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
