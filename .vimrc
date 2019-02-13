@@ -1,5 +1,6 @@
 " Lambert's VIMRC
 
+" Environment specific settings {{{
 if !has('nvim')
     " Get the defaults that most users want.
     source $VIMRUNTIME/defaults.vim
@@ -32,6 +33,7 @@ if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
         " let &t_kD = "^[[3~"
     endif
 endif
+" }}}
 " }}}
 " Editor {{{
 set exrc " allows sourcing of cwd .vimrc
@@ -102,6 +104,13 @@ vmap <leader>P "+P
 map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
+" }}}
+" Window management {{{
+" Window selection
+:noremap <C-j> <C-w>j
+:noremap <C-k> <C-w>k
+:noremap <C-h> <C-w>h
+:noremap <C-l> <C-w>l
 " }}}
 " NERDTree mappings {{{
 " Open NERD
@@ -264,9 +273,10 @@ set background=dark
 colorscheme onedark
 let g:airline_theme = 'onedark'
 " }}}
+" Local settings {{{
 " Check machine specific local config
 execute "silent! source ~/.vimrc_local"
-
+" }}}
 " Tips & Tricks {{{
 " Sort includes/imports:
 "   1. visual select
