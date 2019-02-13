@@ -34,6 +34,8 @@ if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
 endif
 " }}}
 " Editor {{{
+set exrc " allows sourcing of cwd .vimrc
+set secure " adds some security restrictions for using excr option
 set number
 set tabstop=4
 set shiftwidth=4
@@ -55,6 +57,7 @@ set splitright
 " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
+set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
@@ -106,6 +109,8 @@ nmap <leader>l :BLines<CR>
 nmap <leader>L :Lines<CR>
 " Rg
 nmap <leader>g :Rg<CR>
+" Rg but wait for input before, so that next step can be a filter on results
+nmap <leader>G :Rg
 " Commands selection
 nmap <leader>c :Commands<CR>
 " }}}
@@ -119,12 +124,10 @@ nmap <leader>v :e $MYVIMRC<CR>
 map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
-" Open NERD with F3
-map <F2> :NERDTreeToggle<CR>
-" Open NERD with current file highlighted, with F4
-map <F3> :NERDTreeFind<CR>
-" Yank file path to clipboard
- nnor <leader>yf :let @"=expand("%:p")<CR>    " Mnemonic: Yank File path
+" Open NERD
+nmap <Leader>n :NERDTreeToggle<CR>
+" Open NERD with current file highlighted
+nmap <Leader>N :NERDTreeFind<CR>
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -161,18 +164,26 @@ call plug#begin()
     Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
 
+    Plug 'sheerun/vim-polyglot'
+    Plug 'ludovicchabant/vim-gutentags'
+
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-obsession'
     Plug 'tpope/vim-vinegar'
 
-    Plug 'sheerun/vim-polyglot'
+    " In probation
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'rhysd/vim-clang-format'
-    Plug 'ludovicchabant/vim-gutentags'
 
-    Plug 'romgrk/winteract.vim'
-    Plug 'sjl/gundo.vim'
+    Plug 'SirVer/ultisnips'
+    Plug 'honza/vim-snippets'
+ 
+    Plug 'Raimondi/delimitMate'
+
     Plug 'tmux-plugins/vim-tmux-focus-events'
     Plug 'nfvs/vim-perforce'
     Plug 'w0rp/ale'
@@ -183,18 +194,19 @@ call plug#begin()
     Plug 'wincent/terminus'
     Plug 'tfnico/vim-gradle'
 
+    Plug 'romgrk/winteract.vim'
+    Plug 'sjl/gundo.vim'
+
     " Not often used
     Plug 'severin-lemaignan/vim-minimap'
 
     " Subject to removal
     Plug 'editorconfig/editorconfig-vim'
     Plug 'mileszs/ack.vim'
+
 " Unused plugins {{{
-"   Plug 'honza/vim-snippets'
-"   Plug 'SirVer/ultisnips'
-"   Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+"   Plug 'cohama/lexima.vim'  " had runaway insert issues!
 "   Plug 'vim-syntastic/syntastic'
-"   Plug 'Xuyuanp/nerdtree-git-plugin'
 " }}}
 call plug#end() " Initialize plugin system
 " }}}
@@ -224,6 +236,13 @@ let g:airline#extensions#ale#enabled = 1
 " }}}
 " FZF {{{
 let $FZF_DEFAULT_COMMAND = 'fd --type f'
+" }}}
+" Ultisnips {{{
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<c-j>"
+" let g:UltiSnipsExpandTrigger="<c-j>"
+" let g:UltiSnipsJumpForwardTrigger="<c-j>"
+" let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 " }}}
 " }}}
 " Programming Lanuages {{{
@@ -255,6 +274,8 @@ execute "silent! source ~/.vimrc_local"
 "   1. :retab
 " Get previous highlight selection
 "   1. gv
+" Java: set include expression so that gf works for imports
+" set includeexpr=substitute(v:fname,'\\.','/','g')
 " }}}
 " Folding {{{
 " vim:fdm=marker
