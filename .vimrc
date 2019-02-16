@@ -100,10 +100,10 @@ vmap <leader>P "+P
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 " Toggle highlighting
 :nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
-" Swtich to implementation/header
-map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
+" Yank buffer absolute path into clipboard (/something/src/foo.txt)
+nnoremap <leader>yf :let @+=expand("%:p")<CR>
 " }}}
 " Window management {{{
 " Window selection
@@ -111,6 +111,8 @@ nnoremap <C-]> g<C-]>
 :noremap <C-k> <C-w>k
 :noremap <C-h> <C-w>h
 :noremap <C-l> <C-w>l
+" Jump to QuickFix window
+nnoremap <leader>co :copen<CR>
 " }}}
 " NERDTree mappings {{{
 " Open NERD
@@ -146,6 +148,16 @@ nmap <leader>G :Rg
 " Commands selection
 nmap <leader>c :Commands<CR>
 " }}}
+" Make mappings {{{
+nnoremap <leader>m :Make<CR>
+" }}}
+" ALE mappings {{{
+nnoremap <leader>aj :ALENext<CR>
+nnoremap <leader>ak :ALEPrevious<CR>
+" }}}
+" CurtineIncSw mappings {{{
+" Swtich to implementation/header
+nnoremap <leader>a :call CurtineIncSw()<CR>
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -169,22 +181,6 @@ endif
 " Vim-Plug {{{
 call plug#begin()
     " Frequently used
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
-
-    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'airblade/vim-gitgutter'
-
-    Plug 'flazz/vim-colorschemes'
-    Plug 'joshdick/onedark.vim'
-    Plug 'tomasiser/vim-code-dark'
-
-    Plug 'sheerun/vim-polyglot'
-    Plug 'ludovicchabant/vim-gutentags'
-
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
@@ -192,20 +188,58 @@ call plug#begin()
     Plug 'tpope/vim-obsession'
     Plug 'tpope/vim-vinegar'
     Plug 'tpope/vim-dispatch'
+    Plug 'tpope/vim-unimpaired'
+
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
+    " FZF settings {{{
+    if executable('fd')
+        let $FZF_DEFAULT_COMMAND = 'fd --type f'
+    endif
+    " }}}
+
+    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+    Plug 'Xuyuanp/nerdtree-git-plugin'
+
+    Plug 'vim-airline/vim-airline'
+    " Airline settings {{{
+    let g:airline_powerline_fonts = 1
+    let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#ale#enabled = 1
+    " }}}
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'airblade/vim-gitgutter'
+    Plug 'flazz/vim-colorschemes'
+    Plug 'joshdick/onedark.vim'
+    Plug 'tomasiser/vim-code-dark'
+
+    Plug 'sheerun/vim-polyglot'
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    Plug 'Raimondi/delimitMate'
+    Plug 'ludovicchabant/vim-gutentags'
+    " Gutentags settings {{{
+    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+    let g:gutentags_ctags_tagfile = '.tags'
+    let g:gutentags_cache_dir = expand('~/.cache/tags')
+    " }}}
+    Plug 'SirVer/ultisnips'
+    " Ultisnips settings {{{
+    let g:UltiSnipsExpandTrigger="<c-j>"
+    " }}}
+    Plug 'honza/vim-snippets'
+    Plug 'w0rp/ale'
+    " ale settings {{{
+    let g:ale_sign_error = '✘'
+    let g:ale_sign_warning = '⚠'
+    " }}}
 
     " In probation
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-    Plug 'Xuyuanp/nerdtree-git-plugin'
+    Plug 'ericcurtin/CurtineIncSw.vim'
+    Plug 'andymass/vim-matchup'
     Plug 'rhysd/vim-clang-format'
-
-    Plug 'SirVer/ultisnips'
-    Plug 'honza/vim-snippets'
- 
-    Plug 'Raimondi/delimitMate'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
     Plug 'nfvs/vim-perforce'
-    Plug 'w0rp/ale'
     Plug 'neomake/neomake'
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
@@ -224,8 +258,8 @@ call plug#begin()
     Plug 'mileszs/ack.vim'
 
 " Unused plugins {{{
-"   Plug 'cohama/lexima.vim'  " had runaway insert issues!
-"   Plug 'vim-syntastic/syntastic'
+"   Plug 'cohama/lexima.vim'            " had runaway insert issues!
+"   Plug 'vim-syntastic/syntastic'      " superceded by ale?
 " }}}
 call plug#end() " Initialize plugin system
 " }}}
@@ -236,8 +270,6 @@ set noshowmode " Set noshowmode since we are using airline for status
 set encoding=utf-8 " Needed to show patched powerline fonts correctly.
 " NB: On Windows in a terminal the code page also has to be set using:
 " $>chcp 65001
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
 " }}}
 " Ack/Ag/Grep {{{
 if executable('ag')
@@ -249,19 +281,6 @@ cnoreabbrev ag Ack
 cnoreabbrev aG Ack
 cnoreabbrev Ag Ack
 cnoreabbrev AG Ack
-" }}}
-" ALE {{{
-let g:airline#extensions#ale#enabled = 1
-" }}}
-" FZF {{{
-let $FZF_DEFAULT_COMMAND = 'fd --type f'
-" }}}
-" Ultisnips {{{
-" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
-let g:UltiSnipsExpandTrigger="<c-j>"
-" let g:UltiSnipsExpandTrigger="<c-j>"
-" let g:UltiSnipsJumpForwardTrigger="<c-j>"
-" let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 " }}}
 " }}}
 " Programming Lanuages {{{
@@ -285,7 +304,7 @@ execute "silent! source ~/.vimrc_local"
 " Command auto completion:
 "   1. <C-d> to select option
 " Copy from command results window
-"   1. :refir @* | <command> | redir END
+"   1. :redir @* | <command> | redir END
 " Command buffer
 "   1. <C-f> to access buffer: you can copy/paste/insert and use.
 " List variables:
