@@ -6,6 +6,17 @@ if !has('nvim')
     source $VIMRUNTIME/defaults.vim
 endif
 
+" Tmux settings {{{
+if exists('$ITERM_PROFILE')
+  if exists('$TMUX')
+    let &t_SI = "\<Esc>[3 q"
+    let &t_EI = "\<Esc>[0 q"
+  else
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+  endif
+end
+" }}}
 " ConEmu specific config {{{
 " https://conemu.github.io/en/VimXterm.html
 if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
@@ -45,7 +56,6 @@ set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
 set autoread
 set backspace=indent,eol,start
-set nocursorline
 set hidden " allows switching from a buffer that has unwritten changes
 set mouse=a " enable mouse suppport in all modes
 set listchars=tab:>-,trail:~,extends:>,precedes:<
@@ -60,6 +70,15 @@ set splitright
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
+" Cusorline only in active window
+augroup CursorLineOnlyInActiveWindow
+  autocmd!
+  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  autocmd WinLeave * setlocal nocursorline
+augroup END
+" Make VIM scream at edit time about accidental changes to buffers to readonly
+" files
+autocmd BufRead * let &l:modifiable = !&readonly
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
@@ -107,12 +126,16 @@ nnoremap <leader>yf :let @+=expand("%:p")<CR>
 " }}}
 " Window management {{{
 " Window selection
-:noremap <C-j> <C-w>j
-:noremap <C-k> <C-w>k
-:noremap <C-h> <C-w>h
-:noremap <C-l> <C-w>l
+:nnoremap <A-h> <C-w>h
+:nnoremap <A-j> <C-w>j
+:nnoremap <A-k> <C-w>k
+:nnoremap <A-l> <C-w>l
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
+" }}}
+" Winteract mappings {{{
+" Activate interactive window mode
+nnoremap <leader>w :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
 " Open NERD
@@ -156,8 +179,16 @@ nnoremap <leader>aj :ALENext<CR>
 nnoremap <leader>ak :ALEPrevious<CR>
 " }}}
 " CurtineIncSw mappings {{{
-" Swtich to implementation/header
+" Switch to alternate file e.g. implementation<->header
 nnoremap <leader>a :call CurtineIncSw()<CR>
+" }}}
+" UndoTree mappings {{{
+" Toggle undo tree
+nnoremap <leader>u :UndotreeToggle<CR>
+" }}}
+" ClangFormat mappings {{{
+nnoremap <leader><leader>f :ClangFormat<CR>
+" }}}
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -165,20 +196,11 @@ fun! TrimWhitespace()
     keeppatterns %s/\s\+$//e
     call winrestview(l:save)
 endfun
+fun! FormatJson()
+    :%!python -m json.tool
+endfun
 " }}}
 " Plugins {{{
-" Native plugins {{{
-if !has('nvim')
-    " The matchit plugin makes the % command work better, but it is not backwards
-    " compatible.
-    " The ! means the package won't be loaded right away but when plugins are
-    " loaded during initialization.
-    if has('syntax') && has('eval')
-      packadd! matchit
-    endif
-endif
-" }}}
-" Vim-Plug {{{
 call plug#begin()
     " Frequently used
     Plug 'tpope/vim-commentary'
@@ -199,6 +221,7 @@ call plug#begin()
     " }}}
 
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+    Plug 'ryanoasis/vim-devicons'
     Plug 'Xuyuanp/nerdtree-git-plugin'
 
     Plug 'vim-airline/vim-airline'
@@ -212,10 +235,23 @@ call plug#begin()
     Plug 'flazz/vim-colorschemes'
     Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
+    Plug 'ntpeters/vim-airline-colornum'
+
+    Plug 'tmux-plugins/vim-tmux-focus-events'
+    Plug 'wincent/terminus'
+    Plug 'romgrk/winteract.vim'
+    Plug 'mbbill/undotree'
+
+    Plug 'ericcurtin/CurtineIncSw.vim'
 
     Plug 'sheerun/vim-polyglot'
+    Plug 'andymass/vim-matchup'
+    Plug 'jiangmiao/auto-pairs'
+
     Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-    Plug 'Raimondi/delimitMate'
+    " YouCompleteMe settings {{{
+    " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+    " }}}
     Plug 'ludovicchabant/vim-gutentags'
     " Gutentags settings {{{
     let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
@@ -224,8 +260,11 @@ call plug#begin()
     " }}}
     Plug 'SirVer/ultisnips'
     " Ultisnips settings {{{
-    let g:UltiSnipsExpandTrigger="<c-j>"
+    let g:UltiSnipsExpandTrigger='<c-j>'
+    let g:UltiSnipsJumpForwardTrigger='<c-n>'
+    let g:UltiSnipsJumpBackwardTrigger='<c-p>'
     " }}}
+
     Plug 'honza/vim-snippets'
     Plug 'w0rp/ale'
     " ale settings {{{
@@ -234,21 +273,15 @@ call plug#begin()
     " }}}
 
     " In probation
-    Plug 'ericcurtin/CurtineIncSw.vim'
-    Plug 'andymass/vim-matchup'
+    Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
     Plug 'rhysd/vim-clang-format'
 
-    Plug 'tmux-plugins/vim-tmux-focus-events'
+    Plug 'rizzatti/dash.vim'
+
     Plug 'nfvs/vim-perforce'
-    Plug 'neomake/neomake'
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
-    Plug 'easymotion/vim-easymotion'
-    Plug 'wincent/terminus'
     Plug 'tfnico/vim-gradle'
-
-    Plug 'romgrk/winteract.vim'
-    Plug 'sjl/gundo.vim'
 
     " Not often used
     Plug 'severin-lemaignan/vim-minimap'
@@ -258,11 +291,13 @@ call plug#begin()
     Plug 'mileszs/ack.vim'
 
 " Unused plugins {{{
-"   Plug 'cohama/lexima.vim'            " had runaway insert issues!
-"   Plug 'vim-syntastic/syntastic'      " superceded by ale?
-" }}}
+    " Plug 'Raimondi/delimitMate'       " superceded by auto-pairs
+    " Plug 'cohama/lexima.vim'          " had runaway insert issues!
+    " Plug 'vim-syntastic/syntastic'    " superceded by ale?
+    " Plug 'neomake/neomake'
+    " Plug 'easymotion/vim-easymotion'  " introduces bad habits?
+    " }}}
 call plug#end() " Initialize plugin system
-" }}}
 " }}}
 " Plugins Config {{{
 " Airline {{{
