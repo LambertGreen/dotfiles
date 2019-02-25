@@ -4,4 +4,6 @@ thumbs.db
 
 # Editor files
 tags
+.tags
+Session.vim
 
