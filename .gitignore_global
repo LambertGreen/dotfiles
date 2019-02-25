@@ -1,0 +1,4 @@
+# Lambert's global gitignore file
+tags
+.tags
+Session.vim
