@@ -143,13 +143,14 @@ prompt_end() {
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ### Added by Zplugin's installer
-source '/home/lgreen/.zplugin/bin/zplugin.zsh'
+source ~/.zplugin/bin/zplugin.zsh
 autoload -Uz _zplugin
 (( ${+_comps} )) && _comps[zplugin]=_zplugin
 ### End of Zplugin's installer chunk
 
 #--------------------------------------------
 # Zplugin: https://github.com/zdharma/zplugin
+# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
 . ~/.zplugin/bin/zplugin.zsh
 autoload -Uz _zplugin
@@ -170,4 +171,7 @@ zplugin light trapd00r/LS_COLORS
 
 autoload -Uz compinit
 compinit
+#--------------------------------------------
+
+setopt no_share_history
 

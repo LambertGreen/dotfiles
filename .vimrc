@@ -1,5 +1,6 @@
 " Lambert's VIMRC
 
+" Environment specific settings {{{
 if !has('nvim')
     " Get the defaults that most users want.
     source $VIMRUNTIME/defaults.vim
@@ -30,12 +31,13 @@ if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
         " Alternative method that I was trying:
         " let &t_kb = nr2char(127)
         " let &t_kD = "^[[3~"
-        " Fix BS for CtrlP
-        let g:ctrlp_prompt_mappings = { 'PrtBS()': ['<Char-0x075>'. '<c-h'] }
     endif
 endif
 " }}}
+" }}}
 " Editor {{{
+set exrc " allows sourcing of cwd .vimrc
+set secure " adds some security restrictions for using excr option
 set number
 set tabstop=4
 set shiftwidth=4
@@ -57,6 +59,7 @@ set splitright
 " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
+set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
@@ -82,34 +85,67 @@ if !isdirectory(&undodir)
 endif
 " }}}
 " Keyboard bindings/mappings {{{
+" General mappings {{{
 if !exists("vimpager")
-  let g:mapleader=" "
+  let g:mapleader="\<Space>"
 endif
-" Window switching {{{
-noremap <leader>l <C-w>l
-noremap <leader>h <C-w>h
-noremap <leader>j <C-w>j
-noremap <leader>k <C-w>k
-" }}}
-" Leader-b to switch buffers
-nmap <leader>b <C-^>
-" Leader-v to edit .vimrc
-nmap <leader>v :e $MYVIMRC<CR>
-" Leader-vv to reload .vimrc
-nmap <leader>vv :so $MYVIMRC<CR>
-" Leader-/ to replace word under cursor
-noremap <Leader>/ :%s//g<Left><Left>
-" Leader-h to toggle highlighting
-:nnoremap <silent><expr> <Leader>hh (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
+" Copy/paste into system clipboard
+vmap <leader>y "+y
+vmap <leader>d "+d
+nmap <leader>p "+p
+nmap <leader>P "+P
+vmap <leader>p "+p
+vmap <leader>P "+P
+" Replace word under cursor
 :nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+" Toggle highlighting
+:nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 " Swtich to implementation/header
 map <F5> :call CurtineIncSw()<CR>
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
-" Open NERD with F3
-map <F2> :NERDTreeToggle<CR>
-" Open NERD with current file highlighted, with F4
-map <F3> :NERDTreeFind<CR>
+" }}}
+" Window management {{{
+" Window selection
+:noremap <C-j> <C-w>j
+:noremap <C-k> <C-w>k
+:noremap <C-h> <C-w>h
+:noremap <C-l> <C-w>l
+" }}}
+" NERDTree mappings {{{
+" Open NERD
+nmap <Leader>n :NERDTreeToggle<CR>
+" Open NERD with current file highlighted
+nmap <Leader>N :NERDTreeFind<CR>
+" }}}
+" FZF mappings {{{
+" Git files selection
+nmap <leader>f :GFiles<CR>
+" All files selection
+nmap <leader>F :Files<CR>
+" Buffers selection
+nmap <leader>b :Buffers<CR>
+" History selection
+nmap <leader>h :History<CR>
+" Command history selection
+nmap <leader>: :History:<CR>
+" Search history selection
+nmap <leader>/ :History/<CR>
+" Tags in current buffer selection
+nmap <leader>t :BTags<CR>
+" Tags selection
+nmap <leader>T :Tags<CR>
+" Lines in current buffer selection
+nmap <leader>l :BLines<CR>
+" Lines selection
+nmap <leader>L :Lines<CR>
+" Rg
+nmap <leader>g :Rg<CR>
+" Rg but wait for input before, so that next step can be a filter on results
+nmap <leader>G :Rg
+" Commands selection
+nmap <leader>c :Commands<CR>
+" }}}
 " }}}
 " Functions {{{
 fun! TrimWhitespace()
@@ -138,42 +174,64 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin()
-    Plug 'airblade/vim-gitgutter'
-    Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'flazz/vim-colorschemes'
-    Plug 'joshdick/onedark.vim'
+    " Frequently used
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
-    Plug 'mileszs/ack.vim'
-    Plug 'rhysd/vim-clang-format'
-    Plug 'romgrk/winteract.vim'
+
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-    Plug 'sjl/gundo.vim'
-    Plug 'sheerun/vim-polyglot'
-    Plug 'tmux-plugins/vim-tmux-focus-events'
+
+    Plug 'vim-airline/vim-airline'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'airblade/vim-gitgutter'
+
+    Plug 'flazz/vim-colorschemes'
+    Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
+
+    Plug 'sheerun/vim-polyglot'
+    Plug 'ludovicchabant/vim-gutentags'
+
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
+    Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-obsession'
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
+    Plug 'tpope/vim-vinegar'
+    Plug 'tpope/vim-dispatch'
+
+    " In probation
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    Plug 'Xuyuanp/nerdtree-git-plugin'
+    Plug 'rhysd/vim-clang-format'
+
+    Plug 'SirVer/ultisnips'
+    Plug 'honza/vim-snippets'
+ 
+    Plug 'Raimondi/delimitMate'
+
+    Plug 'tmux-plugins/vim-tmux-focus-events'
     Plug 'nfvs/vim-perforce'
     Plug 'w0rp/ale'
     Plug 'neomake/neomake'
     Plug 'will133/vim-dirdiff'
-    Plug 'editorconfig/editorconfig-vim'
     Plug 'majutsushi/tagbar'
     Plug 'easymotion/vim-easymotion'
-    Plug 'mileszs/ack.vim'
     Plug 'wincent/terminus'
+    Plug 'tfnico/vim-gradle'
+
+    Plug 'romgrk/winteract.vim'
+    Plug 'sjl/gundo.vim'
+
+    " Not often used
     Plug 'severin-lemaignan/vim-minimap'
+
+    " Subject to removal
+    Plug 'editorconfig/editorconfig-vim'
+    Plug 'mileszs/ack.vim'
+
 " Unused plugins {{{
-"   Plug 'honza/vim-snippets'
-"   Plug 'SirVer/ultisnips'
-"   Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+"   Plug 'cohama/lexima.vim'  " had runaway insert issues!
 "   Plug 'vim-syntastic/syntastic'
-"   Plug 'Xuyuanp/nerdtree-git-plugin'
 " }}}
 call plug#end() " Initialize plugin system
 " }}}
@@ -204,17 +262,12 @@ let g:airline#extensions#ale#enabled = 1
 " FZF {{{
 let $FZF_DEFAULT_COMMAND = 'fd --type f'
 " }}}
-" CtrlP {{{
-let g:ctrlp_max_files=0
-let g:ctrlp_max_depth=40
-if executable('ag')
-    " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-    if has('win32')
-        let g:ctrlp_user_command = 'ag -l --nocolor -g "" %s'
-    else
-        let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-    endif
-endif
+" Ultisnips {{{
+" Trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<c-j>"
+" let g:UltiSnipsExpandTrigger="<c-j>"
+" let g:UltiSnipsJumpForwardTrigger="<c-j>"
+" let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 " }}}
 " }}}
 " Programming Lanuages {{{
@@ -227,9 +280,10 @@ set background=dark
 colorscheme onedark
 let g:airline_theme = 'onedark'
 " }}}
+" Local settings {{{
 " Check machine specific local config
 execute "silent! source ~/.vimrc_local"
-
+" }}}
 " Tips & Tricks {{{
 " Sort includes/imports:
 "   1. visual select
@@ -246,6 +300,8 @@ execute "silent! source ~/.vimrc_local"
 "   1. :retab
 " Get previous highlight selection
 "   1. gv
+" Java: set include expression so that gf works for imports
+" set includeexpr=substitute(v:fname,'\\.','/','g')
 " }}}
 " Folding {{{
 " vim:fdm=marker
