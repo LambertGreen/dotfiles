@@ -6,4 +6,8 @@ thumbs.db
 tags
 .tags
 Session.vim
+.vimrc
+
+# Compiler files
+.clang-format
 
