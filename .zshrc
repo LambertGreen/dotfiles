@@ -175,3 +175,6 @@ compinit
 
 setopt no_share_history
 
+if (( $+commands[neofetch] )) then
+    neofetch
+fi
