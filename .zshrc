@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
+ export PATH=$HOME/bin:/usr/local/bin:$PATH:~/.cargo/bin:
 
 # Path to your oh-my-zsh installation.
   export ZSH="$HOME/.oh-my-zsh"
@@ -150,6 +150,7 @@ autoload -Uz _zplugin
 
 #--------------------------------------------
 # Zplugin: https://github.com/zdharma/zplugin
+# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
 . ~/.zplugin/bin/zplugin.zsh
 autoload -Uz _zplugin
