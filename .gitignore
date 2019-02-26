@@ -2,3 +2,12 @@
 .DS_Store
 thumbs.db
 
+# Editor files
+tags
+.tags
+Session.vim
+.vimrc
+
+# Compiler files
+.clang-format
+

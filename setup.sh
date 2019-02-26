@@ -15,6 +15,7 @@ ln -sf $scriptDir/.vimrc ~/.vimrc
 nvim_config=.config/nvim
 mkdir ~/$nvim_config
 ln -sf $scriptDir/$nvim_config/init.vim ~/$nvim_config/init.vim
+# TODO: Add ginit.vm symlink and test againt fresh installs
 
 # tmux confg
 ln -sf $scriptDir/.tmux.conf ~/.tmux.conf
@@ -24,3 +25,7 @@ ln -sf $scriptDir/.gitignore ~/.gitignore
 
 # zsh config
 ln -sf $scriptDir/.zshrc ~/.zshrc
+
+# TODO: Add karabiner symlink for OSX
+
+

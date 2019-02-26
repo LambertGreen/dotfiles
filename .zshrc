@@ -76,19 +76,19 @@ source $ZSH/oh-my-zsh.sh
 
 # Make prompt multi-line
 # From https://stackoverflow.com/questions/41017917/add-newline-to-oh-my-zsh-theme
-prompt_end() {
-  if [[ -n $CURRENT_BG ]]; then
-      print -n "%{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
-  else
-      print -n "%{%k%}"
-  fi
-
-  print -n "%{%f%}"
-  CURRENT_BG=''
-
-  #Adds the new line and ➜ as the start character.
-  printf "\n ➜";
-}
+# prompt_end() {
+#   if [[ -n $CURRENT_BG ]]; then
+#       print -n "%{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
+#   else
+#       print -n "%{%k%}"
+#   fi
+# 
+#   print -n "%{%f%}"
+#   CURRENT_BG=''
+# 
+#   #Adds the new line and ➜ as the start character.
+#   printf "\n ➜";
+# }
 
 #---------------
 # Zplug
