@@ -125,11 +125,8 @@ nnoremap <C-]> g<C-]>
 nnoremap <leader>yf :let @+=expand("%:p")<CR>
 " }}}
 " Window management {{{
-" Window selection
-:nnoremap <A-h> <C-w>h
-:nnoremap <A-j> <C-w>j
-:nnoremap <A-k> <C-w>k
-:nnoremap <A-l> <C-w>l
+" Plugin vim-tmux-navigator installs the below mappings
+" <c-h/j/k/l>
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
@@ -244,6 +241,7 @@ call plug#begin()
     Plug 'ntpeters/vim-airline-colornum'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
+    Plug 'christoomey/vim-tmux-navigator'
     Plug 'wincent/terminus'
     Plug 'romgrk/winteract.vim'
     Plug 'mbbill/undotree'
