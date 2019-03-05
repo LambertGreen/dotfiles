@@ -2,8 +2,9 @@
 
 " Environment specific settings {{{
 if !has('nvim')
-    " Get the defaults that most users want.
-    source $VIMRUNTIME/defaults.vim
+    if filereadable($VIMRUNTIME/"defaults.vim")
+        source $VIMRUNTIME/"defaults.vim""
+    endif
 endif
 
 " Tmux settings {{{
@@ -225,6 +226,9 @@ call plug#begin()
 
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
     Plug 'ryanoasis/vim-devicons'
+"vim-devicons settings {{{
+    let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+"}}}
     Plug 'Xuyuanp/nerdtree-git-plugin'
 
     Plug 'vim-airline/vim-airline'
