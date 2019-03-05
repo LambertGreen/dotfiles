@@ -26,6 +26,3 @@ ln -sf $scriptDir/.gitignore ~/.gitignore
 # zsh config
 ln -sf $scriptDir/.zshrc ~/.zshrc
 
-# TODO: Add karabiner symlink for OSX
-
-
