@@ -5,7 +5,7 @@ set guioptions-=m  "menu bar
 set guioptions-=T  "toolbar
 set guioptions-=r  "scrollbar
 
-set guifont=FuraMono_NF:h10:cANSI:qDEFAULT
+set guifont=FuraCode_NF:h10:cANSI:qDEFAULT
 
 " enable dirext rendering
 set rop=type:directx
