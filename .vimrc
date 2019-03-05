@@ -1,11 +1,6 @@
 " Lambert's VIMRC
 
 " Environment specific settings {{{
-if !has('nvim')
-    " Get the defaults that most users want.
-    source $VIMRUNTIME/defaults.vim
-endif
-
 " Tmux settings {{{
 if exists('$ITERM_PROFILE')
   if exists('$TMUX')
