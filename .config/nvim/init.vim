@@ -4,7 +4,13 @@ else
 	source ~/.vimrc
 endif
 
-" Set theme for terminal in window
+" Make nvim work more like vim for terminal mode movement
+tnoremap <C-h> <C-\><C-n><C-w>h
+tnoremap <C-j> <C-\><C-n><C-w>j
+tnoremap <C-k> <C-\><C-n><C-w>k
+tnoremap <C-l> <C-\><C-n><C-w>l
+
+"" Set theme for terminal in window
 let g:terminal_color_0  = '#1b1d1e'
 " Color 1 is switched with Color 4
 let g:terminal_color_1  = '#f92672'

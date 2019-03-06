@@ -357,7 +357,10 @@ execute "silent! source ~/.vimrc_local"
 " Get previous highlight selection
 "   1. gv
 " Java: set include expression so that gf works for imports
-" set includeexpr=substitute(v:fname,'\\.','/','g')
+"   set includeexpr=substitute(v:fname,'\\.','/','g')
+" Using Fonts in GVim
+"   Note: Windows will block fonts downloaded from the internet:
+"   before they can be used first unblock them.
 " }}}
 " Folding {{{
 " vim:fdm=marker
