@@ -5,10 +5,10 @@ else
 endif
 
 " Make nvim work more like vim for terminal mode movement
-noremap <C-h> <C-w>h
-noremap <C-j> <C-w>j
-noremap <C-k> <C-w>k
-noremap <C-l> <C-w>l
+tnoremap <C-h> <C-w>h
+tnoremap <C-j> <C-w>j
+tnoremap <C-k> <C-w>k
+tnoremap <C-l> <C-w>l
 
 "" Set theme for terminal in window
 let g:terminal_color_0  = '#1b1d1e'
