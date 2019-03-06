@@ -22,6 +22,9 @@ end
 " https://conemu.github.io/en/VimXterm.html
 if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
     if has('nvim')
+        " Note: the "gui_running" check only works for vim/gvim and not for
+        " nvim/nvim-qt.  That is: this block will run for Nvim-qt if launched
+        " from a ConEmu window.
         " Enable 256 colors
         set termguicolors
     else
@@ -44,6 +47,12 @@ if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
         " let &t_kb = nr2char(127)
         " let &t_kD = "^[[3~"
     endif
+endif
+" }}}
+" Fzf workaroud {{{
+" Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
+if has('win32') && $TERM == "xterm-256color"
+    let $TERM=""
 endif
 " }}}
 " }}}
