@@ -15,7 +15,7 @@ ln -sf $scriptDir/.vimrc ~/.vimrc
 nvim_config=.config/nvim
 mkdir ~/$nvim_config
 ln -sf $scriptDir/$nvim_config/init.vim ~/$nvim_config/init.vim
-# TODO: Add ginit.vm symlink and test againt fresh installs
+ln -sf $scriptDir/$nvim_config/ginit.vim ~/$nvim_config/ginit.vim
 
 # tmux confg
 ln -sf $scriptDir/.tmux.conf ~/.tmux.conf

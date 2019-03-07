@@ -7,27 +7,24 @@ if !has('nvim')
     endif
 endif
 
-" Tmux settings {{{
+" Terminal specific settings {{{
+set termguicolors
+
 if exists('$ITERM_PROFILE')
   if exists('$TMUX')
     let &t_SI = "\<Esc>[3 q"
     let &t_EI = "\<Esc>[0 q"
+    let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+    let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
   else
     let &t_SI = "\<Esc>]50;CursorShape=1\x7"
     let &t_EI = "\<Esc>]50;CursorShape=0\x7"
   endif
 end
-" }}}
-" ConEmu specific config {{{
-" https://conemu.github.io/en/VimXterm.html
-if has('win32') && !has("gui_running") && !empty($ConEmuBuild)
-    if has('nvim')
-        " Note: the "gui_running" check only works for vim/gvim and not for
-        " nvim/nvim-qt.  That is: this block will run for Nvim-qt if launched
-        " from a ConEmu window.
-        " Enable 256 colors
-        set termguicolors
-    else
+if !has("gui_running") && !exists('$TMUX')
+    " ConEmu specific config
+    " https://conemu.github.io/en/VimXterm.html
+    if !empty($ConEmuBuild) && !has('nvim')
         set term=xterm
         set t_Co=256
         let &t_AB="\e[48;5;%dm"
@@ -256,13 +253,16 @@ call plug#begin()
     Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
     Plug 'drewtempelmeyer/palenight.vim'
+    Plug 'rakr/vim-one'
     Plug 'ayu-theme/ayu-vim'
-    " aya-vim settings {{{
+    " ayu-vim settings {{{
     let ayucolor="light"  " for light version of theme
     "let ayucolor="mirage" " for mirage version of theme
     "let ayucolor="dark"   " for dark version of theme
     "" }}}
     Plug 'ntpeters/vim-airline-colornum'
+
+    Plug 'godlygeek/csapprox'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
     Plug 'christoomey/vim-tmux-navigator'
@@ -353,7 +353,7 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " Theme {{{
 set background=dark
-colorscheme onedark
+colorscheme one
 let g:airline_theme = 'onedark'
 " }}}
 " Local settings {{{
@@ -381,6 +381,11 @@ execute "silent! source ~/.vimrc_local"
 " Using Fonts in GVim
 "   Note: Windows will block fonts downloaded from the internet:
 "   before they can be used first unblock them.
+" Getting correct colors in Vim Terminal
+"   There are a few things that one needs to set, but its easy
+"   to look these up on the internet.  The main thing that I
+"   struggled with was that my terminal was not set to support 
+"   bold fonts.
 " }}}
 " Folding {{{
 " vim:fdm=marker
