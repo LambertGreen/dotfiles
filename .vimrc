@@ -133,6 +133,8 @@ vmap <leader>P "+P
 nnoremap <C-]> g<C-]>
 " Yank buffer absolute path into clipboard (/something/src/foo.txt)
 nnoremap <leader>yf :let @+=expand("%:p")<CR>
+" Allow saving of files as sudo when I forgot to start vim using sudo.
+cmap w!! w !sudo tee > /dev/null %
 " }}}
 " Window management {{{
 " Plugin vim-tmux-navigator installs the below mappings
