@@ -11,16 +11,24 @@ endif
 set termguicolors
 
 if exists('$ITERM_PROFILE')
-  if exists('$TMUX')
-    let &t_SI = "\<Esc>[3 q"
-    let &t_EI = "\<Esc>[0 q"
-    let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
-    let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
-  else
-    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
-  endif
+    if !has('nvim') && exists('$TMUX')
+        " From https://github.com/square/maximum-awesome/pull/245/files
+        let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\"
+        let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\"
+        " let &t_SI = "\<Esc>[3 q"
+        " let &t_EI = "\<Esc>[0 q"
+
+        let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+        let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+    else
+        " From https://github.com/square/maximum-awesome/pull/245/files
+        let &t_SI = "\<Esc>]1337;CursorShape=1\x7"
+        let &t_EI = "\<Esc>]1337;CursorShape=0\x7"
+        " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+        " let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+    endif
 end
+
 if !has("gui_running") && !exists('$TMUX')
     " ConEmu specific config
     " https://conemu.github.io/en/VimXterm.html
