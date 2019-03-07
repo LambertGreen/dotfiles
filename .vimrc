@@ -250,9 +250,18 @@ call plug#begin()
     " }}}
     Plug 'vim-airline/vim-airline-themes'
     Plug 'airblade/vim-gitgutter'
+
+    " Color schemes
     Plug 'flazz/vim-colorschemes'
     Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
+    Plug 'drewtempelmeyer/palenight.vim'
+    Plug 'ayu-theme/ayu-vim'
+    " aya-vim settings {{{
+    let ayucolor="light"  " for light version of theme
+    "let ayucolor="mirage" " for mirage version of theme
+    "let ayucolor="dark"   " for dark version of theme
+    "" }}}
     Plug 'ntpeters/vim-airline-colornum'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
