@@ -269,7 +269,7 @@ call plug#begin()
     "let ayucolor="dark"   " for dark version of theme
     "" }}}
     Plug 'ntpeters/vim-airline-colornum'
-
+    Plug 'kshenoy/vim-signature'
     Plug 'godlygeek/csapprox'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
