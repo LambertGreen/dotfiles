@@ -10,14 +10,14 @@
                 "parameters": {
                     "basic.simultaneous_threshold_milliseconds": 50,
                     "basic.to_delayed_action_delay_milliseconds": 500,
-                    "basic.to_if_alone_timeout_milliseconds": 250,
+                    "basic.to_if_alone_timeout_milliseconds": 1000,
                     "basic.to_if_held_down_threshold_milliseconds": 500
                 },
                 "rules": [
                     {
+                        "description": "Change caps_lock to control if pressed with other keys, to escape if pressed alone.",
                         "manipulators": [
                             {
-                                "description": "Change caps_lock to control when used as modifier, escape when used alone",
                                 "from": {
                                     "key_code": "caps_lock",
                                     "modifiers": {
@@ -33,12 +33,7 @@
                                 ],
                                 "to_if_alone": [
                                     {
-                                        "key_code": "escape",
-                                        "modifiers": {
-                                            "optional": [
-                                                "any"
-                                            ]
-                                        }
+                                        "key_code": "escape"
                                     }
                                 ],
                                 "type": "basic"
@@ -54,7 +49,7 @@
                         "key_code": "f1"
                     },
                     "to": {
-                        "key_code": "display_brightness_decrement"
+                        "consumer_key_code": "display_brightness_decrement"
                     }
                 },
                 {
@@ -62,7 +57,7 @@
                         "key_code": "f2"
                     },
                     "to": {
-                        "key_code": "display_brightness_increment"
+                        "consumer_key_code": "display_brightness_increment"
                     }
                 },
                 {
@@ -102,7 +97,7 @@
                         "key_code": "f7"
                     },
                     "to": {
-                        "key_code": "rewind"
+                        "consumer_key_code": "rewind"
                     }
                 },
                 {
@@ -110,7 +105,7 @@
                         "key_code": "f8"
                     },
                     "to": {
-                        "key_code": "play_or_pause"
+                        "consumer_key_code": "play_or_pause"
                     }
                 },
                 {
@@ -118,7 +113,7 @@
                         "key_code": "f9"
                     },
                     "to": {
-                        "key_code": "fastforward"
+                        "consumer_key_code": "fastforward"
                     }
                 },
                 {
@@ -126,7 +121,7 @@
                         "key_code": "f10"
                     },
                     "to": {
-                        "key_code": "mute"
+                        "consumer_key_code": "mute"
                     }
                 },
                 {
@@ -134,7 +129,7 @@
                         "key_code": "f11"
                     },
                     "to": {
-                        "key_code": "volume_decrement"
+                        "consumer_key_code": "volume_decrement"
                     }
                 },
                 {
@@ -142,26 +137,15 @@
                         "key_code": "f12"
                     },
                     "to": {
-                        "key_code": "volume_increment"
+                        "consumer_key_code": "volume_increment"
                     }
                 }
             ],
             "name": "Default profile",
             "selected": true,
-            "simple_modifications": [
-                {
-                    "from": {
-                        "key_code": "caps_lock"
-                    },
-                    "to": {
-                        "key_code": "left_control"
-                    }
-                }
-            ],
+            "simple_modifications": [],
             "virtual_hid_keyboard": {
-                "caps_lock_delay_milliseconds": 0,
-                "country_code": 0,
-                "keyboard_type": "ansi"
+                "country_code": 0
             }
         }
     ]
