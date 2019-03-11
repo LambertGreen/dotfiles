@@ -211,6 +211,10 @@ fun! FormatJson()
     :%!python -m json.tool
 endfun
 " }}}
+" Auto commands {{{
+" Remove trailing whitespace on save
+autocmd BufWritePre * call TrimWhitespace()
+" }}}
 " Plugins {{{
 " Install vim-plug if not already installed
 if empty(glob('~/.vim/autoload/plug.vim'))
