@@ -1,4 +1,4 @@
-" Lambert's VIMRC
+"" Lambert's VIMRC
 
 " Environment specific settings {{{
 if !has('nvim')
@@ -37,10 +37,6 @@ if !has("gui_running") && !exists('$TMUX')
         set t_Co=256
         let &t_AB="\e[48;5;%dm"
         let &t_AF="\e[38;5;%dm"
-        " Fix BS key
-        inoremap <Char-0x07F> <BS>
-        nnoremap <Char-0x07F> <BS>
-        cnoremap <Char-0x07F> <BS>
         " Enable arrow keys in insert mode
         " Keycode is discoverable by typing in Vim:-
         "   CTRL-V and press arrow key
@@ -48,9 +44,10 @@ if !has("gui_running") && !exists('$TMUX')
         set t_kd=[B
         set t_kl=[D
         set t_kr=[C
-        " Alternative method that I was trying:
-        " let &t_kb = nr2char(127)
-        " let &t_kD = "^[[3~"
+        " Fix BS (Backspace) key
+        " https://github.com/Maximus5/ConEmu/issues/641
+        let &t_kb = nr2char(127)
+        let &t_kD = "^[[3~"
     endif
 endif
 " }}}
@@ -392,7 +389,7 @@ execute "silent! source ~/.vimrc_local"
 " Getting correct colors in Vim Terminal
 "   There are a few things that one needs to set, but its easy
 "   to look these up on the internet.  The main thing that I
-"   struggled with was that my terminal was not set to support 
+"   struggled with was that my terminal was not set to support
 "   bold fonts.
 " }}}
 " Folding {{{
