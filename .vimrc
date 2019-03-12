@@ -61,6 +61,7 @@ endif
 " Editor {{{
 set exrc " allows sourcing of cwd .vimrc
 set secure " adds some security restrictions for using excr option
+set title
 set number
 set tabstop=4
 set shiftwidth=4
@@ -313,6 +314,7 @@ call plug#begin()
     Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
     Plug 'rhysd/vim-clang-format'
 
+    Plug 'mhinz/vim-startify'
     Plug 'rizzatti/dash.vim'
 
     Plug 'nfvs/vim-perforce'
