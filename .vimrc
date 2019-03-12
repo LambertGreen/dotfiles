@@ -323,6 +323,8 @@ call plug#begin()
     let g:startify_change_to_vcs_root = 1
     " }}}
 
+    Plug 'PProvost/vim-ps1'
+
     Plug 'rizzatti/dash.vim'
 
     Plug 'nfvs/vim-perforce'
