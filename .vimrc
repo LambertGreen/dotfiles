@@ -229,7 +229,8 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-repeat'
-    Plug 'tpope/vim-obsession'
+    "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
+    "session manangement
     Plug 'tpope/vim-vinegar'
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-unimpaired'
@@ -315,6 +316,13 @@ call plug#begin()
     Plug 'rhysd/vim-clang-format'
 
     Plug 'mhinz/vim-startify'
+    " vim-startify settings {{{
+    let g:startify_session_dir = '~/.vim/session'
+    let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
+    let g:startify_session_persistence = 1
+    let g:startify_change_to_vcs_root = 1
+    " }}}
+
     Plug 'rizzatti/dash.vim'
 
     Plug 'nfvs/vim-perforce'
