@@ -22,3 +22,9 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
+
+# Bat wrapper because less pager does not correctly show colors,
+# so set no paging
+function bat {
+    bat.exe $args --paging=never
+}
