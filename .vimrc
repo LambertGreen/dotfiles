@@ -157,6 +157,11 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " Activate interactive window mode
 nnoremap <leader>w :InteractiveWindow<CR>
 " }}}
+" GitGutter mappings {{{
+" Quick jumping to next/prev hunk
+nnoremap <silent> <cr> :GitGutterNextHunk<cr>
+nnoremap <silent> <backspace> :GitGutterPrevHunk<cr>
+" }}}
 " NERDTree mappings {{{
 " Open NERD
 nmap <Leader>n :NERDTreeToggle<CR>
