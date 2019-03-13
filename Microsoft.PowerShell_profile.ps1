@@ -25,6 +25,7 @@ if (Test-Path($ChocolateyProfile)) {
 
 # Bat wrapper because less pager does not correctly show colors,
 # so set no paging
-function bat {
-    bat.exe $args --paging=never
-}
+function bat { bat.exe $args --paging=never}
+
+# Gradlew wrapper function
+function gw { ./gradlew.bat $args }
