@@ -38,6 +38,8 @@ function SymlinkVim() {
 
 function SymlinkNeovim() {
 # nvim conf
+
+    mkdir $env:LOCALAPPDATA/nvim
     make-link $scriptDir/.config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim
     make-link $scriptDir/.config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim
 }
