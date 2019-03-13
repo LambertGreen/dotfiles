@@ -62,6 +62,9 @@ endif
 set exrc " allows sourcing of cwd .vimrc
 set secure " adds some security restrictions for using excr option
 set title
+" Set title to the current working directory so that the vim
+" instance can be found by project name in the OS window manager.
+:let &titlestring=getcwd()
 set number
 set tabstop=4
 set shiftwidth=4
@@ -144,6 +147,11 @@ cmap w!! w !sudo tee > /dev/null %
 " <c-h/j/k/l>
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
+" }}}
+" Maximizer mappings {{{
+nnoremap <silent><C-w>z :MaximizerToggle<CR>
+vnoremap <silent><C-w>z :MaximizerToggle<CR>gv
+inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window mode
@@ -323,6 +331,7 @@ call plug#begin()
     let g:startify_change_to_vcs_root = 1
     " }}}
 
+    Plug 'szw/vim-maximizer'
     Plug 'PProvost/vim-ps1'
 
     Plug 'rizzatti/dash.vim'
