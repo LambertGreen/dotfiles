@@ -10,7 +10,7 @@ set guioptions-=r  "scrollbar
 set guioptions=+k
 
 " Set a good looking NERD+Powerline enabled font
-set guifont=FuraCode_NF:h10:cANSI:qDEFAULT
+set guifont=MesloLGM_NF:h10:cANSI:qDEFAULT
 
 " enable dirext rendering
 set rop=type:directx
