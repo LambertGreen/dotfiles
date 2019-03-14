@@ -51,6 +51,22 @@ if !has("gui_running") && !exists('$TMUX')
     endif
 endif
 " }}}
+" Vim's Inbuilt Terminal Settings {{{
+" Set Powershell as default shell on Windows
+" Disabling for now since it results in extra process spawns
+" for git related functions i.e. vim->vimrin.exe->cmd.exe->powershell.exe
+" if has("win32") || has("gui_win32")
+"      if executable("PowerShell")
+"         " Set PowerShell as the shell for running external ! commands
+"         " http://stackoverflow.com/questions/7605917/system-with-powershell-in-vim
+"         set shell=PowerShell
+"         set shellcmdflag=-ExecutionPolicy\ RemoteSigned\ -Command
+"         set shellquote=\"
+"         " shellxquote must be a literal space character.
+"         set shellxquote= " must be a literal space char
+"    endif
+" endif
+"" }}}
 " Fzf workaroud {{{
 " Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
 if has('win32') && $TERM == "xterm-256color"
