@@ -109,7 +109,16 @@ augroup END
 " Make VIM scream at edit time about accidental changes to buffers to readonly
 " files
 autocmd BufRead * let &l:modifiable = !&readonly
-" }}}
+" Spell checking settings {{{
+" markdown files
+autocmd BufRead,BufNewFile *.md setlocal spell"
+" git commits
+autocmd FileType gitcommit setlocal spell
+" enable word completion
+set complete+=kspell
+"
+"" }}}
+"" }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
