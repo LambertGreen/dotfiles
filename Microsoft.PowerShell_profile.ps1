@@ -23,6 +23,23 @@ if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
 
+# Set ConEmu to display CWD in Window title
+# Note: This function is just an example of
+# the metod to update the prompt.  The prompt
+# is actually updated by the global:Prompt
+# function.  To make it effective for a particular
+# theme one needs to update the theme file directly
+# Example: WindowsPowerShell\Modules\oh-my-posh\2.0.225\Themes\Paradox.psm1
+function updateConEmuWindowTitleToShowCwd
+{
+  $prompt = & $GitPromptScriptBlock
+  if ($env:ConEmuANSI -eq "ON")
+  {
+    $prompt += "$([char]27)]2;`"$((Get-Location).Path)`"$([char]7)"
+  }
+  $prompt
+}
+
 # Bat wrapper because less pager does not correctly show colors,
 # so set no paging
 function bat { bat.exe $args --paging=never}
