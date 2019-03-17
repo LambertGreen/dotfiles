@@ -1,4 +1,4 @@
-" Lambert's VIMRC
+"" Lambert's VIMRC
 
 " Environment specific settings {{{
 if !has('nvim')
@@ -37,10 +37,6 @@ if !has("gui_running") && !exists('$TMUX')
         set t_Co=256
         let &t_AB="\e[48;5;%dm"
         let &t_AF="\e[38;5;%dm"
-        " Fix BS key
-        inoremap <Char-0x07F> <BS>
-        nnoremap <Char-0x07F> <BS>
-        cnoremap <Char-0x07F> <BS>
         " Enable arrow keys in insert mode
         " Keycode is discoverable by typing in Vim:-
         "   CTRL-V and press arrow key
@@ -48,12 +44,29 @@ if !has("gui_running") && !exists('$TMUX')
         set t_kd=[B
         set t_kl=[D
         set t_kr=[C
-        " Alternative method that I was trying:
-        " let &t_kb = nr2char(127)
-        " let &t_kD = "^[[3~"
+        " Fix BS (Backspace) key
+        " https://github.com/Maximus5/ConEmu/issues/641
+        let &t_kb = nr2char(127)
+        let &t_kD = "^[[3~"
     endif
 endif
 " }}}
+" Vim's Inbuilt Terminal Settings {{{
+" Set Powershell as default shell on Windows
+" Disabling for now since it results in extra process spawns
+" for git related functions i.e. vim->vimrin.exe->cmd.exe->powershell.exe
+" if has("win32") || has("gui_win32")
+"      if executable("PowerShell")
+"         " Set PowerShell as the shell for running external ! commands
+"         " http://stackoverflow.com/questions/7605917/system-with-powershell-in-vim
+"         set shell=PowerShell
+"         set shellcmdflag=-ExecutionPolicy\ RemoteSigned\ -Command
+"         set shellquote=\"
+"         " shellxquote must be a literal space character.
+"         set shellxquote= " must be a literal space char
+"    endif
+" endif
+"" }}}
 " Fzf workaroud {{{
 " Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
 if has('win32') && $TERM == "xterm-256color"
@@ -62,8 +75,10 @@ endif
 " }}}
 " }}}
 " Editor {{{
-set exrc " allows sourcing of cwd .vimrc
-set secure " adds some security restrictions for using excr option
+set title
+" Set title to the current working directory so that the vim
+" instance can be found by project name in the OS window manager.
+:let &titlestring=getcwd()
 set number
 set tabstop=4
 set shiftwidth=4
@@ -94,7 +109,16 @@ augroup END
 " Make VIM scream at edit time about accidental changes to buffers to readonly
 " files
 autocmd BufRead * let &l:modifiable = !&readonly
-" }}}
+" Spell checking settings {{{
+" markdown files
+autocmd BufRead,BufNewFile *.md setlocal spell"
+" git commits
+autocmd FileType gitcommit setlocal spell
+" enable word completion
+set complete+=kspell
+"
+"" }}}
+"" }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
@@ -144,12 +168,36 @@ cmap w!! w !sudo tee > /dev/null %
 " Window management {{{
 " Plugin vim-tmux-navigator installs the below mappings
 " <c-h/j/k/l>
+" But we want that even if we are not using TMUX
+if !exists('$TMUX')
+    " normal mode
+    noremap <C-h> <C-w>h
+    noremap <C-j> <C-w>j
+    noremap <C-k> <C-w>k
+    noremap <C-l> <C-w>l
+    " terminal mode
+    tnoremap <C-n> <C-\><C-n>
+    tnoremap <C-h> <C-\><C-n><C-w>h
+    tnoremap <C-j> <C-\><C-n><C-w>j
+    tnoremap <C-k> <C-\><C-n><C-w>k
+    tnoremap <C-l> <C-\><C-n><C-w>l
+endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
+" }}}
+" Maximizer mappings {{{
+nnoremap <silent><C-w>z :MaximizerToggle<CR>
+vnoremap <silent><C-w>z :MaximizerToggle<CR>gv
+inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window mode
 nnoremap <leader>w :InteractiveWindow<CR>
+" }}}
+" GitGutter mappings {{{
+" Quick jumping to next/prev hunk
+nnoremap <silent> <cr> :GitGutterNextHunk<cr>
+nnoremap <silent> <backspace> :GitGutterPrevHunk<cr>
 " }}}
 " NERDTree mappings {{{
 " Open NERD
@@ -214,6 +262,10 @@ fun! FormatJson()
     :%!python -m json.tool
 endfun
 " }}}
+" Auto commands {{{
+" Remove trailing whitespace on save
+autocmd BufWritePre * call TrimWhitespace()
+" }}}
 " Plugins {{{
 " Install vim-plug if not already installed
 if empty(glob('~/.vim/autoload/plug.vim'))
@@ -227,7 +279,8 @@ call plug#begin()
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-repeat'
-    Plug 'tpope/vim-obsession'
+    "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
+    "session manangement
     Plug 'tpope/vim-vinegar'
     Plug 'tpope/vim-dispatch'
     Plug 'tpope/vim-unimpaired'
@@ -269,7 +322,7 @@ call plug#begin()
     "let ayucolor="dark"   " for dark version of theme
     "" }}}
     Plug 'ntpeters/vim-airline-colornum'
-
+    Plug 'kshenoy/vim-signature'
     Plug 'godlygeek/csapprox'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -314,6 +367,17 @@ call plug#begin()
 
     Plug 'Shougo/unite.vim'
     Plug 'devjoe/vim-codequery'
+
+    Plug 'mhinz/vim-startify'
+    " vim-startify settings {{{
+    let g:startify_session_dir = '~/.vim/session'
+    let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
+    let g:startify_session_persistence = 1
+    let g:startify_change_to_vcs_root = 1
+    " }}}
+
+    Plug 'szw/vim-maximizer'
+    Plug 'PProvost/vim-ps1'
 
     Plug 'rizzatti/dash.vim'
 
@@ -395,7 +459,7 @@ execute "silent! source ~/.vimrc_local"
 " Getting correct colors in Vim Terminal
 "   There are a few things that one needs to set, but its easy
 "   to look these up on the internet.  The main thing that I
-"   struggled with was that my terminal was not set to support 
+"   struggled with was that my terminal was not set to support
 "   bold fonts.
 " }}}
 " Folding {{{
