@@ -51,6 +51,22 @@ if !has("gui_running") && !exists('$TMUX')
     endif
 endif
 " }}}
+" Vim's Inbuilt Terminal Settings {{{
+" Set Powershell as default shell on Windows
+" Disabling for now since it results in extra process spawns
+" for git related functions i.e. vim->vimrin.exe->cmd.exe->powershell.exe
+" if has("win32") || has("gui_win32")
+"      if executable("PowerShell")
+"         " Set PowerShell as the shell for running external ! commands
+"         " http://stackoverflow.com/questions/7605917/system-with-powershell-in-vim
+"         set shell=PowerShell
+"         set shellcmdflag=-ExecutionPolicy\ RemoteSigned\ -Command
+"         set shellquote=\"
+"         " shellxquote must be a literal space character.
+"         set shellxquote= " must be a literal space char
+"    endif
+" endif
+"" }}}
 " Fzf workaroud {{{
 " Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
 if has('win32') && $TERM == "xterm-256color"
@@ -93,7 +109,16 @@ augroup END
 " Make VIM scream at edit time about accidental changes to buffers to readonly
 " files
 autocmd BufRead * let &l:modifiable = !&readonly
-" }}}
+" Spell checking settings {{{
+" markdown files
+autocmd BufRead,BufNewFile *.md setlocal spell"
+" git commits
+autocmd FileType gitcommit setlocal spell
+" enable word completion
+set complete+=kspell
+"
+"" }}}
+"" }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
@@ -143,6 +168,20 @@ cmap w!! w !sudo tee > /dev/null %
 " Window management {{{
 " Plugin vim-tmux-navigator installs the below mappings
 " <c-h/j/k/l>
+" But we want that even if we are not using TMUX
+if !exists('$TMUX')
+    " normal mode
+    noremap <C-h> <C-w>h
+    noremap <C-j> <C-w>j
+    noremap <C-k> <C-w>k
+    noremap <C-l> <C-w>l
+    " terminal mode
+    tnoremap <C-n> <C-\><C-n>
+    tnoremap <C-h> <C-\><C-n><C-w>h
+    tnoremap <C-j> <C-\><C-n><C-w>j
+    tnoremap <C-k> <C-\><C-n><C-w>k
+    tnoremap <C-l> <C-\><C-n><C-w>l
+endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
