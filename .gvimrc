@@ -5,7 +5,11 @@ set guioptions-=m  "menu bar
 set guioptions-=T  "toolbar
 set guioptions-=r  "scrollbar
 
-set guifont=FuraCode_NF:h10:cANSI:qDEFAULT
+if has('gui_macvim')
+    set guifont=HackNerdFontComplete-Regular:h12
+else
+    set guifont=FuraCode_NF:h11:cANSI:qDEFAULT
+endif
 
 " enable dirext rendering
 set rop=type:directx
