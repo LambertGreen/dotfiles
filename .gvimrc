@@ -12,5 +12,7 @@ set guioptions=+k
 " Set a good looking NERD+Powerline enabled font
 set guifont=MesloLGM_NF:h10:cANSI:qDEFAULT
 
-" enable dirext rendering
-set rop=type:directx
+if has('gui_win32') && has('directx')
+    " enable dirext rendering
+    set rop=type:directx
+endif
