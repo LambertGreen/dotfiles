@@ -168,6 +168,20 @@ cmap w!! w !sudo tee > /dev/null %
 " Window management {{{
 " Plugin vim-tmux-navigator installs the below mappings
 " <c-h/j/k/l>
+" But we want that even if we are not using TMUX
+if !exists('$TMUX')
+    " normal mode
+    noremap <C-h> <C-w>h
+    noremap <C-j> <C-w>j
+    noremap <C-k> <C-w>k
+    noremap <C-l> <C-w>l
+    " terminal mode
+    tnoremap <C-n> <C-\><C-n>
+    tnoremap <C-h> <C-\><C-n><C-w>h
+    tnoremap <C-j> <C-\><C-n><C-w>j
+    tnoremap <C-k> <C-\><C-n><C-w>k
+    tnoremap <C-l> <C-\><C-n><C-w>l
+endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
