@@ -312,6 +312,9 @@ call plug#begin()
     Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
     Plug 'rhysd/vim-clang-format'
 
+    Plug 'Shougo/unite.vim'
+    Plug 'devjoe/vim-codequery'
+
     Plug 'rizzatti/dash.vim'
 
     Plug 'nfvs/vim-perforce'
