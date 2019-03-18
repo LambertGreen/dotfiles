@@ -1,4 +1,4 @@
-"" Lambert's VIMRC
+" Lambert's VIMRC
 
 " Environment specific settings {{{
 if !has('nvim')
@@ -15,8 +15,6 @@ if exists('$ITERM_PROFILE')
         " From https://github.com/square/maximum-awesome/pull/245/files
         let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\"
         let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\"
-        " let &t_SI = "\<Esc>[3 q"
-        " let &t_EI = "\<Esc>[0 q"
 
         let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
         let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
@@ -24,8 +22,6 @@ if exists('$ITERM_PROFILE')
         " From https://github.com/square/maximum-awesome/pull/245/files
         let &t_SI = "\<Esc>]1337;CursorShape=1\x7"
         let &t_EI = "\<Esc>]1337;CursorShape=0\x7"
-        " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-        " let &t_EI = "\<Esc>]50;CursorShape=0\x7"
     endif
 end
 
@@ -364,6 +360,9 @@ call plug#begin()
     " In probation
     Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
     Plug 'rhysd/vim-clang-format'
+
+    Plug 'Shougo/unite.vim'
+    Plug 'devjoe/vim-codequery'
 
     Plug 'mhinz/vim-startify'
     " vim-startify settings {{{
