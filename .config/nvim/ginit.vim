@@ -1,6 +1,6 @@
 
 " Use a nice font
-:Guifont! Meslo LG S for Powerline:h10
+:Guifont! MesloLGM\ NF
 
 " Remove ugly tabline
 GuiTabline 0

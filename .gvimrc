@@ -10,8 +10,13 @@ set guioptions-=r  "scrollbar
 set guioptions=+k
 
 " Set a good looking NERD+Powerline enabled font
-set guifont=MesloLGM_NF:h10:cANSI:qDEFAULT
+if has('gui_macvim')
+    set guifont=HackNerdFontComplete-Regular:h12
+else
+    set guifont=MesloLGM_NF:h11:cANSI:qDEFAULT
+endif
 
+" enable directx rendering for crisper fonts on Windows
 if has('gui_win32') && has('directx')
     " enable dirext rendering
     set rop=type:directx
