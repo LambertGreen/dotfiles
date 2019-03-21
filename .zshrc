@@ -178,6 +178,11 @@ compinit
 
 setopt no_share_history
 
+# Aliases
+gw () {
+    ./gradlew $@
+}
+
 # Source local config file if is present
 [ -f ~/.zshrc_local ] && sh -c 'source ~/.zshrc_local'
 
@@ -185,3 +190,9 @@ if (( $+commands[neofetch] )) then
     neofetch
 fi
 
+
+# Add RVM (Ruby Version Manager) to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
+
+# Add Homebrew directory in front.
+export PATH="/usr/local/sbin:$PATH"
