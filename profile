@@ -19,7 +19,7 @@ export EDITOR=$VISUAL
 # }}}
 
 # Homebrew {{{
-if [ $(uname -s) == Linux ]; then
+if [[ $(uname -s) == Linux ]]; then
     eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 # }}}
