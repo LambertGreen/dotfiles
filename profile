@@ -24,4 +24,9 @@ export EDITOR=$VISUAL
 #################################
 export P4CONFIG=.p4config
 
+if [ $(uname -s) == Linux ]; then
+    eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+elif [ $(uname -s) == Darwin ]; then
+    # TODO: Insert Darwin version here
+fi
 
