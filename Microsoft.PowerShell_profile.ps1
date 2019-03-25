@@ -46,3 +46,6 @@ function bat { bat.exe $args --paging=never}
 
 # Gradlew wrapper function
 function gw { ./gradlew.bat $args }
+
+# Set code codepage so that unicode is correctly displayed in Vim
+chcp 65001 > $null

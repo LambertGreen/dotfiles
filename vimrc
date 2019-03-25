@@ -152,6 +152,11 @@ vmap <leader>p "+p
 vmap <leader>P "+P
 " Quick save
 :nnoremap <Leader>s :update<CR>
+" insert mode Emacs start/end of line style mapping
+inoremap <C-a> <C-o>0
+inoremap <C-e> <C-o>$
+" Quick semi-colon at end of line
+inoremap <C-;> <C-o>$;
 " Toggle highlighting
 :nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 " Go-to-tag by default show list if there are more than one matches
@@ -162,22 +167,12 @@ nnoremap <leader>yf :let @+=expand("%:p")<CR>
 cmap w!! w !sudo tee > /dev/null %
 " }}}
 " Window management {{{
-" Plugin vim-tmux-navigator installs the below mappings
-" <c-h/j/k/l>
-" But we want that even if we are not using TMUX
-if !exists('$TMUX')
-    " normal mode
-    noremap <C-h> <C-w>h
-    noremap <C-j> <C-w>j
-    noremap <C-k> <C-w>k
-    noremap <C-l> <C-w>l
-    " terminal mode
-    tnoremap <C-n> <C-\><C-n>
-    tnoremap <C-h> <C-\><C-n><C-w>h
-    tnoremap <C-j> <C-\><C-n><C-w>j
-    tnoremap <C-k> <C-\><C-n><C-w>k
-    tnoremap <C-l> <C-\><C-n><C-w>l
-endif
+" terminal mode
+tnoremap <C-w>n <C-\><C-n>
+tnoremap <C-w>h <C-\><C-n><C-w>h
+tnoremap <C-w>j <C-\><C-n><C-w>j
+tnoremap <C-w>k <C-\><C-n><C-w>k
+tnoremap <C-w>l <C-\><C-n><C-w>l
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
@@ -270,7 +265,7 @@ if empty(glob('~/.vim/autoload/plug.vim'))
   autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin()
-    " Frequently used
+" Frequently used {{{
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-surround'
@@ -322,7 +317,6 @@ call plug#begin()
     Plug 'godlygeek/csapprox'
 
     Plug 'tmux-plugins/vim-tmux-focus-events'
-    Plug 'christoomey/vim-tmux-navigator'
     Plug 'wincent/terminus'
     Plug 'romgrk/winteract.vim'
     Plug 'mbbill/undotree'
@@ -345,6 +339,8 @@ call plug#begin()
     " }}}
     Plug 'SirVer/ultisnips'
     " Ultisnips settings {{{
+    set runtimepath+=~/.vim/my-snippets/
+    let g:UltiSnipsListSnippets='<c-l>'
     let g:UltiSnipsExpandTrigger='<c-j>'
     let g:UltiSnipsJumpForwardTrigger='<c-n>'
     let g:UltiSnipsJumpBackwardTrigger='<c-p>'
@@ -356,8 +352,8 @@ call plug#begin()
     let g:ale_sign_error = '✘'
     let g:ale_sign_warning = '⚠'
     " }}}
-
-    " In probation
+" }}}
+" In probation {{{
     Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
     Plug 'rhysd/vim-clang-format'
 
@@ -381,20 +377,23 @@ call plug#begin()
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
     Plug 'tfnico/vim-gradle'
-
-    " Not often used
+" }}}
+" Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
-
-    " Subject to removal
     Plug 'editorconfig/editorconfig-vim'
     Plug 'mileszs/ack.vim'
-
+" }}}
 " Unused plugins {{{
-    " Plug 'Raimondi/delimitMate'       " superceded by auto-pairs
-    " Plug 'cohama/lexima.vim'          " had runaway insert issues!
-    " Plug 'vim-syntastic/syntastic'    " superceded by ale?
-    " Plug 'neomake/neomake'
-    " Plug 'easymotion/vim-easymotion'  " introduces bad habits?
+    " Plug 'Raimondi/delimitMate'               " superceded by auto-pairs
+    " Plug 'cohama/lexima.vim'                  " had runaway insert issues!
+    " Plug 'vim-syntastic/syntastic'            " superceded by ale
+    " Plug 'neomake/neomake'                    " superceded by ale
+    " Plug 'easymotion/vim-easymotion'          " introduces bad habits?
+
+    " works really well, but going
+    " to focus on using Terminal in Vim and rely on Vim only for window
+    " management.
+    " Plug 'christoomey/vim-tmux-navigator'
     " }}}
 call plug#end() " Initialize plugin system
 " }}}

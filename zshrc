@@ -1,9 +1,3 @@
-# If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:$PATH:~/.cargo/bin:
-
-export VISUAL=vim
-export EDITOR=$VISUAL
-
  #Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
@@ -13,11 +7,6 @@ export ZSH="$HOME/.oh-my-zsh"
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
 ZSH_THEME="agnoster"
 
-# Setup FZF to use fd
-export FZF_DEFAULT_COMMAND='fd --type f'
-
-# Set P4Config
-export P4CONFIG=.p4config
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -94,25 +83,6 @@ source $ZSH/oh-my-zsh.sh
 # }
 
 #---------------
-# Zplug
-#---------------
-#source ~/.zplug/init.zsh
-#
-#zplug "b4b4r07/enhancd", use:init.sh
-#
-## Install plugins if there are plugins that have not been installed
-#if ! zplug check --verbose; then
-#    printf "Install? [y/N]: "
-#    if read -q; then
-#        echo; zplug install
-#    fi
-#fi
-#
-## Then, source plugins and add commands to $PATH
-#zplug load --verbose
-
-
-#---------------
 
 # User configuration
 
@@ -143,6 +113,7 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# Source FZF
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 ### Added by Zplugin's installer
@@ -178,10 +149,12 @@ compinit
 
 setopt no_share_history
 
+# Source common shell script 
+[ -f ~/.shell_common ] && sh -c 'source ~/.shell_common'
+
 # Source local config file if is present
 [ -f ~/.zshrc_local ] && sh -c 'source ~/.zshrc_local'
 
 if (( $+commands[neofetch] )) then
     neofetch
 fi
-

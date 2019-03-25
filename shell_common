@@ -1,0 +1,12 @@
+
+# Setup FZF to use fd
+export FZF_DEFAULT_COMMAND='fd --type f'
+
+# Aliases
+gw () {
+    ./gradlew $@
+}
+
+# Vim Folding marker {{{
+# vim:fdm=marker
+# }}}
