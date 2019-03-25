@@ -13,7 +13,7 @@ set guioptions=+k
 if has('gui_macvim')
     set guifont=HackNerdFontComplete-Regular:h12
 else
-    set guifont=MesloLGM_NF:h11:cANSI:qDEFAULT
+    set guifont=MesloLGM_NF:h10:cANSI:qDEFAULT
 endif
 
 " enable directx rendering for crisper fonts on Windows
