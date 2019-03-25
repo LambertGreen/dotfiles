@@ -7,3 +7,6 @@ gw () {
     ./gradlew $@
 }
 
+# Vim Folding marker {{{
+# vim:fdm=marker
+# }}}
