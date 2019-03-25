@@ -4,7 +4,7 @@ $scriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 
 # Helper functions
 function make-link ($target, $link) {
-    New-Item -Path $link -ItemType SymbolicLink -Value $target
+    New-Item -Path $link -ItemType SymbolicLink -Value $target -Force
 }
 
 function InstallVimPlug() {
@@ -29,17 +29,17 @@ function SymlinkVim() {
     mkdir $env:USERPROFILE\.vim\backup
     mkdir $env:USERPROFILE\.vim\swap
     mkdir $env:USERPROFILE\.vim\undo
-    make-link $scriptDir/.vimrc $env:USERPROFILE/_vimrc
+    make-link $scriptDir/vimrc $env:USERPROFILE/_vimrc
     InstallVimPlug
 
 # gvim config
-    make-link $scriptDir/.gvimrc $env:USERPROFILE/_gvimrc
+    make-link $scriptDir/gvimrc $env:USERPROFILE/_gvimrc
 }
 
 function SymlinkNeovim() {
 # nvim conf
 
     mkdir $env:LOCALAPPDATA/nvim
-    make-link $scriptDir/.config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim
-    make-link $scriptDir/.config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim
+    make-link $scriptDir/config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim
+    make-link $scriptDir/config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim
 }
