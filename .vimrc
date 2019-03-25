@@ -150,8 +150,8 @@ nmap <leader>p "+p
 nmap <leader>P "+P
 vmap <leader>p "+p
 vmap <leader>P "+P
-" Replace word under cursor
-:nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
+" Quick save
+:nnoremap <Leader>s :update<CR>
 " Toggle highlighting
 :nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 " Go-to-tag by default show list if there are more than one matches
