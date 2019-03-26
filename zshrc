@@ -155,6 +155,3 @@ setopt no_share_history
 # Source local config file if is present
 [ -f ~/.zshrc_local ] && source ~/.zshrc_local
 
-if (( $+commands[neofetch] )) then
-    neofetch
-fi
