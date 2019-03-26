@@ -20,15 +20,17 @@ export EDITOR=$VISUAL
 
 # Homebrew {{{
 if [[ $(uname -s) == Linux ]]; then
-    eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+    [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 fi
 # }}}
 
 # Development {{{
 # Java {{{
 # JEnv
-export PATH="$HOME/.jenv/bin:$PATH"
-eval "$(jenv init -)"
+if [[ "$HOME/.jenv/bin" ]]; then
+    export PATH="$HOME/.jenv/bin:$PATH"
+    eval "$(jenv init -)"
+fi
 # }}}
 # Node {{{
 export NVM_DIR="$HOME/.nvm"
