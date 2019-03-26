@@ -167,22 +167,38 @@ nnoremap <leader>yf :let @+=expand("%:p")<CR>
 cmap w!! w !sudo tee > /dev/null %
 " }}}
 " Window management {{{
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 " terminal mode
 tnoremap <C-w>n <C-\><C-n>
-tnoremap <C-w>h <C-\><C-n><C-w>h
-tnoremap <C-w>j <C-\><C-n><C-w>j
-tnoremap <C-w>k <C-\><C-n><C-w>k
-tnoremap <C-w>l <C-\><C-n><C-w>l
+tnoremap <C-h> <C-\><C-n><C-w>h
+tnoremap <C-j> <C-\><C-n><C-w>j
+tnoremap <C-k> <C-\><C-n><C-w>k
+tnoremap <C-l> <C-\><C-n><C-w>l
+" Quick open a terminal
+if has('nvim')
+    :nnoremap <leader>; :vs\|:term<CR>
+else
+    :nnoremap <leader>; :term<CR>
+endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
+" Buffer management {{{
+nnoremap <Tab> :bnext<CR>
+nnoremap <S-Tab> :bprevious<CR>
+nnoremap <leader>x :bdelete!<CR>
+" }}}
 " Maximizer mappings {{{
+" Window zoom toggles
 nnoremap <silent><C-w>z :MaximizerToggle<CR>
 vnoremap <silent><C-w>z :MaximizerToggle<CR>gv
 inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
-" Activate interactive window mode
+" Activate interactive window resize mode
 nnoremap <leader>w :InteractiveWindow<CR>
 " }}}
 " GitGutter mappings {{{
@@ -323,6 +339,14 @@ call plug#begin()
 
     Plug 'ericcurtin/CurtineIncSw.vim'
 
+    Plug 'mhinz/vim-startify'
+    " vim-startify settings {{{
+    let g:startify_session_dir = '~/.vim/session'
+    let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
+    let g:startify_session_persistence = 1
+    let g:startify_change_to_vcs_root = 1
+    " }}}
+
     Plug 'sheerun/vim-polyglot'
     Plug 'andymass/vim-matchup'
     Plug 'jiangmiao/auto-pairs'
@@ -360,15 +384,7 @@ call plug#begin()
     Plug 'Shougo/unite.vim'
     Plug 'devjoe/vim-codequery'
 
-    Plug 'mhinz/vim-startify'
-    " vim-startify settings {{{
-    let g:startify_session_dir = '~/.vim/session'
-    let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
-    let g:startify_session_persistence = 1
-    let g:startify_change_to_vcs_root = 1
-    " }}}
-
-    Plug 'szw/vim-maximizer'
+    Plug 'szw/vim-maximizer'		" enables zoom/maximize toggle of current window
     Plug 'PProvost/vim-ps1'
 
     Plug 'rizzatti/dash.vim'
