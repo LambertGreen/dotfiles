@@ -472,6 +472,10 @@ execute "silent! source ~/.vimrc_local"
 "   to look these up on the internet.  The main thing that I
 "   struggled with was that my terminal was not set to support
 "   bold fonts.
+" Vim paste in Terminal mode:
+"   While in insert mode, press: CTRL-W" followed by register
+" Nvim paste in Terminal mode:
+"   While in normal mode, use: p
 " }}}
 " Folding {{{
 " vim:fdm=marker
