@@ -74,10 +74,10 @@ source $ZSH/oh-my-zsh.sh
 #   else
 #       print -n "%{%k%}"
 #   fi
-# 
+#
 #   print -n "%{%f%}"
 #   CURRENT_BG=''
-# 
+#
 #   #Adds the new line and ➜ as the start character.
 #   printf "\n ➜";
 # }
@@ -149,11 +149,11 @@ compinit
 
 setopt no_share_history
 
-# Source common shell script 
-[ -f ~/.shell_common ] && sh -c 'source ~/.shell_common'
+# Source common shell script
+[ -f ~/.shell_common ] && source ~/.shell_common
 
 # Source local config file if is present
-[ -f ~/.zshrc_local ] && sh -c 'source ~/.zshrc_local'
+[ -f ~/.zshrc_local ] && source ~/.zshrc_local
 
 if (( $+commands[neofetch] )) then
     neofetch
