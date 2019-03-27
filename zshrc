@@ -1,4 +1,8 @@
- #Path to your oh-my-zsh installation.
+# Use below command to performance profile this script
+# Note: last line of script needs to edited as well
+# zmodload zsh/zprof
+
+#Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
@@ -155,3 +159,5 @@ setopt no_share_history
 # Source local config file if is present
 [ -f ~/.zshrc_local ] && source ~/.zshrc_local
 
+# Stop performance profiler
+# zprof

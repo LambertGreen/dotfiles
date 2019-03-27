@@ -6,11 +6,11 @@ export FZF_DEFAULT_COMMAND='fd --type f'
 export P4CONFIG=.p4config
 
 gw () {
-    ./gradlew $@
+    ./gradlew "$@"
 }
 
 SetupDevEnvJava () {
-    if [[ "$HOME/.jenv/bin" ]]; then
+    if [ -d "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
         eval "$(jenv init -)"
     fi
@@ -18,8 +18,8 @@ SetupDevEnvJava () {
 
 SetupDevEnvNode () {
     export NVM_DIR="$HOME/.nvm"
-    [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"  # This loads nvm bash_completion
+    [ -s "/usr/local/opt/nvm/nvm.sh" ] && s "/usr/local/opt/nvm/nvm.sh"
+    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"
 }
 
 SetupDevEnvRust () {
@@ -29,7 +29,7 @@ SetupDevEnvRust () {
 SetupDevEnvRuby () {
     export PATH="$PATH:$HOME/.rvm/bin"
     # Source Ruby Version Manager
-    [[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
+    [ -s "$HOME/.rvm/scripts/rvm" ] && . "$HOME/.rvm/scripts/rvm"
 }
 
 SetupDevEnvGo () {
