@@ -24,7 +24,6 @@ if [[ $(uname -s) == Linux ]]; then
 fi
 # }}}
 
-
 # Folding {{{
 # vim:fdm=marker
 # }}}
