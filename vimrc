@@ -2,37 +2,39 @@
 
 " Environment specific settings {{{
 if !has('nvim')
-    if filereadable($VIMRUNTIME/"defaults.vim")
-        source $VIMRUNTIME/"defaults.vim""
+    if filereadable($VIMRUNTIME/'defaults.vim')
+        source $VIMRUNTIME/'defaults.vim'
     endif
 endif
 
 " Terminal specific settings {{{
-set termguicolors
+if has('termguicolors')
+    set termguicolors
+endif
 
-if exists('$ITERM_PROFILE')
+if has('macunix') && exists('$ITERM_PROFILE')
     if !has('nvim') && exists('$TMUX')
         " From https://github.com/square/maximum-awesome/pull/245/files
-        let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\"
-        let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\"
+        let &t_SI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\'
+        let &t_EI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\'
 
-        let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
-        let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+        let &t_8f = '\<Esc>[38:2:%lu:%lu:%lum'
+        let &t_8b = '\<Esc>[48:2:%lu:%lu:%lum'
     else
         " From https://github.com/square/maximum-awesome/pull/245/files
-        let &t_SI = "\<Esc>]1337;CursorShape=1\x7"
-        let &t_EI = "\<Esc>]1337;CursorShape=0\x7"
+        let &t_SI = '\<Esc>]1337;CursorShape=1\x7'
+        let &t_EI = '\<Esc>]1337;CursorShape=0\x7'
     endif
-end
+endif
 
-if !has("gui_running") && !exists('$TMUX')
+if !has('gui_running') && !exists('$TMUX')
     " ConEmu specific config
     " https://conemu.github.io/en/VimXterm.html
-    if !empty($ConEmuBuild) && !has('nvim')
+    if has('win32') && !empty($ConEmuBuild) && !has('nvim')
         set term=xterm
         set t_Co=256
-        let &t_AB="\e[48;5;%dm"
-        let &t_AF="\e[38;5;%dm"
+        let &t_AB='\e[48;5;%dm'
+        let &t_AF='\e[38;5;%dm'
         " Enable arrow keys in insert mode
         " Keycode is discoverable by typing in Vim:-
         "   CTRL-V and press arrow key
@@ -43,7 +45,7 @@ if !has("gui_running") && !exists('$TMUX')
         " Fix BS (Backspace) key
         " https://github.com/Maximus5/ConEmu/issues/641
         let &t_kb = nr2char(127)
-        let &t_kD = "^[[3~"
+        let &t_kD = '^[[3~'
     endif
 endif
 " }}}
@@ -51,8 +53,8 @@ endif
 " Set Powershell as default shell on Windows
 " Disabling for now since it results in extra process spawns
 " for git related functions i.e. vim->vimrin.exe->cmd.exe->powershell.exe
-" if has("win32") || has("gui_win32")
-"      if executable("PowerShell")
+" if has('win32') || has('gui_win32')
+"      if executable('PowerShell')
 "         " Set PowerShell as the shell for running external ! commands
 "         " http://stackoverflow.com/questions/7605917/system-with-powershell-in-vim
 "         set shell=PowerShell
@@ -62,11 +64,11 @@ endif
 "         set shellxquote= " must be a literal space char
 "    endif
 " endif
-"" }}}
+" }}}
 " Fzf workaroud {{{
 " Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
-if has('win32') && $TERM == "xterm-256color"
-    let $TERM=""
+if has('win32') && $TERM ==? 'xterm-256color'
+    let $TERM=''
 endif
 " }}}
 " }}}
@@ -113,35 +115,35 @@ autocmd FileType gitcommit setlocal spell
 " enable word completion
 set complete+=kspell
 "
-"" }}}
-"" }}}
+" }}}
+" }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
     set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 endif
-let $VIMHOME = $HOME."/.vim"
+let $VIMHOME = $HOME.'/.vim'
 " Set swap/backup/undo to global dir rather working dir
 set backup
 set undofile
 set swapfile
 set backupdir=$VIMHOME/backup/
 if !isdirectory(&backupdir)
-    call mkdir(&backupdir, "p", 0700)
+    call mkdir(&backupdir, 'p', 0700)
 endif
 set directory=$VIMHOME/swap/
 if !isdirectory(&directory)
-    call mkdir(&directory, "p", 0700)
+    call mkdir(&directory, 'p', 0700)
 endif
 set undodir=$VIMHOME/undo/
 if !isdirectory(&undodir)
-    call mkdir(&undodir, "p", 0700)
+    call mkdir(&undodir, 'p', 0700)
 endif
 " }}}
 " Keyboard bindings/mappings {{{
 " General mappings {{{
-if !exists("vimpager")
-  let g:mapleader="\<Space>"
+if !exists('vimpager')
+  let g:mapleader='\<Space>'
 endif
 " Copy/paste into system clipboard
 vmap <leader>y "+y
@@ -324,7 +326,7 @@ call plug#begin()
     Plug 'rakr/vim-one'
     Plug 'ayu-theme/ayu-vim'
     " ayu-vim settings {{{
-    let ayucolor="light"  " for light version of theme
+    let ayucolor='light'  " for light version of theme
     "let ayucolor="mirage" " for mirage version of theme
     "let ayucolor="dark"   " for dark version of theme
     "" }}}
@@ -444,7 +446,7 @@ let g:airline_theme = 'onedark'
 " }}}
 " Local settings {{{
 " Check machine specific local config
-execute "silent! source ~/.vimrc_local"
+execute 'silent! source ~/.vimrc_local'
 " }}}
 " Tips & Tricks {{{
 " Sort includes/imports:
