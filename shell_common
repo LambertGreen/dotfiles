@@ -1,3 +1,4 @@
+#!/bin/sh
 
 # Setup FZF to use fd
 export FZF_DEFAULT_COMMAND='fd --type f'
@@ -10,7 +11,7 @@ gw () {
 }
 
 function SetupDevEnvJava {
-    if [[ "$HOME/.jenv/bin" ]]; then
+    if [ "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
         eval "$(jenv init -)"
     fi
