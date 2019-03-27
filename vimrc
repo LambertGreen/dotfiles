@@ -143,7 +143,7 @@ endif
 " Keyboard bindings/mappings {{{
 " General mappings {{{
 if !exists('vimpager')
-  let g:mapleader='\<Space>'
+  let g:mapleader="\<Space>"
 endif
 " Copy/paste into system clipboard
 vmap <leader>y "+y
