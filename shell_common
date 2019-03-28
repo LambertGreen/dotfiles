@@ -5,6 +5,8 @@ export FZF_DEFAULT_COMMAND='fd --type f'
 
 export P4CONFIG=.p4config
 
+alias vim=nvim
+
 gw () {
     ./gradlew "$@"
 }
