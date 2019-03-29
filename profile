@@ -10,16 +10,12 @@ export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 # }}}
 
 # Editor {{{
-VISUAL=nvim
-if ! type $VISUAL 2> /dev/null; then
-    VISUAL=vim
-fi
-export VISUAL
+export VISUAL=vim
 export EDITOR=$VISUAL
 # }}}
 
 # Homebrew {{{
-[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" || true
 # }}}
 
 # Folding {{{
