@@ -191,7 +191,19 @@ nnoremap <leader>co :copen<CR>
 " Buffer management {{{
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
-nnoremap <leader>x :bdelete!<CR>
+nnoremap <leader>x :close<CR>
+" }}}
+" Fugitive mappings {{{
+nnoremap <leader>gs :Gstatus<CR>
+function! ToggleGStatus()
+    if buflisted(bufname('.git/index'))
+        bd .git/index
+    else
+        Gstatus
+    endif
+endfunction
+command! ToggleGStatus :call ToggleGStatus()
+nmap <F3> :ToggleGStatus<CR>
 " }}}
 " Maximizer mappings {{{
 " Window zoom toggles
