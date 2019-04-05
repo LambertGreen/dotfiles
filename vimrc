@@ -27,6 +27,14 @@ if has('macunix') && exists('$ITERM_PROFILE')
     endif
 endif
 
+" Oni specific config
+if exists('g:gui_oni')
+    " Put any Oni specific config here
+    " Note: Oni's config file is at:
+    "  Posix:   ~/.config/oni/config.tsx
+    "  Win:     ~\AppData\Roaming\Oni\config.tsx
+endif
+
 if !has('gui_running') && !exists('$TMUX')
     " ConEmu specific config
     " https://conemu.github.io/en/VimXterm.html
