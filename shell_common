@@ -1,12 +1,43 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+# Set uname
+[ -v $UNAME ];  export UNAME=$(uname -s)
 
 # Setup FZF to use fd
 export FZF_DEFAULT_COMMAND='fd --type f'
 
+# Perforce config
 export P4CONFIG=.p4config
 
+# Setup LS COLOR
+if hash vivid 2> /dev/null; then
+    LS_COLORS="$(vivid generate snazzy)"
+    export LS_COLORS
+    if [ "$UNAME" = "Darwin" ]; then
+        alias ls="gls --color"
+        alias ll="gls -lh --color"
+        alias la="gls -lAh --color"
+    fi
+else
+    true
+fi
+
+#----------
+# Aliases
+#----------
 alias vim=nvim
 
+# Git aliases
+alias ga='git add'
+alias gs='git status'
+alias gc='git commit'
+alias gl='git log'
+alias gp='git pull'
+alias gd='git diff'
+
+#----------
+# Functions
+#----------
 gw () {
     ./gradlew "$@"
 }

@@ -32,7 +32,16 @@ source $ZSH/oh-my-zsh.sh
 [ -f ~/.shell_common ] && source ~/.shell_common
 
 # Source local config file if is present
-#[ -f ~/.zshrc_local ] && source ~/.zshrc_local
+[ -f ~/.zshrc_local ] && source ~/.zshrc_local
+
+# Source completions
+# TODO: Figure out how ZSH handles completion since the below does not work
+# if [ -d  /usr/local/share/zsh/site-functions/ ]; then
+#     for completion in /usr/local/share/zsh/site-functions/*
+#     do
+#         (source $completion > /dev/null) || true
+#     done
+# fi
 
 # The ZPlugin stuff is super slow on Windows WSL, so uncommenting for now
 #--------------------------------------------
