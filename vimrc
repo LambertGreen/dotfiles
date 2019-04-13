@@ -1,6 +1,7 @@
 " Lambert's VIMRC
 
-" UTF-8 is the default, but let's be expressive
+" UTF-8 is the default, but let's be expressive (actually the linter
+" complained, and I obliged)
 scriptencoding utf-8
 
 " Environment specific settings {{{
@@ -232,10 +233,14 @@ nnoremap <silent> <cr> :GitGutterNextHunk<cr>
 nnoremap <silent> <backspace> :GitGutterPrevHunk<cr>
 " }}}
 " NERDTree mappings {{{
-" Open NERD
+" Toggle NERD
 nmap <Leader>n :NERDTreeToggle<CR>
 " Open NERD with current file highlighted
 nmap <Leader>N :NERDTreeFind<CR>
+" }}}
+" Tagbar mappings {{{
+" Toggle Tagbar
+nmap <Leader>t :TagbarToggle<CR>
 " }}}
 " FZF mappings {{{
 " Git files selection
@@ -416,8 +421,13 @@ call plug#begin()
     Plug 'Shougo/unite.vim'
     Plug 'devjoe/vim-codequery'
 
-    Plug 'szw/vim-maximizer'		" enables zoom/maximize toggle of current window
-    Plug 'PProvost/vim-ps1'
+    Plug 'szw/vim-maximizer'        " enables zoom/maximize toggle of current window
+
+    " Filetype plugs
+    Plug 'PProvost/vim-ps1'         " powershell
+    Plug 'tmhedberg/SimpylFold'     " python folding
+
+    Plug 'ambv/black'               " python auto formater
 
     Plug 'rizzatti/dash.vim'
 
