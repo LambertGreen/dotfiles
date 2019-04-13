@@ -47,3 +47,7 @@ function SymlinkNeovim() {
 function SymlinkOni() {
     make-link $scriptDir/config/oni/config.tsx $env:APPDATA/oni/config.tsx
 }
+
+function SymlinkFlake8() {
+    make-link $scriptDir/config/flake8 $env:HOMEPATH/.flake8
+}

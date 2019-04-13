@@ -51,5 +51,8 @@ function createConfigSymLinks {
     else
         (echo "Nvim directory '.config/nvim' does not exist! Install Nvim first.")
     fi
+
+    # flake8
+    createConfigSymLink config/flake8
 }
 
