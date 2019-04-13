@@ -1,5 +1,8 @@
 " Lambert's VIMRC
 
+" UTF-8 is the default, but let's be expressive
+scriptencoding utf-8
+
 " Environment specific settings {{{
 if !has('nvim')
     if filereadable($VIMRUNTIME/'defaults.vim')
@@ -216,31 +219,38 @@ nmap <Leader>N :NERDTreeFind<CR>
 " }}}
 " FZF mappings {{{
 " Git files selection
-nmap <leader>f :GFiles<CR>
+nmap <leader>ff :GFiles<CR>
 " All files selection
-nmap <leader>F :Files<CR>
+nmap <leader>fF :Files<CR>
 " Buffers selection
-nmap <leader>b :Buffers<CR>
+nmap <leader>fb :Buffers<CR>
 " History selection
-nmap <leader>h :History<CR>
+nmap <leader>fh :History<CR>
 " Command history selection
-nmap <leader>: :History:<CR>
+nmap <leader>f: :History:<CR>
 " Search history selection
-nmap <leader>/ :History/<CR>
+nmap <leader>f/ :History/<CR>
 " Tags in current buffer selection
-nmap <leader>t :BTags<CR>
+nmap <leader>ft :BTags<CR>
 " Tags selection
-nmap <leader>T :Tags<CR>
+nmap <leader>fT :Tags<CR>
 " Lines in current buffer selection
-nmap <leader>l :BLines<CR>
+nmap <leader>fl :BLines<CR>
 " Lines selection
-nmap <leader>L :Lines<CR>
+nmap <leader>fL :Lines<CR>
 " Rg
-nmap <leader>g :Rg<CR>
+nmap <leader>fg :Rg<CR>
 " Rg but wait for input before, so that next step can be a filter on results
-nmap <leader>G :Rg
+nmap <leader>fG :Rg
 " Commands selection
-nmap <leader>c :Commands<CR>
+nmap <leader>fc :Commands<CR>
+" }}}
+" Fugitive mappings {{{
+nnoremap <leader>gs :Gstatus<CR>
+nnoremap <leader>gl :Glog<CR>
+nnoremap <leader>gc :Gcommit<CR>
+nnoremap <leader>gd :Gdiff<CR>
+nnoremap <leader>gb :Gblame<CR>
 " }}}
 " Make mappings {{{
 nnoremap <leader>m :Make<CR>
