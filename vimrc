@@ -30,6 +30,14 @@ if has('macunix') && exists('$ITERM_PROFILE')
     endif
 endif
 
+" Oni specific config
+if exists('g:gui_oni')
+    " Put any Oni specific config here
+    " Note: Oni's config file is at:
+    "  Posix:   ~/.config/oni/config.tsx
+    "  Win:     ~\AppData\Roaming\Oni\config.tsx
+endif
+
 if !has('gui_running') && !exists('$TMUX')
     " ConEmu specific config
     " https://conemu.github.io/en/VimXterm.html
@@ -194,7 +202,19 @@ nnoremap <leader>co :copen<CR>
 " Buffer management {{{
 nnoremap <Tab> :bnext<CR>
 nnoremap <S-Tab> :bprevious<CR>
-nnoremap <leader>x :bdelete!<CR>
+nnoremap <leader>x :close<CR>
+" }}}
+" Fugitive mappings {{{
+nnoremap <leader>gs :Gstatus<CR>
+function! ToggleGStatus()
+    if buflisted(bufname('.git/index'))
+        bd .git/index
+    else
+        Gstatus
+    endif
+endfunction
+command! ToggleGStatus :call ToggleGStatus()
+nmap <F3> :ToggleGStatus<CR>
 " }}}
 " Maximizer mappings {{{
 " Window zoom toggles

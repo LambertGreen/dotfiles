@@ -48,25 +48,25 @@ source $ZSH/oh-my-zsh.sh
 # Zplugin: https://github.com/zdharma/zplugin
 # Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
-# . ~/.zplugin/bin/zplugin.zsh
+. ~/.zplugin/bin/zplugin.zsh
+
+autoload -Uz _zplugin
+(( ${+_comps} )) && _comps[zplugin]=_zplugin
+
+ZPLGM[MUTE_WARNINGS]=1
+
+zplugin light raxod502/wdx
+zplugin light zsh-users/zsh-autosuggestions
+zplugin ice blockf
+zplugin light zsh-users/zsh-completions
+
+# For GNU ls (the binaries can be gls, gdircolors)
 #
-# autoload -Uz _zplugin
-# (( ${+_comps} )) && _comps[zplugin]=_zplugin
-#
-# ZPLGM[MUTE_WARNINGS]=1
-#
-# zplugin light raxod502/wdx
-# zplugin light zsh-users/zsh-autosuggestions
-# zplugin ice blockf
-# zplugin light zsh-users/zsh-completions
-#
-# # For GNU ls (the binaries can be gls, gdircolors)
-# #
-# zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
-# zplugin light trapd00r/LS_COLORS
-#
-# autoload -Uz compinit
-# compinit
+zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+zplugin light trapd00r/LS_COLORS
+
+autoload -Uz compinit
+compinit
 #--------------------------------------------
 # Stop performance profiler
 # zprof

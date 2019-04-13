@@ -43,3 +43,7 @@ function SymlinkNeovim() {
     make-link $scriptDir/config/nvim/init.vim $env:LOCALAPPDATA/nvim/init.vim
     make-link $scriptDir/config/nvim/ginit.vim $env:LOCALAPPDATA/nvim/ginit.vim
 }
+
+function SymlinkOni() {
+    make-link $scriptDir/config/oni/config.tsx $env:APPDATA/oni/config.tsx
+}
