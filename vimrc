@@ -200,11 +200,6 @@ endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
 " }}}
-" Buffer management {{{
-nnoremap <Tab> :bnext<CR>
-nnoremap <S-Tab> :bprevious<CR>
-nnoremap <leader>x :close<CR>
-" }}}
 " Fugitive mappings {{{
 nnoremap <leader>gs :Gstatus<CR>
 function! ToggleGStatus()
@@ -226,11 +221,6 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " Winteract mappings {{{
 " Activate interactive window resize mode
 nnoremap <leader>w :InteractiveWindow<CR>
-" }}}
-" GitGutter mappings {{{
-" Quick jumping to next/prev hunk
-nnoremap <silent> <cr> :GitGutterNextHunk<cr>
-nnoremap <silent> <backspace> :GitGutterPrevHunk<cr>
 " }}}
 " NERDTree mappings {{{
 " Toggle NERD
