@@ -22,6 +22,9 @@ export VISUAL=vim
 export EDITOR=$VISUAL
 # }}}
 
+# BAT theme
+export BAT_THEME="TwoDark"
+
 # Linuxbrew {{{
 if [ "$UNAME" = "Linux" ]; then
     [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" || true
@@ -29,6 +32,9 @@ else
     true
 fi
 # }}}
+
+# Autojump
+[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh || true
 
 # Folding {{{
 # vim:fdm=marker
