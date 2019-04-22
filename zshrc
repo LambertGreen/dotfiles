@@ -18,8 +18,7 @@ ZSH_THEME="agnoster"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-   git
-   colorize
+   gitfast
 )
 
 # Source OhMyZsh
@@ -34,15 +33,6 @@ source $ZSH/oh-my-zsh.sh
 # Source local config file if is present
 [ -f ~/.zshrc_local ] && source ~/.zshrc_local
 
-# Source completions
-# TODO: Figure out how ZSH handles completion since the below does not work
-# if [ -d  /usr/local/share/zsh/site-functions/ ]; then
-#     for completion in /usr/local/share/zsh/site-functions/*
-#     do
-#         (source $completion > /dev/null) || true
-#     done
-# fi
-
 # The ZPlugin stuff is super slow on Windows WSL, so uncommenting for now
 #--------------------------------------------
 # Zplugin: https://github.com/zdharma/zplugin
@@ -55,18 +45,23 @@ autoload -Uz _zplugin
 
 ZPLGM[MUTE_WARNINGS]=1
 
-zplugin light raxod502/wdx
-zplugin light zsh-users/zsh-autosuggestions
-zplugin ice blockf
+zplugin ice wait"0" blockf
 zplugin light zsh-users/zsh-completions
 
+zplugin ice wait"0" atload"_zsh_autosuggest_start"
+zplugin light zsh-users/zsh-autosuggestions
+
 # For GNU ls (the binaries can be gls, gdircolors)
-#
 zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
 zplugin light trapd00r/LS_COLORS
+
+zplugin ice wait"0" atinit"zpcompinit; zpcdreplay"
+zplugin light zdharma/fast-syntax-highlighting
 
 autoload -Uz compinit
 compinit
 #--------------------------------------------
 # Stop performance profiler
 # zprof
+
+
