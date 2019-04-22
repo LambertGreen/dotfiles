@@ -455,7 +455,7 @@ set encoding=utf-8 " Needed to show patched powerline fonts correctly.
 " Ack/Ag/Grep {{{
 if executable('ag')
     " Use ag over grep
-    set grepprg=ag\ --nogroup\ --nocolor
+    set grepprg=ag\ --vimgrep
     let g:ackprg = 'ag --vimgrep'
 endif
 cnoreabbrev ag Ack
