@@ -26,6 +26,7 @@ fi
 # Aliases
 #----------
 alias vim=nvim
+alias vi=nvim
 
 # Git aliases
 alias ga='git add'
@@ -73,3 +74,7 @@ SetupDevEnvGo () {
     test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 }
 
+TimeShell() {
+  shell=${1-$SHELL}
+  for _ in $(seq 1 10); do time $shell -i -c exit; done
+}
