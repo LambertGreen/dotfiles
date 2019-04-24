@@ -33,6 +33,13 @@ else
 fi
 # }}}
 
+# Gnu-time
+if [ "$UNAME" = "Darwin" ]; then
+    PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH"
+else
+    true
+fi
+
 # Autojump
 [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh || true
 
