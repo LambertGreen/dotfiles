@@ -4,7 +4,7 @@
 [ -v $UNAME ];  export UNAME=$(uname -s)
 
 # Setup FZF to use fd
-export FZF_DEFAULT_COMMAND='fd --type f'
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 
 # Perforce config
 export P4CONFIG=.p4config
