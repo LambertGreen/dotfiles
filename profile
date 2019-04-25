@@ -8,6 +8,8 @@
 UNAME=$(uname -s)
 export UNAME
 
+echo "Welcome $(whoami), setting up your profile..."
+
 # Set PATH
 # Set local bins ahead of system PATH
 export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
@@ -37,3 +39,6 @@ fi
 
 # Add Cargo to path
 [ -d  "$HOME/.cargo/bin" ] && export PATH="$PATH:$HOME/.cargo/bin" || true
+
+echo "Setup complete. Happy coding."
+[ -x "$(command -v neofetch)" ] && neofetch
