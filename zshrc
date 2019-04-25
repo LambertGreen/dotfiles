@@ -15,6 +15,9 @@ HISTSIZE=1000
 SAVEHIST=1000
 setopt no_share_history
 
+# Homebrew doctor recommends the below
+umask 002
+
 #--------------------------------------------
 # OhMyZsh
 #--------------------------------------------

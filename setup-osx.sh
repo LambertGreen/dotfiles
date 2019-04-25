@@ -4,6 +4,9 @@
 source ./setup-posix-common.sh
 
 function createOsxConfigSymLinks {
+
+    createConfigSymLink profile_osx
+
     # karabiner
     createConfigSymLink config/karabiner
 }

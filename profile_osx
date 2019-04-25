@@ -1,0 +1,4 @@
+
+# Gnu-time
+export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH"
+
