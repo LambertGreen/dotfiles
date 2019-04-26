@@ -46,4 +46,4 @@ echo "Setup complete. Happy coding."
 # Source bashrc
 # Needed for Ssh and Tmux hosted sessions since they only source profile
 # and not bashrc.
-[-f ~/.bashrc] && . ~/bashrc
+[ -f ~/.bashrc ] && . ~/bashrc
