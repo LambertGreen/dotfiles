@@ -8,5 +8,8 @@ SetupLinuxbrew() {
     export LD_LIBRARY_PATH=$LINUXBREWHOME/lib64:$LINUXBREWHOME/lib:$LD_LIBRARY_PATH
 }
 
-
+# LinuxBrew
 [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && SetupLinuxbrew || true
+
+# Autojump
+[ -f /home/linuxbrew/.linuxbrew/etc/profile.d/autojump.sh ] && . /home/linuxbrew/.linuxbrew/etc/profile.d/autojump.sh
