@@ -43,6 +43,12 @@ gw () {
     ./gradlew "$@"
 }
 
+StartSshAgent() {
+    # Keychain to start ssh-agent
+    eval `keychain --eval id_rsa`
+
+}
+
 SetupDevEnvJava () {
     if [ -d "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
