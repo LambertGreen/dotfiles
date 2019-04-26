@@ -42,3 +42,8 @@ fi
 
 echo "Setup complete. Happy coding."
 [ -x "$(command -v neofetch)" ] && neofetch
+
+# Source bashrc
+# Needed for Ssh and Tmux hosted sessions since they only source profile
+# and not bashrc.
+[-f ~/.bashrc] && . ~/bashrc
