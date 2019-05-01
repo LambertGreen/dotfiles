@@ -10,12 +10,6 @@ Import-Module Get-ChildItemColor
 Set-Alias ll Get-ChildItemColor -option AllScope
 Set-Alias ls Get-ChildItemColorFormatWide -option AllScope
 
-# Enable a cool prompt
-Import-Module -Name posh-git
-Import-Module -Name oh-my-posh
-
-# Set-Theme Honukai
-Set-Theme Paradox
 
 # Chocolatey profile
 $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
@@ -42,23 +36,42 @@ function updateConEmuWindowTitleToShowCwd
 
 # Bat wrapper because less pager does not correctly show colors,
 # so set no paging
-function bat { bat.exe $args --paging=never}
+function Run-Bat { bat.exe $args --paging=never}
+Set-Alias bat Run-Bat -option AllScope
 
 # Gradlew wrapper function
-function gw { ./gradlew.bat $args }
+function Run-Gradlew { ./gradlew.bat $args }
+Set-Alias gw Run-Gradlew -option AllScope
+
+# Git alias
+function Run-Git { git $args }
+Set-Alias g Run-Git -option AllScope
+
+# Rather use git aliases so that you can have one
+# common config across platforms
+# Note: An issue I ran into is that "gc" is an alias for
+# Get-Content, and is not a good alias to override, as
+# Powershell scripts may use the alias!
+#
+# function Get-GitStatus { & git status $args }
+# function Get-GitAdd { & git add $args }
+# function Get-GitDiff { & git diff $args }
+# function Get-GitCommit { & git commit $args }
+# Set-Alias gs -Value Get-GitStatus
+# Set-Alias ga -Value Get-GitAdd
+# Set-Alias gd -Value Get-GitDiff
+# del alias:gc -Force
+# Set-Alias -Name gc -Value Get-GitCommit -Force
+
+# Enable a cool prompt
+Import-Module -Name posh-git
+Import-Module -Name oh-my-posh
+
+# Set-Theme Honukai
+Set-Theme Paradox
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
 
-# Git functionas and aliases
-function Get-GitStatus { & git status $args }
-function Get-GitAdd { & git add $args }
-function Get-GitDiff { & git diff $args }
-function Get-GitCommit { & git commit $args }
-New-Alias -Name gs -Value Get-GitStatus
-New-Alias -Name ga -Value Get-GitAdd
-New-Alias -Name gd -Value Get-GitDiff
-del alias:gc -Force
-New-Alias -Name gc -Value Get-GitCommit
 
 
