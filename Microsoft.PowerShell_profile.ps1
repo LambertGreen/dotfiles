@@ -49,3 +49,16 @@ function gw { ./gradlew.bat $args }
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
+
+# Git functionas and aliases
+function Get-GitStatus { & git status $args }
+function Get-GitAdd { & git add $args }
+function Get-GitDiff { & git diff $args }
+function Get-GitCommit { & git commit $args }
+New-Alias -Name gs -Value Get-GitStatus
+New-Alias -Name ga -Value Get-GitAdd
+New-Alias -Name gd -Value Get-GitDiff
+del alias:gc -Force
+New-Alias -Name gc -Value Get-GitCommit
+
+
