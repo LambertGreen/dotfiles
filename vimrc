@@ -134,7 +134,11 @@ if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
     set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 endif
-let $VIMHOME = $HOME.'/.vim'
+if has('win32') && has('nvim')
+    let $VIMHOME = $LOCALAPPDATA.'\nvim'
+else
+    let $VIMHOME = $HOME.'/.vim'
+endif
 " Set swap/backup/undo to global dir rather working dir
 set backup
 set undofile
@@ -302,10 +306,15 @@ autocmd BufWritePre * call TrimWhitespace()
 " }}}
 " Plugins {{{
 " Install vim-plug if not already installed
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+if empty(glob($VIMHOME.'/autoload/plug.vim'))
+    if has('win32')
+        silent !curl -fLo %VIMHOME%\autoload\plug.vim' --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    else
+        silent !curl -fLo $VIMHOME/autoload/plug.vim' --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    endif
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin()
 " Frequently used {{{
