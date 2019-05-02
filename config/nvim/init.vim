@@ -4,7 +4,13 @@ else
 	source ~/.vimrc
 endif
 
-"" Set theme for terminal in window
+" Set a slightly different background for the terminal
+" so that it is easier to see than the regular buffers.
+hi BlackBg guibg=#1e2128
+au TermOpen * :set winhighlight=Normal:BlackBg
+au BufHidden term://* :set winhighlight=Normal:Normal
+
+" Set theme for terminal in window
 let g:terminal_color_0  = '#1b1d1e'
 " Color 1 is switched with Color 4
 let g:terminal_color_1  = '#f92672'
