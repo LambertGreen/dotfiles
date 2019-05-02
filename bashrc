@@ -8,3 +8,5 @@
 
 # Source common shell script
 [ -f ~/.shell_common ] && source ~/.shell_common
+
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash

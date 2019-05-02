@@ -110,31 +110,19 @@ set splitright
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
-" Cusorline only in active window
-augroup CursorLineOnlyInActiveWindow
-  autocmd!
-  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  autocmd WinLeave * setlocal nocursorline
-augroup END
-" Make VIM scream at edit time about accidental changes to buffers to readonly
-" files
-autocmd BufRead * let &l:modifiable = !&readonly
-" Spell checking settings {{{
-" markdown files
-autocmd BufRead,BufNewFile *.md setlocal spell"
-" git commits
-autocmd FileType gitcommit setlocal spell
 " enable word completion
 set complete+=kspell
-"
-" }}}
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
     set runtimepath=~/.vim,$VIMRUNTIME
     set viminfofile=~/.viminfo " To force win-vim to use dot viminfo
 endif
-let $VIMHOME = $HOME.'/.vim'
+if has('win32') && has('nvim')
+    let $VIMHOME = $LOCALAPPDATA.'\nvim'
+else
+    let $VIMHOME = $HOME.'/.vim'
+endif
 " Set swap/backup/undo to global dir rather working dir
 set backup
 set undofile
@@ -227,6 +215,8 @@ nnoremap <leader>w :InteractiveWindow<CR>
 nmap <Leader>n :NERDTreeToggle<CR>
 " Open NERD with current file highlighted
 nmap <Leader>N :NERDTreeFind<CR>
+" Change directory
+nmap <Leader>nc :NERDTreeCWD<CR>
 " }}}
 " Tagbar mappings {{{
 " Toggle Tagbar
@@ -297,15 +287,51 @@ fun! FormatJson()
 endfun
 " }}}
 " Auto commands {{{
-" Remove trailing whitespace on save
-autocmd BufWritePre * call TrimWhitespace()
+
+" Cusorline only in active window
+augroup CursorLineOnlyInActiveWindow
+    autocmd!
+    autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+    autocmd WinLeave * setlocal nocursorline
+augroup END
+
+" On directory change update window title
+augroup DirectoryChange
+    autocmd!
+    autocmd DirChanged * let &titlestring=v:event['cwd']
+augroup END
+
+" Spell checking settings
+augroup Spelling
+    autocmd!
+    " markdown files
+    autocmd BufRead,BufNewFile *.md setlocal spell"
+    " git commits
+    autocmd FileType gitcommit setlocal spell
+augroup END
+
+" Buf read/write commands
+augroup BufReadWriteStuff
+    autocmd!
+    " Make VIM scream at edit time about accidental changes to buffers to readonly
+    " files
+    autocmd BufRead * let &l:modifiable = !&readonly
+
+    " Remove trailing whitespace on save
+    autocmd BufWritePre * call TrimWhitespace()
+augroup END
 " }}}
 " Plugins {{{
 " Install vim-plug if not already installed
-if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+if empty(glob($VIMHOME.'/autoload/plug.vim'))
+    if has('win32')
+        silent !curl -fLo %VIMHOME%\autoload\plug.vim' --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    else
+        silent !curl -fLo $VIMHOME/autoload/plug.vim' --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    endif
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 call plug#begin()
 " Frequently used {{{
@@ -328,6 +354,9 @@ call plug#begin()
     " }}}
 
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+"NERDTree settings {{{
+    let g:NERDTreeHijackNetrw = 1
+"}}}
     Plug 'ryanoasis/vim-devicons'
 "vim-devicons settings {{{
     let g:WebDevIconsUnicodeDecorateFolderNodes = 1
@@ -511,6 +540,8 @@ execute 'silent! source ~/.vimrc_local'
 " Syntax Highlighting
 "   Fix broken highlighting (often happens over SSH):
 "       :syntax sync fromstart
+" Changing visual selection in other direction
+"   1. o
 " }}}
 " Folding {{{
 " vim:fdm=marker
