@@ -508,6 +508,9 @@ execute 'silent! source ~/.vimrc_local'
 "   While in insert mode, press: CTRL-W" followed by register
 " Nvim paste in Terminal mode:
 "   While in normal mode, use: p
+" Syntax Highlighting
+"   Fix broken highlighting (often happens over SSH):
+"       :syntax sync fromstart
 " }}}
 " Folding {{{
 " vim:fdm=marker
