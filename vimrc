@@ -542,6 +542,12 @@ execute 'silent! source ~/.vimrc_local'
 "       :syntax sync fromstart
 " Changing visual selection in other direction
 "   1. o
+" End-of-line (EOL) characters: CRLF for Windows; LF for Unix
+"   To force Vim reading a file as specific fileformat:
+"       :e ++ff=[dos|unix]
+"   To replace ^M characters:
+"       :%s/^M//g
+"   Note: To type ^M actualy type: [CTRL-V][CTRL-M]
 " }}}
 " Folding {{{
 " vim:fdm=marker
