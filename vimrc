@@ -110,24 +110,8 @@ set splitright
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
-" Cusorline only in active window
-augroup CursorLineOnlyInActiveWindow
-  autocmd!
-  autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
-  autocmd WinLeave * setlocal nocursorline
-augroup END
-" Make VIM scream at edit time about accidental changes to buffers to readonly
-" files
-autocmd BufRead * let &l:modifiable = !&readonly
-" Spell checking settings {{{
-" markdown files
-autocmd BufRead,BufNewFile *.md setlocal spell"
-" git commits
-autocmd FileType gitcommit setlocal spell
 " enable word completion
 set complete+=kspell
-"
-" }}}
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
@@ -231,6 +215,8 @@ nnoremap <leader>w :InteractiveWindow<CR>
 nmap <Leader>n :NERDTreeToggle<CR>
 " Open NERD with current file highlighted
 nmap <Leader>N :NERDTreeFind<CR>
+" Change directory
+nmap <Leader>nc :NERDTreeCWD<CR>
 " }}}
 " Tagbar mappings {{{
 " Toggle Tagbar
@@ -301,8 +287,39 @@ fun! FormatJson()
 endfun
 " }}}
 " Auto commands {{{
-" Remove trailing whitespace on save
-autocmd BufWritePre * call TrimWhitespace()
+
+" Cusorline only in active window
+augroup CursorLineOnlyInActiveWindow
+    autocmd!
+    autocmd VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+    autocmd WinLeave * setlocal nocursorline
+augroup END
+
+" On directory change update window title
+augroup DirectoryChange
+    autocmd!
+    autocmd DirChanged * let &titlestring=v:event['cwd']
+augroup END
+
+" Spell checking settings
+augroup Spelling
+    autocmd!
+    " markdown files
+    autocmd BufRead,BufNewFile *.md setlocal spell"
+    " git commits
+    autocmd FileType gitcommit setlocal spell
+augroup END
+
+" Buf read/write commands
+augroup BufReadWriteStuff
+    autocmd!
+    " Make VIM scream at edit time about accidental changes to buffers to readonly
+    " files
+    autocmd BufRead * let &l:modifiable = !&readonly
+
+    " Remove trailing whitespace on save
+    autocmd BufWritePre * call TrimWhitespace()
+augroup END
 " }}}
 " Plugins {{{
 " Install vim-plug if not already installed
@@ -337,6 +354,9 @@ call plug#begin()
     " }}}
 
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+"NERDTree settings {{{
+    let g:NERDTreeHijackNetrw = 1
+"}}}
     Plug 'ryanoasis/vim-devicons'
 "vim-devicons settings {{{
     let g:WebDevIconsUnicodeDecorateFolderNodes = 1
@@ -520,6 +540,14 @@ execute 'silent! source ~/.vimrc_local'
 " Syntax Highlighting
 "   Fix broken highlighting (often happens over SSH):
 "       :syntax sync fromstart
+" Changing visual selection in other direction
+"   1. o
+" End-of-line (EOL) characters: CRLF for Windows; LF for Unix
+"   To force Vim reading a file as specific fileformat:
+"       :e ++ff=[dos|unix]
+"   To replace ^M characters:
+"       :%s/^M//g
+"   Note: To type ^M actualy type: [CTRL-V][CTRL-M]
 " }}}
 " Folding {{{
 " vim:fdm=marker
