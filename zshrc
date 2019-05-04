@@ -52,7 +52,7 @@ SetupCommonShell() {
     # Source common shell script
     [ -f ~/.shell_common ] && source ~/.shell_common
     # Source local config file if is present
-        [ -f ~/.zshrc_local ] && source ~/.zshrc_local
+    [ -f ~/.zshrc_local ] && source ~/.zshrc_local
 }
 
 #--------------------------------------------
@@ -61,13 +61,65 @@ SetupCommonShell() {
 # Zplugin: https://github.com/zdharma/zplugin
 # Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
+SetupOhMyZshUsingZplugin() {
+    setopt promptsubst
+
+    # Git
+    zplugin snippet OMZ::lib/git.zsh
+    zplugin snippet OMZ::plugins/git/git.plugin.zsh
+
+    # Color man-pages
+    zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+    # Theme
+    zplugin snippet OMZ::themes/agnoster.zsh-theme
+}
+
+SetupOhMyZshUsingZpluginTurbo() {
+    setopt promptsubst
+
+    # Git
+    zplugin ice wait"0" lucid
+    zplugin snippet OMZ::lib/git.zsh
+
+    # More git?
+    zplugin ice wait"0" atload"unalias grv" lucid
+    zplugin snippet OMZ::plugins/git/git.plugin.zsh
+
+    # Color man-pages
+    zplugin ice wait"0" lucid
+    zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+    # Theme
+    zplugin ice wait"0" lucid
+    zplugin snippet OMZ::themes/agnoster.zsh-theme
+}
+
 SetupZplugin() {
+    . ~/.zplugin/bin/zplugin.zsh
+
+    SetupOhMyZshUsingZplugin
+    zplugin light zsh-users/zsh-completions
+    zplugin light zsh-users/zsh-autosuggestions
+    zplugin light zdharma/fast-syntax-highlighting
+
+    zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+    zplugin light trapd00r/LS_COLORS
+
+
+    autoload -Uz compinit
+    compinit
+}
+
+SetupZpluginTurbo() {
     . ~/.zplugin/bin/zplugin.zsh
 
     autoload -Uz _zplugin
     (( ${+_comps} )) && _comps[zplugin]=_zplugin
 
     ZPLGM[MUTE_WARNINGS]=1
+
+    SetupOhMyZshUsingZplugin
 
     zplugin ice wait"0" blockf
     zplugin light zsh-users/zsh-completions
@@ -79,17 +131,18 @@ SetupZplugin() {
     zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
     zplugin light trapd00r/LS_COLORS
 
-    zplugin ice wait"0" atinit"zpcompinit; zpcdreplay"
+    # Syntax highlighting
+    zplugin ice wait"0" atinit"zpcompinit" lucid
     zplugin light zdharma/fast-syntax-highlighting
 
     autoload -Uz compinit
     compinit
 }
 
-SetupOhMyZsh
+#SetupOhMyZsh
+SetupZplugin
 SetupFzf
 SetupCommonShell
-SetupZplugin
 
 #--------------------------------------------
 # Stop performance profiler (if enabled)

@@ -9,32 +9,23 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 # Perforce config
 export P4CONFIG=.p4config
 
-# Setup LS COLOR
-if hash vivid 2> /dev/null; then
-    LS_COLORS="$(vivid generate snazzy)"
-    export LS_COLORS
-    if [ "$UNAME" = "Darwin" ]; then
-        alias ls="gls --color"
-        alias ll="gls -lh --color"
-        alias la="gls -lAh --color"
-    fi
-else
-    true
-fi
-
 #----------
 # Aliases
 #----------
 alias vim=nvim
 alias vi=nvim
-
-# Git aliases
-alias ga='git add'
-alias gs='git status'
-alias gc='git commit'
-alias gl='git log'
-alias gp='git pull'
-alias gd='git diff'
+alias g=git
+alias j=autojump
+alias b=brew
+if [ "$UNAME" = "Darwin" ]; then
+    alias ls="gls --color"
+    alias ll="gls -lh --color"
+    alias la="gls -lAh --color"
+else
+    alias ls="ls --color"
+    alias ll="ls -lh --color"
+    alias la="ls -lAh --color"
+fi
 
 #----------
 # Functions
@@ -81,6 +72,5 @@ SetupDevEnvGo () {
 }
 
 TimeShell() {
-  shell=${1-$SHELL}
-  for _ in $(seq 1 10); do time $shell -i -c exit; done
+  for i in $(seq 1 10); do time $@ -i -c exit; done
 }
