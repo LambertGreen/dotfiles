@@ -9,6 +9,8 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 # Perforce config
 export P4CONFIG=.p4config
 
+[ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
+
 #----------
 # Aliases
 #----------
