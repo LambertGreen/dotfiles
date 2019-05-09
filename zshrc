@@ -21,10 +21,11 @@ umask 002
 #--------------------------------------------
 # OhMyZsh
 #--------------------------------------------
+#Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="agnoster"
+
 SetupOhMyZsh () {
-    #Path to your oh-my-zsh installation.
-    export ZSH="$HOME/.oh-my-zsh"
-    ZSH_THEME="agnoster"
 
     # Which plugins would you like to load?
     # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -68,6 +69,10 @@ SetupOhMyZshUsingZplugin() {
     zplugin snippet OMZ::lib/git.zsh
     zplugin snippet OMZ::plugins/git/git.plugin.zsh
 
+    # Z for fast directory navigation
+    zplugin ice svn wait"0" lucid
+    zplugin snippet OMZ::plugins/z
+
     # Color man-pages
     zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
@@ -98,6 +103,11 @@ SetupOhMyZshUsingZpluginTurbo() {
 SetupZplugin() {
     . ~/.zplugin/bin/zplugin.zsh
 
+    autoload -Uz _zplugin
+    (( ${+_comps} )) && _comps[zplugin]=_zplugin
+
+    ZPLGM[MUTE_WARNINGS]=1
+
     SetupOhMyZshUsingZplugin
     zplugin light zsh-users/zsh-completions
     zplugin light zsh-users/zsh-autosuggestions
@@ -119,7 +129,7 @@ SetupZpluginTurbo() {
 
     ZPLGM[MUTE_WARNINGS]=1
 
-    SetupOhMyZshUsingZplugin
+    SetupOhMyZshUsingZpluginTurbo
 
     zplugin ice wait"0" blockf
     zplugin light zsh-users/zsh-completions
