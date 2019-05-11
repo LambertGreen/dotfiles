@@ -9,25 +9,13 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 # Perforce config
 export P4CONFIG=.p4config
 
-[ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
-
 #----------
 # Aliases
 #----------
 alias vim=nvim
 alias vi=nvim
 alias g=git
-alias j=autojump
 alias b=brew
-if [ "$UNAME" = "Darwin" ]; then
-    alias ls="gls --color"
-    alias ll="gls -lh --color"
-    alias la="gls -lAh --color"
-else
-    alias ls="ls --color"
-    alias ll="ls -lh --color"
-    alias la="ls -lAh --color"
-fi
 
 #----------
 # Functions
