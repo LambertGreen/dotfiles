@@ -6,6 +6,13 @@ scriptencoding utf-8
 
 " Environment specific settings {{{
 if !has('nvim')
+    " Check if we are running vim inside nvim
+    " and warn, since this results in vim
+    " using the now defined runtime of nvim
+    " whic causes Vim to fail.
+    if $VIMRUNTIME =~ 'nvim'
+        throw "Vim is running inside of Nvim! I recommed you alias vim to nvim."
+    endif
     if filereadable($VIMRUNTIME/'defaults.vim')
         source $VIMRUNTIME/'defaults.vim'
     endif
@@ -143,7 +150,7 @@ endif
 " Keyboard bindings/mappings {{{
 " General mappings {{{
 if !exists('vimpager')
-  let g:mapleader="\<Space>"
+    let g:mapleader="\<Space>"
 endif
 " Copy/paste into system clipboard
 vmap <leader>y "+y
@@ -174,16 +181,18 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 " terminal mode
-tnoremap <C-w>n <C-\><C-n>
-tnoremap <C-h> <C-\><C-n><C-w>h
-tnoremap <C-j> <C-\><C-n><C-w>j
-tnoremap <C-k> <C-\><C-n><C-w>k
-tnoremap <C-l> <C-\><C-n><C-w>l
-" Quick open a terminal
-if has('nvim')
-    :nnoremap <leader>; :vs\|:term<CR>
-else
-    :nnoremap <leader>; :term<CR>
+if v:version >= 800
+    tnoremap <C-w>n <C-\><C-n>
+    tnoremap <C-h> <C-\><C-n><C-w>h
+    tnoremap <C-j> <C-\><C-n><C-w>j
+    tnoremap <C-k> <C-\><C-n><C-w>k
+    tnoremap <C-l> <C-\><C-n><C-w>l
+    " Quick open a terminal
+    if has('nvim')
+        :nnoremap <leader>; :vs\|:term<CR>
+    else
+        :nnoremap <leader>; :term<CR>
+    endif
 endif
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
@@ -282,12 +291,12 @@ fun! TrimWhitespace()
     keeppatterns %s/\s\+$//e
     call winrestview(l:save)
 endfun
+
 fun! FormatJson()
     :%!python -m json.tool
 endfun
 " }}}
 " Auto commands {{{
-
 " Cusorline only in active window
 augroup CursorLineOnlyInActiveWindow
     autocmd!
@@ -296,10 +305,12 @@ augroup CursorLineOnlyInActiveWindow
 augroup END
 
 " On directory change update window title
-augroup DirectoryChange
-    autocmd!
-    autocmd DirChanged * let &titlestring=v:event['cwd']
-augroup END
+if v:version >= 800
+    augroup DirectoryChange
+        autocmd!
+        autocmd DirChanged * let &titlestring=v:event['cwd']
+    augroup END
+endif
 
 " Spell checking settings
 augroup Spelling
@@ -322,157 +333,159 @@ augroup BufReadWriteStuff
 augroup END
 " }}}
 " Plugins {{{
-" Install vim-plug if not already installed
-if empty(glob($VIMHOME.'/autoload/plug.vim'))
-    if has('win32')
-        silent !curl -fLo %VIMHOME%\autoload\plug.vim' --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    else
-        silent !curl -fLo $VIMHOME/autoload/plug.vim' --create-dirs
-        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+" Only load plugins if we are using a modern Vim
+if v:version >= 800
+    " Install vim-plug if not already installed
+    if empty(glob($VIMHOME.'/autoload/plug.vim'))
+        if has('win32')
+            silent !curl -fLo %VIMHOME%\autoload\plug.vim' --create-dirs
+                        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        else
+            silent !curl -fLo $VIMHOME/autoload/plug.vim' --create-dirs
+                        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        endif
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
-endif
-call plug#begin()
-" Frequently used {{{
-    Plug 'tpope/vim-commentary'
-    Plug 'tpope/vim-fugitive'
-    Plug 'tpope/vim-surround'
-    Plug 'tpope/vim-repeat'
-    "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
-    "session manangement
-    Plug 'tpope/vim-vinegar'
-    Plug 'tpope/vim-dispatch'
-    Plug 'tpope/vim-unimpaired'
+    call plug#begin()
+        " Frequently used {{{
+        Plug 'tpope/vim-commentary'
+        Plug 'tpope/vim-fugitive'
+        Plug 'tpope/vim-surround'
+        Plug 'tpope/vim-repeat'
+        "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
+        "session manangement
+        Plug 'tpope/vim-vinegar'
+        Plug 'tpope/vim-dispatch'
+        Plug 'tpope/vim-unimpaired'
 
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
-    " FZF settings {{{
-    if executable('fd')
-        let $FZF_DEFAULT_COMMAND = 'fd --type f'
-    endif
-    " }}}
+        Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+        Plug 'junegunn/fzf.vim'
+        " FZF settings {{{
+        if executable('fd')
+            let $FZF_DEFAULT_COMMAND = 'fd --type f'
+        endif
+        " }}}
 
-    Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
-"NERDTree settings {{{
-    let g:NERDTreeHijackNetrw = 1
-"}}}
-    Plug 'ryanoasis/vim-devicons'
-"vim-devicons settings {{{
-    let g:WebDevIconsUnicodeDecorateFolderNodes = 1
-"}}}
-    Plug 'Xuyuanp/nerdtree-git-plugin'
+        Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+        "NERDTree settings {{{
+        let g:NERDTreeHijackNetrw = 1
+        "}}}
+        Plug 'ryanoasis/vim-devicons'
+        "vim-devicons settings {{{
+        let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+        "}}}
+        Plug 'Xuyuanp/nerdtree-git-plugin'
 
-    Plug 'vim-airline/vim-airline'
-    " Airline settings {{{
-    let g:airline_powerline_fonts = 1
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#ale#enabled = 1
-    " }}}
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'airblade/vim-gitgutter'
+        Plug 'vim-airline/vim-airline'
+        " Airline settings {{{
+        let g:airline_powerline_fonts = 1
+        let g:airline#extensions#tabline#enabled = 1
+        let g:airline#extensions#ale#enabled = 1
+        " }}}
+        Plug 'vim-airline/vim-airline-themes'
+        Plug 'airblade/vim-gitgutter'
 
-    " Color schemes
-    Plug 'flazz/vim-colorschemes'
-    Plug 'joshdick/onedark.vim'
-    Plug 'tomasiser/vim-code-dark'
-    Plug 'drewtempelmeyer/palenight.vim'
-    Plug 'rakr/vim-one'
-    Plug 'ayu-theme/ayu-vim'
-    " ayu-vim settings {{{
-    let ayucolor='light'  " for light version of theme
-    "let ayucolor="mirage" " for mirage version of theme
-    "let ayucolor="dark"   " for dark version of theme
-    "" }}}
-    Plug 'ntpeters/vim-airline-colornum'
-    Plug 'kshenoy/vim-signature'
-    Plug 'godlygeek/csapprox'
+        " Color schemes
+        Plug 'flazz/vim-colorschemes'
+        Plug 'joshdick/onedark.vim'
+        Plug 'tomasiser/vim-code-dark'
+        Plug 'drewtempelmeyer/palenight.vim'
+        Plug 'rakr/vim-one'
+        Plug 'ayu-theme/ayu-vim'
+        " ayu-vim settings {{{
+        let ayucolor='light'  " for light version of theme
+        "let ayucolor="mirage" " for mirage version of theme
+        "let ayucolor="dark"   " for dark version of theme
+        "" }}}
+        Plug 'ntpeters/vim-airline-colornum'
+        Plug 'kshenoy/vim-signature'
+        Plug 'godlygeek/csapprox'
 
-    Plug 'tmux-plugins/vim-tmux-focus-events'
-    Plug 'wincent/terminus'
-    Plug 'romgrk/winteract.vim'
-    Plug 'mbbill/undotree'
+        Plug 'tmux-plugins/vim-tmux-focus-events'
+        Plug 'wincent/terminus'
+        Plug 'romgrk/winteract.vim'
+        Plug 'mbbill/undotree'
 
-    Plug 'ericcurtin/CurtineIncSw.vim'
+        Plug 'ericcurtin/CurtineIncSw.vim'
 
-    Plug 'mhinz/vim-startify'
-    " vim-startify settings {{{
-    let g:startify_session_dir = '~/.vim/session'
-    let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
-    let g:startify_session_persistence = 1
-    let g:startify_change_to_vcs_root = 1
-    " }}}
+        Plug 'mhinz/vim-startify'
+        " vim-startify settings {{{
+        let g:startify_session_dir = '~/.vim/session'
+        let g:startify_bookmarks = [ {'c': '~/.vimrc'}, '~/.zshrc' ]
+        let g:startify_session_persistence = 1
+        let g:startify_change_to_vcs_root = 1
+        " }}}
 
-    Plug 'sheerun/vim-polyglot'
-    Plug 'andymass/vim-matchup'
-    Plug 'jiangmiao/auto-pairs'
+        Plug 'sheerun/vim-polyglot'
+        Plug 'andymass/vim-matchup'
+        Plug 'jiangmiao/auto-pairs'
+        Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+        " YouCompleteMe settings {{{
+        " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+        " }}}
+        " Gutentags settings {{{
+        Plug 'ludovicchabant/vim-gutentags'
+        let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+        let g:gutentags_ctags_tagfile = '.tags'
+        let g:gutentags_cache_dir = expand('~/.cache/tags')
+        " }}}
+        Plug 'SirVer/ultisnips'
+        " Ultisnips settings {{{
+        set runtimepath+=~/.vim/my-snippets/
+        let g:UltiSnipsListSnippets='<c-l>'
+        let g:UltiSnipsExpandTrigger='<c-j>'
+        let g:UltiSnipsJumpForwardTrigger='<c-n>'
+        let g:UltiSnipsJumpBackwardTrigger='<c-p>'
+        " }}}
 
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-    " YouCompleteMe settings {{{
-    " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-    " }}}
-    Plug 'ludovicchabant/vim-gutentags'
-    " Gutentags settings {{{
-    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
-    let g:gutentags_ctags_tagfile = '.tags'
-    let g:gutentags_cache_dir = expand('~/.cache/tags')
-    " }}}
-    Plug 'SirVer/ultisnips'
-    " Ultisnips settings {{{
-    set runtimepath+=~/.vim/my-snippets/
-    let g:UltiSnipsListSnippets='<c-l>'
-    let g:UltiSnipsExpandTrigger='<c-j>'
-    let g:UltiSnipsJumpForwardTrigger='<c-n>'
-    let g:UltiSnipsJumpBackwardTrigger='<c-p>'
-    " }}}
+        Plug 'honza/vim-snippets'
+        Plug 'w0rp/ale'
+        " ale settings {{{
+        let g:ale_sign_error = '✘'
+        let g:ale_sign_warning = '⚠'
+        " }}}
+        " }}}
+        " In probation {{{
+        Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
+        Plug 'rhysd/vim-clang-format'
 
-    Plug 'honza/vim-snippets'
-    Plug 'w0rp/ale'
-    " ale settings {{{
-    let g:ale_sign_error = '✘'
-    let g:ale_sign_warning = '⚠'
-    " }}}
-" }}}
-" In probation {{{
-    Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
-    Plug 'rhysd/vim-clang-format'
+        Plug 'Shougo/unite.vim'
+        Plug 'devjoe/vim-codequery'
 
-    Plug 'Shougo/unite.vim'
-    Plug 'devjoe/vim-codequery'
+        Plug 'szw/vim-maximizer'        " enables zoom/maximize toggle of current window
 
-    Plug 'szw/vim-maximizer'        " enables zoom/maximize toggle of current window
+        " Filetype plugs
+        Plug 'PProvost/vim-ps1'         " powershell
+        Plug 'tmhedberg/SimpylFold'     " python folding
 
-    " Filetype plugs
-    Plug 'PProvost/vim-ps1'         " powershell
-    Plug 'tmhedberg/SimpylFold'     " python folding
+        Plug 'ambv/black'               " python auto formater
 
-    Plug 'ambv/black'               " python auto formater
+        Plug 'rizzatti/dash.vim'
 
-    Plug 'rizzatti/dash.vim'
+        Plug 'nfvs/vim-perforce'
+        Plug 'will133/vim-dirdiff'
+        Plug 'majutsushi/tagbar'
+        Plug 'tfnico/vim-gradle'
+        " }}}
+        " Not often used {{{
+        Plug 'severin-lemaignan/vim-minimap'
+        Plug 'editorconfig/editorconfig-vim'
+        Plug 'mileszs/ack.vim'
+        " }}}
+        " Unused plugins {{{
+        " Plug 'Raimondi/delimitMate'               " superceded by auto-pairs
+        " Plug 'cohama/lexima.vim'                  " had runaway insert issues!
+        " Plug 'vim-syntastic/syntastic'            " superceded by ale
+        " Plug 'neomake/neomake'                    " superceded by ale
+        " Plug 'easymotion/vim-easymotion'          " introduces bad habits?
 
-    Plug 'nfvs/vim-perforce'
-    Plug 'will133/vim-dirdiff'
-    Plug 'majutsushi/tagbar'
-    Plug 'tfnico/vim-gradle'
-" }}}
-" Not often used {{{
-    Plug 'severin-lemaignan/vim-minimap'
-    Plug 'editorconfig/editorconfig-vim'
-    Plug 'mileszs/ack.vim'
-" }}}
-" Unused plugins {{{
-    " Plug 'Raimondi/delimitMate'               " superceded by auto-pairs
-    " Plug 'cohama/lexima.vim'                  " had runaway insert issues!
-    " Plug 'vim-syntastic/syntastic'            " superceded by ale
-    " Plug 'neomake/neomake'                    " superceded by ale
-    " Plug 'easymotion/vim-easymotion'          " introduces bad habits?
-
-    " works really well, but going
-    " to focus on using Terminal in Vim and rely on Vim only for window
-    " management.
-    " Plug 'christoomey/vim-tmux-navigator'
-    " }}}
-call plug#end() " Initialize plugin system
+        " works really well, but going
+        " to focus on using Terminal in Vim and rely on Vim only for window
+        " management.
+        " Plug 'christoomey/vim-tmux-navigator'
+        " }}}
+    call plug#end() " Initialize plugin system
+endif " version >= 800
 " }}}
 " Plugins Config {{{
 " Airline {{{
@@ -500,7 +513,7 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " Theme {{{
 set background=dark
-colorscheme one
+silent! colorscheme one
 let g:airline_theme = 'onedark'
 " }}}
 " Local settings {{{
