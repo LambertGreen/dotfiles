@@ -454,6 +454,8 @@ call plug#begin()
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
     Plug 'tfnico/vim-gradle'
+
+    Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
 " }}}
 " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
