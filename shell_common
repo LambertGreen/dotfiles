@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Set uname
-[ -v $UNAME ];  export UNAME=$(uname -s)
+[[ -z "$UNAME" ]] || export UNAME=$(uname -s)
 
 # Setup FZF to use fd
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
@@ -15,17 +15,7 @@ export P4CONFIG=.p4config
 alias vim=nvim
 alias vi=nvim
 alias g=git
-alias j=autojump
 alias b=brew
-if [ "$UNAME" = "Darwin" ]; then
-    alias ls="gls --color"
-    alias ll="gls -lh --color"
-    alias la="gls -lAh --color"
-else
-    alias ls="ls --color"
-    alias ll="ls -lh --color"
-    alias la="ls -lAh --color"
-fi
 
 #----------
 # Functions

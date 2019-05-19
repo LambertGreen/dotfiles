@@ -5,6 +5,9 @@ Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 # Enable Fzf for fast search for: files, and command history
 Import-Module PSFzf -ArgumentList 'Ctrl+T','Ctrl+R'
 
+# Enable fast directory navigation using z command
+Import-Module z
+
 # Enable ls colors
 Import-Module Get-ChildItemColor
 Set-Alias ll Get-ChildItemColor -option AllScope

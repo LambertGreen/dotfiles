@@ -21,10 +21,11 @@ umask 002
 #--------------------------------------------
 # OhMyZsh
 #--------------------------------------------
+#Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="agnoster"
+
 SetupOhMyZsh () {
-    #Path to your oh-my-zsh installation.
-    export ZSH="$HOME/.oh-my-zsh"
-    ZSH_THEME="agnoster"
 
     # Which plugins would you like to load?
     # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -34,6 +35,7 @@ SetupOhMyZsh () {
     plugins=(
         gitfast
         z
+        fzf
     )
 
     source $ZSH/oh-my-zsh.sh
@@ -66,33 +68,19 @@ SetupOhMyZshUsingZplugin() {
     setopt promptsubst
 
     # Git
-    zplugin snippet OMZ::lib/git.zsh
-    zplugin snippet OMZ::plugins/git/git.plugin.zsh
-
-    # Color man-pages
-    zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-
-    # Theme
-    zplugin snippet OMZ::themes/agnoster.zsh-theme
-}
-
-SetupOhMyZshUsingZpluginTurbo() {
-    setopt promptsubst
-
-    # Git
-    zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
     zplugin snippet OMZ::lib/git.zsh
 
     # More git?
-    zplugin ice wait"0" atload"unalias grv" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atload"unalias grv" lucid
     zplugin snippet OMZ::plugins/git/git.plugin.zsh
 
     # Color man-pages
-    zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
     zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
     # Theme
-    zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
     zplugin snippet OMZ::themes/agnoster.zsh-theme
 }
 
@@ -103,54 +91,36 @@ SetupZplugin() {
     (( ${+_comps} )) && _comps[zplugin]=_zplugin
     ZPLGM[MUTE_WARNINGS]=1
 
-    #SetupOhMyZshUsingZplugin
+    # SetupOhMyZshUsingZplugin
+
+    # [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0"
+    # zplugin light robbyrussell/oh-my-zsh
+
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" blockf
     zplugin light zsh-users/zsh-completions
+
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atload"_zsh_autosuggest_start"
     zplugin light zsh-users/zsh-autosuggestions
-    zplugin light zdharma/fast-syntax-highlighting
 
     # Fzf
-    zplugin ice from"gh-r" as"program"; zplugin load junegunn/fzf-bin
+    zplugin ice from"gh-r" as"program"
+    zplugin load junegunn/fzf-bin
     # Fzf-z
     zplugin light andrewferrier/fzf-z
 
     # For GNU ls (the binaries can be gls, gdircolors)
-    zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
-    zplugin light trapd00r/LS_COLORS
-}
-
-SetupZpluginTurbo() {
-    . ~/.zplugin/bin/zplugin.zsh
-
-    autoload -Uz _zplugin
-    (( ${+_comps} )) && _comps[zplugin]=_zplugin
-
-    ZPLGM[MUTE_WARNINGS]=1
-
-    #SetupOhMyZshUsingZplugin
-
-    zplugin ice wait"0" blockf
-    zplugin light zsh-users/zsh-completions
-
-    zplugin ice wait"0" atload"_zsh_autosuggest_start"
-    zplugin light zsh-users/zsh-autosuggestions
-
-    # Fzf
-    zplugin ice from"gh-r" as"program"; zplugin load junegunn/fzf-bin
-    # Fzf-z
-
-    zplugin light andrewferrier/fzf-z
-    # For GNU ls (the binaries can be gls, gdircolors)
-    zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
     zplugin light trapd00r/LS_COLORS
 
     # Syntax highlighting
-    zplugin ice wait"0" atinit"zpcompinit" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atinit"zpcompinit" lucid
     zplugin light zdharma/fast-syntax-highlighting
 }
 
 SetupOhMyZsh
+#SetupFzf
+#export ZPLUGIN_ICE=1
 SetupZplugin
-SetupFzf
 SetupCommonShell
 
 # Initialize completions

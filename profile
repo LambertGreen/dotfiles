@@ -34,12 +34,6 @@ else
     true
 fi
 
-# Autojump
-[ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh || true
-
-# Add Cargo to path
-[ -d  "$HOME/.cargo/bin" ] && export PATH="$PATH:$HOME/.cargo/bin" || true
-
 echo "Setup complete. Happy coding."
 [ -x "$(command -v neofetch)" ] && neofetch
 
