@@ -32,7 +32,8 @@ SetupOhMyZsh () {
     # Example format: plugins=(rails git textmate ruby lighthouse)
     # Add wisely, as too many plugins slow down shell startup.
     plugins=(
-    gitfast
+        gitfast
+        z
     )
 
     source $ZSH/oh-my-zsh.sh
@@ -98,17 +99,23 @@ SetupOhMyZshUsingZpluginTurbo() {
 SetupZplugin() {
     . ~/.zplugin/bin/zplugin.zsh
 
-    SetupOhMyZshUsingZplugin
+    autoload -Uz _zplugin
+    (( ${+_comps} )) && _comps[zplugin]=_zplugin
+    ZPLGM[MUTE_WARNINGS]=1
+
+    #SetupOhMyZshUsingZplugin
     zplugin light zsh-users/zsh-completions
     zplugin light zsh-users/zsh-autosuggestions
     zplugin light zdharma/fast-syntax-highlighting
 
+    # Fzf
+    zplugin ice from"gh-r" as"program"; zplugin load junegunn/fzf-bin
+    # Fzf-z
+    zplugin light andrewferrier/fzf-z
+
+    # For GNU ls (the binaries can be gls, gdircolors)
     zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
     zplugin light trapd00r/LS_COLORS
-
-
-    autoload -Uz compinit
-    compinit
 }
 
 SetupZpluginTurbo() {
@@ -119,7 +126,7 @@ SetupZpluginTurbo() {
 
     ZPLGM[MUTE_WARNINGS]=1
 
-    SetupOhMyZshUsingZplugin
+    #SetupOhMyZshUsingZplugin
 
     zplugin ice wait"0" blockf
     zplugin light zsh-users/zsh-completions
@@ -127,6 +134,11 @@ SetupZpluginTurbo() {
     zplugin ice wait"0" atload"_zsh_autosuggest_start"
     zplugin light zsh-users/zsh-autosuggestions
 
+    # Fzf
+    zplugin ice from"gh-r" as"program"; zplugin load junegunn/fzf-bin
+    # Fzf-z
+
+    zplugin light andrewferrier/fzf-z
     # For GNU ls (the binaries can be gls, gdircolors)
     zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
     zplugin light trapd00r/LS_COLORS
@@ -134,15 +146,15 @@ SetupZpluginTurbo() {
     # Syntax highlighting
     zplugin ice wait"0" atinit"zpcompinit" lucid
     zplugin light zdharma/fast-syntax-highlighting
-
-    autoload -Uz compinit
-    compinit
 }
 
-#SetupOhMyZsh
+SetupOhMyZsh
 SetupZplugin
 SetupFzf
 SetupCommonShell
+
+# Initialize completions
+autoload -Uz compinit && compinit
 
 #--------------------------------------------
 # Stop performance profiler (if enabled)
