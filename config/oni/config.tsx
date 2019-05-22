@@ -32,5 +32,6 @@ export const configuration = {
     "editor.fontSize": "13px",
     "editor.fontFamily": "FuraCode NF Regular",
     "ui.animations.enabled": true,
-    "ui.fontSmoothing": "auto","editor.textMateHighlighting.enabled" : false, // Use vim syntax highlighting
+    "ui.fontSmoothing": "auto",
+    "editor.textMateHighlighting.enabled" : false, // Use vim syntax highlighting
 }
