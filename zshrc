@@ -18,6 +18,11 @@ setopt no_share_history
 # Homebrew doctor recommends the below
 umask 002
 
+# Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
+if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
+    unsetopt BG_NICE
+fi
+
 #--------------------------------------------
 # OhMyZsh
 #--------------------------------------------
@@ -36,6 +41,7 @@ SetupOhMyZsh () {
         gitfast
         z
         fzf
+        colored-man-pages
     )
 
     source $ZSH/oh-my-zsh.sh
@@ -45,7 +51,7 @@ SetupOhMyZsh () {
 # FZF
 #--------------------------------------------
 SetupFzf() {
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+    export FZF_BASE=/home/lgreen/.fzf
 }
 
 #--------------------------------------------
@@ -68,19 +74,19 @@ SetupOhMyZshUsingZplugin() {
     setopt promptsubst
 
     # Git
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
     zplugin snippet OMZ::lib/git.zsh
 
     # More git?
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atload"unalias grv" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atload"unalias grv" lucid
     zplugin snippet OMZ::plugins/git/git.plugin.zsh
 
     # Color man-pages
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
     zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
     # Theme
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
     zplugin snippet OMZ::themes/agnoster.zsh-theme
 }
 
@@ -93,32 +99,30 @@ SetupZplugin() {
 
     # SetupOhMyZshUsingZplugin
 
-    # [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0"
+    # [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0"
     # zplugin light robbyrussell/oh-my-zsh
 
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" blockf
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" blockf
     zplugin light zsh-users/zsh-completions
 
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atload"_zsh_autosuggest_start"
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atload"_zsh_autosuggest_start"
     zplugin light zsh-users/zsh-autosuggestions
 
-    # Fzf
-    zplugin ice from"gh-r" as"program"
-    zplugin load junegunn/fzf-bin
     # Fzf-z
     zplugin light andrewferrier/fzf-z
 
     # For GNU ls (the binaries can be gls, gdircolors)
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
     zplugin light trapd00r/LS_COLORS
 
     # Syntax highlighting
-    [[ -v "$ZPLUGIN_ICE" ]] || zplugin ice wait"0" atinit"zpcompinit" lucid
+    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atinit"zpcompinit" lucid
     zplugin light zdharma/fast-syntax-highlighting
 }
 
+SetupFzf
 SetupOhMyZsh
-#SetupFzf
+unset ZPLUGIN_ICE
 #export ZPLUGIN_ICE=1
 SetupZplugin
 SetupCommonShell
@@ -130,6 +134,6 @@ autoload -Uz compinit && compinit
 # Stop performance profiler (if enabled)
 #--------------------------------------------
 if [[ "$ZPROF" = true ]]; then
-  zprof
+    unset ZPROF
+    zprof
 fi
-
