@@ -1,6 +1,6 @@
 
 " Use a nice font
-:GuiFont! Hack\ NF:h11:1
+:GuiFont! Hack\ NF:h10:1
 
 " Remove ugly tabline
 GuiTabline 0
