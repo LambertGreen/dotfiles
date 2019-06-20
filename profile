@@ -15,7 +15,7 @@ echo "Welcome $(whoami), setting up your profile..."
 export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 
 # Editor
-export VISUAL=vim
+export VISUAL=nvim
 export EDITOR=$VISUAL
 
 # BAT theme
