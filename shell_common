@@ -25,9 +25,13 @@ gw () {
 }
 
 StartSshAgent() {
-    # Keychain to start ssh-agent
-    eval `keychain --eval id_rsa`
-
+    if [ "$UNAME" = "Darwin" ]; then
+        # Keychain to start ssh-agent
+        eval `keychain --eval id_rsa`
+    else
+        eval $(ssh-agent -s)
+        ssh-add ~/.ssh/id_rsa
+    fi
 }
 
 SetupDevEnvJava () {
