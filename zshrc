@@ -19,8 +19,12 @@ setopt no_share_history
 umask 002
 
 # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
-if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
-    unsetopt BG_NICE
+if [ "$UNAME" = "Linux" ]; then
+    if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
+        unsetopt BG_NICE
+    fi
+else
+    true
 fi
 
 #--------------------------------------------

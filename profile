@@ -8,14 +8,14 @@
 UNAME=$(uname -s)
 export UNAME
 
-echo "Welcome $(whoami), setting up your profile..."
+[ -v "$GREETING" ] && echo "Welcome $(whoami), setting up your profile..."
 
 # Set PATH
 # Set local bins ahead of system PATH
 export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 
 # Editor
-export VISUAL=vim
+export VISUAL=nvim
 export EDITOR=$VISUAL
 
 # BAT theme
@@ -34,8 +34,10 @@ else
     true
 fi
 
-echo "Setup complete. Happy coding."
-[ -x "$(command -v neofetch)" ] && neofetch
+if [ -v "$GREETING" ]; then
+    echo "Setup complete. Happy coding."
+    [ -x "$(command -v neofetch)" ] && neofetch
+fi
 
 # Source bashrc
 # Needed for Ssh and Tmux hosted sessions since they only source profile

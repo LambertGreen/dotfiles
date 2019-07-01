@@ -9,7 +9,7 @@ if [ "$(umask)" = "0000" ]; then
 fi
 
 # Start the SSH agent
-[ -x "$(command -v keychain)" ] && eval `keychain --agents ssh --eval id_rsa`
+[ -x "$(command -v keychain)" ] && eval `keychain --agents ssh --eval id_rsa --quiet`
 
 # LinuxBrew
 [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && SetupLinuxbrew || true
