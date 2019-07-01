@@ -299,6 +299,10 @@ endfun
 fun! FormatJson()
     :%!python -m json.tool
 endfun
+
+fun! FormatXml()
+    :%!xmllint --format %
+endfun
 " }}}
 " Auto commands {{{
 " Cusorline only in active window
@@ -462,10 +466,11 @@ if v:version >= 800
     " Filetype plugs
     Plug 'PProvost/vim-ps1'         " powershell
     Plug 'tmhedberg/SimpylFold'     " python folding
-
     Plug 'ambv/black'               " python auto formater
 
     Plug 'rizzatti/dash.vim'
+
+    Plug 'junegunn/gv.vim'
 
 Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
 Plug 'nfvs/vim-perforce'
