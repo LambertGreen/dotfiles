@@ -179,6 +179,10 @@ nnoremap <leader>yf :let @+=expand("%:p")<CR>
 " Allow saving of files as sudo when I forgot to start vim using sudo.
 cmap w!! w !sudo tee > /dev/null %
 " }}}
+" Buffer management {{{
+nnoremap <BS> :bprevious<CR>
+nnoremap <Tab> :bnext<CR>
+" }}}
 " Window management {{{
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
