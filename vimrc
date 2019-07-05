@@ -278,8 +278,12 @@ nnoremap <leader>gb :Gblame<CR>
 nnoremap <leader>m :Make<CR>
 " }}}
 " ALE mappings {{{
-nnoremap <leader>aj :ALENext<CR>
-nnoremap <leader>ak :ALEPrevious<CR>
+nnoremap <leader>an :ALENext<CR>
+nnoremap <leader>ap :ALEPrevious<CR>
+nnoremap <leader>al :ALELint<CR>
+nnoremap <leader>af :ALEFix<CR>
+nnoremap <leader>ai :ALEInfo<CR>
+nnoremap <leader>ad :ALEDetail<CR>
 " }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
