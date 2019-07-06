@@ -39,6 +39,10 @@ if [ -v "$GREETING" ]; then
     [ -x "$(command -v neofetch)" ] && neofetch
 fi
 
+# PYENV
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
 # Source bashrc
 # Needed for Ssh and Tmux hosted sessions since they only source profile
 # and not bashrc.

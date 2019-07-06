@@ -164,7 +164,8 @@ nmap <leader>P "+P
 vmap <leader>p "+p
 vmap <leader>P "+P
 " Quick save
-:nnoremap <Leader>s :update<CR>
+:nnoremap <Leader>w :w<CR>
+:nnoremap <Leader>q :q<CR>
 " insert mode Emacs start/end of line style mapping
 inoremap <C-a> <C-o>0
 inoremap <C-e> <C-o>$
@@ -225,7 +226,7 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window resize mode
-nnoremap <leader>w :InteractiveWindow<CR>
+nnoremap <leader><leader>w :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
 " Toggle NERD
@@ -287,7 +288,7 @@ nnoremap <leader>ad :ALEDetail<CR>
 " }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
-nnoremap <leader>a :call CurtineIncSw()<CR>
+nnoremap <leader><leader>a :call CurtineIncSw()<CR>
 " }}}
 " UndoTree mappings {{{
 " Toggle undo tree
@@ -460,6 +461,10 @@ if v:version >= 800
     " ale settings {{{
     let g:ale_sign_error = '✘'
     let g:ale_sign_warning = '⚠'
+    let g:ale_fixers = {
+    \   'cpp': ['remove_trailing_lines', 'trim_whitespace'],
+    \   'python': ['remove_trailing_lines', 'trim_whitespace', 'isort', 'yapf']
+    \}
     " }}}
     " }}}
     " In probation {{{
@@ -473,15 +478,19 @@ if v:version >= 800
 
     " Filetype plugs
     Plug 'PProvost/vim-ps1'         " powershell
+
+    " Python development
     Plug 'tmhedberg/SimpylFold'     " python folding
     Plug 'ambv/black'               " python auto formater
+    Plug 'davidhalter/jedi-vim'
 
     Plug 'rizzatti/dash.vim'
 
     Plug 'junegunn/gv.vim'
+    Plug 'janko/vim-test'
 
-Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
-Plug 'nfvs/vim-perforce'
+    Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
+    Plug 'nfvs/vim-perforce'
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
     Plug 'tfnico/vim-gradle'
