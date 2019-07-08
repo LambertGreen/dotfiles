@@ -130,6 +130,8 @@ if has('nvim')
         let $VIMHOME = $LOCALAPPDATA.'\nvim'
     else
         let $VIMHOME = $HOME.'/.config/nvim'
+        let g:python_host_prog = '~/.pyenv/versions/neovim2/bin/python'
+        let g:python3_host_prog = '~/.pyenv/versions/neovim3/bin/python'
     endif
 else
     let $VIMHOME = $HOME.'/.vim'
@@ -153,9 +155,8 @@ endif
 " }}}
 " Keyboard bindings/mappings {{{
 " General mappings {{{
-if !exists('vimpager')
-    let g:mapleader="\<Space>"
-endif
+let g:mapleader = "\<Space>"
+let g:maplocalleader = "\\"
 " Copy/paste into system clipboard
 vmap <leader>y "+y
 vmap <leader>d "+d
@@ -465,6 +466,10 @@ if v:version >= 800
     \   'cpp': ['remove_trailing_lines', 'trim_whitespace'],
     \   'python': ['remove_trailing_lines', 'trim_whitespace', 'isort', 'yapf']
     \}
+    let g:ale_python_auto_pipenv = 1
+    let g:ale_python_mypy_auto_pipenv = 1
+    let g:ale_python_mypy_options = '--ignore-missing-imports'
+
     " }}}
     " }}}
     " In probation {{{
@@ -483,11 +488,29 @@ if v:version >= 800
     Plug 'tmhedberg/SimpylFold'     " python folding
     Plug 'ambv/black'               " python auto formater
     Plug 'davidhalter/jedi-vim'
-
+    " Jedi-vim config {{{
+    let g:jedi#completions_enabled = 0  " let YCM handle completions, which also uses Jedi
+    let g:jedi#goto_command = ''
+    let g:jedi#goto_assignments_command = ''
+    let g:jedi#goto_definitions_command = ''
+    let g:jedi#documentation_command = ''
+    let g:jedi#usages_command = ''
+    let g:jedi#completions_command = ''
+    let g:jedi#rename_command = ''
+    nnoremap <localleader>r :call jedi#rename()<CR>
+    nnoremap <localleader>d :call jedi#goto()<CR>
+    nnoremap <localleader>g :call jedi#goto_assignments()<CR>
+    nnoremap <localleader>n :call jedi#usages()<CR>
+    " }}}
     Plug 'rizzatti/dash.vim'
 
     Plug 'junegunn/gv.vim'
+
     Plug 'janko/vim-test'
+    " vim-test config {{{
+    nnoremap <leader>tf :TestFile<CR>
+    nnoremap <leader>ts :TestSuite<CR>
+    " }}}
 
     Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
     Plug 'nfvs/vim-perforce'
