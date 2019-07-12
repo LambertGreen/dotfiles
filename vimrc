@@ -444,9 +444,10 @@ if v:version >= 800
     " }}}
     " Gutentags settings {{{
     Plug 'ludovicchabant/vim-gutentags'
-    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project', '.p4config']
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_cache_dir = expand('~/.cache/tags')
+    :set statusline+=%{gutentags#statusline()}
     " }}}
     Plug 'SirVer/ultisnips'
     " Ultisnips settings {{{
