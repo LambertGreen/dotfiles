@@ -505,6 +505,7 @@ if v:version >= 800
     " }}}
     Plug 'rizzatti/dash.vim'
 
+    Plug 'AndrewRadev/bufferize.vim'
     Plug 'junegunn/gv.vim'
 
     Plug 'janko/vim-test'
