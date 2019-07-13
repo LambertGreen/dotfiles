@@ -130,8 +130,12 @@ if has('nvim')
         let $VIMHOME = $LOCALAPPDATA.'\nvim'
     else
         let $VIMHOME = $HOME.'/.config/nvim'
-        let g:python_host_prog = '~/.pyenv/versions/neovim2/bin/python'
-        let g:python3_host_prog = '~/.pyenv/versions/neovim3/bin/python'
+        if !empty(glob($HOME.'/.pyenv/versions/neovim2/bin/python'))
+            let g:python_host_prog = $HOME.'/.pyenv/versions/neovim2/bin/python'
+        endif
+        if !empty(glob($HOME.'/.pyenv/versions/neovim3/bin/python'))
+            let g:python3_host_prog = $HOME.'/.pyenv/versions/neovim3/bin/python'
+        endif
     endif
 else
     let $VIMHOME = $HOME.'/.vim'
