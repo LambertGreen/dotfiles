@@ -130,6 +130,8 @@ if has('nvim')
         let $VIMHOME = $LOCALAPPDATA.'\nvim'
     else
         let $VIMHOME = $HOME.'/.config/nvim'
+        let g:python_host_prog = '~/.pyenv/versions/neovim2/bin/python'
+        let g:python3_host_prog = '~/.pyenv/versions/neovim3/bin/python'
     endif
 else
     let $VIMHOME = $HOME.'/.vim'
@@ -153,9 +155,8 @@ endif
 " }}}
 " Keyboard bindings/mappings {{{
 " General mappings {{{
-if !exists('vimpager')
-    let g:mapleader="\<Space>"
-endif
+let g:mapleader = "\<Space>"
+let g:maplocalleader = "\\"
 " Copy/paste into system clipboard
 vmap <leader>y "+y
 vmap <leader>d "+d
@@ -164,7 +165,8 @@ nmap <leader>P "+P
 vmap <leader>p "+p
 vmap <leader>P "+P
 " Quick save
-:nnoremap <Leader>s :update<CR>
+:nnoremap <Leader>w :w<CR>
+:nnoremap <Leader>q :q<CR>
 " insert mode Emacs start/end of line style mapping
 inoremap <C-a> <C-o>0
 inoremap <C-e> <C-o>$
@@ -225,7 +227,7 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window resize mode
-nnoremap <leader>w :InteractiveWindow<CR>
+nnoremap <leader><leader>w :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
 " Toggle NERD
@@ -278,12 +280,16 @@ nnoremap <leader>gb :Gblame<CR>
 nnoremap <leader>m :Make<CR>
 " }}}
 " ALE mappings {{{
-nnoremap <leader>aj :ALENext<CR>
-nnoremap <leader>ak :ALEPrevious<CR>
+nnoremap <leader>an :ALENext<CR>
+nnoremap <leader>ap :ALEPrevious<CR>
+nnoremap <leader>al :ALELint<CR>
+nnoremap <leader>af :ALEFix<CR>
+nnoremap <leader>ai :ALEInfo<CR>
+nnoremap <leader>ad :ALEDetail<CR>
 " }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
-nnoremap <leader>a :call CurtineIncSw()<CR>
+nnoremap <leader><leader>a :call CurtineIncSw()<CR>
 " }}}
 " UndoTree mappings {{{
 " Toggle undo tree
@@ -438,9 +444,10 @@ if v:version >= 800
     " }}}
     " Gutentags settings {{{
     Plug 'ludovicchabant/vim-gutentags'
-    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project']
+    let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project', '.p4config']
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_cache_dir = expand('~/.cache/tags')
+    :set statusline+=%{gutentags#statusline()}
     " }}}
     Plug 'SirVer/ultisnips'
     " Ultisnips settings {{{
@@ -456,6 +463,15 @@ if v:version >= 800
     " ale settings {{{
     let g:ale_sign_error = '✘'
     let g:ale_sign_warning = '⚠'
+    let g:ale_fixers = {
+    \   'cpp': ['remove_trailing_lines', 'trim_whitespace'],
+    \   'python': ['remove_trailing_lines', 'trim_whitespace', 'isort', 'yapf']
+    \}
+    let g:ale_python_auto_pipenv = 1
+    let g:ale_python_mypy_auto_pipenv = 1
+    let g:ale_python_mypy_options = '--ignore-missing-imports'
+    let g:ale_cpp_clangtidy_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
+    let g:ale_cpp_clangcheck_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
     " }}}
     " }}}
     " In probation {{{
@@ -469,15 +485,38 @@ if v:version >= 800
 
     " Filetype plugs
     Plug 'PProvost/vim-ps1'         " powershell
+
+    " Python development
     Plug 'tmhedberg/SimpylFold'     " python folding
     Plug 'ambv/black'               " python auto formater
-
+    Plug 'davidhalter/jedi-vim'
+    " Jedi-vim config {{{
+    let g:jedi#completions_enabled = 0  " let YCM handle completions, which also uses Jedi
+    let g:jedi#goto_command = ''
+    let g:jedi#goto_assignments_command = ''
+    let g:jedi#goto_definitions_command = ''
+    let g:jedi#documentation_command = ''
+    let g:jedi#usages_command = ''
+    let g:jedi#completions_command = ''
+    let g:jedi#rename_command = ''
+    nnoremap <localleader>r :call jedi#rename()<CR>
+    nnoremap <localleader>d :call jedi#goto()<CR>
+    nnoremap <localleader>g :call jedi#goto_assignments()<CR>
+    nnoremap <localleader>n :call jedi#usages()<CR>
+    " }}}
     Plug 'rizzatti/dash.vim'
 
+    Plug 'AndrewRadev/bufferize.vim'
     Plug 'junegunn/gv.vim'
 
-Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
-Plug 'nfvs/vim-perforce'
+    Plug 'janko/vim-test'
+    " vim-test config {{{
+    nnoremap <leader>tf :TestFile<CR>
+    nnoremap <leader>ts :TestSuite<CR>
+    " }}}
+
+    Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
+    Plug 'nfvs/vim-perforce'
     Plug 'will133/vim-dirdiff'
     Plug 'majutsushi/tagbar'
     Plug 'tfnico/vim-gradle'
