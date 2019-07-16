@@ -357,7 +357,7 @@ augroup END
 " Plugins {{{
 " Only load plugins if we are using a modern Vim
 if v:version >= 800
-    " Install vim-plug if not already installed
+    " Install vim-plug if not already installed {{{
     if empty(glob($VIMHOME.'/autoload/plug.vim'))
         if has('win32')
             silent !curl -fLo %VIMHOME%\autoload\plug.vim --create-dirs
@@ -368,19 +368,51 @@ if v:version >= 800
         endif
         autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
     endif
-    "call plug#begin($VIMHOME.'/plugged')
+    " }}}
     call plug#begin()
     " Frequently used {{{
+    " Editing enhancments {{{
+    Plug 'easymotion/vim-easymotion'
+    Plug 'andymass/vim-matchup'
+    " matchup example {{{
+    " %     Press anywhere to move back and forth between open/close blocks
+    " }}}
+    Plug 'jiangmiao/auto-pairs'
     Plug 'tpope/vim-commentary'
-    Plug 'tpope/vim-fugitive'
+    " vim-commentary examples {{{
+    " gc    Toggle comment
+    " }}}
     Plug 'tpope/vim-surround'
-    Plug 'tpope/vim-repeat'
-    "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
-    "session manangement
-    Plug 'tpope/vim-vinegar'
-    Plug 'tpope/vim-dispatch'
+    " vim-surround examples {{{
+    " cs"'  Change surrounding "" to ''
+    " ysiw] Surround in-word with []
+    " }}}
     Plug 'tpope/vim-unimpaired'
-
+    " vim-unimpaired examples {{{
+    " ]<Space>  Add newlines
+    " ]q        :cnext
+    " ]b        :bnext
+    " }}}
+    Plug 'tpope/vim-repeat'
+    " Code completion {{{
+    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    " YouCompleteMe settings {{{
+    let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+    " }}}
+    " }}}
+    " Snippets {{{
+    Plug 'SirVer/ultisnips'
+    " Ultisnips settings {{{
+    set runtimepath+=~/.vim/my-snippets/
+    let g:UltiSnipsListSnippets='<c-l>'
+    let g:UltiSnipsExpandTrigger='<c-j>'
+    let g:UltiSnipsJumpForwardTrigger='<c-n>'
+    let g:UltiSnipsJumpBackwardTrigger='<c-p>'
+    " }}}
+    Plug 'honza/vim-snippets'
+    " }}}
+    " }}}
+    " Fuzzy file search {{{
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plug 'junegunn/fzf.vim'
     " FZF settings {{{
@@ -388,7 +420,27 @@ if v:version >= 800
         let $FZF_DEFAULT_COMMAND = 'fd --type f'
     endif
     " }}}
-
+    " }}}
+    " Graphical Editor Enhancements {{{
+    " Status + Tab line {{{
+    Plug 'vim-airline/vim-airline'
+    " Airline settings {{{
+    let g:airline_powerline_fonts = 1
+    let g:airline#extensions#tabline#enabled = 1
+    let g:airline#extensions#ale#enabled = 1
+    " }}}
+    " }}}
+    " Gutter {{{
+    " TODO: Trying out signify instead for a trial run.
+    " Plug 'airblade/vim-gitgutter'
+    Plug 'mhinz/vim-signify'
+    " Shows marks in the gutter
+    Plug 'kshenoy/vim-signature'
+    " }}}
+    " Cursor line {{{
+    Plug 'ntpeters/vim-airline-colornum'
+    " }}}
+    " File explorer {{{
     Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
     "NERDTree settings {{{
     let g:NERDTreeHijackNetrw = 1
@@ -398,18 +450,20 @@ if v:version >= 800
     let g:WebDevIconsUnicodeDecorateFolderNodes = 1
     "}}}
     Plug 'Xuyuanp/nerdtree-git-plugin'
-
-    Plug 'vim-airline/vim-airline'
-    " Airline settings {{{
-    let g:airline_powerline_fonts = 1
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#ale#enabled = 1
     " }}}
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'airblade/vim-gitgutter'
-
-    " Color schemes
+    " UndoTree {{{
+    Plug 'mbbill/undotree'
+    " }}}
+    " Tag bar {{{
+    Plug 'majutsushi/tagbar'
+    " }}}
+    " Window management {{{
+    Plug 'romgrk/winteract.vim'
+    Plug 'szw/vim-maximizer'        " enables zoom/maximize toggle of current window
+    " }}}
+    " Color schemes {{{
     Plug 'flazz/vim-colorschemes'
+    Plug 'vim-airline/vim-airline-themes'
     Plug 'joshdick/onedark.vim'
     Plug 'tomasiser/vim-code-dark'
     Plug 'drewtempelmeyer/palenight.vim'
@@ -419,18 +473,22 @@ if v:version >= 800
     let ayucolor='light'  " for light version of theme
     "let ayucolor="mirage" " for mirage version of theme
     "let ayucolor="dark"   " for dark version of theme
-    "" }}}
-    Plug 'ntpeters/vim-airline-colornum'
-    Plug 'kshenoy/vim-signature'
+    " }}}
     Plug 'godlygeek/csapprox'
-
+    " }}}
+    " Syntax handling {{{
+    " A collection of language packs
+    Plug 'sheerun/vim-polyglot'
+    " }}}
+    " }}}
+    " Term/Tmux integration {{{
     Plug 'tmux-plugins/vim-tmux-focus-events'
-    Plug 'wincent/terminus'
-    Plug 'romgrk/winteract.vim'
-    Plug 'mbbill/undotree'
-
-    Plug 'ericcurtin/CurtineIncSw.vim'
-
+    " Plug 'wincent/terminus'  " does the same as the above?
+    Plug 'christoomey/vim-tmux-navigator'
+    " }}}
+    " Session handling {{{
+    "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
+    "session manangement
     Plug 'mhinz/vim-startify'
     " vim-startify settings {{{
     let g:startify_session_dir = '~/.vim/session'
@@ -438,31 +496,31 @@ if v:version >= 800
     let g:startify_session_persistence = 1
     let g:startify_change_to_vcs_root = 1
     " }}}
-
-    Plug 'sheerun/vim-polyglot'
-    Plug 'andymass/vim-matchup'
-    Plug 'jiangmiao/auto-pairs'
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
-    " YouCompleteMe settings {{{
-    " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
     " }}}
-    " Gutentags settings {{{
+    " Version Control {{{
+    Plug 'tpope/vim-fugitive'
+    " vim-fugitive examples {{{
+    " :Gstatus, Gdiff, Gcommit, Gpush, Gpull
+    " }}}
+    Plug 'junegunn/gv.vim'
+    " gv.vim examples {{{
+    " :GV   open commit browser
+    " }}}
+    Plug 'nfvs/vim-perforce'
+    " vim-perforce exmaple usage {{{
+    " :P4info, P4edit, P4revert
+    " }}}
+    " }}}
+    " Tags {{{
     Plug 'ludovicchabant/vim-gutentags'
+    " Gutentags settings {{{
     let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project', '.p4config']
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_cache_dir = expand('~/.cache/tags')
     :set statusline+=%{gutentags#statusline()}
     " }}}
-    Plug 'SirVer/ultisnips'
-    " Ultisnips settings {{{
-    set runtimepath+=~/.vim/my-snippets/
-    let g:UltiSnipsListSnippets='<c-l>'
-    let g:UltiSnipsExpandTrigger='<c-j>'
-    let g:UltiSnipsJumpForwardTrigger='<c-n>'
-    let g:UltiSnipsJumpBackwardTrigger='<c-p>'
     " }}}
-
-    Plug 'honza/vim-snippets'
+    " Linting {{{
     Plug 'w0rp/ale'
     " ale settings {{{
     let g:ale_sign_error = '✘'
@@ -478,19 +536,21 @@ if v:version >= 800
     let g:ale_cpp_clangcheck_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
     " }}}
     " }}}
-    " In probation {{{
-    Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
-    Plug 'rhysd/vim-clang-format'
-
-    Plug 'Shougo/unite.vim'
-    Plug 'devjoe/vim-codequery'
-
-    Plug 'szw/vim-maximizer'        " enables zoom/maximize toggle of current window
-
-    " Filetype plugs
-    Plug 'PProvost/vim-ps1'         " powershell
-
-    " Python development
+    " Building/Testing {{{
+    Plug 'tpope/vim-dispatch'
+    " vim-dispatch examples {{{
+    " :Make         Run a compilation task, and errors show in QF
+    " :Make!        For longer-running/background tasks
+    " :compiler     Switch compiler
+    " :Dispatch     Run a command (async)
+    " }}}
+    Plug 'janko/vim-test'
+    " vim-test config {{{
+    nnoremap <leader>tf :TestFile<CR>
+    nnoremap <leader>ts :TestSuite<CR>
+    " }}}
+    " }}}
+    " Python development {{{
     Plug 'tmhedberg/SimpylFold'     " python folding
     Plug 'ambv/black'               " python auto formater
     Plug 'davidhalter/jedi-vim'
@@ -508,40 +568,46 @@ if v:version >= 800
     nnoremap <localleader>g :call jedi#goto_assignments()<CR>
     nnoremap <localleader>n :call jedi#usages()<CR>
     " }}}
-    Plug 'rizzatti/dash.vim'
-
-    Plug 'AndrewRadev/bufferize.vim'
-    Plug 'junegunn/gv.vim'
-
-    Plug 'easymotion/vim-easymotion'
-
-    Plug 'janko/vim-test'
-    " vim-test config {{{
-    nnoremap <leader>tf :TestFile<CR>
-    nnoremap <leader>ts :TestSuite<CR>
     " }}}
-
-    Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
-    Plug 'nfvs/vim-perforce'
-    Plug 'will133/vim-dirdiff'
-    Plug 'majutsushi/tagbar'
+    " Cpp development {{{
+    Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
+    Plug 'rhysd/vim-clang-format'
+    " }}}
+    " Powershell {{{
+    Plug 'PProvost/vim-ps1'         " powershell
+    " }}}
+    " Gradle {{{
     Plug 'tfnico/vim-gradle'
+    " }}}
+    " Utilities {{{
+    Plug 'will133/vim-dirdiff'
+    " DirDiff examples {{{
+    " :DirDiff  <dir1> <dir2>
+    " }}}
+    Plug 'AndrewRadev/bufferize.vim'
+    " Buffersize example {{{
+    " :Bufferize <ex mode command that has output>
+    " }}}
+    " }}}
+" }}}
+    " In probation {{{
+    Plug 'devjoe/vim-codequery'
+    Plug 'rizzatti/dash.vim'
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
     Plug 'editorconfig/editorconfig-vim'
-    Plug 'mileszs/ack.vim'
     " }}}
     " Unused plugins {{{
-    " Plug 'Raimondi/delimitMate'               " superceded by auto-pairs
-    " Plug 'cohama/lexima.vim'                  " had runaway insert issues!
-    " Plug 'vim-syntastic/syntastic'            " superceded by ale
-    " Plug 'neomake/neomake'                    " superceded by ale
-
-    " works really well, but going
-    " to focus on using Terminal in Vim and rely on Vim only for window
-    " management.
-    " Plug 'christoomey/vim-tmux-navigator'
+    " Plug 'Raimondi/delimitMate'       " superceded by auto-pairs
+    " Plug 'cohama/lexima.vim'          " had runaway insert issues!
+    " Plug 'vim-syntastic/syntastic'    " superceded by ale
+    " Plug 'neomake/neomake'            " superceded by ale
+    " Plug 'tpope/vim-vinegar'          " this enhances netrw, but NERDTree is what we use
+    " Plug 'gcmt/taboo.vim'             " don't find the need to use
+    " Plug 'mileszs/ack.vim'            " using Rg command from fzf.vim
+    " Plug 'Shougo/unite.vim'           " new ver is denite. Using fzf
+                                        " instead.
     " }}}
     call plug#end() " Initialize plugin system
 endif " version >= 800
