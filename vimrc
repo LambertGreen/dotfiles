@@ -231,7 +231,7 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window resize mode
-nnoremap <leader><leader>w :InteractiveWindow<CR>
+nnoremap <leader><leader>W :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
 " Toggle NERD
@@ -293,14 +293,14 @@ nnoremap <leader>ad :ALEDetail<CR>
 " }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
-nnoremap <leader><leader>a :call CurtineIncSw()<CR>
+nnoremap <leader><leader>A :call CurtineIncSw()<CR>
 " }}}
 " UndoTree mappings {{{
 " Toggle undo tree
 nnoremap <leader>u :UndotreeToggle<CR>
 " }}}
 " ClangFormat mappings {{{
-nnoremap <leader><leader>f :ClangFormat<CR>
+nnoremap <leader><leader>F :ClangFormat<CR>
 " }}}
 " }}}
 " Functions {{{
@@ -513,6 +513,8 @@ if v:version >= 800
     Plug 'AndrewRadev/bufferize.vim'
     Plug 'junegunn/gv.vim'
 
+    Plug 'easymotion/vim-easymotion'
+
     Plug 'janko/vim-test'
     " vim-test config {{{
     nnoremap <leader>tf :TestFile<CR>
@@ -535,7 +537,6 @@ if v:version >= 800
     " Plug 'cohama/lexima.vim'                  " had runaway insert issues!
     " Plug 'vim-syntastic/syntastic'            " superceded by ale
     " Plug 'neomake/neomake'                    " superceded by ale
-    " Plug 'easymotion/vim-easymotion'          " introduces bad habits?
 
     " works really well, but going
     " to focus on using Terminal in Vim and rely on Vim only for window
