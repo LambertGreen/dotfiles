@@ -10,8 +10,8 @@ if !has('nvim')
     " and warn, since this results in vim
     " using the now defined runtime of nvim
     " whic causes Vim to fail.
-    if $VIMRUNTIME =~ 'nvim'
-        throw "Vim is running inside of Nvim! I recommed you alias vim to nvim."
+    if $VIMRUNTIME =~? 'nvim'
+        throw 'Vim is running inside of Nvim! I recommed you alias vim to nvim.'
     endif
     if filereadable($VIMRUNTIME/'defaults.vim')
         source $VIMRUNTIME/'defaults.vim'
@@ -468,12 +468,10 @@ if v:version >= 800
     Plug 'tomasiser/vim-code-dark'
     Plug 'drewtempelmeyer/palenight.vim'
     Plug 'rakr/vim-one'
+    Plug 'KeitaNakamura/neodark.vim'
+    Plug 'jacoborus/tender.vim'
+    Plug 'lifepillar/vim-solarized8'
     Plug 'ayu-theme/ayu-vim'
-    " ayu-vim settings {{{
-    let ayucolor='light'  " for light version of theme
-    "let ayucolor="mirage" " for mirage version of theme
-    "let ayucolor="dark"   " for dark version of theme
-    " }}}
     Plug 'godlygeek/csapprox'
     " }}}
     " Syntax handling {{{
@@ -637,15 +635,31 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
 " Theme {{{
-set background=dark
-silent! colorscheme one
-let g:airline_theme = 'onedark'
-" Make comments show in italics
+colorscheme palenight
+let g:palenight_terminal_italics=1
+
+" colorscheme one
+" set background=dark
+" let g:one_allow_italics = 1
+
+" colorscheme tender
+" set background=dark
+" let g:airline_theme = 'tender'
+" hi clear SignColumn
+"
+"colorscheme ayu
+" ayu-vim settings {{{
+"let ayucolor='light'  " for light version of theme
+let ayucolor='mirage' " for mirage version of theme
+"let ayucolor='dark'   " for dark version of theme
+" }}}
+"
+" Make comments show in italics, for themes that don't support it natively.
 " Note: Italics may not show if the terminal's terminfo is not
 " setup correctly for showing italics e.g. some extra config is
 " required to show italics when running inside TMUX, and if also
 " running in an SSH session, then even more setup may be required.
-highlight Comment cterm=italic gui=italic
+" highlight Comment cterm=italic gui=italic
 " }}}
 " Local settings {{{
 " Check machine specific local config
