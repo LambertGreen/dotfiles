@@ -532,8 +532,10 @@ if v:version >= 800
     let g:ale_python_auto_pipenv = 1
     let g:ale_python_mypy_auto_pipenv = 1
     let g:ale_python_mypy_options = '--ignore-missing-imports'
-    let g:ale_cpp_clangtidy_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
-    let g:ale_cpp_clangcheck_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
+    " TODO: Remove below options from main vimrc and have ale options for cpp
+    " be defined in specific projects.
+    " let g:ale_cpp_clangtidy_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
+    " let g:ale_cpp_clangcheck_options = '-- -x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
     " }}}
     " }}}
     " Building/Testing {{{
