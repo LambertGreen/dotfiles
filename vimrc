@@ -640,6 +640,12 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 set background=dark
 silent! colorscheme one
 let g:airline_theme = 'onedark'
+" Make comments show in italics
+" Note: Italics may not show if the terminal's terminfo is not
+" setup correctly for showing italics e.g. some extra config is
+" required to show italics when running inside TMUX, and if also
+" running in an SSH session, then even more setup may be required.
+highlight Comment cterm=italic gui=italic
 " }}}
 " Local settings {{{
 " Check machine specific local config
