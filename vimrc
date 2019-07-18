@@ -519,6 +519,8 @@ if v:version >= 800
     nnoremap <leader>ts :TestSuite<CR>
     " }}}
 
+    Plug 'vimwiki/vimwiki'
+
     Plug 'gcmt/taboo.vim'           " Allows renaming of tabs
     Plug 'nfvs/vim-perforce'
     Plug 'will133/vim-dirdiff'
