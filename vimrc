@@ -465,14 +465,17 @@ if v:version >= 800
     Plug 'flazz/vim-colorschemes'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'joshdick/onedark.vim'
+    Plug 'rakr/vim-one'
+    Plug 'sonph/onehalf', {'rtp': 'vim/'}
     Plug 'tomasiser/vim-code-dark'
     Plug 'drewtempelmeyer/palenight.vim'
-    Plug 'rakr/vim-one'
     Plug 'KeitaNakamura/neodark.vim'
     Plug 'jacoborus/tender.vim'
     Plug 'lifepillar/vim-solarized8'
     Plug 'ayu-theme/ayu-vim'
-    Plug 'godlygeek/csapprox'
+    Plug 'NLKNguyen/papercolor-theme'
+    " Trying to see if I can do without the below
+    " Plug 'godlygeek/csapprox'
     " }}}
     " Syntax handling {{{
     " A collection of language packs
@@ -591,6 +594,7 @@ if v:version >= 800
     " In probation {{{
     Plug 'devjoe/vim-codequery'
     Plug 'rizzatti/dash.vim'
+    Plug 'yuttie/comfortable-motion.vim'
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
