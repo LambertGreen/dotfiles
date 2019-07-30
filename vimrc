@@ -1,8 +1,6 @@
+"----------------
 " Lambert's VIMRC
-
-" UTF-8 is the default, but let's be expressive (actually the linter
-" complained, and I obliged)
-scriptencoding utf-8
+"----------------
 
 " Environment specific settings {{{
 if !has('nvim')
@@ -92,6 +90,9 @@ endif
 " }}}
 " }}}
 " Editor {{{
+" UTF-8 is the default, but let's be expressive (actually the linter
+" complained, and I obliged)
+scriptencoding utf-8
 set title
 " Set title to the current working directory so that the vim
 " instance can be found by project name in the OS window manager.
@@ -161,6 +162,8 @@ endif
 " General mappings {{{
 let g:mapleader = "\<Space>"
 let g:maplocalleader = "\\"
+" Alternative escape from insert mode
+:imap kj <Esc>
 " Copy/paste into system clipboard
 vmap <leader>y "+y
 vmap <leader>d "+d
