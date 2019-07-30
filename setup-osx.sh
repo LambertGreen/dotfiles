@@ -11,6 +11,3 @@ createOsxConfigSymLinks() {
     createConfigSymLink config/karabiner
 }
 
-flushDns() {
-    sudo killall -HUP mDNSResponder
-}
