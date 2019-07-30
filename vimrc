@@ -162,6 +162,8 @@ endif
 " General mappings {{{
 let g:mapleader = "\<Space>"
 let g:maplocalleader = "\\"
+" Alternative escape from insert mode
+:imap kj <Esc>
 " Copy/paste into system clipboard
 vmap <leader>y "+y
 vmap <leader>d "+d
