@@ -6,7 +6,7 @@
 :: Further the script must be very careful to not write to std out since
 :: this can have strange after effects.
 ::
-:: Rather than use this file at all it recommended to use Powershell,
+:: Rather than use this file at all it is recommended to use Powershell,
 :: which has better support for loading user config.
 @echo off
 

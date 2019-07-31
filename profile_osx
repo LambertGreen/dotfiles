@@ -3,3 +3,10 @@
 # Gnu-time
 export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH"
 
+updatedb() {
+    sudo /usr/libexec/locate.updatedb
+}
+
+flushDns() {
+    sudo killall -HUP mDNSResponder
+}
