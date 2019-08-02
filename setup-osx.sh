@@ -11,3 +11,7 @@ createOsxConfigSymLinks() {
     createConfigSymLink config/karabiner
 }
 
+
+restartAudio() {
+    sudo killall coreaudiod
+}
