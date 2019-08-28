@@ -660,7 +660,7 @@ function! ColorSchemePaperColor()
     let g:PaperColor_Theme_Options = {
                 \   'theme': {
                 \     'default.light': {
-                \       'transparent_background': 1
+                \       'transparent_background': 0
                 \     }
                 \   },
                 \   'language': {
@@ -700,6 +700,42 @@ function! ColorSchemeAyu()
     let ayucolor='light'  "  light | mirage | dark
     highlight Comment cterm=italic gui=italic
 endfunction
+
+:call ColorSchemePalenight()
+
+" Make comments show in italics, for themes that don't support it natively.
+" Note: Italics may not show if the terminal's terminfo is not
+" setup correctly for showing italics e.g. some extra config is
+" required to show italics when running inside TMUX, and if also
+" running in an SSH session, then even more setup may be required.
+" highlight Comment cterm=italic gui=italic
+" }}}
+" Local settings {{{
+" Check machine specific local config
+execute 'silent! source ~/.vimrc_local'
+" }}}
+" Tips & Tricks {{{
+" Sort includes/imports:
+"   1. visual select
+"   2. :%!sort -k2
+" Command auto completion:
+"   1. <C-d> to select option
+" Copy from command results window
+"   1. :redir @* | <command> | redir END
+" Command buffer
+"   1. <C-f> to access buffer: you can copy/paste/insert and use.
+" List variables:
+"   1. :let
+" Change tabs to spaces
+"   1. :retab
+" Get previous highlight selection
+"   1. gv
+" Java: set include expression so that gf works for imports
+"   set includeexpr=substitute(v:fname,'\\.','/','g')
+" Using Fonts in GVim
+"   Note: Windows will block fonts downloaded from the internet:
+"   before they can be used first unblock them.
+" Getting correct colors in Vim Terminal
 "   There are a few things that one needs to set, but its easy
 "   to look these up on the internet.  The main thing that I
 "   struggled with was that my terminal was not set to support
