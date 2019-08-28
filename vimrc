@@ -452,6 +452,7 @@ if v:version >= 800
     Plug 'ryanoasis/vim-devicons'
     "vim-devicons settings {{{
     let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+    let g:WebDevIconsNerdTreeGitPluginForceVAlign = 1
     "}}}
     " }}}
     " UndoTree {{{
