@@ -52,6 +52,13 @@ function createConfigSymLinks {
         (echo "Nvim directory '.config/nvim' does not exist! Install Nvim first.")
     fi
 
+    # oni
+    if test -d ~/.config/oni; then
+        createConfigSymLink config/oni/config.tsx
+    else
+        (echo "Nvim directory '.config/nvim' does not exist! Install Nvim first.")
+    fi
+
     # flake8
     createConfigSymLink config/flake8
 }
