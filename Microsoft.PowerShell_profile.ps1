@@ -66,10 +66,6 @@ function Set-VsCmd
 function Run-Bat { bat.exe $args --paging=never}
 Set-Alias bat Run-Bat -option AllScope
 
-# Gradlew wrapper function
-function Run-Gradlew { ./gradlew.bat $args }
-Set-Alias gw Run-Gradlew -option AllScope
-
 # Git alias
 function Run-Git { git $args }
 Set-Alias g Run-Git -option AllScope

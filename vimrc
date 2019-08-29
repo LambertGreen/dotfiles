@@ -448,11 +448,12 @@ if v:version >= 800
     "NERDTree settings {{{
     let g:NERDTreeHijackNetrw = 1
     "}}}
+    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'ryanoasis/vim-devicons'
     "vim-devicons settings {{{
     let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+    let g:WebDevIconsNerdTreeGitPluginForceVAlign = 1
     "}}}
-    Plug 'Xuyuanp/nerdtree-git-plugin'
     " }}}
     " UndoTree {{{
     Plug 'mbbill/undotree'
@@ -646,26 +647,62 @@ cnoreabbrev AG Ack
 let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
-" Theme {{{
-colorscheme palenight
-let g:palenight_terminal_italics=1
+" ColorSchemes {{{
+function! ColorSchemePalenight()
+    colorscheme palenight
+    set background=dark
+    let g:palenight_terminal_italics=1
+    highlight Comment cterm=italic gui=italic
+    let g:airline_theme='palenight'
+endfunction
 
-" colorscheme one
-" set background=dark
-" let g:one_allow_italics = 1
+function! ColorSchemePaperColor()
+    let g:PaperColor_Theme_Options = {
+                \   'theme': {
+                \     'default.light': {
+                \       'transparent_background': 0
+                \     }
+                \   },
+                \   'language': {
+                \     'python': {
+                \       'highlight_builtins' : 1
+                \     },
+                \     'cpp': {
+                \       'highlight_standard_library': 1
+                \     },
+                \     'c': {
+                \       'highlight_builtins' : 1
+                \     }
+                \   }
+                \ }
+    colorscheme PaperColor
+    set background=light
+    let g:airline_theme='papercolor'
+    highlight Comment cterm=italic gui=italic
+endfunction
 
-" colorscheme tender
-" set background=dark
-" let g:airline_theme = 'tender'
-" hi clear SignColumn
-"
-"colorscheme ayu
-" ayu-vim settings {{{
-"let ayucolor='light'  " for light version of theme
-let ayucolor='mirage' " for mirage version of theme
-"let ayucolor='dark'   " for dark version of theme
-" }}}
-"
+function! ColorSchemeTender()
+    colorscheme tender
+    set background=dark
+    let g:airline_theme = 'tender'
+    hi clear SignColumn
+    highlight Comment cterm=italic gui=italic
+endfunction
+
+function! ColorSchemeOne()
+    colorscheme one
+    set background=dark
+    let g:one_allow_italics = 1
+endfunction
+
+function! ColorSchemeAyu()
+    colorscheme ayu
+    let ayucolor='light'  "  light | mirage | dark
+    highlight Comment cterm=italic gui=italic
+endfunction
+
+:call ColorSchemePalenight()
+
 " Make comments show in italics, for themes that don't support it natively.
 " Note: Italics may not show if the terminal's terminfo is not
 " setup correctly for showing italics e.g. some extra config is
