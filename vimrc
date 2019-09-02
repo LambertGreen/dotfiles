@@ -102,6 +102,8 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
+set incsearch
+set hlsearch
 set autoread
 set backspace=indent,eol,start
 set hidden " allows switching from a buffer that has unwritten changes
@@ -604,6 +606,7 @@ if v:version >= 800
     Plug 'devjoe/vim-codequery'
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
+    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
