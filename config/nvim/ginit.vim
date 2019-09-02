@@ -1,6 +1,10 @@
 
 " Use a nice font
-:GuiFont! Hack\ NF:h10:1
+if has('win32')
+    :GuiFont! Hack\ NF:h12:1
+else
+    :GuiFont! Hack\ Nerd\ Font:h12
+end
 
 " Remove ugly tabline
 GuiTabline 0
