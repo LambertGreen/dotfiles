@@ -333,10 +333,17 @@ augroup END
 
 " On directory change update window title
 if v:version >= 800
-    augroup DirectoryChange
-        autocmd!
-        autocmd DirChanged * let &titlestring=v:event['cwd']
-    augroup END
+    if has('nvim')
+        augroup DirectoryChange
+            autocmd!
+            autocmd DirChanged * let &titlestring=v:event['cwd']
+        augroup END
+    else
+        augroup DirectoryChange
+            autocmd!
+            autocmd DirChanged * let &titlestring=expand("<afile>")
+        augroup END
+    endif
 endif
 
 " Spell checking settings
