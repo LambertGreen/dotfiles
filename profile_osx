@@ -3,6 +3,9 @@
 # Gnu-time
 export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH"
 
+# Homebrew
+export PATH="/Users/lgreen/homebrew/bin:$PATH"
+
 updatedb() {
     sudo /usr/libexec/locate.updatedb
 }
