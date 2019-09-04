@@ -6,6 +6,9 @@ export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH:/Users/lgreen/Library/
 # Homebrew
 export PATH="/Users/lgreen/homebrew/bin:$PATH"
 
+# Set locale
+export LC_ALL=en_US.UTF-8
+
 updatedb() {
     sudo /usr/libexec/locate.updatedb
 }
