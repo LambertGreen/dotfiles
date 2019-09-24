@@ -34,11 +34,6 @@ else
     true
 fi
 
-if [ -v "$GREETING" ]; then
-    echo "Setup complete. Happy coding."
-    [ -x "$(command -v neofetch)" ] && neofetch
-fi
-
 # PYENV
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -51,3 +46,9 @@ fi
 # Needed for Ssh and Tmux hosted sessions since they only source profile
 # and not bashrc.
 [ -f ~/.bashrc ] && . ~/.bashrc
+
+if [ -v "$GREETING" ]; then
+    echo "Setup complete. Happy coding."
+    [ -x "$(command -v neofetch)" ] && neofetch
+fi
+
