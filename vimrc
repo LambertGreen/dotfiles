@@ -614,6 +614,7 @@ if v:version >= 800
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+    Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
