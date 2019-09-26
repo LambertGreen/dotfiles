@@ -53,6 +53,7 @@ This function should only modify configuration layer settings."
      spell-checking
      syntax-checking
      treemacs
+     json
      ;; version-control
      )
 
