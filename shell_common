@@ -89,3 +89,15 @@ ColorTest() {
         echo
 }
 
+# Source OS specific profile
+if [ "$UNAME" = "Linux" ]; then
+    [ -f "$HOME/.shell_linux" ] && . "$HOME/.shell_linux"
+else
+    true
+fi
+
+if [ "$UNAME" = "Darwin" ]; then
+    [ -f "$HOME/.shell_osx" ] && . "$HOME/.shell_osx"
+else
+    true
+fi

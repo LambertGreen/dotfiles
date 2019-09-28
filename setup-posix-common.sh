@@ -14,11 +14,15 @@ function removeConfigSymLink {
     rm $1
 }
 
+function createSymLink {
+    echo "Symlinking '$1' to '$2'..."
+    ln -sf $1 $2
+}
+
 function createConfigSymLink {
     local target=$scriptDir/$1
     local link=$HOME/.$1
-    echo "Symlinking '$link' to '$target'..."
-    ln -sf $target $link
+    createSymLink $link $target
 }
 
 function createConfigSymLinks {
@@ -61,5 +65,9 @@ function createConfigSymLinks {
 
     # flake8
     createConfigSymLink config/flake8
+
+    # Spacemacs
+    createSymLink $scriptDir/spacemacs.el $HOME/.spacemacs
 }
+
 

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+alias lldb=~/homebrew/Cellar/llvm/8.0.1/bin/lldb

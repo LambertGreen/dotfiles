@@ -3,6 +3,12 @@
 # Gnu-time
 export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH:/Users/lgreen/Library/Python/3.7/bin"
 
+# Homebrew
+export PATH="/Users/lgreen/homebrew/bin:$PATH"
+
+# Set locale
+export LC_ALL=en_US.UTF-8
+
 updatedb() {
     sudo /usr/libexec/locate.updatedb
 }
