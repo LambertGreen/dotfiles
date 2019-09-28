@@ -63,9 +63,9 @@ SetupFzf() {
 #--------------------------------------------
 SetupCommonShell() {
     # Source common shell script
-    [ -f $HOME/shell_common ] && source $HOME/shell_common
+    [ -f $HOME/.shell_common ] && source $HOME/.shell_common
     # Source local config file if is present
-    [ -f $HOME/zshrc_local ] && source $HOME/zshrc_local
+    [ -f $HOME/.zshrc_local ] && source $HOME/.zshrc_local
 }
 
 #--------------------------------------------
