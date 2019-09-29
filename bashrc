@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 # If zsh is installed then run it instead
 # Note: In general the chsh command can be used to change a user's shell
@@ -8,5 +9,3 @@
 
 # Source common shell script
 [ -f ~/.shell_common ] && source ~/.shell_common
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash
