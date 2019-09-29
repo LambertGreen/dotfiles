@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+start-emacs() {
+    emacs --user '' $1
+}
+
+alias emacs=start-emacs
