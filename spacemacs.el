@@ -467,6 +467,10 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (setq explicit-shell-file-name "/bin/bash")
+  (setq shell-file-name "bash")
+  (add-to-list 'load-path "~/dev/pub/emacs/emacs-libvterm/")
+  (require 'vterm)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
