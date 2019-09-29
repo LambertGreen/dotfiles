@@ -53,6 +53,7 @@ This function should only modify configuration layer settings."
      spell-checking
      syntax-checking
      treemacs
+     json
      ;; version-control
      )
 
@@ -454,10 +455,9 @@ See the header of this file for more information."
 This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
-If you are unsure, try setting them in `dotspacemacs/user-config' first.
+If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-To set config based on system type you can use `(if (eq system-type, 'gnu/linux))"
-"
+;; To set config based on system type you can use `(if (eq system-type, 'gnu/linux))"
 
 
 (defun dotspacemacs/user-load ()
@@ -473,8 +473,15 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-    (add-to-list 'load-path "~/dev/pub/emacs/emacs-libvterm/")
-    (require 'vterm)
+
+;; TODO: I needed to add these below variables while doing things on Osx, but I am not sure
+;; if they are needed any longer.  Given that they are not platform specific i.e. we probably
+;; want different values for Windows.
+;;  `explicit-shell-file-name /bin/bash
+;;  `shell-file-name bash
+
+  (add-to-list 'load-path "~/dev/pub/emacs/emacs-libvterm/")
+  (require 'vterm)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
