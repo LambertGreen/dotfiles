@@ -55,7 +55,7 @@ SetupOhMyZsh () {
 # FZF
 #--------------------------------------------
 SetupFzf() {
-    export FZF_BASE=/home/lgreen/.fzf
+    export FZF_BASE=$HOME/.fzf
 }
 
 #--------------------------------------------
@@ -63,9 +63,9 @@ SetupFzf() {
 #--------------------------------------------
 SetupCommonShell() {
     # Source common shell script
-    [ -f ~/.shell_common ] && source ~/.shell_common
+    [ -f $HOME/.shell_common ] && source $HOME/.shell_common
     # Source local config file if is present
-    [ -f ~/.zshrc_local ] && source ~/.zshrc_local
+    [ -f $HOME/.zshrc_local ] && source $HOME/.zshrc_local
 }
 
 #--------------------------------------------
@@ -95,7 +95,7 @@ SetupOhMyZshUsingZplugin() {
 }
 
 SetupZplugin() {
-    . ~/.zplugin/bin/zplugin.zsh
+    source $HOME/.zplugin/bin/zplugin.zsh
 
     autoload -Uz _zplugin
     (( ${+_comps} )) && _comps[zplugin]=_zplugin

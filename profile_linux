@@ -22,4 +22,4 @@ fi
 export PKG_CONFIG_PATH="/usr/share/pkgconfig:$PKG_CONFIG_PATH"
 
 # Setup Perl
-eval `$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)`
+[ -f "$HOME/perl5/lib/perl5" ] && eval `$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)`
