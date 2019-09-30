@@ -206,7 +206,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
 
    ;; Default font or prioritized list of fonts.
-   dotspacemacs-default-font (let ((fonts '("Hack NF" "Hack Nerd Font Regular" "Source Code Pro")))
+   dotspacemacs-default-font (let ((fonts '("Hack NF" "Hack Nerd Font Regular" "Hack Nerd Font")))
                                (mapcar (lambda (font)
                                          `(,font
                                            :size 12
@@ -458,7 +458,7 @@ It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
 ;; To set config based on system type you can use `(if (eq system-type, 'gnu/linux))"
-
+)
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
