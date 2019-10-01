@@ -54,7 +54,7 @@ This function should only modify configuration layer settings."
      syntax-checking
      treemacs
      json
-     ;; version-control
+     version-control
      )
 
    ;; List of additional packages that will be installed without being
@@ -64,7 +64,10 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages
+   '(
+     editorconfig
+     )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
