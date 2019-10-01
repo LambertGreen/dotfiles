@@ -54,7 +54,7 @@ This function should only modify configuration layer settings."
      syntax-checking
      treemacs
      json
-     ;; version-control
+     version-control
      )
 
    ;; List of additional packages that will be installed without being
@@ -457,7 +457,11 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
-;; To set config based on system type you can use `(if (eq system-type, 'gnu/linux))"
+  ;; To set config based on system type you can use `((if (eq system-type, 'gnu/linux))"
+
+  (if (eq system-type 'windows-nt)
+      (setq ispell-program-name "~/dev/my/dotfiles/aspell.cmd")
+  )
 )
 
 (defun dotspacemacs/user-load ()
@@ -480,9 +484,13 @@ before packages are loaded."
 ;;  `explicit-shell-file-name /bin/bash
 ;;  `shell-file-name bash
 
-  (add-to-list 'load-path "~/dev/pub/emacs/emacs-libvterm/")
-  (require 'vterm)
+  (if (not (eq system-type 'windows-nt))
+      (
+       (add-to-list 'load-path "~/dev/pub/emacs/emacs-libvterm/")
+       (require 'vterm)
+      )
   )
+)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -500,3 +508,4 @@ before packages are loaded."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
