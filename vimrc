@@ -621,6 +621,7 @@ if v:version >= 800
 " }}}
     " In probation {{{
     Plug 'devjoe/vim-codequery'
+    Plug 'jceb/vim-orgmode'
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
