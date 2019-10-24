@@ -27,11 +27,16 @@ gw () {
 StartSshAgent() {
     if [ "$UNAME" = "Darwin" ]; then
         # Keychain to start ssh-agent
-        eval `keychain --eval id_rsa`
+        eval "$(keychain --eval id_rsa)"
     else
-        eval $(ssh-agent -s)
+        eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_rsa
     fi
+}
+
+SetupDevEnvPython() {
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
 }
 
 SetupDevEnvJava () {
@@ -43,8 +48,8 @@ SetupDevEnvJava () {
 
 SetupDevEnvNode () {
     export NVM_DIR="$HOME/.nvm"
-    [ -s "/usr/local/opt/nvm/nvm.sh" ] && s "/usr/local/opt/nvm/nvm.sh"
-    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && . "/usr/local/opt/nvm/etc/bash_completion"
+    [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
+    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
 }
 
 SetupDevEnvRust () {
@@ -54,7 +59,7 @@ SetupDevEnvRust () {
 SetupDevEnvRuby () {
     export PATH="$PATH:$HOME/.rvm/bin"
     # Source Ruby Version Manager
-    [ -s "$HOME/.rvm/scripts/rvm" ] && . "$HOME/.rvm/scripts/rvm"
+    [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm"
 }
 
 SetupDevEnvGo () {
@@ -66,7 +71,7 @@ SetupDevEnvGo () {
 }
 
 TimeShell() {
-  for i in $(seq 1 10); do time $@ -i -c exit; done
+  for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
 ColorTest() {
@@ -91,13 +96,18 @@ ColorTest() {
 
 # Source OS specific profile
 if [ "$UNAME" = "Linux" ]; then
-    [ -f "$HOME/.shell_linux" ] && . "$HOME/.shell_linux"
+    # shellcheck source=/dev/null
+    [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
 else
     true
 fi
 
 if [ "$UNAME" = "Darwin" ]; then
-    [ -f "$HOME/.shell_osx" ] && . "$HOME/.shell_osx"
+    # shellcheck source=/dev/null
+    [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
 else
     true
 fi
+
+SetupDevEnvPython
+StartSshAgent
