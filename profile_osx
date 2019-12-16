@@ -3,14 +3,11 @@
 # Gnu-time
 export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH:/Users/lgreen/Library/Python/3.7/bin"
 
-updatedb() {
-    sudo /usr/libexec/locate.updatedb
-}
+# MacPorts
+export PATH="/opt/local/bin:$PATH"
 
-flushDns() {
-    sudo killall -HUP mDNSResponder
-}
+# Homebrew
+export PATH="$(brew --prefix)/bin:$PATH"
 
-restartAudio() {
-    sudo killall coreaudiod
-}
+# Set locale
+export LC_ALL=en_US.UTF-8

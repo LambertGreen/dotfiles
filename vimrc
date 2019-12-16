@@ -102,6 +102,8 @@ set tabstop=4
 set shiftwidth=4
 set expandtab
 set softtabstop=4 " makes the spaces feel like real tabs<Paste>
+set incsearch
+set hlsearch
 set autoread
 set backspace=indent,eol,start
 set hidden " allows switching from a buffer that has unwritten changes
@@ -131,6 +133,16 @@ if has('nvim')
         let $VIMHOME = $LOCALAPPDATA.'\nvim'
     else
         let $VIMHOME = $HOME.'/.config/nvim'
+        " Note: a prerequisate is to use pyenv to setup virtual environments
+        " specific to neovim. Below are the setup instructions:
+        "   - install a version of python e.g.:
+        "       - pyenv install 3.7.4
+        "   - create a virtualenv e.g.:
+        "       - pyenv virtualevn 3.7.4 neovim3
+        "   - activate the venv e.g.:
+        "       - pyenv activate neovim3
+        "   - install neovim module:
+        "       - pip install neovim
         if !empty(glob($HOME.'/.pyenv/versions/neovim2/bin/python'))
             let g:python_host_prog = $HOME.'/.pyenv/versions/neovim2/bin/python'
         endif
@@ -331,10 +343,17 @@ augroup END
 
 " On directory change update window title
 if v:version >= 800
-    augroup DirectoryChange
-        autocmd!
-        autocmd DirChanged * let &titlestring=v:event['cwd']
-    augroup END
+    if has('nvim')
+        augroup DirectoryChange
+            autocmd!
+            autocmd DirChanged * let &titlestring=v:event['cwd']
+        augroup END
+    else
+        augroup DirectoryChange
+            autocmd!
+            autocmd DirChanged * let &titlestring=expand("<afile>")
+        augroup END
+    endif
 endif
 
 " Spell checking settings
@@ -602,8 +621,11 @@ if v:version >= 800
 " }}}
     " In probation {{{
     Plug 'devjoe/vim-codequery'
+    Plug 'jceb/vim-orgmode'
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
+    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+    Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'

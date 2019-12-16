@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Aliases
+alias updatedb="/usr/libexec/locate.updatedb"
+alias flushDns="killall -HUP mDNSResponder"
+alias restartAudio="killall coreaudiod"
+alias lldb="/usr/local/Cellar/llvm/8.0.1/bin/lldb"
