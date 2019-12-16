@@ -55,3 +55,7 @@ function SymlinkFlake8() {
 function SymlinkSpacemacs() {
     make-link $scriptDir/spacemacs.el $env:HOMEPATH/.spacemacs
 }
+
+function SymlinkKeypirinha() {
+    make-link $scriptDir/Keypirinha/Keypirinha.ini $env:HOMEPATH/scoop/persist/keypirinha/portable/Profile/User/Keypirinha.ini
+}
