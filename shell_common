@@ -70,6 +70,11 @@ SetupDevEnvGo () {
     test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 }
 
+SetupDevEnvClang() {
+    export PATH=/usr/local/clang_9.0.0/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+}
+
 TimeShell() {
   for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
