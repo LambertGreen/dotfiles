@@ -59,3 +59,7 @@ function SymlinkSpacemacs() {
 function SymlinkKeypirinha() {
     make-link $scriptDir/Keypirinha/Keypirinha.ini $env:HOMEPATH/scoop/persist/keypirinha/portable/Profile/User/Keypirinha.ini
 }
+
+function SymlinkConEmu() {
+    make-link $scriptDir/ConEmu/ConEmu.xml $env:HOMEPATH/scoop/apps/conemu/current/ConEmu/ConEmu.xml
+}
