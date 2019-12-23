@@ -29,8 +29,10 @@ StartSshAgent() {
         # Keychain to start ssh-agent
         eval "$(keychain --eval id_rsa)"
     else
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_rsa
+        if [ -x "$(command -v keychain)" ]; then
+            eval `keychain --nogui --eval id_rsa`
+            source "$HOME/.keychain/$(hostname)-sh"
+        fi
     fi
 }
 
@@ -115,4 +117,8 @@ else
 fi
 
 SetupDevEnvPython
+SetupDevEnvClang
 StartSshAgent
+
+# Finally source any local config
+[ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"
