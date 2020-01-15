@@ -63,3 +63,23 @@ hyper:bind({}, 'l', function()
     hs.eventtap.keyStroke({}, 'right')
     hyper.triggered = true
 end)
+
+-- Hints
+hyper:bind({}, '/', nil, function()
+    hs.hints.windowHints(getAllValidWindows() )
+end)
+ 
+-- utils
+function getAllValidWindows ()
+    local allWindows = hs.window.allWindows()
+    local windows = {}
+    local index = 1
+    for i = 1, #allWindows do
+        local w = allWindows[i]
+        if w:screen() then
+            windows[index] = w
+            index = index + 1
+        end
+    end
+    return windows
+end
