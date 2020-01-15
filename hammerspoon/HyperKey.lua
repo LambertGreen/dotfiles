@@ -41,6 +41,12 @@ hyper:bind({}, 'w', function()
     hyper.triggered = true
 end)
 
+-- Application window minimize
+hyper:bind({}, 'n', function()
+    hs.window.focusedWindow():minimize()
+ hyper.triggered = true
+end)
+
 --
 -- Arrow keys
 --
