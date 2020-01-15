@@ -1,6 +1,6 @@
 {
     "global": {
-        "check_for_updates_on_startup": false,
+        "check_for_updates_on_startup": true,
         "show_in_menu_bar": true,
         "show_profile_name_in_menu_bar": false
     },
@@ -14,34 +14,7 @@
                     "basic.to_if_held_down_threshold_milliseconds": 500,
                     "mouse_motion_to_scroll.speed": 100
                 },
-                "rules": [
-                    {
-                        "manipulators": [
-                            {
-                                "description": "Change caps_lock to control when used as modifier, escape when used alone",
-                                "from": {
-                                    "key_code": "caps_lock",
-                                    "modifiers": {
-                                        "optional": [
-                                            "any"
-                                        ]
-                                    }
-                                },
-                                "to": [
-                                    {
-                                        "key_code": "left_control"
-                                    }
-                                ],
-                                "to_if_alone": [
-                                    {
-                                        "key_code": "escape"
-                                    }
-                                ],
-                                "type": "basic"
-                            }
-                        ]
-                    }
-                ]
+                "rules": []
             },
             "devices": [],
             "fn_function_keys": [
@@ -50,7 +23,7 @@
                         "key_code": "f1"
                     },
                     "to": {
-                        "key_code": "display_brightness_decrement"
+                        "consumer_key_code": "display_brightness_decrement"
                     }
                 },
                 {
@@ -58,7 +31,7 @@
                         "key_code": "f2"
                     },
                     "to": {
-                        "key_code": "display_brightness_increment"
+                        "consumer_key_code": "display_brightness_increment"
                     }
                 },
                 {
@@ -98,7 +71,7 @@
                         "key_code": "f7"
                     },
                     "to": {
-                        "key_code": "rewind"
+                        "consumer_key_code": "rewind"
                     }
                 },
                 {
@@ -106,7 +79,7 @@
                         "key_code": "f8"
                     },
                     "to": {
-                        "key_code": "play_or_pause"
+                        "consumer_key_code": "play_or_pause"
                     }
                 },
                 {
@@ -114,7 +87,7 @@
                         "key_code": "f9"
                     },
                     "to": {
-                        "key_code": "fastforward"
+                        "consumer_key_code": "fastforward"
                     }
                 },
                 {
@@ -122,7 +95,7 @@
                         "key_code": "f10"
                     },
                     "to": {
-                        "key_code": "mute"
+                        "consumer_key_code": "mute"
                     }
                 },
                 {
@@ -130,7 +103,7 @@
                         "key_code": "f11"
                     },
                     "to": {
-                        "key_code": "volume_decrement"
+                        "consumer_key_code": "volume_decrement"
                     }
                 },
                 {
@@ -138,17 +111,19 @@
                         "key_code": "f12"
                     },
                     "to": {
-                        "key_code": "volume_increment"
+                        "consumer_key_code": "volume_increment"
                     }
                 }
             ],
             "name": "Default profile",
+            "parameters": {
+                "delay_milliseconds_before_open_device": 1000
+            },
             "selected": true,
             "simple_modifications": [],
             "virtual_hid_keyboard": {
-                "caps_lock_delay_milliseconds": 0,
                 "country_code": 0,
-                "keyboard_type": "ansi"
+                "mouse_key_xy_scale": 100
             }
         }
     ]
