@@ -16,8 +16,6 @@ function removeConfigSymLink {
 
 function createSymLink {
     echo "Symlinking '$1' to '$2'..."
-    # TODO: The order of parameters to ln might not be the same for Osx and Linux!
-    # So please double check and update if needed.
     ln -sf $1 $2
 }
 
@@ -69,7 +67,7 @@ function createConfigSymLinks {
     createConfigSymLink config/flake8
 
     # Spacemacs
-    createSymLink $scriptDir/spacemacs.el $HOME/.spacemacs
+    createSymLink $HOME/.spacemacs $scriptDir/spacemacs.el 
 }
 
 

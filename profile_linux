@@ -4,19 +4,18 @@ SetupLinuxbrew() {
 	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 }
 
-# Note: Bash on Windows does not currently apply umask properly.
+# Note: WSL does not currently apply umask properly.
 if [ "$(umask)" = "0000" ]; then
 	umask 022
 fi
-
-# Start the SSH agent
-[ -x "$(command -v keychain)" ] && eval `keychain --agents ssh --eval id_rsa --quiet`
 
 # LinuxBrew
 [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && SetupLinuxbrew || true
 
 # XDG runtime
-[ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
+# TODO: Consider if the below is needed at all for Centos7.  It causes issues on WSL Ubuntu,
+# hence commenting it out for now.
+# [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 
 # Pckg config
 export PKG_CONFIG_PATH="/usr/share/pkgconfig:$PKG_CONFIG_PATH"
