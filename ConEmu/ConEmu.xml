@@ -8,7 +8,7 @@
 <key name="Software">
 	<key name="ConEmu">
 		<!-- Main configuration (/config argument is not specified) -->
-		<key name=".Vanilla" modified="2019-12-14 13:34:50" build="191012">
+		<key name=".Vanilla" modified="2020-01-14 10:22:19" build="191012">
 			<value name="SingleInstance" type="hex" data="00"/>
 			<value name="KeyboardHooks" type="hex" data="01"/>
 			<value name="UseInjects" type="hex" data="01"/>
@@ -150,10 +150,10 @@
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
 			<value name="ConWnd Width" type="dword" data="0000009f"/>
-			<value name="ConWnd Height" type="dword" data="0000002d"/>
+			<value name="ConWnd Height" type="dword" data="00000028"/>
 			<value name="Cascaded" type="hex" data="01"/>
-			<value name="ConWnd X" type="long" data="0"/>
-			<value name="ConWnd Y" type="long" data="780"/>
+			<value name="ConWnd X" type="long" data="1280"/>
+			<value name="ConWnd Y" type="long" data="0"/>
 			<value name="16bit Height" type="ulong" data="0"/>
 			<value name="AutoSaveSizePos" type="hex" data="01"/>
 			<value name="IntegralSize" type="hex" data="00"/>
@@ -945,7 +945,7 @@
 					<value name="ColorTable15" type="dword" data="00b2b2b2"/>
 				</key>
 			</key>
-			<value name="LastMonitor" type="string" data="0,0,2560,1560"/>
+			<value name="LastMonitor" type="string" data="0,0,2560,1400"/>
 			<value name="Language" type="string" data="en"/>
 			<value name="StartCreateDelay" type="ulong" data="100"/>
 			<value name="ClipboardAllLinesPosix" type="hex" data="00"/>
@@ -1178,6 +1178,7 @@
 				<value name="WndDragKey" type="dword" data="00121101"/>
 			</key>
 			<value name="CmdLineHistory" type="multi">
+				<line data="{Bash::Msys2-64}"/>
 				<line data="{Bash:: WSL}"/>
 				<line data="{Shells::PowerShell}"/>
 				<line data="{Shells::cmd (Admin)}"/>
