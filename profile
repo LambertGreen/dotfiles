@@ -5,7 +5,7 @@
 #############################################################
 
 # Uncomment below to see a greeting when loading your profile
-# export GREETING=1
+export GREETING=1
 
 # set OS
 UNAME=$(uname -s)
@@ -23,14 +23,6 @@ export EDITOR=$VISUAL
 
 # BAT theme
 export BAT_THEME="TwoDark"
-
- #PYENV
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-if [ -x "$(command -v pyenv)" ]; then
-    eval "$(pyenv init -)"
-    eval "$(pyenv virtualenv-init -)"
-fi
 
 # Source OS specific profile
 if [ "$UNAME" = "Linux" ]; then
