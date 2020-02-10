@@ -41,10 +41,25 @@ hyper:bind({}, 'w', function()
     hyper.triggered = true
 end)
 
+-- Application quit
+hyper:bind({}, 'q', function()
+    hs.eventtap.keyStroke({'ctrl', 'alt'}, 'q')
+    local app = hs.application.frontmostApplication()
+    app:kill()
+    hyper.triggered = true
+end)
+
 -- Application window minimize
 hyper:bind({}, 'n', function()
     hs.window.focusedWindow():minimize()
  hyper.triggered = true
+end)
+
+-- Mouse pointer hide/show
+-- Requires application: Cursorer
+hyper:bind({}, '.', function()
+    hs.eventtap.keyStroke({'ctrl', 'alt', 'shift'}, '.')
+    hyper.triggered = true
 end)
 
 --
