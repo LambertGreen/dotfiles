@@ -13,6 +13,7 @@ len = function(t)
 end
 
 send_escape = false
+enabled_for_application = true
 prev_modifiers = {}
 
 modifier_handler = function(evt)
@@ -23,7 +24,7 @@ modifier_handler = function(evt)
         -- We need this here because we might have had additional modifiers, which
         -- we don't want to lead to an escape, e.g. [Ctrl + Cmd] —> [Ctrl] —> [ ]
         send_escape = true
-    elseif prev_modifiers["ctrl"]  and len(curr_modifiers) == 0 and send_escape then
+    elseif prev_modifiers["ctrl"]  and len(curr_modifiers) == 0 and send_escape and enabled_for_application then
         send_escape = false
         print("Control tapped: Sending Escape key.")
         hs.eventtap.keyStroke({}, "ESCAPE")
@@ -34,6 +35,11 @@ modifier_handler = function(evt)
     return false
 end
 
+
+-- Setup a filter to prevent hyper hotkeys for remoting applications.
+ hs.window.filter.new('Remotix')
+  :subscribe(hs.window.filter.windowFocused, function() enabled_for_application = false end)
+    :subscribe(hs.window.filter.windowUnfocused,function() enabled_for_application = true end)
 
 -- Call the modifier_handler function anytime a modifier key is pressed or released
 modifier_tap = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, modifier_handler)
