@@ -16,6 +16,7 @@ fi
 [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && SetupLinuxbrew || true
 
 # XDG runtime
+# TODO: Not sure this is ok for WSL... do some testing.
 [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
 
 # Pckg config
