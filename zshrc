@@ -142,3 +142,6 @@ if [[ "$ZPROF" = true ]]; then
     unset ZPROF
     zprof
 fi
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
