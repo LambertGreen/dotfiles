@@ -27,10 +27,10 @@ gw () {
 StartSshAgent() {
     if [ "$UNAME" = "Darwin" ]; then
         # Keychain to start ssh-agent
-        eval "$(keychain --eval id_rsa)"
+        eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
     else
         if [ -x "$(command -v keychain)" ]; then
-            eval `keychain --nogui --eval id_rsa`
+            eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
