@@ -73,8 +73,13 @@ SetupDevEnvGo () {
 }
 
 SetupDevEnvClang() {
-    export PATH=/usr/local/clang_9.0.0/bin:$PATH
-    export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+    if [ "$UNAME" = "Darwin" ]; then
+        export PATH=$PATH:/usr/local/Cellar/llvm/9.0.0_1/lib/cmake/clang
+        export Clang_DIR=/usr/local/Cellar/llvm/9.0.0_1/lib/cmake/clang
+    else
+        export PATH=/usr/local/clang_9.0.0/bin:$PATH
+        export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+    fi
 }
 
 TimeShell() {
