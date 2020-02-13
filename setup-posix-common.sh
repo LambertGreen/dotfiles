@@ -22,7 +22,7 @@ function createSymLink {
 function createConfigSymLink {
     local target=$scriptDir/$1
     local link=$HOME/.$1
-    createSymLink $link $target
+    createSymLink $target $link
 }
 
 function createConfigSymLinks {
@@ -67,7 +67,7 @@ function createConfigSymLinks {
     createConfigSymLink config/flake8
 
     # Spacemacs
-    createSymLink $scriptDir/spacemacs.el $HOME/.spacemacs
+    createSymLink $HOME/.spacemacs $scriptDir/spacemacs.el 
 }
 
 

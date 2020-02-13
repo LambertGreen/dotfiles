@@ -8,7 +8,7 @@
 <key name="Software">
 	<key name="ConEmu">
 		<!-- Main configuration (/config argument is not specified) -->
-		<key name=".Vanilla" modified="2019-09-29 23:30:50" build="190714">
+		<key name=".Vanilla" modified="2020-01-14 10:22:19" build="191012">
 			<value name="SingleInstance" type="hex" data="00"/>
 			<value name="KeyboardHooks" type="hex" data="01"/>
 			<value name="UseInjects" type="hex" data="01"/>
@@ -24,7 +24,7 @@
 			<value name="StartType" type="hex" data="02"/>
 			<value name="CmdLine" type="string" data=""/>
 			<value name="StartTasksFile" type="string" data=""/>
-			<value name="StartTasksName" type="string" data="{Shells::PowerShell}"/>
+			<value name="StartTasksName" type="string" data="{Shells::cmd}"/>
 			<value name="StartFarFolders" type="hex" data="00"/>
 			<value name="StartFarEditors" type="hex" data="00"/>
 			<!-- Console colors -->
@@ -149,10 +149,10 @@
 			<value name="ColorKeyValue" type="dword" data="00000000"/>
 			<value name="UseCurrentSizePos" type="hex" data="01"/>
 			<value name="WindowMode" type="dword" data="0000051f"/>
-			<value name="ConWnd Width" type="dword" data="00000086"/>
-			<value name="ConWnd Height" type="dword" data="00000032"/>
+			<value name="ConWnd Width" type="dword" data="0000009f"/>
+			<value name="ConWnd Height" type="dword" data="00000028"/>
 			<value name="Cascaded" type="hex" data="01"/>
-			<value name="ConWnd X" type="long" data="0"/>
+			<value name="ConWnd X" type="long" data="1280"/>
 			<value name="ConWnd Y" type="long" data="0"/>
 			<value name="16bit Height" type="ulong" data="0"/>
 			<value name="AutoSaveSizePos" type="hex" data="01"/>
@@ -556,14 +556,14 @@
 			<value name="WndDragKey" type="dword" data="00121101"/>
 			<key name="Tasks" modified="2019-08-23 12:21:10" build="190714">
 				<value name="Count" type="long" data="27"/>
-				<key name="Task1" modified="2019-03-11 14:45:30" build="190310">
+				<key name="Task1" modified="2019-10-04 11:27:47" build="190714">
 					<value name="Name" type="string" data="{Build::near}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data='/icon "C:\Program Files (x86)\Perforce\p4v.exe"'/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
-					<value name="Cmd1" type="string" data='*"cmd.exe" /k "C:\Users\lgreen\Dropbox\scripts\build\cmd\setup_tableau_build_env.cmd" -new_console:t:"near":d:"D:\dev\near" '/>
+					<value name="Cmd1" type="string" data='*"cmd.exe" /k "C:\Users\lgreen\Dropbox\scripts\build\cmd\setup_tableau_build_env.cmd" -new_console:t:"near":d:"D:\dev\work\near" '/>
 				</key>
 				<key name="Task2" modified="2019-08-23 12:21:10" build="190714">
 					<value name="Name" type="string" data="{Bash::Ming64}"/>
@@ -592,18 +592,18 @@
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='*set CHERE_INVOKING=1 &amp; %ConEmuDrive%\CygWin\bin\sh.exe --login -i -new_console:C:"%ConEmuDrive%\CygWin\Cygwin.ico"'/>
 				</key>
-				<key name="Task5" modified="2019-08-23 12:21:10" build="190714">
+				<key name="Task5" modified="2019-12-14 13:34:50" build="191012">
 					<value name="Name" type="string" data="{Bash:: WSL}"/>
 					<value name="Flags" type="dword" data="00000000"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
-					<value name="GuiArgs" type="string" data='-icon "%USERPROFILE%\AppData\Local\lxss\bash.ico"'/>
+					<value name="GuiArgs" type="string" data='-icon "%USERPROFILE%\Documents\Icons\ubuntu.ico"'/>
 					<value name="Active" type="long" data="0"/>
 					<value name="Count" type="long" data="1"/>
 					<value name="Cmd1" type="string" data='set "PATH=%ConEmuBaseDirShort%\wsl;%PATH%" &amp; %ConEmuBaseDirShort%\conemu-cyg-64.exe --wsl -cur_console:pm:/mnt -t bash -l'/>
 				</key>
-				<key name="Task6" modified="2019-08-23 12:21:10" build="190714">
+				<key name="Task6" modified="2019-12-14 13:35:19" build="191012">
 					<value name="Name" type="string" data="{Bash::WSL2}"/>
-					<value name="Flags" type="dword" data="00000000"/>
+					<value name="Flags" type="dword" data="00000004"/>
 					<value name="Hotkey" type="dword" data="00000000"/>
 					<value name="GuiArgs" type="string" data='-icon "%USERPROFILE%\AppData\Local\lxss\bash.ico"'/>
 					<value name="Active" type="long" data="0"/>
@@ -1178,16 +1178,15 @@
 				<value name="WndDragKey" type="dword" data="00121101"/>
 			</key>
 			<value name="CmdLineHistory" type="multi">
+				<line data="{Bash::Msys2-64}"/>
 				<line data="{Bash:: WSL}"/>
 				<line data="{Shells::PowerShell}"/>
 				<line data="{Shells::cmd (Admin)}"/>
 				<line data="far"/>
-				<line data="{Build:Core-dev}"/>
-				<line data="%windir%\system32\cmd.exe /k D: &amp;&amp; cd D:\dev\server-dev &amp;&amp; D:\dev\setenv.cmd /cmd {Server-dev}"/>
-				<line data="{Server-dev}"/>
 			</value>
 			<value name="AnsiLogCodes" type="hex" data="00"/>
 			<value name="AutoReloadEnvironment" type="hex" data="01"/>
+			<value name="StatusBar.Hide.InputGrouping" type="hex" data="00"/>
 		</key>
 		<!-- Named configurations (choosed by /config argument) are placed in subkeys -->
 		<!--

@@ -205,10 +205,12 @@ nnoremap <BS> :bprevious<CR>
 nnoremap <Tab> :bnext<CR>
 " }}}
 " Window management {{{
-nnoremap <C-h> <C-w>h
-nnoremap <C-j> <C-w>j
-nnoremap <C-k> <C-w>k
-nnoremap <C-l> <C-w>l
+" Use the same mappings as Emacs Doom
+nnoremap <leader>wh <C-w>h
+nnoremap <leader>wj <C-w>j
+nnoremap <leader>wk <C-w>k
+nnoremap <leader>wl <C-w>l
+
 " terminal mode
 if v:version >= 800
     tnoremap <C-w>n <C-\><C-n>
@@ -621,6 +623,7 @@ if v:version >= 800
 " }}}
     " In probation {{{
     Plug 'devjoe/vim-codequery'
+    Plug 'jceb/vim-orgmode'
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
