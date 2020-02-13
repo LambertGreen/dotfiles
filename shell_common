@@ -106,6 +106,14 @@ ColorTest() {
         echo
 }
 
+start-emacs() {
+    if [ "$UNAME" = "Darwin" ]; then
+        emacsclient -a ""  $1
+    else
+        emacsclient --user '' -a "" $1
+    fi
+}
+
 # Source OS specific profile
 if [ "$UNAME" = "Linux" ]; then
     # shellcheck source=/dev/null
