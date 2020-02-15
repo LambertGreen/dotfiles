@@ -8,4 +8,5 @@
 #[[ (! -v $BASH_NO_EXEC_ZSH) && -x "$(command -v zsh)" ]] && exec zsh || true
 
 # Source common shell script
+# shellcheck source=shell_common
 [ -f ~/.shell_common ] && source ~/.shell_common

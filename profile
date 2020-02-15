@@ -43,9 +43,3 @@ if [ $GREETING ]; then
     [ -x "$(command -v neofetch)" ] && neofetch
     echo "Profile setup complete. Happy coding."
 fi
-
-# Source bashrc
-# Needed for Ssh and Tmux hosted sessions since they only source profile
-# and not bashrc.
-# shellcheck source=bashrc
-[ -f ~/.bashrc ] && . ~/.bashrc
