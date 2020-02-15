@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
 # Set uname
-[[ -z "$UNAME" ]] || export UNAME=$(uname -s)
-
-# Setup FZF to use fd
-export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
-
-# Perforce config
-export P4CONFIG=.p4config
+if [[ -z "$UNAME" ]]; then
+    UNAME=$(uname -s)
+    export UNAME
+fi
 
 #----------
 # Functions
 #----------
-gw () {
-    ./gradlew "$@"
+
+SetupFzf() {
+    # Setup FZF to use fd
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
+}
+
+SetupPerforceCong(){
+    # Perforce config
+    export P4CONFIG=.p4config
 }
 
 StartSshAgent() {
@@ -102,7 +106,7 @@ ColorTest() {
         echo
 }
 
-start-emacs() {
+RunEmacs () {
     if [ "$UNAME" = "Darwin" ]; then
         emacsclient -a ""  $1
     else
@@ -110,21 +114,30 @@ start-emacs() {
     fi
 }
 
-# Source OS specific profile
-if [ "$UNAME" = "Linux" ]; then
-    # shellcheck source=/dev/null
-    [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
-else
-    true
-fi
+RunGradlew () {
+    ./gradlew "$@"
+}
 
-if [ "$UNAME" = "Darwin" ]; then
-    # shellcheck source=/dev/null
-    [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
-else
-    true
-fi
+SourceOsProfile() {
 
+    if [ "$UNAME" = "Linux" ]; then
+        # shellcheck source=shell_linux
+        [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
+    else
+        true
+    fi
+
+    if [ "$UNAME" = "Darwin" ]; then
+        # shellcheck source=shell_osx
+        [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
+    else
+        true
+    fi
+}
+
+SetupFzf
+SetupPerforceCong
+SourceOsProfile
 SetupDevEnvPython
 SetupDevEnvClang
 StartSshAgent
@@ -136,7 +149,8 @@ alias vim=nvim
 alias vi=nvim
 alias g=git
 alias b=brew
-alias e=start-emacs
+alias e=RunEmacs
+alias gw=RunGradlew
 
 # Finally source any local config
 [ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"
