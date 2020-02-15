@@ -1,26 +1,35 @@
 --
 -- Implements a Hyper key and associated key bindings
 --
+-- We are using F14/F15 keys in particular since these keys are correctly
+-- transmitted by Remotix (used to remotely work on Mac from our Windows machine.)
+-- Note: We do need to unregister these 2 keys in 'System Preferences'->Keyboard->Shortcuts as
+-- they are by default registered Display (inc/dec brightness). One must not only uncheck the values
+-- but assign different ones and reboot.
 
 -- A global variable for Hyper mode
-hyper = hs.hotkey.modal.new({}, 'F17')
+hyper = hs.hotkey.modal.new({}, 'f15')
 
 -- Enter Hyper mode when Hyper key is pressed
 function enterHyperMode()
   hyper.triggered = false
+  print("Hyper (f14) down.")
   hyper:enter()
 end
 
 -- Leave Hyper mode when Hyper is pressed
 function exitHyperMode()
+  print("Hyper (f14) up.")
   hyper:exit()
-  if not hyper.triggered then
-    hs.eventtap.keyStroke({'Option'}, 'Space')
- end
 end
 
 -- Bind the Hyper key
-f13 = hs.hotkey.bind({}, 'F18', enterHyperMode, exitHyperMode)
+f14 = hs.hotkey.bind({}, 'f14', enterHyperMode, exitHyperMode)
+
+-- Setup a filter to prevent hyper hotkeys for remoting applications.
+hs.window.filter.new('Remotix')
+  :subscribe(hs.window.filter.windowFocused, function() f14:disable() end)
+    :subscribe(hs.window.filter.windowUnfocused,function() f14:enable() end)
 
 
 -- Application launcher
@@ -41,10 +50,25 @@ hyper:bind({}, 'w', function()
     hyper.triggered = true
 end)
 
+-- Application quit
+hyper:bind({}, 'q', function()
+    hs.eventtap.keyStroke({'ctrl', 'alt'}, 'q')
+    local app = hs.application.frontmostApplication()
+    app:kill()
+    hyper.triggered = true
+end)
+
 -- Application window minimize
 hyper:bind({}, 'n', function()
     hs.window.focusedWindow():minimize()
  hyper.triggered = true
+end)
+
+-- Mouse pointer hide/show
+-- Requires application: Cursorer
+hyper:bind({}, '.', function()
+    hs.eventtap.keyStroke({'ctrl', 'alt', 'shift'}, '.')
+    hyper.triggered = true
 end)
 
 --

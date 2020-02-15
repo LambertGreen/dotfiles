@@ -10,14 +10,6 @@ export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 export P4CONFIG=.p4config
 
 #----------
-# Aliases
-#----------
-alias vim=nvim
-alias vi=nvim
-alias g=git
-alias b=brew
-
-#----------
 # Functions
 #----------
 gw () {
@@ -27,10 +19,10 @@ gw () {
 StartSshAgent() {
     if [ "$UNAME" = "Darwin" ]; then
         # Keychain to start ssh-agent
-        eval "$(keychain --eval id_rsa)"
+        eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
     else
         if [ -x "$(command -v keychain)" ]; then
-            eval `keychain --nogui --eval id_rsa`
+            eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
@@ -77,8 +69,13 @@ SetupDevEnvGo () {
 }
 
 SetupDevEnvClang() {
-    export PATH=/usr/local/clang_9.0.0/bin:$PATH
-    export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+    if [ "$UNAME" = "Darwin" ]; then
+        export PATH=$PATH:/usr/local/Cellar/llvm/9.0.0_1/lib/cmake/clang
+        export Clang_DIR=/usr/local/Cellar/llvm/9.0.0_1/lib/cmake/clang
+    else
+        export PATH=/usr/local/clang_9.0.0/bin:$PATH
+        export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+    fi
 }
 
 TimeShell() {
@@ -105,6 +102,14 @@ ColorTest() {
         echo
 }
 
+start-emacs() {
+    if [ "$UNAME" = "Darwin" ]; then
+        emacsclient -a ""  $1
+    else
+        emacsclient --user '' -a "" $1
+    fi
+}
+
 # Source OS specific profile
 if [ "$UNAME" = "Linux" ]; then
     # shellcheck source=/dev/null
@@ -123,6 +128,15 @@ fi
 SetupDevEnvPython
 SetupDevEnvClang
 StartSshAgent
+
+#----------
+# Aliases
+#----------
+alias vim=nvim
+alias vi=nvim
+alias g=git
+alias b=brew
+alias e=start-emacs
 
 # Finally source any local config
 [ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"

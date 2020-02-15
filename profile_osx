@@ -9,5 +9,12 @@ export PATH="/opt/local/bin:$PATH"
 # Homebrew
 export PATH="$(brew --prefix)/bin:$PATH"
 
+export PATH="/usr/local/bin:$PATH"
+
 # Set locale
 export LC_ALL=en_US.UTF-8
+
+# Editor
+export ALTERNATE_EDITOR=""
+export EDITOR="emacsclient -t"                  # $EDITOR opens in terminal
+export VISUAL="emacsclient -c -a emacs"         # $VISUAL opens in GUI mode
