@@ -38,9 +38,15 @@ hyper:bind({}, 'return', function()
     hyper.triggered = true
 end)
 
--- Application switcher
+-- Application switcher: interactive
 hyper:bind({}, 'space', function()
     hs.eventtap.keyStroke({'ctrl', 'alt'}, 'space')
+    hyper.triggered = true
+end)
+
+-- Application switcher: fast alt-tab
+hyper:bind({}, 'tab', function()
+    hs.eventtap.keyStroke({'command'}, 'tab')
     hyper.triggered = true
 end)
 
