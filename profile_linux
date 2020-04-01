@@ -1,24 +1,43 @@
 #!/usr/bin/env bash
 
 SetupLinuxbrew() {
-	eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+	if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+		export PATH="/home/linuxbrew/.linuxbrew/bin":$PATH
+	fi
 }
 
-# Note: WSL does not currently apply umask properly.
-if [ "$(umask)" = "0000" ]; then
-	umask 022
-fi
+SetupPerl(){
+	if [ -f "$HOME/perl5/lib/perl5" ]; then
+		eval "$(perl -I"$HOME/perl5/lib/perl5" -Mlocal::lib="$HOME/perl5")"
+	fi
+}
 
-# LinuxBrew
-[ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && SetupLinuxbrew || true
+SetupUmaskForWsl() {
+	# Note: WSL does not currently apply umask properly.
+	if [ "$(umask)" = "0000" ]; then
+		umask 022
+	fi
+}
 
-# XDG runtime
+SetupXdgConfig() {
+	if [ -z "${XDG_RUNTIME_DIR}" ]; then
+		 XDG_RUNTIME_DIR=/run/user/$(id -ru)
+		 export XDG_RUNTIME_DIR
+	fi
+}
+
+SetupPackageConfig(){
+	if [ -f "/usr/share/pkgconfig" ]; then
+		export PKG_CONFIG_PATH="/usr/share/pkgconfig:$PKG_CONFIG_PATH"
+	fi
+}
+
+SetupPackageConfig
+SetupUmaskForWsl
+SetupLinuxbrew
+SetupPerl
+
 # TODO: Consider if the below is needed at all for Centos7.  It causes issues on WSL Ubuntu,
 # hence commenting it out for now.
-# [ -z "${XDG_RUNTIME_DIR}" ] && export XDG_RUNTIME_DIR=/run/user/$(id -ru)
-
-# Pckg config
-export PKG_CONFIG_PATH="/usr/share/pkgconfig:$PKG_CONFIG_PATH"
-
-# Setup Perl
-[ -f "$HOME/perl5/lib/perl5" ] && eval `$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)`
+# SetupXdgConfig
