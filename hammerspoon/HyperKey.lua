@@ -1,29 +1,32 @@
 --
 -- Implements a Hyper key and associated key bindings
 --
--- We are using F14/F15 keys in particular since these keys are correctly
+-- We are using the F14 key as the Hyper key since this key is correctly
 -- transmitted by Remotix (used to remotely work on Mac from our Windows machine.)
--- Note: We do need to unregister these 2 keys in 'System Preferences'->Keyboard->Shortcuts as
+-- Note: We do need to unregister F14/F15 keys in 'System Preferences'->Keyboard->Shortcuts as
 -- they are by default registered Display (inc/dec brightness). One must not only uncheck the values
 -- but assign different ones and reboot.
 
+-- Setup a logger
+local log = hs.logger.new("HyperKey", "debug")
+
 -- A global variable for Hyper mode
-hyper = hs.hotkey.modal.new({}, 'f15')
+hyper = hs.hotkey.modal.new()
 
 -- Enter Hyper mode when Hyper key is pressed
 function enterHyperMode()
+  log.i("Hyper down.")
   hyper.triggered = false
-  print("Hyper (f14) down.")
   hyper:enter()
 end
 
 -- Leave Hyper mode when Hyper is pressed
 function exitHyperMode()
-  print("Hyper (f14) up.")
+  log.i("Hyper up.")
   hyper:exit()
 end
 
--- Bind the Hyper key
+-- Bind F14 as the Hyper key
 f14 = hs.hotkey.bind({}, 'f14', enterHyperMode, exitHyperMode)
 
 -- Setup a filter to prevent hyper hotkeys for remoting applications.

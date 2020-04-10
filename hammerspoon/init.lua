@@ -1,4 +1,7 @@
--- Lambert's Hammerspoon config
+-- My Hammerspoon config
+
+-- Set the global log level
+hs.logger.setGlobalLogLevel("verbose")
 
 require('HyperKey')
 require('ConfigWatcher')
