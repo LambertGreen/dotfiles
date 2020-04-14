@@ -27,22 +27,22 @@ function exitHyperMode()
 end
 
 -- TODO: Ok I have made a big change: instead of using the additional left side spacebar key on the FreeStyle Pro
--- as the Hyper key, I have it the Command key.  The reasons for this are:
+-- as the Hyper key, I have made it the Command key.  The reasons for this are:
 --
--- 1. I had hoped to map many Hyper key bindings to the control the system by having Hammerspoon send Command based
+-- 1. I had hoped to map many Hyper key bindings to control the system by having Hammerspoon send Command based
 -- system hotkeys.  But the system has low level hooking for the Command key, and so there were cases where Hammerspoon, sending
--- the Command key did not result in system handling it.  An example of this is: opening an application preferences with the
+-- the Command key did not result in the system handling it.  An example of this is: opening an application preferences with the
 -- system hotkey "Cmd+,".
 --
--- 2. There is no other key to use as Hyper now, since Capslock is already being used for a meta Control/Escape key, which is
--- super valuable for coding.
+-- 2. There is no other convenient key to use as a Hyper key now, since Capslock is already being used for a meta Control/Escape key,
+-- which is super valuable for coding.
 --
--- 3. My actual use cases for the Hyper key is not the typical cases i.e. I don't want to launch specific apps, since Alfred
+-- 3. My actual use cases for the Hyper key are not the typical cases i.e. I don't need it for launching specific apps, since Alfred
 -- handles this case quite fine.  Other cases like using vim-style bindings for arrow keys are best addressed by using applications
 -- that natively support them anyway.
 --
--- 4. Already I am getting some nice benefits from using the left space key as the Command key e.g. I saved this very document
--- in Emacs by pressing "Cmd+s", was really trying to press "Spc b s", but mis-pressed, but the right things happened!
+-- 4. I am already getting some nice benefits from using the left space key as the Command key e.g. I saved this very document
+-- in Emacs by pressing "Cmd+s" (it was pressed mistakenly (was trying to do Spc+b+s), but resulted in the desired behavior).
 --
 
 -- Bind F14 as the Hyper key
