@@ -7,7 +7,7 @@ if !has('nvim')
     " Check if we are running vim inside nvim
     " and warn, since this results in vim
     " using the now defined runtime of nvim
-    " whic causes Vim to fail.
+    " which causes Vim to fail.
     if $VIMRUNTIME =~? 'nvim'
         throw 'Vim is running inside of Nvim! I recommed you alias vim to nvim.'
     endif
@@ -583,7 +583,8 @@ if v:version >= 800
     " }}}
     " Python development {{{
     Plug 'tmhedberg/SimpylFold'     " python folding
-    Plug 'ambv/black'               " python auto formater
+    " Disabling due to huge initialization cost i.e. >500ms
+    " Plug 'ambv/black'               " python auto formater
     Plug 'davidhalter/jedi-vim'
     " Jedi-vim config {{{
     let g:jedi#completions_enabled = 0  " let YCM handle completions, which also uses Jedi
