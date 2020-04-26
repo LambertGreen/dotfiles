@@ -6,21 +6,17 @@ if [[ -z "$UNAME" ]]; then
     export UNAME
 fi
 
-#----------
-# Functions
-#----------
-
-SetupFzf() {
+lgreen_setup-fzf() {
     # Setup FZF to use fd
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 }
 
-SetupPerforceCong(){
+lgreen_setup-perforce-config(){
     # Perforce config
     export P4CONFIG=.p4config
 }
 
-StartSshAgent() {
+lgreen_start-ssh-agent() {
     if [ "$UNAME" = "Darwin" ]; then
         # Keychain to start ssh-agent
         eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
@@ -32,7 +28,7 @@ StartSshAgent() {
     fi
 }
 
-SetupDevEnvPython() {
+lgreen_setup-dev-env-python() {
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     if [ -x "$(command -v pyenv)" ]; then
@@ -41,30 +37,30 @@ SetupDevEnvPython() {
     fi
 }
 
-SetupDevEnvJava () {
+lgreen_setup-dev-env-java () {
     if [ -d "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
         eval "$(jenv init -)"
     fi
 }
 
-SetupDevEnvNode () {
+lgreen_setup-dev-env-node-js () {
     export NVM_DIR="$HOME/.nvm"
     [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
     [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
 }
 
-SetupDevEnvRust () {
+lgreen_setup-dev-env-rust () {
     export PATH="$PATH:$HOME/.cargo/bin"
 }
 
-SetupDevEnvRuby () {
+lgreen_setup-dev-env-ruby () {
     export PATH="$PATH:$HOME/.rvm/bin"
     # Source Ruby Version Manager
     [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm"
 }
 
-SetupDevEnvGo () {
+lgreen_setup-dev-env-go () {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
     export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
@@ -72,7 +68,7 @@ SetupDevEnvGo () {
     test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 }
 
-SetupDevEnvClang() {
+lgreen-setup-dev-env-clang() {
     if [ "$UNAME" = "Darwin" ]; then
         export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
         export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
@@ -82,11 +78,11 @@ SetupDevEnvClang() {
     fi
 }
 
-TimeShell() {
+lgreen_time-shell() {
   for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
-ColorTest() {
+lgreen_color-test() {
     #   Copied from http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
     T='gYw'   # The test text
 
@@ -106,7 +102,7 @@ ColorTest() {
         echo
 }
 
-RunEmacs () {
+lgreen_run-emacs () {
     if [ "$UNAME" = "Darwin" ]; then
         emacsclient -a ""  $1
     else
@@ -114,11 +110,11 @@ RunEmacs () {
     fi
 }
 
-RunGradlew () {
+lgreen_run-gradlew () {
     ./gradlew "$@"
 }
 
-SourceOsProfile() {
+lgreen_source-os-profile() {
 
     if [ "$UNAME" = "Linux" ]; then
         # shellcheck source=shell_linux
@@ -135,12 +131,12 @@ SourceOsProfile() {
     fi
 }
 
-SetupFzf
-SetupPerforceCong
-SourceOsProfile
-SetupDevEnvPython
-SetupDevEnvClang
-StartSshAgent
+lgreen_setup-fzf
+lgreen_setup-perforce-config
+lgreen_source-os-profile
+lgreen_setup-dev-env-python
+lgreen-setup-dev-env-clang
+lgreen_start-ssh-agent
 
 #----------
 # Aliases
@@ -149,8 +145,10 @@ alias vim=nvim
 alias vi=nvim
 alias g=git
 alias b=brew
-alias e=RunEmacs
-alias gw=RunGradlew
+alias e=lgreen_run-emacs
+alias gw=lgreen_run-gradlew
 
+# Source any work related setup
+[ -f "$HOME/dev/work/setup/setup.sh" ] && source "$HOME/dev/work/setup/setup.sh"
 # Finally source any local config
 [ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"
