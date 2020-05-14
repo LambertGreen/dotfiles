@@ -82,7 +82,7 @@ lgreen_time-shell() {
   for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
-lgreen_color-test() {
+lgreen_color-test-256() {
     #   Copied from http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
     T='gYw'   # The test text
 
@@ -102,12 +102,20 @@ lgreen_color-test() {
         echo
 }
 
-lgreen_run-emacs () {
-    if [ "$UNAME" = "Darwin" ]; then
-        emacsclient -a ""  $1
-    else
-        emacsclient --user '' -a "" $1
-    fi
+lgreen_color-test-24bit() {
+awk 'BEGIN{
+    s="/\\/\\/\\/\\/\\"; s=s s s s s s s s;
+    for (colnum = 0; colnum<77; colnum++) {
+        r = 255-(colnum*255/76);
+        g = (colnum*510/76);
+        b = (colnum*255/76);
+        if (g>255) g = 510-g;
+        printf "\033[48;2;%d;%d;%dm", r,g,b;
+        printf "\033[38;2;%d;%d;%dm", 255-r,255-g,255-b;
+        printf "%s\033[0m", substr(s,colnum+1,1);
+    }
+    printf "\n";
+}'
 }
 
 lgreen_run-gradlew () {
