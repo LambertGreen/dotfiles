@@ -263,10 +263,15 @@ nmap <Leader>nc :NERDTreeCWD<CR>
 nmap <Leader>t :TagbarToggle<CR>
 " }}}
 " FZF mappings {{{
+" Update: Orignally all the below FZF enabled mappings began with prefix:
+" <leader>f, but they are now updated to match bindings in Emacs Doom, so that
+" I can commit one set of mappings to muscle memory.
+"
 " Git files selection
 nmap <leader>ff :GFiles<CR>
 " All files selection
-nmap <leader>fF :Files<CR>
+-nmap <leader>fF :Files<CR>
+nmap <leader>. :Files<CR>
 " Buffers selection
 nmap <leader>fb :Buffers<CR>
 " History selection
