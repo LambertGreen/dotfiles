@@ -270,7 +270,7 @@ nmap <Leader>t :TagbarToggle<CR>
 " Git files selection
 nmap <leader>ff :GFiles<CR>
 " All files selection
--nmap <leader>fF :Files<CR>
+nmap <leader>fF :Files<CR>
 nmap <leader>. :Files<CR>
 " Buffers selection
 nmap <leader>fb :Buffers<CR>
