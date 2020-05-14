@@ -6,36 +6,35 @@ if [[ "$ZPROF" = true ]]; then
   zmodload zsh/zprof
 fi
 
-ProfileZsh() {
+lgreen_profile-zsh() {
   shell=${1-$SHELL}
   ZPROF=true $shell -i -c exit
 }
 
-# History settings
-HISTSIZE=1000
-SAVEHIST=1000
-setopt no_share_history
+lgreen_setup-zsh() {
+    # History settings
+    export HISTSIZE=1000
+    export SAVEHIST=1000
+    setopt no_share_history
 
-# Homebrew doctor recommends the below
-umask 002
+    # Homebrew doctor recommends the below
+    umask 002
 
-# Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
-if [ "$UNAME" = "Linux" ]; then
-    if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
-        unsetopt BG_NICE
+    # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
+    if [ "$UNAME" = "Linux" ]; then
+        if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
+            unsetopt BG_NICE
+        fi
+    else
+        true
     fi
-else
-    true
-fi
+}
 
-#--------------------------------------------
-# OhMyZsh
-#--------------------------------------------
-#Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="agnoster"
+lgreen_setup-oh-my-zsh () {
 
-SetupOhMyZsh () {
+    #Path to your oh-my-zsh installation.
+    export ZSH="$HOME/.oh-my-zsh"
+    ZSH_THEME="agnoster"
 
     # Which plugins would you like to load?
     # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
@@ -52,17 +51,11 @@ SetupOhMyZsh () {
     source $ZSH/oh-my-zsh.sh
 }
 
-#--------------------------------------------
-# FZF
-#--------------------------------------------
-SetupFzf() {
+lgreen_setup-fzf() {
     export FZF_BASE=$HOME/.fzf
 }
 
-#--------------------------------------------
-# Common
-#--------------------------------------------
-SetupCommonShell() {
+lgreen_setup-common-shell() {
     # Source common shell script
     [ -f $HOME/.shell_common ] && source $HOME/.shell_common
     # Source local config file if is present
@@ -75,7 +68,7 @@ SetupCommonShell() {
 # Zplugin: https://github.com/zdharma/zplugin
 # Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
 #--------------------------------------------
-SetupOhMyZshUsingZplugin() {
+lgreen_setup-oh-my-zsh-using-zplugin() {
     setopt promptsubst
 
     # Git
@@ -95,14 +88,14 @@ SetupOhMyZshUsingZplugin() {
     zplugin snippet OMZ::themes/agnoster.zsh-theme
 }
 
-SetupZplugin() {
+lgreen_setup-zplugin() {
     source $HOME/.zplugin/bin/zplugin.zsh
 
     autoload -Uz _zplugin
     (( ${+_comps} )) && _comps[zplugin]=_zplugin
     ZPLGM[MUTE_WARNINGS]=1
 
-    # SetupOhMyZshUsingZplugin
+    # lgreen_setup-oh-my-zsh-using-zplugin
 
     # [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0"
     # zplugin light robbyrussell/oh-my-zsh
@@ -125,15 +118,19 @@ SetupZplugin() {
     zplugin light zdharma/fast-syntax-highlighting
 }
 
-SetupFzf
-SetupOhMyZsh
+lgreen_setup-fzf
+lgreen_setup-oh-my-zsh
 unset ZPLUGIN_ICE
 #export ZPLUGIN_ICE=1
-SetupZplugin
-SetupCommonShell
+lgreen_setup-zplugin
+lgreen_setup-common-shell
 
 # Initialize completions
 autoload -Uz compinit && compinit
+
+lgreen_zsh_show_functions() {
+    print -l ${(k)functions} | fzf
+}
 
 #--------------------------------------------
 # Stop performance profiler (if enabled)

@@ -2,6 +2,6 @@
 
 # Aliases
 alias updatedb="/usr/libexec/locate.updatedb"
-alias flushDns="killall -HUP mDNSResponder"
-alias restartAudio="killall coreaudiod"
-alias lldb="/usr/local/Cellar/llvm/8.0.1/bin/lldb"
+alias flush-dns="killall -HUP mDNSResponder"
+alias restart-audio="killall coreaudiod"
+alias lldb="/usr/local/Cellar/llvm/9.0.1/bin/lldb"
