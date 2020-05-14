@@ -82,7 +82,9 @@ lgreen_time-shell() {
   for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
-lgreen_color-test-256() {
+lgreen_color-test() {
+    echo Terminal Colors:
+
     #   Copied from http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
     T='gYw'   # The test text
 
@@ -100,9 +102,8 @@ lgreen_color-test-256() {
             echo;
         done
         echo
-}
 
-lgreen_color-test-24bit() {
+    echo Testing TrueColor mode \(24 bit\):
 awk 'BEGIN{
     s="/\\/\\/\\/\\/\\"; s=s s s s s s s s;
     for (colnum = 0; colnum<77; colnum++) {
