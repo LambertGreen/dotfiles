@@ -8,7 +8,7 @@ lgreen_setup-linuxbrew() {
 }
 
 lgreen_setup-perl() {
-	if [ -f "$HOME/perl5/lib/perl5" ]; then
+	if [ -d "$HOME/perl5/lib/perl5" ]; then
 		eval "$(perl -I"$HOME/perl5/lib/perl5" -Mlocal::lib="$HOME/perl5")"
 	fi
 }
@@ -28,7 +28,7 @@ lgreen_setup-xdg-config() {
 }
 
 lgreen_setup-package-config() {
-	if [ -f "/usr/share/pkgconfig" ]; then
+	if [ -d "/usr/share/pkgconfig" ]; then
 		export PKG_CONFIG_PATH="/usr/share/pkgconfig:$PKG_CONFIG_PATH"
 	fi
 }
