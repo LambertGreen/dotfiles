@@ -1,0 +1,70 @@
+! TODO: Update MacOS setup file to generate symlink for this file.
+!
+! Xft
+!Xft.dpi:        96
+Xft.antialias:  true
+Xft.hinting:    true
+Xft.autohint:   true
+Xft.rgba:       rgb
+Xft.hintstyle:  hintfull
+
+! Emacs
+Emacs.FontBackend: Xft
+! Could never get Nerd fonts to work for Emacs Lucid
+! The below is what I expected to work
+! Emacs.Font: Hack Nerd Font-15
+! The below is putting in here the error from Emacs
+! when it tries to load Hack Nerd font based on Emacs config.
+! Emacs.Font: -*-Hack Nerd Font-*-*-*-*-15-*-*-*-*-*-*-*
+
+! XTerm
+XTerm*faceName: Hack Nerd Font
+XTerm*faceSize: 12
+XTerm*renderFont: true
+!*faceName: Hack Nerd Font
+
+! The below was taken from iTerm2-Color-Schemes/XResources/OneHalfDark
+! It will set the color scheme for XTerm
+! Generated with :
+! XRDB2Xreources.py
+!
+*.foreground:  #dcdfe4
+*.background:  #282c34
+*.cursorColor: #a3b3cc
+!
+! Black
+*.color0:      #282c34
+*.color8:      #282c34
+!
+! Red
+*.color1:      #e06c75
+*.color9:      #e06c75
+!
+! Green
+*.color2:      #98c379
+*.color10:     #98c379
+!
+! Yellow
+*.color3:      #e5c07b
+*.color11:     #e5c07b
+!
+! Blue
+*.color4:      #61afef
+*.color12:     #61afef
+!
+! Magenta
+*.color5:      #c678dd
+*.color13:     #c678dd
+!
+! Cyan
+*.color6:      #56b6c2
+*.color14:     #56b6c2
+!
+! White
+*.color7:      #dcdfe4
+*.color15:     #dcdfe4
+!
+! Bold, Italic, Underline
+*.colorBD:     #abb2bf
+!*.colorIT:
+!*.colorUL:
