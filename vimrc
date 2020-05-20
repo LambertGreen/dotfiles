@@ -201,8 +201,8 @@ nnoremap <leader>yf :let @+=expand("%:p")<CR>
 cmap w!! w !sudo tee > /dev/null %
 " }}}
 " Buffer management {{{
-nnoremap <BS> :bprevious<CR>
-nnoremap <Tab> :bnext<CR>
+nnoremap <Leader>bp :bprevious<CR>
+nnoremap <Leader>bn :bnext<CR>
 " }}}
 " Window management {{{
 " Use the same mappings as Emacs Doom
