@@ -230,15 +230,15 @@ nnoremap <leader>co :copen<CR>
 " }}}
 " Fugitive mappings {{{
 nnoremap <leader>gs :Gstatus<CR>
-function! ToggleGStatus()
+function! Lgreen_ToggleGStatus()
     if buflisted(bufname('.git/index'))
         bd .git/index
     else
         Gstatus
     endif
 endfunction
-command! ToggleGStatus :call ToggleGStatus()
-nmap <F3> :ToggleGStatus<CR>
+command! ToggleGStatus :call Lgreen_ToggleGStatus()
+nmap <Leader>gg :ToggleGStatus<CR>
 " }}}
 " Maximizer mappings {{{
 " Window zoom toggles
@@ -678,7 +678,7 @@ let g:markdown_fenced_languages = ['html', 'python', 'bash=sh']
 " }}}
 " }}}
 " ColorSchemes {{{
-function! ColorSchemePalenight()
+function! Lgreen_ColorSchemePalenight()
     colorscheme palenight
     set background=dark
     let g:palenight_terminal_italics=1
@@ -686,7 +686,7 @@ function! ColorSchemePalenight()
     let g:airline_theme='palenight'
 endfunction
 
-function! ColorSchemePaperColor()
+function! Lgreen_ColorSchemePaperColor()
     let g:PaperColor_Theme_Options = {
                 \   'theme': {
                 \     'default.light': {
@@ -711,7 +711,7 @@ function! ColorSchemePaperColor()
     highlight Comment cterm=italic gui=italic
 endfunction
 
-function! ColorSchemeTender()
+function! Lgreen_ColorSchemeTender()
     colorscheme tender
     set background=dark
     let g:airline_theme = 'tender'
@@ -719,19 +719,19 @@ function! ColorSchemeTender()
     highlight Comment cterm=italic gui=italic
 endfunction
 
-function! ColorSchemeOne()
+function! Lgreen_ColorSchemeOne()
     colorscheme one
     set background=dark
     let g:one_allow_italics = 1
 endfunction
 
-function! ColorSchemeAyu()
+function! Lgreen_ColorSchemeAyu()
     colorscheme ayu
     let ayucolor='light'  "  light | mirage | dark
     highlight Comment cterm=italic gui=italic
 endfunction
 
-:call ColorSchemePalenight()
+:call Lgreen_ColorSchemePalenight()
 
 " Make comments show in italics, for themes that don't support it natively.
 " Note: Italics may not show if the terminal's terminfo is not

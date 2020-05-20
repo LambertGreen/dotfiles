@@ -4,7 +4,7 @@ else
 	source ~/.vimrc
 endif
 
-function! ColorDarkerTerminalWindow()
+function! Lgreen_ColorDarkerTerminalWindow()
     " Set a slightly different background for the terminal
     " so that it is easier to see than the regular buffers.
     hi BlackBg guibg=#1e2128
@@ -12,7 +12,7 @@ function! ColorDarkerTerminalWindow()
     au BufHidden term://* :set winhighlight=Normal:Normal
 endfunction
 
-function! ColorTerminalTheme()
+function! Lgreen_ColorTerminalTheme()
     " Set theme for terminal in window
     let g:terminal_color_0  = '#1b1d1e'
     " Color 1 is switched with Color 4
@@ -34,7 +34,7 @@ function! ColorTerminalTheme()
     let g:terminal_color_15 = '#f8f8f2'
 endfunction
 
-:call ColorTerminalTheme()
+:call Lgreen_ColorTerminalTheme()
 
 " TODOs {{{
 " TODO: YCM config
