@@ -203,6 +203,7 @@ cmap w!! w !sudo tee > /dev/null %
 " Buffer management {{{
 nnoremap <Leader>bp :bprevious<CR>
 nnoremap <Leader>bn :bnext<CR>
+nnoremap <Leader>bs :w<CR>
 " }}}
 " Window management {{{
 " Use the same mappings as Emacs Doom
@@ -213,7 +214,12 @@ nnoremap <leader>wl <C-w>l
 
 " terminal mode
 if v:version >= 800
-    tnoremap <C-w>n <C-\><C-n>
+    " We are making it easy to exit terminal mode. This is also the setting in
+    " Doom Emacs.
+    tnoremap <Esc> <C-\><C-n>
+    " Now that we have used up Esc. To inovke an Esc to an application running
+    " in the terminal use: CTRL-V + Esc.
+    tnoremap <C-v><Esc> <Esc>
     tnoremap <C-h> <C-\><C-n><C-w>h
     tnoremap <C-j> <C-\><C-n><C-w>j
     tnoremap <C-k> <C-\><C-n><C-w>k
@@ -229,7 +235,6 @@ endif
 nnoremap <leader>co :copen<CR>
 " }}}
 " Fugitive mappings {{{
-nnoremap <leader>gs :Gstatus<CR>
 function! Lgreen_ToggleGStatus()
     if buflisted(bufname('.git/index'))
         bd .git/index
@@ -238,6 +243,7 @@ function! Lgreen_ToggleGStatus()
     endif
 endfunction
 command! ToggleGStatus :call Lgreen_ToggleGStatus()
+" Changing mapping to match Doom Emacs i.e. SPC g g
 nmap <Leader>gg :ToggleGStatus<CR>
 " }}}
 " Maximizer mappings {{{
@@ -251,8 +257,8 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 nnoremap <leader><leader>W :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
-" Toggle NERD
-nmap <Leader>n :NERDTreeToggle<CR>
+" Toggle: Using mapping from Doom Emacs: open project
+nmap <Leader>op :NERDTreeToggle<CR>
 " Open NERD with current file highlighted
 nmap <Leader>N :NERDTreeFind<CR>
 " Change directory
@@ -269,6 +275,7 @@ nmap <Leader>t :TagbarToggle<CR>
 "
 " Git files selection
 nmap <leader>ff :GFiles<CR>
+nmap <leader><leader> :GFiles<CR>
 " All files selection
 nmap <leader>fF :Files<CR>
 nmap <leader>. :Files<CR>
