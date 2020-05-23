@@ -452,9 +452,11 @@ if v:version >= 800
     " }}}
     Plug 'tpope/vim-repeat'
     " Code completion {{{
-    Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
+    " Man this plugin is frustating me! Using tons of CPU
+    " Plug 'Valloric/YouCompleteMe', { 'do': './install.py' }
     " YouCompleteMe settings {{{
-    let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+    " Don't load YCM by default... projects should load it if needed
+    " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
     " }}}
     " }}}
     " Snippets {{{
@@ -490,9 +492,11 @@ if v:version >= 800
     " Gutter {{{
     " TODO: Trying out signify instead for a trial run.
     " Plug 'airblade/vim-gitgutter'
-    Plug 'mhinz/vim-signify'
+    " Another plugin that will completely lock up Vim on a large file
+    " or large repo
+    " Plug 'mhinz/vim-signify'
     " Shows marks in the gutter
-    Plug 'kshenoy/vim-signature'
+    " Plug 'kshenoy/vim-signature'
     " }}}
     " Cursor line {{{
     Plug 'ntpeters/vim-airline-colornum'
