@@ -339,29 +339,33 @@ nnoremap <leader>ad :ALEDetail<CR>
 " }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
-nnoremap <leader><leader>A :call CurtineIncSw()<CR>
+nnoremap <leader>ca :call CurtineIncSw()<CR>
 " }}}
 " UndoTree mappings {{{
 " Toggle undo tree
 nnoremap <leader>u :UndotreeToggle<CR>
 " }}}
 " ClangFormat mappings {{{
-nnoremap <leader><leader>F :ClangFormat<CR>
+nnoremap <leader>cf :ClangFormat<CR>
 " }}}
 " }}}
 " Functions {{{
-fun! TrimWhitespace()
+fun! Lgreen_TrimWhitespace()
     let l:save = winsaveview()
     keeppatterns %s/\s\+$//e
     call winrestview(l:save)
 endfun
 
-fun! FormatJson()
+fun! Lgreen_FormatJson()
     :%!python -m json.tool
 endfun
 
-fun! FormatXml()
+fun! Lgreen_FormatXml()
     :%!xmllint --format %
+endfun
+
+fun! Lgreen_BackgroundTransparent()
+    hi Normal guibg=NONE ctermbg=NONE
 endfun
 " }}}
 " Auto commands {{{
@@ -404,7 +408,7 @@ augroup BufReadWriteStuff
     autocmd BufRead * let &l:modifiable = !&readonly
 
     " Remove trailing whitespace on save
-    autocmd BufWritePre * call TrimWhitespace()
+    autocmd BufWritePre * call Lgreen_TrimWhitespace()
 augroup END
 " }}}
 " Plugins {{{
