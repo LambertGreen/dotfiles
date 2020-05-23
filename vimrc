@@ -82,6 +82,17 @@ endif
 "    endif
 " endif
 " }}}
+" Neovim-Remote {{{
+if has('nvim') && executable('nvr')
+    let $GIT_EDITOR = 'nvr -cc split --remote-wait'
+    " Need to set the below to have a gitcommit buffer auto deleted when
+    " hidden. Otherwise one will need to run ~:w|bd~.
+    augroup AutoDeleteGitCommitBufferOnSave
+        autocmd!
+        autocmd FileType gitcommit,gitrebase,gitconfig set bufhidden=delete
+    augroup END
+endif
+" }}}
 " Fzf workaroud {{{
 " Fzf issue on Windows: https://github.com/junegunn/fzf/issues/963
 if has('win32') && $TERM ==? 'xterm-256color'
@@ -231,8 +242,14 @@ if v:version >= 800
         :nnoremap <leader>; :term<CR>
     endif
 endif
+
 " Jump to QuickFix window
 nnoremap <leader>co :copen<CR>
+
+" Toggle terminal window (if neoterm is installed)
+if exists(':Ttoggle')
+    nnoremap <leader>ot :Ttoggle<CR>
+endif
 " }}}
 " Fugitive mappings {{{
 function! Lgreen_ToggleGStatus()
@@ -635,6 +652,10 @@ if v:version >= 800
     " }}}
 " }}}
     " In probation {{{
+    Plug 'kassio/neoterm'
+    " neoterm config {{{
+    let g:neoterm_default_mod = 'botright'
+    " }}}
     Plug 'devjoe/vim-codequery'
     Plug 'jceb/vim-orgmode'
     Plug 'rizzatti/dash.vim'
