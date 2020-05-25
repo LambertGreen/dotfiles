@@ -26,7 +26,7 @@ function exitHyperMode()
   hyper:exit()
 end
 
--- TODO: Ok I have made a big change: instead of using the additional left side spacebar key on the FreeStyle Pro
+-- Update 1: Ok I have made a big change: instead of using the additional left side spacebar key on the FreeStyle Pro
 -- as the Hyper key, I have made it the Command key.  The reasons for this are:
 --
 -- 1. I had hoped to map many Hyper key bindings to control the system by having Hammerspoon send Command based
@@ -44,6 +44,14 @@ end
 -- 4. I am already getting some nice benefits from using the left space key as the Command key e.g. I saved this very document
 -- in Emacs by pressing "Cmd+s" (it was pressed mistakenly (was trying to do Spc+b+s), but resulted in the desired behavior).
 --
+-- Update 2: I am not quite satified with the loss of the Hyper key. I am noticing that MacOS often allows one to change hotkeys
+-- so I am hoping that for even the "Cmd" based actions, that I can achieve them by letting MacOS rebind the particular actions to
+-- a Hyper key based shortcut. However instead of making such changes, what I ended up doing is simply not using the OS 'hyper'
+-- keys i.e. Cmd/Win. And right now I am not even using a 'Hyper' mode.  Basically I have setup the following that seems fine for now:
+-- 1. Application Launcher: CTRL+Enter
+-- 2. Application Swithcer: CTRL+Space
+-- 3. Window Manager:       CTRL+Backspace
+-- 
 
 -- Bind F14 as the Hyper key
 f14 = hs.hotkey.bind({}, 'f14', enterHyperMode, exitHyperMode)
