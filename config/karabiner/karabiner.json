@@ -159,7 +159,7 @@
             "simple_modifications": [
                 {
                     "from": {
-                        "key_code": "f14"
+                        "key_code": "f18"
                     },
                     "to": {
                         "key_code": "left_command"
