@@ -63,67 +63,87 @@ lgreen_setup-common-shell() {
 }
 
 #--------------------------------------------
-# ZPlugin
+# Zinit
 #--------------------------------------------
-# Zplugin: https://github.com/zdharma/zplugin
-# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zplugin/master/doc/install.sh)"
+# Zinit: https://github.com/zdharma/zinit
+# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
 #--------------------------------------------
-lgreen_setup-oh-my-zsh-using-zplugin() {
+lgreen_setup-oh-my-zsh-using-zinit() {
     setopt promptsubst
 
     # Git
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
-    zplugin snippet OMZ::lib/git.zsh
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::lib/git.zsh
 
     # More git?
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atload"unalias grv" lucid
-    zplugin snippet OMZ::plugins/git/git.plugin.zsh
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"unalias grv" lucid
+    zinit snippet OMZ::plugins/git/git.plugin.zsh
 
     # Color man-pages
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
-    zplugin snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+    # fzf
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::plugins/fzf/fzf.plugin.zsh
 
     # Theme
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" lucid
-    zplugin snippet OMZ::themes/agnoster.zsh-theme
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::themes/agnoster.zsh-theme
+    #
 }
 
-lgreen_setup-zplugin() {
-    source $HOME/.zplugin/bin/zplugin.zsh
+lgreen_setup-zinit() {
+    source $HOME/.zinit/bin/zinit.zsh
 
-    autoload -Uz _zplugin
-    (( ${+_comps} )) && _comps[zplugin]=_zplugin
-    ZPLGM[MUTE_WARNINGS]=1
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
 
-    # lgreen_setup-oh-my-zsh-using-zplugin
+    # lgreen_setup-oh-my-zsh-using-zinit
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0"
+    # zinit light robbyrussell/oh-my-zsh
 
-    # [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0"
-    # zplugin light robbyrussell/oh-my-zsh
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" blockf
+    zinit light zsh-users/zsh-completions
 
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" blockf
-    zplugin light zsh-users/zsh-completions
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"_zsh_autosuggest_start"
+    zinit light zsh-users/zsh-autosuggestions
 
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atload"_zsh_autosuggest_start"
-    zplugin light zsh-users/zsh-autosuggestions
+    # Z
+    zinit light agkozak/zsh-z
 
     # Fzf-z
-    zplugin light andrewferrier/fzf-z
+    zinit light andrewferrier/fzf-z
 
     # For GNU ls (the binaries can be gls, gdircolors)
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh"
-    zplugin light trapd00r/LS_COLORS
+    zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+    zinit light trapd00r/LS_COLORS
+    # if [[ `which gdircolors &>/dev/null && $?` != 0 ]]; then
+    #     zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+    #     zinit light trapd00r/LS_COLORS
+    # fi
+    # if [[ `which dircolors &>/dev/null && $?` != 0 ]]; then
+    #     zinit ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+    #     zinit light trapd00r/LS_COLORS
+    # fi
 
     # Syntax highlighting
-    [[ -v "$ZPLUGIN_ICE" ]] && zplugin ice wait"0" atinit"zpcompinit" lucid
-    zplugin light zdharma/fast-syntax-highlighting
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atinit"zpcompinit" lucid
+    zinit light zdharma/fast-syntax-highlighting
+
+    zinit ice depth=1
+    zinit light romkatv/powerlevel10k
 }
 
 lgreen_setup-fzf
-lgreen_setup-oh-my-zsh
+#lgreen_setup-oh-my-zsh
 unset ZPLUGIN_ICE
 #export ZPLUGIN_ICE=1
-lgreen_setup-zplugin
+lgreen_setup-zinit
 lgreen_setup-common-shell
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Initialize completions
 autoload -Uz compinit && compinit
@@ -139,3 +159,4 @@ if [[ "$ZPROF" = true ]]; then
     unset ZPROF
     zprof
 fi
+

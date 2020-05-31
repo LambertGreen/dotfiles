@@ -143,12 +143,30 @@ lgreen_source-os-profile() {
     fi
 }
 
+lgreen_setup_lscolors() {
+
+    if [ "$UNAME" = "Linux" ]; then
+        alias ls='ls --color'
+        alias ll='ls -l --color'
+    else
+        true
+    fi
+
+    if [ "$UNAME" = "Darwin" ]; then
+        alias ls='gls --color'
+        alias ll='gls -l --color'
+    else
+        true
+    fi
+}
+
 lgreen_setup-fzf
 lgreen_setup-perforce-config
 lgreen_source-os-profile
 lgreen_setup-dev-env-python
 lgreen-setup-dev-env-clang
 lgreen_start-ssh-agent
+lgreen_setup_lscolors
 
 #----------
 # Aliases
