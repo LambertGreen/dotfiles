@@ -1,0 +1,32 @@
+{
+  "title": "Change Control key to be dual purpose: Escape if tapped, else Control",
+  "rules": [
+	{
+	  "description": "Post Escape if Control is tapped, Control if held.",
+	  "manipulators": [
+        {
+    "type": "basic",
+    "from": {
+        "key_code": "left_control",
+        "modifiers": {
+            "optional": [
+                "any"
+            ]
+        }
+    },
+    "to": [
+        {
+            "key_code": "left_control",
+            "lazy": true
+        }
+    ],
+    "to_if_alone": [
+        {
+            "key_code": "escape"
+        }
+    ]
+}
+	  ]
+	}
+  ]
+}
