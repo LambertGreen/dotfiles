@@ -73,8 +73,11 @@ lgreen-setup-dev-env-clang() {
         export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
         export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
     else
-        export PATH=/usr/local/clang_9.0.0/bin:$PATH
-        export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
+        # Removed clang install on Linux.
+        # Anywya this version specific paths don't seem like the right way to do this.
+
+        # export PATH=/usr/local/clang_9.0.0/bin:$PATH
+        # export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
     fi
 }
 
