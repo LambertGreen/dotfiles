@@ -11,3 +11,5 @@ Session.vim
 # Compiler files
 .clang-format
 
+# Karabiner backup directory
+config/karabiner/automatic_backups

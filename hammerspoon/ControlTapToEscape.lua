@@ -4,6 +4,9 @@
 --
 -- From: https://gist.github.com/zcmarine/f65182fe26b029900792fa0b59f09d7f
 
+-- Setup a logger
+local log = hs.logger.new('HyperKey', 'debug')
+
 len = function(t)
     local length = 0
     for k, v in pairs(t) do
@@ -13,7 +16,6 @@ len = function(t)
 end
 
 send_escape = false
-enabled_for_application = true
 prev_modifiers = {}
 
 modifier_handler = function(evt)
@@ -24,10 +26,10 @@ modifier_handler = function(evt)
         -- We need this here because we might have had additional modifiers, which
         -- we don't want to lead to an escape, e.g. [Ctrl + Cmd] —> [Ctrl] —> [ ]
         send_escape = true
-    elseif prev_modifiers["ctrl"]  and len(curr_modifiers) == 0 and send_escape and enabled_for_application then
-        send_escape = false
-        print("Control tapped: Sending Escape key.")
+    elseif prev_modifiers["ctrl"]  and len(curr_modifiers) == 0 and send_escape then
         hs.eventtap.keyStroke({}, "ESCAPE")
+        send_escape = false
+        log.i('Control tapped: sent escape key.')
     else
         send_escape = false
     end
