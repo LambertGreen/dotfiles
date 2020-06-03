@@ -6,16 +6,33 @@ if [[ "$ZPROF" = true ]]; then
   zmodload zsh/zprof
 fi
 
+lgreen_setup_p10k() {
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+}
+
+lgreen_init_p10k() {
+    # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+}
+
 lgreen_profile-zsh() {
   shell=${1-$SHELL}
   ZPROF=true $shell -i -c exit
 }
 
-lgreen_setup-zsh() {
+lgreen_setup_zsh() {
     # History settings
     export HISTSIZE=1000
     export SAVEHIST=1000
     setopt no_share_history
+
+    # Set zle to use Emacs keybinds
+    bindkey -e
 
     # Homebrew doctor recommends the below
     umask 002
@@ -30,8 +47,8 @@ lgreen_setup-zsh() {
     fi
 }
 
-lgreen_setup-oh-my-zsh () {
-
+# TODO: OMZ not being used, so remove this.
+lgreen_setup_oh-my-zsh () {
     #Path to your oh-my-zsh installation.
     export ZSH="$HOME/.oh-my-zsh"
     ZSH_THEME="agnoster"
@@ -51,11 +68,12 @@ lgreen_setup-oh-my-zsh () {
     source $ZSH/oh-my-zsh.sh
 }
 
-lgreen_setup-fzf() {
-    export FZF_BASE=$HOME/.fzf
+lgreen_init_fzf() {
+    # Note: FZF exports are done in shell_common
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 }
 
-lgreen_setup-common-shell() {
+lgreen_setup_common_shell() {
     # Source common shell script
     [ -f $HOME/.shell_common ] && source $HOME/.shell_common
     # Source local config file if is present
@@ -68,38 +86,28 @@ lgreen_setup-common-shell() {
 # Zinit: https://github.com/zdharma/zinit
 # Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
 #--------------------------------------------
-lgreen_setup-oh-my-zsh-using-zinit() {
-    setopt promptsubst
+lgreen_setup_zinit() {
+    if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+        print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
 
-    # Git
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::lib/git.zsh
+        # Might be safer to clone the repro than just running some script from the internet?
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
 
-    # More git?
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"unalias grv" lucid
-    zinit snippet OMZ::plugins/git/git.plugin.zsh
-
-    # Color man-pages
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-
-    # fzf
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::plugins/fzf/fzf.plugin.zsh
-
-    # Theme
-    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    # zinit snippet OMZ::themes/agnoster.zsh-theme
-    #
-}
-
-lgreen_setup-zinit() {
+        # Alternative:
+        # command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+        # command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f"
+    fi
     source $HOME/.zinit/bin/zinit.zsh
 
     autoload -Uz _zinit
     (( ${+_comps} )) && _comps[zinit]=_zinit
 
-    # lgreen_setup-oh-my-zsh-using-zinit
+    unset ZPLUGIN_ICE
+    #export ZPLUGIN_ICE=1
+
+    # lgreen_setup_oh-my-zsh-using-zinit
     # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0"
     # zinit light robbyrussell/oh-my-zsh
 
@@ -135,22 +143,49 @@ lgreen_setup-zinit() {
     zinit light romkatv/powerlevel10k
 }
 
-lgreen_setup-fzf
-#lgreen_setup-oh-my-zsh
-unset ZPLUGIN_ICE
-#export ZPLUGIN_ICE=1
-lgreen_setup-zinit
-lgreen_setup-common-shell
+# TODO: OMZ not being used, so remove this.
+lgreen_setup_oh-my-zsh-using-zinit() {
+    setopt promptsubst
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+    # Git
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::lib/git.zsh
 
-# Initialize completions
-autoload -Uz compinit && compinit
+    # More git?
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"unalias grv" lucid
+    zinit snippet OMZ::plugins/git/git.plugin.zsh
+
+    # Color man-pages
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+    # fzf
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::plugins/fzf/fzf.plugin.zsh
+
+    # Theme
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::themes/agnoster.zsh-theme
+    #
+}
 
 lgreen_zsh_show_functions() {
     print -l ${(k)functions} | fzf
 }
+
+
+lgreen_setup_zinit
+lgreen_setup_p10k
+# TODO: remove OMZ.
+#lgreen_setup_oh-my-zsh
+lgreen_setup_zsh
+lgreen_setup_common_shell
+lgreen_init_p10k
+lgreen_init_fzf
+
+# Initialize completions
+autoload -Uz compinit && compinit
+zinit cdreplay -q
 
 #--------------------------------------------
 # Stop performance profiler (if enabled)
