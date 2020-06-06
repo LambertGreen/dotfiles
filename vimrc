@@ -249,9 +249,8 @@ endif
 nnoremap <leader>co :copen<CR>
 
 " Toggle terminal window (if neoterm is installed)
-if exists(':Ttoggle')
-    nnoremap <leader>ot :Ttoggle<CR>
-endif
+nnoremap <leader>ot :Ttoggle<CR>
+
 " }}}
 " Fugitive mappings {{{
 function! Lgreen_ToggleGStatus()
