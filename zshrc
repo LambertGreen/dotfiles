@@ -29,7 +29,6 @@ lgreen_setup_zsh() {
     # History settings
     export HISTSIZE=1000
     export SAVEHIST=1000
-    setopt no_share_history
 
     # Set zle to use Emacs keybinds
     bindkey -e
