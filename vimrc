@@ -223,6 +223,8 @@ nnoremap <leader>wj <C-w>j
 nnoremap <leader>wk <C-w>k
 nnoremap <leader>wl <C-w>l
 
+nnoremap <leader>wq :q<CR>
+
 " terminal mode
 if v:version >= 800
     " We are making it easy to exit terminal mode. This is also the setting in
