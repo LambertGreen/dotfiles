@@ -7,8 +7,9 @@
 # To stop the automatic loading of zsh, then define BASH_NO_EXEC_ZSH.
 if [[ (! -v $BASH_NO_EXEC_ZSH) && -x "$(command -v zsh)" ]]; then
     exec zsh
+else
+    # Source common shell script
+    # shellcheck source=shell_common
+    [ -f ~/.shell_common ] && source ~/.shell_common
+    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 fi
-
-# Source common shell script
-# shellcheck source=shell_common
-[ -f ~/.shell_common ] && source ~/.shell_common

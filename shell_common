@@ -6,17 +6,17 @@ if [[ -z "$UNAME" ]]; then
     export UNAME
 fi
 
-lgreen_setup-fzf() {
+lgreen_setup_fzf() {
     # Setup FZF to use fd
     export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
 }
 
-lgreen_setup-perforce-config(){
+lgreen_setup_perforce_config(){
     # Perforce config
     export P4CONFIG=.p4config
 }
 
-lgreen_start-ssh-agent() {
+lgreen_start_ssh_agent() {
     if [ "$UNAME" = "Darwin" ]; then
         # Keychain to start ssh-agent
         eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
@@ -28,7 +28,7 @@ lgreen_start-ssh-agent() {
     fi
 }
 
-lgreen_setup-dev-env-python() {
+lgreen_setup_dev_env_python() {
     export PYENV_ROOT="$HOME/.pyenv"
     export PATH="$PYENV_ROOT/bin:$PATH"
     if [ -x "$(command -v pyenv)" ]; then
@@ -50,23 +50,23 @@ lgreen_setup-dev-env-java () {
     fi
 }
 
-lgreen_setup-dev-env-node-js () {
+lgreen_setup_dev_env_node_js () {
     export NVM_DIR="$HOME/.nvm"
     [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
     [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
 }
 
-lgreen_setup-dev-env-rust () {
+lgreen_setup_dev_env_rust () {
     export PATH="$PATH:$HOME/.cargo/bin"
 }
 
-lgreen_setup-dev-env-ruby () {
+lgreen_setup_dev_env_ruby () {
     export PATH="$PATH:$HOME/.rvm/bin"
     # Source Ruby Version Manager
     [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm"
 }
 
-lgreen_setup-dev-env-go () {
+lgreen_setup_dev_env_go () {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
     export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
@@ -74,24 +74,24 @@ lgreen_setup-dev-env-go () {
     test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 }
 
-lgreen-setup-dev-env-clang() {
+lgreen_setup_dev_env_clang() {
     if [ "$UNAME" = "Darwin" ]; then
         export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
         export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
-    else
-        # Removed clang install on Linux.
-        # Anywya this version specific paths don't seem like the right way to do this.
-
-        # export PATH=/usr/local/clang_9.0.0/bin:$PATH
-        # export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
     fi
+
+    # Removed clang install on Linux.
+    # Anyway this version specific paths don't seem like the right way to do this.
+
+    # export PATH=/usr/local/clang_9.0.0/bin:$PATH
+    # export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
 }
 
-lgreen_time-shell() {
+lgreen_time_shell() {
   for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
-lgreen_color-test() {
+lgreen_color_test() {
     echo Terminal Colors:
 
     #   Copied from http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
@@ -128,7 +128,7 @@ awk 'BEGIN{
 }'
 }
 
-lgreen_run-gradlew () {
+lgreen_run_gradlew () {
     ./gradlew "$@"
 }
 
@@ -180,10 +180,11 @@ alias vim=nvim
 alias vi=nvim
 alias g=git
 alias b=brew
-alias e=lgreen_run-emacs
-alias gw=lgreen_run-gradlew
+alias e=lgreen_run_emacs
+alias gw=lgreen_run_gradlew
 
 # Source any work related setup
 [ -f "$HOME/dev/work/setup/setup.sh" ] && source "$HOME/dev/work/setup/setup.sh"
+
 # Finally source any local config
 [ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"

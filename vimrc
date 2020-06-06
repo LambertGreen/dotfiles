@@ -223,6 +223,8 @@ nnoremap <leader>wj <C-w>j
 nnoremap <leader>wk <C-w>k
 nnoremap <leader>wl <C-w>l
 
+nnoremap <leader>wq :q<CR>
+
 " terminal mode
 if v:version >= 800
     " We are making it easy to exit terminal mode. This is also the setting in
@@ -247,9 +249,8 @@ endif
 nnoremap <leader>co :copen<CR>
 
 " Toggle terminal window (if neoterm is installed)
-if exists(':Ttoggle')
-    nnoremap <leader>ot :Ttoggle<CR>
-endif
+nnoremap <leader>ot :Ttoggle<CR>
+
 " }}}
 " Fugitive mappings {{{
 function! Lgreen_ToggleGStatus()
