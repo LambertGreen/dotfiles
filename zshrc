@@ -20,7 +20,7 @@ lgreen_init_p10k() {
     [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 }
 
-lgreen_profile-zsh() {
+lgreen_profile_zsh() {
   shell=${1-$SHELL}
   ZPROF=true $shell -i -c exit
 }
@@ -47,7 +47,7 @@ lgreen_setup_zsh() {
 }
 
 # TODO: OMZ not being used, so remove this.
-lgreen_setup_oh-my-zsh () {
+lgreen_setup_oh_my_zsh () {
     #Path to your oh-my-zsh installation.
     export ZSH="$HOME/.oh-my-zsh"
     ZSH_THEME="agnoster"
@@ -143,7 +143,7 @@ lgreen_setup_zinit() {
 }
 
 # TODO: OMZ not being used, so remove this.
-lgreen_setup_oh-my-zsh-using-zinit() {
+lgreen_setup_oh_my_zsh_using_zinit() {
     setopt promptsubst
 
     # Git
@@ -176,7 +176,7 @@ lgreen_zsh_show_functions() {
 lgreen_setup_zinit
 lgreen_setup_p10k
 # TODO: remove OMZ.
-#lgreen_setup_oh-my-zsh
+#lgreen_setup_oh_my_zsh
 lgreen_setup_zsh
 lgreen_setup_common_shell
 lgreen_init_p10k
@@ -193,4 +193,3 @@ if [[ "$ZPROF" = true ]]; then
     unset ZPROF
     zprof
 fi
-
