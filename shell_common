@@ -37,6 +37,12 @@ lgreen_setup_dev_env_python() {
     fi
 }
 
+lgreen_setup_ntfy() {
+    if [ -x "$(command -v ntfy)" ]; then
+        eval "$(ntfy shell-integration)"
+    fi
+}
+
 lgreen_setup_dev_env_java () {
     if [ -d "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
@@ -127,7 +133,6 @@ lgreen_run_gradlew () {
 }
 
 lgreen_source_os_profile() {
-
     if [ "$UNAME" = "Linux" ]; then
         # shellcheck source=shell_linux
         [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
@@ -144,7 +149,6 @@ lgreen_source_os_profile() {
 }
 
 lgreen_setup_lscolors() {
-
     if [ "$UNAME" = "Linux" ]; then
         alias ls='ls --color'
         alias ll='ls -l --color'
@@ -164,6 +168,7 @@ lgreen_setup_fzf
 lgreen_setup_perforce_config
 lgreen_source_os_profile
 lgreen_setup_dev_env_python
+lgreen_setup_ntfy
 lgreen_setup_dev_env_clang
 lgreen_start_ssh_agent
 lgreen_setup_lscolors
