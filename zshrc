@@ -26,10 +26,6 @@ lgreen_profile_zsh() {
 }
 
 lgreen_setup_zsh() {
-    # History settings
-    export HISTSIZE=1000
-    export SAVEHIST=1000
-
     # Set zle to use Emacs keybinds
     bindkey -e
 
@@ -44,27 +40,6 @@ lgreen_setup_zsh() {
     else
         true
     fi
-}
-
-# TODO: OMZ not being used, so remove this.
-lgreen_setup_oh_my_zsh () {
-    #Path to your oh-my-zsh installation.
-    export ZSH="$HOME/.oh-my-zsh"
-    ZSH_THEME="agnoster"
-
-    # Which plugins would you like to load?
-    # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-    # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-    # Example format: plugins=(rails git textmate ruby lighthouse)
-    # Add wisely, as too many plugins slow down shell startup.
-    plugins=(
-        gitfast
-        z
-        fzf
-        colored-man-pages
-    )
-
-    source $ZSH/oh-my-zsh.sh
 }
 
 lgreen_init_fzf() {
@@ -103,18 +78,43 @@ lgreen_setup_zinit() {
     autoload -Uz _zinit
     (( ${+_comps} )) && _comps[zinit]=_zinit
 
-    unset ZPLUGIN_ICE
-    #export ZPLUGIN_ICE=1
+    # Ice it up?
+    #unset ZPLUGIN_ICE
+    export ZPLUGIN_ICE=1
 
-    # lgreen_setup_oh-my-zsh-using-zinit
-    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0"
-    # zinit light robbyrussell/oh-my-zsh
+    zinit for \
+        OMZ::lib/history.zsh \
+        OMZ::lib/functions.zsh \
+        OMZ::lib/misc.zsh \
+        OMZ::lib/completion.zsh
 
+    # # OMZ::History
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::lib/history.zsh
+
+    # # OMZ::Git
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::lib/git.zsh
+
+    # OMZ::Color man-pages
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
+
+    # zsh-completions
     [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" blockf
     zinit light zsh-users/zsh-completions
 
+    # zsh-autosuggestions
     [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"_zsh_autosuggest_start"
     zinit light zsh-users/zsh-autosuggestions
+
+    # Syntax highlighting
+    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atinit"zpcompinit" lucid
+    zinit light zdharma/fast-syntax-highlighting
+
+    # Theme: powerlevel10k
+    zinit ice depth=1
+    zinit light romkatv/powerlevel10k
 
     # Z
     zinit light agkozak/zsh-z
@@ -133,39 +133,6 @@ lgreen_setup_zinit() {
     #     zinit ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
     #     zinit light trapd00r/LS_COLORS
     # fi
-
-    # Syntax highlighting
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atinit"zpcompinit" lucid
-    zinit light zdharma/fast-syntax-highlighting
-
-    zinit ice depth=1
-    zinit light romkatv/powerlevel10k
-}
-
-# TODO: OMZ not being used, so remove this.
-lgreen_setup_oh_my_zsh_using_zinit() {
-    setopt promptsubst
-
-    # Git
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::lib/git.zsh
-
-    # More git?
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"unalias grv" lucid
-    zinit snippet OMZ::plugins/git/git.plugin.zsh
-
-    # Color man-pages
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-
-    # fzf
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    zinit snippet OMZ::plugins/fzf/fzf.plugin.zsh
-
-    # Theme
-    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
-    # zinit snippet OMZ::themes/agnoster.zsh-theme
-    #
 }
 
 lgreen_zsh_show_functions() {
@@ -175,8 +142,6 @@ lgreen_zsh_show_functions() {
 
 lgreen_setup_zinit
 lgreen_setup_p10k
-# TODO: remove OMZ.
-#lgreen_setup_oh_my_zsh
 lgreen_setup_zsh
 lgreen_setup_common_shell
 lgreen_init_p10k
