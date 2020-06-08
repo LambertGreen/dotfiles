@@ -167,11 +167,13 @@ lgreen_setup_lscolors() {
 lgreen_setup_fzf
 lgreen_setup_perforce_config
 lgreen_source_os_profile
-lgreen_setup_dev_env_python
-lgreen_setup_ntfy
-lgreen_setup_dev_env_clang
 lgreen_start_ssh_agent
 lgreen_setup_lscolors
+
+# Dev related setup: Not running these automatically to get faster load times
+# lgreen_setup_dev_env_python
+# lgreen_setup_dev_env_clang
+# lgreen_setup_ntfy
 
 #----------
 # Aliases
