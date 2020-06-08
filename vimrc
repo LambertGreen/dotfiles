@@ -670,7 +670,6 @@ if v:version >= 800
     Plug 'rizzatti/dash.vim'
     Plug 'yuttie/comfortable-motion.vim'
     Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-    Plug 'raghur/vim-ghost', {'do': ':GhostInstall'}
     " }}}
     " Not often used {{{
     Plug 'severin-lemaignan/vim-minimap'
@@ -686,6 +685,8 @@ if v:version >= 800
     " Plug 'mileszs/ack.vim'            " using Rg command from fzf.vim
     " Plug 'Shougo/unite.vim'           " new ver is denite. Using fzf
                                         " instead.
+    " Plug 'raghur/vim-ghost', {'do': ':GhostInstall'} " only needed on
+    " machines with the browser extension."
     " }}}
     call plug#end() " Initialize plugin system
 endif " version >= 800
