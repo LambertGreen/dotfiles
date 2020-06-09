@@ -164,6 +164,18 @@ lgreen_setup_lscolors() {
     fi
 }
 
+lgreen_p4_client() {
+    p4 set -q P4CLIENT | cut -c10-
+}
+
+lgreen_p4_user() {
+    p4 set -q P4USER | cut -c8-
+}
+
+lgreen_p4_last_change() {
+    p4 changes -u ${lgreen_p4_user} -c ${lgreen_p4_client} -m 1 -L | cut -d\  -f2
+}
+
 lgreen_setup_fzf
 lgreen_setup_perforce_config
 lgreen_source_os_profile
