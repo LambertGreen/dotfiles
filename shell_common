@@ -187,6 +187,13 @@ lgreen_setup_lscolors
 # lgreen_setup_dev_env_clang
 # lgreen_setup_ntfy
 
+# If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
+# will use the current Emacs instance.
+if [[ -z $INSIDE_EMACS ]]; then
+    export EDITOR="emacsclient -c -a"
+    export GIT_EDITOR="emacsclient -c -a"
+fi
+
 #----------
 # Aliases
 #----------
@@ -194,7 +201,6 @@ alias vim=nvim
 alias vi=nvim
 alias g=git
 alias b=brew
-alias e=lgreen_run_emacs
 alias gw=lgreen_run_gradlew
 
 # Source any work related setup
