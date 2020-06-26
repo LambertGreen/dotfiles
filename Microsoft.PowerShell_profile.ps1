@@ -37,7 +37,7 @@ function updateConEmuWindowTitleToShowCwd
   $prompt
 }
 
-function Set-VsCmd
+function lgreen-set-visual-studio-env
 {
     param(
         [parameter(Mandatory, HelpMessage="Enter VS version as 2010, 2012, 2013, 2015, 2017")]
@@ -63,12 +63,16 @@ function Set-VsCmd
 
 # Bat wrapper because less pager does not correctly show colors,
 # so set no paging
-function Run-Bat { bat.exe $args --paging=never}
-Set-Alias bat Run-Bat -option AllScope
+function lgreen-run-bat { bat.exe $args --paging=never}
+Set-Alias bat lgreen-run-bat -option AllScope
+
+# Show files when running tree command
+function lgreen-run-tree { tree.com /F }
+Set-Alias tree lgreen-run-tree
 
 # Git alias
-function Run-Git { git $args }
-Set-Alias g Run-Git -option AllScope
+function lgreen-run-git { git $args }
+Set-Alias g lgreen-run-git -option AllScope
 
 # Rather use git aliases so that you can have one
 # common config across platforms
@@ -95,6 +99,3 @@ Set-Theme Paradox
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
-
-
-
