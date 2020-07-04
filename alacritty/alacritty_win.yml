@@ -324,7 +324,7 @@ background_opacity: 0.90
 #   - (Linux/BSD) user login shell
 #   - (Windows) powershell
 shell:
-  program: bash
+  program: powershell
 #  args:
 #    - --login
 
