@@ -70,6 +70,8 @@ Set-Alias bat lgreen-run-bat -option AllScope
 function lgreen-run-tree { tree.com /F }
 Set-Alias tree lgreen-run-tree
 
+Set-Alias which get-command
+
 # Git alias
 function lgreen-run-git { git $args }
 Set-Alias g lgreen-run-git -option AllScope
