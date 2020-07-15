@@ -687,6 +687,7 @@ if v:version >= 800
                                         " instead.
     " Plug 'raghur/vim-ghost', {'do': ':GhostInstall'} " only needed on
     " machines with the browser extension."
+    " Plug 'ngemily/vim-vp4'            " did not work when testing p4 info
     " }}}
     call plug#end() " Initialize plugin system
 endif " version >= 800
