@@ -1,4 +1,8 @@
 #!/usr/bin/env zsh
+
+# Emacs Tramp: needs a simple prompt
+[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
+
 #--------------------------------------------
 # Start performance profiler (if enabled)
 #--------------------------------------------
@@ -150,6 +154,7 @@ lgreen_init_fzf
 # Initialize completions
 autoload -Uz compinit && compinit
 zinit cdreplay -q
+
 
 #--------------------------------------------
 # Stop performance profiler (if enabled)
