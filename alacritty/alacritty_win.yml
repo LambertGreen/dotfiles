@@ -324,7 +324,7 @@ background_opacity: 0.90
 #   - (Linux/BSD) user login shell
 #   - (Windows) powershell
 shell:
-  program: bash
+  program: powershell
 #  args:
 #    - --login
 
@@ -403,8 +403,9 @@ shell:
 # And optionally:
 #
 # - `mods` (see key bindings)
-#mouse_bindings:
-#  - { mouse: Middle, action: PasteSelection }
+mouse_bindings:
+  - { mouse: Middle, action: PasteSelection }
+  - { mouse: Right, action: Copy }
 
 # Key bindings
 #
