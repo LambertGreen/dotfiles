@@ -1,8 +1,5 @@
 #!/usr/bin/env zsh
 
-# Emacs Tramp: needs a simple prompt
-[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
-
 #--------------------------------------------
 # Start performance profiler (if enabled)
 #--------------------------------------------
@@ -143,6 +140,14 @@ lgreen_zsh_show_functions() {
     print -l ${(k)functions} | fzf
 }
 
+
+# Emacs Tramp: needs a simple prompt so just setup common shell
+# and return
+if [[ $TERM == "dumb" ]]; then
+    lgreen_setup_common_shell
+    unsetopt zle && PS1='$ '
+    return
+fi
 
 lgreen_setup_zinit
 lgreen_setup_p10k

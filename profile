@@ -4,14 +4,9 @@
 # Common shell setup file to be sourced from both bash or zsh
 #############################################################
 
-# Uncomment below to see a greeting when loading your profile
-export GREETING=1
-
 # set OS
 UNAME=$(uname -s)
 export UNAME
-
-[ $GREETING ] && echo "Welcome $(whoami), setting up your profile..."
 
 # Set PATH
 # Set local bins ahead of system PATH
@@ -39,7 +34,3 @@ else
     true
 fi
 
-if [ $GREETING ]; then
-    [ -x "$(command -v neofetch)" ] && neofetch
-    echo "Profile setup complete. Happy coding."
-fi
