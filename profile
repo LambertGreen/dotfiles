@@ -4,6 +4,22 @@
 # Common shell setup file to be sourced from both bash or zsh
 #############################################################
 
+# Add a variable to track that profile has been sourced
+# The ./shell_common file checks for this variable to
+# source this file in scenarios where it get skipped e.g. Emacs Tramp
+if [ $PROFILE_SOURCED ]; then
+    echo "WARNING: Profile sourced more than once!!!"
+    return
+fi
+export PROFILE_SOURCED=1
+
+# Only show a greeting if this is an interactive terminal
+if [ -t 1 ]; then
+    export GREETING=1
+fi
+
+[ $GREETING ] && echo "Welcome $(whoami), setting up your profile..."
+
 # set OS
 UNAME=$(uname -s)
 export UNAME
@@ -34,3 +50,7 @@ else
     true
 fi
 
+if [ $GREETING ]; then
+    [ -x "$(command -v neofetch)" ] && neofetch
+    echo "Profile setup complete. Happy coding."
+fi

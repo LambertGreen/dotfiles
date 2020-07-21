@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# Source profile if it has not been sourced yet
+if ! [ $PROFILE_SOURCED ]; then
+    echo "WARNING: Profile has not been sourced, so sourcing it now..."
+    source ~/.profile
+fi
+
 # Set uname
 if [[ -z "$UNAME" ]]; then
     UNAME=$(uname -s)

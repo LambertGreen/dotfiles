@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
+if [[ $TERM == "dumb" ]]; then
+    export BASH_NO_EXEC_ZSH=1
+fi
+
 # If zsh is installed then run it instead
 # Note: In general the chsh command can be used to change a user's shell
 # but this does not work for domain users.
@@ -13,3 +18,4 @@ else
     [ -f ~/.shell_common ] && source ~/.shell_common
     [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 fi
+
