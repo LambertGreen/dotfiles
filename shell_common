@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
 
 # Source profile if it has not been sourced yet
-if ! [ $PROFILE_SOURCED ]; then
-    echo "WARNING: Profile has not been sourced, so sourcing it now..."
-    source ~/.profile
-fi
+lgreen_source_profile_if_not_sourced() {
+    if ! [ $LGREEN_PROFILE_SOURCED ]; then
+        echo "WARNING: Profile has not been sourced, so sourcing it now..."
+        source "$HOME/.profile"
+    fi
+}
 
-# Set uname
-if [[ -z "$UNAME" ]]; then
-    UNAME=$(uname -s)
-    export UNAME
-fi
-
+# Setup FZF to use fd
 lgreen_setup_fzf() {
-    # Setup FZF to use fd
-    export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
+    if [ -x "$(command -v fd)" ]; then
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
+    fi
 }
 
 lgreen_setup_perforce_config(){
-    # Perforce config
     export P4CONFIG=.p4config
 }
 
+# Keychain to start ssh-agent
 lgreen_start_ssh_agent() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        # Keychain to start ssh-agent
-        eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
-    else
+        if [ -x "$(command -v keychain)" ]; then
+            eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
+        fi
+    elif [ "$UNAME" = "Linux" ]; then
         if [ -x "$(command -v keychain)" ]; then
             eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
@@ -81,6 +81,7 @@ lgreen_setup_dev_env_go () {
 }
 
 lgreen_setup_dev_env_clang() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
         export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
@@ -138,35 +139,29 @@ lgreen_run_gradlew () {
     ./gradlew "$@"
 }
 
-lgreen_source_os_profile() {
-    if [ "$UNAME" = "Linux" ]; then
-        # shellcheck source=shell_linux
-        [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
-    else
-        true
-    fi
-
+lgreen_source_os_shell() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         # shellcheck source=shell_osx
         [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
-    else
-        true
+    elif [ "$UNAME" = "Linux" ]; then
+        # shellcheck source=shell_linux
+        [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
     fi
 }
 
-lgreen_setup_lscolors() {
-    if [ "$UNAME" = "Linux" ]; then
-        alias ls='ls --color'
-        alias ll='ls -l --color'
-    else
-        true
-    fi
-
+# Sets up lscolors/dircolors
+lgreen_setup_dircolors() {
+    theme=$HOME/dev/pub/dircolors/dircolors.ansi-light
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        alias ls='gls --color'
-        alias ll='gls -l --color'
-    else
-        true
+        if [[ -f $theme ]]; then
+            eval $(gdircolors $theme);
+        fi
+    elif [ "$UNAME" = "Linux" ]; then
+        if [[ -f $theme ]]; then
+            eval $(dircolors $theme);
+        fi
     fi
 }
 
@@ -182,35 +177,57 @@ lgreen_p4_last_change() {
     p4 changes -u ${lgreen_p4_user} -c ${lgreen_p4_client} -m 1 -L | cut -d\  -f2
 }
 
+# If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
+# will use the current Emacs instance.
+lgreen_setup_running_inside_emacs() {
+    if [[ -z $INSIDE_EMACS ]]; then
+        export EDITOR="emacsclient -c -a"
+        export GIT_EDITOR=$EDITOR
+    fi
+}
+
+lgreen_setup_aliases() {
+    alias vim=nvim
+    alias gw=lgreen_run_gradlew
+
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Linux" ]; then
+        alias ls='ls --color'
+        alias ll='ls -l --color'
+    elif [ "$UNAME" = "Darwin" ]; then
+        alias ls='gls --color'
+        alias ll='gls -l --color'
+    fi
+}
+
+lgreen_source_local_shell() {
+    if [ -f "$HOME/.shell_local" ]; then
+        source "$HOME/.shell_local"
+    fi
+}
+
+lgreen_source_work_shell() {
+    if [ -f "$HOME/dev/work/setup/setup.sh" ]; then
+       source "$HOME/dev/work/setup/setup.sh"
+    fi
+}
+
+#-------------------
+# Main
+#-------------------
+lgreen_source_profile_if_not_sourced
 lgreen_setup_fzf
 lgreen_setup_perforce_config
-lgreen_source_os_profile
+lgreen_source_os_shell
 lgreen_start_ssh_agent
-lgreen_setup_lscolors
+lgreen_setup_dircolors
+lgreen_setup_running_inside_emacs
+lgreen_setup_aliases
+lgreen_source_local_shell
+lgreen_source_work_shell
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_python
 # lgreen_setup_dev_env_clang
 # lgreen_setup_ntfy
 
-# If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
-# will use the current Emacs instance.
-if [[ -z $INSIDE_EMACS ]]; then
-    export EDITOR="emacsclient -c -a"
-    export GIT_EDITOR="emacsclient -c -a"
-fi
-
-#----------
-# Aliases
-#----------
-alias vim=nvim
-alias vi=nvim
-alias g=git
-alias b=brew
-alias gw=lgreen_run_gradlew
-
-# Source any work related setup
-[ -f "$HOME/dev/work/setup/setup.sh" ] && source "$HOME/dev/work/setup/setup.sh"
-
-# Finally source any local config
-[ -f "$HOME/.shell_local" ] && source "$HOME/.shell_local"

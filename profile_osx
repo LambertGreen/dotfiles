@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 
-# Gnu-time
-export PATH="/usr/local/opt/gnu-time/libexec/gnubin:$PATH:/Users/lgreen/Library/Python/3.7/bin"
-
 # MacPorts
-export PATH="/opt/local/bin:$PATH"
+# Note: not using MacPorts any longer due to it
+# being to intrusive to company machine.
+# export PATH="/opt/local/bin:$PATH"
 
 # Homebrew
-export PATH="$(brew --prefix)/bin:$PATH"
-
-export PATH="/usr/local/bin:$PATH"
+# Note: using Homebrew very carefully e.g.
+# only installing very popular and useful utilities
+# and not installing anything that requests elevated
+# permissions.
+export PATH=~/.brew/bin:$PATH
 
 # Set locale
 export LC_ALL=en_US.UTF-8
