@@ -6,10 +6,12 @@ hs.logger.setGlobalLogLevel("verbose")
 -- require('HyperKey')
 require('HyperMode')
 require('ConfigWatcher')
--- Disabling the below to try out getting this functionality directly from Karabiner-elements.
+-- Update 1: Disabling the below to try out getting this functionality directly from Karabiner-elements.
 -- The reason for this is that I found that it is taking Hammerspoon to long to register the
 -- pressing of the Escape key i.e. I need faster interactivity.
--- require('ControlTapToEscape')
+-- Update 2: Enabling this again because Karabiner-elements requires installing a kernel driver, and I don't
+--  want to install it on the company laptop. So I hope that this "slower" escape, will be ok: tradeoffs.
+require('ControlTapToEscape')
 require('ShowKeys')
 
 -- Alert whenever this config is loaded.
