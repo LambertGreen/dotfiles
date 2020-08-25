@@ -1,8 +1,5 @@
 #!/usr/bin/env zsh
 
-# Emacs Tramp: needs a simple prompt
-[[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
-
 #--------------------------------------------
 # Start performance profiler (if enabled)
 #--------------------------------------------
@@ -69,13 +66,17 @@ lgreen_setup_zinit() {
         print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
 
         # Might be safer to clone the repro than just running some script from the internet?
-        sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
+        # TODO: don't just execute, and rather clone from your own fork.
+        #
+        #sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
+        print -P "Actually not going to install anything automatically... that is not a secure thing to do."
+        print -P "Clone a fork of the repo your self."
 
         # Alternative:
         # command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
         # command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f"
+        # print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
+        # print -P "%F{160}▓▒░ The clone has failed.%f"
     fi
     source $HOME/.zinit/bin/zinit.zsh
 
@@ -144,6 +145,14 @@ lgreen_zsh_show_functions() {
 }
 
 
+# Emacs Tramp: needs a simple prompt so just setup common shell
+# and return
+if [[ $TERM == "dumb" ]]; then
+    lgreen_setup_common_shell
+    unsetopt zle && PS1='$ '
+    return
+fi
+
 lgreen_setup_zinit
 lgreen_setup_p10k
 lgreen_setup_zsh
@@ -163,3 +172,4 @@ if [[ "$ZPROF" = true ]]; then
     unset ZPROF
     zprof
 fi
+### End of Zinit's installer chunk

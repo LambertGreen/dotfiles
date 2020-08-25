@@ -148,6 +148,8 @@ if has('nvim')
         let $VIMHOME = $HOME.'/.config/nvim'
         " Note: a prerequisate is to use pyenv to setup virtual environments
         " specific to neovim. Below are the setup instructions:
+        "   - install pyenv and pyenv-virtualenv e.g.:
+        "       - brew install pyenv pyenv-virtualenv
         "   - install a version of python e.g.:
         "       - pyenv install 3.7.4
         "   - create a virtualenv e.g.:
