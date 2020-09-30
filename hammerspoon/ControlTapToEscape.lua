@@ -5,7 +5,7 @@
 -- From: https://gist.github.com/zcmarine/f65182fe26b029900792fa0b59f09d7f
 
 -- Setup a logger
-local log = hs.logger.new('HyperKey', 'debug')
+local log = hs.logger.new('Coding', 'debug')
 
 len = function(t)
     local length = 0
@@ -39,9 +39,9 @@ end
 
 
 -- Setup a filter to prevent hyper hotkeys for remoting applications.
- hs.window.filter.new('Remotix')
-  :subscribe(hs.window.filter.windowFocused, function() enabled_for_application = false end)
-    :subscribe(hs.window.filter.windowUnfocused,function() enabled_for_application = true end)
+ -- hs.window.filter.new('Remotix')
+ --  :subscribe(hs.window.filter.windowFocused, function() enabled_for_application = false end)
+ --    :subscribe(hs.window.filter.windowUnfocused,function() enabled_for_application = true end)
 
 -- Call the modifier_handler function anytime a modifier key is pressed or released
 modifier_tap = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, modifier_handler)
