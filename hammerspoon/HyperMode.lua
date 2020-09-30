@@ -43,8 +43,10 @@ hyperMode:bind({}, 'l', function() hs.eventtap.keyStroke({}, 'Right') end)
 hyperMode:bind({'ctrl'}, 'u', function() hs.eventtap.keyStroke({}, 'PageUp') end)
 hyperMode:bind({'ctrl'}, 'd', function() hs.eventtap.keyStroke({}, 'PageDown') end)
 
-hyperMode:bind({'alt'}, 'h', function() hs.eventtap.keyStroke({'alt'}, 'Right') end)
-hyperMode:bind({'alt'}, 'l', function() hs.eventtap.keyStroke({'alt'}, 'Left') end)
+hyperMode:bind({'alt'}, 'h', function() hs.eventtap.keyStroke({'alt'}, 'Left') end)
+hyperMode:bind({'alt'}, 'j', function() hs.eventtap.keyStroke({'alt'}, 'Down') end)
+hyperMode:bind({'alt'}, 'k', function() hs.eventtap.keyStroke({'alt'}, 'Up') end)
+hyperMode:bind({'alt'}, 'l', function() hs.eventtap.keyStroke({'alt'}, 'Right') end)
 
 hyperMode:bind({'cmd'}, 'h', function() hs.eventtap.keyStroke({'cmd'}, 'Left') end)
 hyperMode:bind({'cmd'}, 'j', function() hs.eventtap.keyStroke({'cmd'}, 'Down') end)
