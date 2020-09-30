@@ -84,4 +84,9 @@ windowMgmtMode:bind({}, 'h', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}
 windowMgmtMode:bind({}, 'j', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'j') end)
 windowMgmtMode:bind({}, 'k', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'k') end)
 windowMgmtMode:bind({}, 'l', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'l') end)
+
+windowMgmtMode:bind({}, 's', function()
+        hs.hints.windowHints()
+end)
+
 windowMgmtMode:bind({}, 'Escape', windowMgmtModeExit)
