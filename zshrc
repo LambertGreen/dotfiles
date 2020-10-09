@@ -159,6 +159,7 @@ lgreen_setup_zsh
 lgreen_setup_common_shell
 lgreen_init_p10k
 lgreen_init_fzf
+lgreen_setup_direnv_for_zsh
 
 # Initialize completions
 autoload -Uz compinit && compinit
