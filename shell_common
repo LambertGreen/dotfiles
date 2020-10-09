@@ -49,6 +49,18 @@ lgreen_setup_ntfy() {
     fi
 }
 
+lgreen_setup_direnv_for_bash() {
+    if [ -x "$(command -v direnv)" ]; then
+        eval "$(direnv hook bash)"
+    fi
+}
+
+lgreen_setup_direnv_for_zsh() {
+    if [ -x "$(command -v direnv)" ]; then
+        eval "$(direnv hook zsh)"
+    fi
+}
+
 lgreen_setup_dev_env_java () {
     if [ -d "$HOME/.jenv/bin" ]; then
         export PATH="$HOME/.jenv/bin:$PATH"
@@ -189,6 +201,7 @@ lgreen_setup_running_inside_emacs() {
 lgreen_setup_aliases() {
     alias vim=nvim
     alias gw=lgreen_run_gradlew
+    alias g=git
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
