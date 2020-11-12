@@ -95,8 +95,8 @@ lgreen_setup_dev_env_go () {
 lgreen_setup_dev_env_clang() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
-        export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
+        export PATH="/usr/local/opt/llvm/bin:$PATH"
+        export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
     fi
 
     # Removed clang install on Linux.
