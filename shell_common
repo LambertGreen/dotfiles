@@ -34,12 +34,13 @@ lgreen_start_ssh_agent() {
     fi
 }
 
-lgreen_setup_dev_env_python() {
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    if [ -x "$(command -v pyenv)" ]; then
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
+lgreen_setup_pyenv() {
+    if [ -d "$HOME/.pyenv/bin" ]; then
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        if [ -x "$(command -v pyenv)" ]; then
+            eval "$(pyenv init -)"
+            eval "$(pyenv virtualenv-init -)"
+        fi
     fi
 }
 
@@ -239,8 +240,9 @@ lgreen_setup_aliases
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_pyenv
+
 # Dev related setup: Not running these automatically to get faster load times
-# lgreen_setup_dev_env_python
 # lgreen_setup_dev_env_clang
 # lgreen_setup_ntfy
 
