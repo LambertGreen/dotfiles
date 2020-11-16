@@ -10,7 +10,7 @@ lgreen_source_profile_if_not_sourced() {
 
 # Setup FZF to use fd
 lgreen_setup_fzf() {
-    if [ -x "$(command -v fd)" ]; then
+    if [[ "$(command -v fd)" ]]; then
         export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
     fi
 }
@@ -23,39 +23,48 @@ lgreen_setup_perforce_config(){
 lgreen_start_ssh_agent() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        if [ -x "$(command -v keychain)" ]; then
+        if [[ "$(command -v keychain)" ]]; then
             eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
-        if [ -x "$(command -v keychain)" ]; then
+        if [[ "$(command -v keychain)" ]]; then
             eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
 }
 
-lgreen_setup_pyenv() {
-    if [ -x "$(command -v pyenv)" ]; then
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
-    fi
-}
-
 lgreen_setup_ntfy() {
-    if [ -x "$(command -v ntfy)" ]; then
+    if [[ "$(command -v ntfy)" ]]; then
         eval "$(ntfy shell-integration)"
     fi
 }
 
 lgreen_setup_direnv_for_bash() {
-    if [ -x "$(command -v direnv)" ]; then
+    if [[ "$(command -v direnv)" ]]; then
         eval "$(direnv hook bash)"
     fi
 }
 
 lgreen_setup_direnv_for_zsh() {
-    if [ -x "$(command -v direnv)" ]; then
+    if [[ "$(command -v direnv)" ]]; then
         eval "$(direnv hook zsh)"
+    fi
+}
+
+lgreen_setup_pyenv() {
+    if [[ "$(command -v pyenv)" ]]; then
+        eval "$(pyenv init -)"
+        eval "$(pyenv virtualenv-init -)"
+    fi
+}
+
+lgreen_setup_dev_env_ruby () {
+    # Below instruction is from output of doing `brew install rbenv`
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+
+    if [[ "$(command -v rbenv)" ]]; then
+       eval "$(rbenv init -)"
     fi
 }
 
@@ -74,15 +83,6 @@ lgreen_setup_dev_env_node_js () {
 
 lgreen_setup_dev_env_rust () {
     export PATH="$PATH:$HOME/.cargo/bin"
-}
-
-lgreen_setup_dev_env_ruby () {
-    # Below instruction is from output of doing `brew install rbenv`
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
-
-    if [ -x "$(command -v rbenv)" ]; then
-       eval "$(rbenv init -)"
-    fi
 }
 
 lgreen_setup_dev_env_go () {

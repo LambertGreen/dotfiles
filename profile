@@ -23,7 +23,7 @@ lgreen_greet_user_at_setup_start() {
 
 lgreen_greet_user_at_setup_end() {
     if [ ! -z $LGREEN_GREET ]; then
-        [ -x "$(command -v neofetch)" ] && neofetch || true
+        [[ "$(command -v neofetch)" ]] && neofetch || true
         echo "Profile setup complete. Happy coding."
     fi
 }
