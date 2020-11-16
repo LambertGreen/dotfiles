@@ -81,9 +81,12 @@ lgreen_setup_dev_env_rust () {
 }
 
 lgreen_setup_dev_env_ruby () {
-    export PATH="$PATH:$HOME/.rvm/bin"
-    # Source Ruby Version Manager
-    [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm"
+    # Below instruction is from output of doing `brew install rbenv`
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+
+    if [ -x "$(command -v rbenv)" ]; then
+       eval "$(rbenv init -)"
+    fi
 }
 
 lgreen_setup_dev_env_go () {
@@ -242,8 +245,8 @@ lgreen_source_local_shell
 lgreen_source_work_shell
 
 lgreen_setup_pyenv
+lgreen_setup_dev_env_ruby
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
 # lgreen_setup_ntfy
-
