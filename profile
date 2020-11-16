@@ -12,7 +12,19 @@ lgreen_setup_greeting() {
     # Only show a greeting if this is an interactive terminal
     if [ -t 1 ]; then
         export LGREEN_GREET="yes"
+    fi
+}
+
+lgreen_greet_user_at_setup_start() {
+    if [ ! -z $LGREEN_GREET ]; then
         echo "Welcome $(whoami), setting up your profile..."
+    fi
+}
+
+lgreen_greet_user_at_setup_end() {
+    if [ ! -z $LGREEN_GREET ]; then
+        [ -x "$(command -v neofetch)" ] && neofetch || true
+        echo "Profile setup complete. Happy coding."
     fi
 }
 
@@ -44,13 +56,6 @@ lgreen_source_os_profile() {
     fi
 }
 
-lgreen_greet_user() {
-    if [ ! -z $LGREEN_GREET ]; then
-        [ -x "$(command -v neofetch)" ] && neofetch || true
-        echo "Profile setup complete. Happy coding."
-    fi
-}
-
 #-------------------
 # Main
 #-------------------
@@ -63,6 +68,7 @@ else
     return
 fi
 lgreen_setup_greeting
+lgreen_greet_user_at_setup_start
 lgreen_setup_profile_env
 lgreen_source_os_profile
-lgreen_greet_user
+lgreen_greet_user_at_setup_end
