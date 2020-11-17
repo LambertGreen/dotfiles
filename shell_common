@@ -59,19 +59,19 @@ lgreen_setup_pyenv() {
     fi
 }
 
-lgreen_setup_dev_env_ruby () {
+lgreen_setup_jenv () {
+    if [[ "$(command -v jenv)" ]]; then
+        eval "$(jenv init -)"
+        export JAVA_HOME="$HOME/.jenv/versions/`jenv version-name`"
+    fi
+}
+
+lgreen_setup_rbenv () {
     # Below instruction is from output of doing `brew install rbenv`
     export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 
     if [[ "$(command -v rbenv)" ]]; then
        eval "$(rbenv init -)"
-    fi
-}
-
-lgreen_setup_dev_env_java () {
-    if [ -d "$HOME/.jenv/bin" ]; then
-        export PATH="$HOME/.jenv/bin:$PATH"
-        eval "$(jenv init -)"
     fi
 }
 
@@ -241,7 +241,8 @@ lgreen_source_local_shell
 lgreen_source_work_shell
 
 lgreen_setup_pyenv
-lgreen_setup_dev_env_ruby
+lgreen_setup_jenv
+lgreen_setup_rbenv
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
