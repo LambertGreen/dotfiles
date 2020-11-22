@@ -23,40 +23,49 @@ empty = function(t)
     return false
 end
 
--- Setup a filter to prevent hyper hotkeys for remoting applications.
- -- hs.window.filter.new('Remotix')
- --  :subscribe(hs.window.filter.windowFocused, function() enabled_for_application = false end)
- --    :subscribe(hs.window.filter.windowUnfocused,function() enabled_for_application = true end)
+-- Setup a filter to remoting applications.
+local wf = hs.window.filter
+remoting_exclusion = wf.new{'Remotix'}
+remoting_exclusion:subscribe(wf.windowFocused,
+                             function()
+                               ctrl_to_escape_modifier_tap:stop()
+                               ctrl_to_escape_non_modifier_tap:stop()
+                               send_escape = false
+                                end)
+    remoting_exclusion:subscribe(wf.windowUnfocused, function()
+                                ctrl_to_escape_modifier_tap:start()
+                                ctrl_to_escape_non_modifier_tap:start()
+                                end)
 
--- On ctrl down check if we should convert to an escape
-ctrl_to_escape_modifier_tap = hs.eventtap.new(
-    {hs.eventtap.event.types.flagsChanged},
-    function(evt)
-        local curr_modifiers = evt:getFlags()
+    -- On ctrl down check if we should convert to an escape
+    ctrl_to_escape_modifier_tap = hs.eventtap.new(
+        {hs.eventtap.event.types.flagsChanged},
+        function(evt)
+            local curr_modifiers = evt:getFlags()
 
-        if curr_modifiers["ctrl"] and len(curr_modifiers) == 1 and empty(prev_modifiers) then
-            send_escape = true
-        elseif send_escape and prev_modifiers["ctrl"] and empty(curr_modifiers) then
-            hs.eventtap.keyStroke({}, "ESCAPE")
-            send_escape = false
-            log.d('Control tapped: sent escape key.')
-        else
-            send_escape = false
+            if curr_modifiers["ctrl"] and len(curr_modifiers) == 1 and empty(prev_modifiers) then
+                send_escape = true
+            elseif send_escape and prev_modifiers["ctrl"] and empty(curr_modifiers) then
+                hs.eventtap.keyStroke({}, "ESCAPE")
+                send_escape = false
+                log.d('Control tapped: sent escape key.')
+            else
+                send_escape = false
+            end
+
+            prev_modifiers = curr_modifiers
+            return false
         end
+    )
 
-        prev_modifiers = curr_modifiers
-        return false
-    end
-)
+    -- If any non-modifier key is pressed, we know we won't be sending an escape
+    ctrl_to_escape_non_modifier_tap = hs.eventtap.new(
+        {hs.eventtap.event.types.keyDown},
+        function(evt)
+            send_escape = false
+            return false
+        end
+    )
 
--- If any non-modifier key is pressed, we know we won't be sending an escape
-ctrl_to_escape_non_modifier_tap = hs.eventtap.new(
-    {hs.eventtap.event.types.keyDown},
-    function(evt)
-        send_escape = false
-        return false
-    end
-)
-
-ctrl_to_escape_modifier_tap:start()
-ctrl_to_escape_non_modifier_tap:start()
+    ctrl_to_escape_modifier_tap:start()
+    ctrl_to_escape_non_modifier_tap:start()
