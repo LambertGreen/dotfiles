@@ -34,6 +34,20 @@ empty = function(t)
     return false
 end
 
+-- Setup a excluded application filter
+exclusion = hs.window.filter.new{'loginwindow'}
+exclusion:subscribe(hs.window.filter.windowFocused,
+    function()
+        shift_to_brackets_modifier_tap:stop()
+        shift_to_brackets_non_modifier_tap:stop()
+        send_escape = false
+    end)
+exclusion:subscribe(hs.window.filter.windowUnfocused,
+    function()
+        shift_to_brackets_modifier_tap:start()
+        shift_to_brackets_non_modifier_tap:start()
+    end)
+
 strokeReplacementKey = function(shiftkey, replacementKey)
     log.d(tostring(shiftkey) .. ' tapped: sending ' .. tostring(replacementKey) .. ' key.')
     hs.eventtap.keyStrokes(replacementKey)
@@ -47,6 +61,10 @@ end
 shift_to_brackets_modifier_tap = hs.eventtap.new(
     {hs.eventtap.event.types.flagsChanged},
     function(evt)
+        if(hs.eventtap.isSecureInputEnabled()) then
+            return true;
+        end
+
         local curr_modifiers = evt:getFlags()
         local curr_key = hs.keycodes.map[evt:getKeyCode()]
 
