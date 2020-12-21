@@ -55,7 +55,7 @@ ctrl_to_escape_modifier_tap = hs.eventtap.new(
         end
 
         prev_modifiers = curr_modifiers
-        return false
+        return true
     end
 )
 
