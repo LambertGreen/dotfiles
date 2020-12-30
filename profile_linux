@@ -22,7 +22,7 @@ lgreen_setup-umask-for-wsl() {
 
 lgreen_setup-display-for-wsl() {
 	if [[ "$(< /proc/version)" == *microsoft* ]]; then
-		DISPLAY=$(grep -q /etc/resolv.conf nameserver | awk '{print $2; exit;}'):0.0
+		DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
 		export DISPLAY
 	fi
 }
