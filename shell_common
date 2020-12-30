@@ -10,7 +10,7 @@ lgreen_source_profile_if_not_sourced() {
 
 # Setup FZF to use fd
 lgreen_setup_fzf() {
-    if [ -x "$(command -v fd)" ]; then
+    if [[ "$(command -v fd)" ]]; then
         export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
     fi
 }
@@ -23,36 +23,55 @@ lgreen_setup_perforce_config(){
 lgreen_start_ssh_agent() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        if [ -x "$(command -v keychain)" ]; then
+        if [[ "$(command -v keychain)" ]]; then
             eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
-        if [ -x "$(command -v keychain)" ]; then
+        if [[ "$(command -v keychain)" ]]; then
             eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
 }
 
-lgreen_setup_dev_env_python() {
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    if [ -x "$(command -v pyenv)" ]; then
+lgreen_setup_ntfy() {
+    if [[ "$(command -v ntfy)" ]]; then
+        eval "$(ntfy shell-integration)"
+    fi
+}
+
+lgreen_setup_direnv_for_bash() {
+    if [[ "$(command -v direnv)" ]]; then
+        eval "$(direnv hook bash)"
+    fi
+}
+
+lgreen_setup_direnv_for_zsh() {
+    if [[ "$(command -v direnv)" ]]; then
+        eval "$(direnv hook zsh)"
+    fi
+}
+
+lgreen_setup_pyenv() {
+    if [[ "$(command -v pyenv)" ]]; then
         eval "$(pyenv init -)"
         eval "$(pyenv virtualenv-init -)"
     fi
 }
 
-lgreen_setup_ntfy() {
-    if [ -x "$(command -v ntfy)" ]; then
-        eval "$(ntfy shell-integration)"
+lgreen_setup_jenv () {
+    if [[ "$(command -v jenv)" ]]; then
+        eval "$(jenv init -)"
+        export JAVA_HOME="$HOME/.jenv/versions/`jenv version-name`"
     fi
 }
 
-lgreen_setup_dev_env_java () {
-    if [ -d "$HOME/.jenv/bin" ]; then
-        export PATH="$HOME/.jenv/bin:$PATH"
-        eval "$(jenv init -)"
+lgreen_setup_rbenv () {
+    # Below instruction is from output of doing `brew install rbenv`
+    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+
+    if [[ "$(command -v rbenv)" ]]; then
+       eval "$(rbenv init -)"
     fi
 }
 
@@ -66,12 +85,6 @@ lgreen_setup_dev_env_rust () {
     export PATH="$PATH:$HOME/.cargo/bin"
 }
 
-lgreen_setup_dev_env_ruby () {
-    export PATH="$PATH:$HOME/.rvm/bin"
-    # Source Ruby Version Manager
-    [ -s "$HOME/.rvm/scripts/rvm" ] && source "$HOME/.rvm/scripts/rvm"
-}
-
 lgreen_setup_dev_env_go () {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
@@ -83,8 +96,8 @@ lgreen_setup_dev_env_go () {
 lgreen_setup_dev_env_clang() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        export PATH=$PATH:/usr/local/Cellar/llvm/9.0.1/bin
-        export Clang_DIR=/usr/local/Cellar/llvm/9.0.1/lib/cmake/clang
+        export PATH="/usr/local/opt/llvm/bin:$PATH"
+        export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
     fi
 
     # Removed clang install on Linux.
@@ -189,6 +202,7 @@ lgreen_setup_running_inside_emacs() {
 lgreen_setup_aliases() {
     alias vim=nvim
     alias gw=lgreen_run_gradlew
+    alias g=git
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
@@ -226,8 +240,10 @@ lgreen_setup_aliases
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_pyenv
+lgreen_setup_jenv
+lgreen_setup_rbenv
+
 # Dev related setup: Not running these automatically to get faster load times
-# lgreen_setup_dev_env_python
 # lgreen_setup_dev_env_clang
 # lgreen_setup_ntfy
-

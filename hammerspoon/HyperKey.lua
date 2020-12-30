@@ -51,7 +51,9 @@ end
 -- 1. Application Launcher: CTRL+Enter
 -- 2. Application Swithcer: CTRL+Space
 -- 3. Window Manager:       CTRL+Backspace
--- 
+--
+-- Update 3: Still not super happy and need to make more adjustments, but really I should be capturing this info elsewhere.
+-- So putting a final message here. Please find iterations in Notes.
 
 -- Bind F14 as the Hyper key
 f14 = hs.hotkey.bind({}, 'f14', enterHyperMode, exitHyperMode)

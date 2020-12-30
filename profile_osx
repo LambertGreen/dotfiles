@@ -6,11 +6,19 @@
 # export PATH="/opt/local/bin:$PATH"
 
 # Homebrew
+#
 # Note: using Homebrew very carefully e.g.
 # only installing very popular and useful utilities
 # and not installing anything that requests elevated
 # permissions.
-export PATH=~/.brew/bin:$PATH
+#
+# Note: I have tried for a second time to use brew installed
+# into a home local directory. This works fine for just
+# applications, but it's a problem when one needs to
+# install libraries e.g. trying to build something
+# that needs an include file for a library installed
+# via brew.
+export PATH=/usr/local/bin:$PATH
 
 # Set locale
 export LC_ALL=en_US.UTF-8

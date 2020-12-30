@@ -43,8 +43,10 @@ hyperMode:bind({}, 'l', function() hs.eventtap.keyStroke({}, 'Right') end)
 hyperMode:bind({'ctrl'}, 'u', function() hs.eventtap.keyStroke({}, 'PageUp') end)
 hyperMode:bind({'ctrl'}, 'd', function() hs.eventtap.keyStroke({}, 'PageDown') end)
 
-hyperMode:bind({'alt'}, 'h', function() hs.eventtap.keyStroke({'alt'}, 'Right') end)
-hyperMode:bind({'alt'}, 'l', function() hs.eventtap.keyStroke({'alt'}, 'Left') end)
+hyperMode:bind({'alt'}, 'h', function() hs.eventtap.keyStroke({'alt'}, 'Left') end)
+hyperMode:bind({'alt'}, 'j', function() hs.eventtap.keyStroke({'alt'}, 'Down') end)
+hyperMode:bind({'alt'}, 'k', function() hs.eventtap.keyStroke({'alt'}, 'Up') end)
+hyperMode:bind({'alt'}, 'l', function() hs.eventtap.keyStroke({'alt'}, 'Right') end)
 
 hyperMode:bind({'cmd'}, 'h', function() hs.eventtap.keyStroke({'cmd'}, 'Left') end)
 hyperMode:bind({'cmd'}, 'j', function() hs.eventtap.keyStroke({'cmd'}, 'Down') end)
@@ -82,4 +84,20 @@ windowMgmtMode:bind({}, 'h', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}
 windowMgmtMode:bind({}, 'j', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'j') end)
 windowMgmtMode:bind({}, 'k', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'k') end)
 windowMgmtMode:bind({}, 'l', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'l') end)
+
+windowMgmtMode:bind({}, 's', function()
+        hs.hints.windowHints()
+end)
+
 windowMgmtMode:bind({}, 'Escape', windowMgmtModeExit)
+
+-- Mouse pointer move to other screen
+mousePointerMoveToOtherScreen = function()
+    local screen = hs.mouse.getCurrentScreen()
+    local nextScreen = screen:next()
+    local rect = nextScreen:fullFrame()
+    local center = hs.geometry.rectMidPoint(rect)
+    hs.mouse.setAbsolutePosition(center)
+end
+
+windowMgmtMode:bind({}, 'm', mousePointerMoveToOtherScreen)
