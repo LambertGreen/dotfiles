@@ -20,6 +20,12 @@ lgreen_setup-umask-for-wsl() {
 	fi
 }
 
+lgreen_setup-display-for-wsl() {
+	if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
+		export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'):0.0
+	fi
+}
+
 lgreen_setup-xdg-config() {
 	if [ -z "${XDG_RUNTIME_DIR}" ]; then
 		 XDG_RUNTIME_DIR=/run/user/$(id -ru)
@@ -35,6 +41,7 @@ lgreen_setup-package-config() {
 
 lgreen_setup-package-config
 lgreen_setup-umask-for-wsl
+lgreen_setup-display-for-wsl
 lgreen_setup-linuxbrew
 lgreen_setup-perl
 
