@@ -4,4 +4,3 @@
 alias updatedb="/usr/libexec/locate.updatedb"
 alias flush-dns="killall -HUP mDNSResponder"
 alias restart-audio="killall coreaudiod"
-alias lldb="/usr/local/Cellar/llvm/9.0.1/bin/lldb"

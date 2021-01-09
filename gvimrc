@@ -11,7 +11,7 @@ set guioptions=+k
 
 " Set a good looking NERD+Powerline enabled font
 if has('gui_macvim')
-    set guifont=HackNerdFontComplete-Regular:h12
+    set guifont=HackNerdFontComplete-Regular:h13
 else
     set guifont=MesloLGM_NF:h10:cANSI:qDEFAULT
 endif

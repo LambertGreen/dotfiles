@@ -1,7 +1,7 @@
 -- My Hammerspoon config
 
 -- Set the global log level
-hs.logger.setGlobalLogLevel("verbose")
+hs.logger.defaultLogLevel = "info"
 
 -- require('HyperKey')
 require('HyperMode')
@@ -12,17 +12,16 @@ require('ConfigWatcher')
 -- Update 2: Enabling this again because Karabiner-elements requires installing a kernel driver, and I don't
 --  want to install it on the company laptop. So I hope that this "slower" escape, will be ok: tradeoffs.
 require('ControlTapToEscape')
--- Commenting out shift-to-brackets because I am using the Fn layer functionality on my keyboard to type
--- non alphanumeric characeters.
--- require('ShiftToBrackets')
+require('ShiftToBrackets')
 require('ShowKeys')
+require('AppWatcher')
 
 -- Alert whenever this config is loaded.
 hs.alert.show("Hammerspoon: config loaded")
 
 
 -- TODO: Use the below chooser code for providing user a menu
--- 
+--
 -- local chooser = hs.chooser.new(function(choice)
 --       hs.alert.show(choice['text'])
 -- end)
@@ -46,3 +45,15 @@ hs.alert.show("Hammerspoon: config loaded")
 --       },
 -- })
 -- chooser:show()
+
+-- TODO: Use MenuBar to show status of "programming mode" so that one can leave programming mode off most of
+-- the time and enable it just when needed, which will mean we don't run into the password field entry issues.
+--
+-- mb = hs.menubar.new(nil)
+-- updateStatus = function(event)
+--   if(event == "on") then
+--     mb:setTitle("🔴")
+--   elseif(event == "off") then
+--     mb:setTitle("🟢")
+--   end
+-- end
