@@ -202,6 +202,7 @@ lgreen_setup_aliases() {
     alias vim=nvim
     alias gw=lgreen_run_gradlew
     alias g=git
+    alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
