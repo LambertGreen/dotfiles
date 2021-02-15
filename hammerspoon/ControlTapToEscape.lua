@@ -46,8 +46,8 @@ ctrl_to_escape_modifier_tap = hs.eventtap.new(
         if curr_modifiers["ctrl"] and len(curr_modifiers) == 1 and empty(prev_modifiers) then
             send_escape = true
         elseif send_escape and prev_modifiers["ctrl"] and empty(curr_modifiers) then
-            hs.eventtap.event.newKeyEvent('escape', true):post()
-            hs.eventtap.event.newKeyEvent('escape', false):post()
+            hs.eventtap.event.newKeyEvent({}, 'escape', true):post()
+            hs.eventtap.event.newKeyEvent({}, 'escape', false):post()
             send_escape = false
             log.d('Control tapped: sent escape key.')
         else
