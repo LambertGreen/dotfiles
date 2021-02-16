@@ -5,6 +5,7 @@
 -- Setup a logger
 local log = hs.logger.new('HyperMode', 'debug')
 
+
 hyperMod = {'ctrl', 'command'}
 hyperKey = 'Space'
 showKey = '/'
@@ -40,6 +41,10 @@ hyperMode:bind({}, 'j', function() hs.eventtap.keyStroke({}, 'Down') end)
 hyperMode:bind({}, 'k', function() hs.eventtap.keyStroke({}, 'Up') end)
 hyperMode:bind({}, 'l', function() hs.eventtap.keyStroke({}, 'Right') end)
 
+-- TODO: fix the below 2 lines
+-- hyperMode:bind({}, 'gg', function() hs.eventtap.keyStroke({'alt'}, 'PageUp') end)
+-- hyperMode:bind({'shift'}, 'g', function() hs.eventtap.keyStroke({'alt'}, 'PageDown') end)
+
 hyperMode:bind({'ctrl'}, 'u', function() hs.eventtap.keyStroke({}, 'PageUp') end)
 hyperMode:bind({'ctrl'}, 'd', function() hs.eventtap.keyStroke({}, 'PageDown') end)
 
@@ -55,49 +60,18 @@ hyperMode:bind({'cmd'}, 'l', function() hs.eventtap.keyStroke({'cmd'}, 'Right') 
 
 hyperMode:bind({}, 'Escape', hyperModeExit)
 
--- Window Manager Mode
--- 
-local windowMgmtMode = hs.hotkey.modal.new()
-windowMgmtModeEnter = function()
-    windowMgmtMode.triggered = true
-    windowMgmtMode:enter()
-    hs.alert.show('WindowMgmt mode on')
- end
-
-windowMgmtModeExit = function ()
-    windowMgmtMode.triggered = false
-    windowMgmtMode:exit()
-    hs.alert.show('WindowMgmt mode off')
-end
+-- Unsed keys in Hyper mode
+hyperShowHotkeys = function() hs.hotkey.showHotkeys(hyperMod, showKey) end
+hyperMode:bind({}, 'q', hyperShowHotkeys)
+hyperMode:bind({}, 'e', hyperShowHotkeys)
+hyperMode:bind({}, 'd', hyperShowHotkeys)
 
 hyperMode:bind({}, 'w', function()
-    if not windowMgmtMode.triggered then
+    if not wm.windowMgmtMode.triggered then
       hyperModeExit()
-      windowMgmtModeEnter()
+      wm.windowMgmtModeEnter()
     else
-      windowMgmtModeExit()
+      wm.windowMgmtModeExit()
       hyperModeEnter()
     end
 end)
-
-windowMgmtMode:bind({}, 'h', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'h') end)
-windowMgmtMode:bind({}, 'j', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'j') end)
-windowMgmtMode:bind({}, 'k', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'k') end)
-windowMgmtMode:bind({}, 'l', function() hs.eventtap.keyStroke({'ctrl, cmd, alt'}, 'l') end)
-
-windowMgmtMode:bind({}, 's', function()
-        hs.hints.windowHints()
-end)
-
-windowMgmtMode:bind({}, 'Escape', windowMgmtModeExit)
-
--- Mouse pointer move to other screen
-mousePointerMoveToOtherScreen = function()
-    local screen = hs.mouse.getCurrentScreen()
-    local nextScreen = screen:next()
-    local rect = nextScreen:fullFrame()
-    local center = hs.geometry.rectMidPoint(rect)
-    hs.mouse.setAbsolutePosition(center)
-end
-
-windowMgmtMode:bind({}, 'm', mousePointerMoveToOtherScreen)
