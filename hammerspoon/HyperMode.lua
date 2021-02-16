@@ -1,77 +1,38 @@
 -- Implements a Hyper modal mode
 --
--- Based on: https://github.com/dbmrq/dotfiles/blob/master/home/.hammerspoon/vim.lua
 
--- Setup a logger
-local log = hs.logger.new('HyperMode', 'debug')
+hs.loadSpoon("RecursiveBinder")
+key = spoon.RecursiveBinder.singleKey
 
+local wm = require('WindowManagement')
+local mouse = require('MousePointer')
+local app = require('Application')
 
-hyperMod = {'ctrl', 'command'}
-hyperKey = 'Space'
-showKey = '/'
+local hyperMod = {'ctrl', 'command'}
+local hyperKey = 'Space'
 
-hs.hotkey.showHotkeys(hyperMod, showKey)
+windowMove = {}
+windowMove[key("h", "left")] = wm.moveWindowLeft
+windowMove[key("j", "down")] = wm.moveWindowDown
+windowMove[key("k", "up")] = wm.moveWindowUp
+windowMove[key("l", "right")] = wm.moveWindowRight
+windowMove[key("u", "top-left")] = wm.moveWindowTopLeft
+windowMove[key("i", "top-right")] = wm.moveWindowTopRight
+windowMove[key("n", "bottom-left")] = wm.moveWindowBottomLeft
+windowMove[key("m", "bottom-right")] = wm.moveWindowBottomRight
+windowMove[key("d", "center")] = wm.moveWindowCenter
+windowMove[key("f", "maximize")] = wm.moveWindowMaximize
 
-local hyperMode = hs.hotkey.modal.new()
+hsConsole = {}
+hsConsole[key("o", "open")] = hs.openConsole
+hsConsole[key("c", "close")] = hs.closeConsole
+-- hsConsole[key("t", "toggle OnTop")] = hs.consoleOnTop
 
-hyperModeEnter = function()
-    hyperMode.triggered = true
-    hyperMode:enter()
-    hs.alert.show('Hyper mode on')
- end
+hyper = {}
+hyper[key("w", "manage windows")] = windowMove
+hyper[key("s", "switcher")] = hs.hints.windowHints
+hyper[key("q", "kill app")] = app.appKill9
+hyper[key("p", "move mouse")] = mouse.movePointerToOtherScreen
+hyper[key("c", "console")] = hsConsole
 
-hyperModeExit = function ()
-    hyperMode.triggered = false
-    hyperMode:exit()
-    hs.alert.show('Hyper mode off')
-end
-
-hs.hotkey.bind(hyperMod, hyperKey, function()
-    if not hyperMode.triggered then
-      hyperModeEnter()
-    else
-      hyperModeExit()
-    end
-end)
-
--- HomeRow movement keys (loosely based on Vim bindings)
---
-hyperMode:bind({}, 'h', function() hs.eventtap.keyStroke({}, 'Left') end)
-hyperMode:bind({}, 'j', function() hs.eventtap.keyStroke({}, 'Down') end)
-hyperMode:bind({}, 'k', function() hs.eventtap.keyStroke({}, 'Up') end)
-hyperMode:bind({}, 'l', function() hs.eventtap.keyStroke({}, 'Right') end)
-
--- TODO: fix the below 2 lines
--- hyperMode:bind({}, 'gg', function() hs.eventtap.keyStroke({'alt'}, 'PageUp') end)
--- hyperMode:bind({'shift'}, 'g', function() hs.eventtap.keyStroke({'alt'}, 'PageDown') end)
-
-hyperMode:bind({'ctrl'}, 'u', function() hs.eventtap.keyStroke({}, 'PageUp') end)
-hyperMode:bind({'ctrl'}, 'd', function() hs.eventtap.keyStroke({}, 'PageDown') end)
-
-hyperMode:bind({'alt'}, 'h', function() hs.eventtap.keyStroke({'alt'}, 'Left') end)
-hyperMode:bind({'alt'}, 'j', function() hs.eventtap.keyStroke({'alt'}, 'Down') end)
-hyperMode:bind({'alt'}, 'k', function() hs.eventtap.keyStroke({'alt'}, 'Up') end)
-hyperMode:bind({'alt'}, 'l', function() hs.eventtap.keyStroke({'alt'}, 'Right') end)
-
-hyperMode:bind({'cmd'}, 'h', function() hs.eventtap.keyStroke({'cmd'}, 'Left') end)
-hyperMode:bind({'cmd'}, 'j', function() hs.eventtap.keyStroke({'cmd'}, 'Down') end)
-hyperMode:bind({'cmd'}, 'k', function() hs.eventtap.keyStroke({'cmd'}, 'Up') end)
-hyperMode:bind({'cmd'}, 'l', function() hs.eventtap.keyStroke({'cmd'}, 'Right') end)
-
-hyperMode:bind({}, 'Escape', hyperModeExit)
-
--- Unsed keys in Hyper mode
-hyperShowHotkeys = function() hs.hotkey.showHotkeys(hyperMod, showKey) end
-hyperMode:bind({}, 'q', hyperShowHotkeys)
-hyperMode:bind({}, 'e', hyperShowHotkeys)
-hyperMode:bind({}, 'd', hyperShowHotkeys)
-
-hyperMode:bind({}, 'w', function()
-    if not wm.windowMgmtMode.triggered then
-      hyperModeExit()
-      wm.windowMgmtModeEnter()
-    else
-      wm.windowMgmtModeExit()
-      hyperModeEnter()
-    end
-end)
+hs.hotkey.bind(hyperMod, hyperKey, spoon.RecursiveBinder.recursiveBind(hyper))

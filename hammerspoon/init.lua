@@ -3,7 +3,7 @@
 -- Set the global log level
 hs.logger.defaultLogLevel = "info"
 
-require('hyper_mode')
+require('HyperMode')
 require('ConfigWatcher')
 require('ControlTapToEscape')
 require('ShiftToBrackets')
