@@ -35,7 +35,7 @@ empty = function(t)
 end
 
 -- Setup a excluded application filter
-exclusion = hs.window.filter.new{'loginwindow'}
+exclusion = hs.window.filter.new{'loginwindow', 'VirtualBox VM'}
 exclusion:subscribe(hs.window.filter.windowFocused,
     function()
         shift_to_brackets_modifier_tap:stop()

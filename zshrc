@@ -140,8 +140,8 @@ lgreen_setup_zinit() {
     # fi
 }
 
-lgreen_zsh_show_functions() {
-    print -l ${(k)functions} | fzf
+lgreen_zsh_show_my_functions() {
+    print -l ${(k)functions} | fzf -q "^lgreen"
 }
 
 

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+lgreen_osx_flush_dns() {
+    echo "Sudo needed - run the below:"
+    echo sudo killall -HUP mDNSResponder
+}
+
 # Aliases
 alias updatedb="/usr/libexec/locate.updatedb"
 alias flush-dns="killall -HUP mDNSResponder"
