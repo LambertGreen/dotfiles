@@ -107,9 +107,6 @@ endif
 " complained, and I obliged)
 scriptencoding utf-8
 set title
-" Set title to the current working directory so that the vim
-" instance can be found by project name in the OS window manager.
-:let &titlestring=getcwd()
 set number
 set tabstop=4
 set shiftwidth=4
