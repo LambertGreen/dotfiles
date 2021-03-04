@@ -230,7 +230,7 @@ background_opacity: 0.95
   #thickness: 0.15
 
 # Live config reload (changes require restart)
-#live_config_reload: true
+live_config_reload: true
 
 # Shell
 #
@@ -459,7 +459,7 @@ mouse_bindings:
 #
 # If the same trigger is assigned to multiple actions, all of them are executed
 # at once.
-#key_bindings:
+key_bindings:
   #- { key: Paste,                                action: Paste          }
   #- { key: Copy,                                 action: Copy           }
   #- { key: L,         mods: Control,             action: ClearLogNotice }
@@ -514,18 +514,18 @@ mouse_bindings:
   #- { key: Key5,   mods: Shift,         mode: Vi, action: Bracket                 }
 
   # (Windows, Linux, and BSD only)
-  #- { key: V,        mods: Control|Shift,           action: Paste            }
+  - { key: V,        mods: Control,           action: Paste            }
   #- { key: C,        mods: Control|Shift,           action: Copy             }
   #- { key: C,        mods: Control|Shift, mode: Vi, action: ClearSelection   }
   #- { key: Insert,   mods: Shift,                   action: PasteSelection   }
-  #- { key: Key0,     mods: Control,                 action: ResetFontSize    }
-  #- { key: Equals,   mods: Control,                 action: IncreaseFontSize }
+  - { key: Key0,     mods: Control,                 action: ResetFontSize    }
+  - { key: Equals,   mods: Control,                 action: IncreaseFontSize }
   #- { key: Add,      mods: Control,                 action: IncreaseFontSize }
   #- { key: Subtract, mods: Control,                 action: DecreaseFontSize }
-  #- { key: Minus,    mods: Control,                 action: DecreaseFontSize }
+  - { key: Minus,    mods: Control,                 action: DecreaseFontSize }
 
   # (Windows only)
-  #- { key: Return,   mods: Alt,           action: ToggleFullscreen }
+  - { key: Return,   mods: Alt,           action: ToggleFullscreen }
 
   # (macOS only)
   #- { key: K,      mods: Command, mode: ~Vi, chars: "\x0c"            }

@@ -107,9 +107,6 @@ endif
 " complained, and I obliged)
 scriptencoding utf-8
 set title
-" Set title to the current working directory so that the vim
-" instance can be found by project name in the OS window manager.
-:let &titlestring=getcwd()
 set number
 set tabstop=4
 set shiftwidth=4
@@ -554,9 +551,6 @@ if v:version >= 800
     " Plug 'wincent/terminus'  " does the same as the above?
     Plug 'christoomey/vim-tmux-navigator'
     " }}}
-    " Note taking {{{
-    Plug 'vimwiki/vimwiki'
-    " }}}
     " Session handling {{{
     "Plug 'tpope/vim-obsession' Superceded by vim-startify which supports
     "session manangement
@@ -692,6 +686,7 @@ if v:version >= 800
     " Plug 'raghur/vim-ghost', {'do': ':GhostInstall'} " only needed on
     " machines with the browser extension."
     " Plug 'ngemily/vim-vp4'            " did not work when testing p4 info
+    " Plug 'vimwiki/vimwiki'            " note taking is now done in Emacs Org mode
     " }}}
     call plug#end() " Initialize plugin system
 endif " version >= 800
