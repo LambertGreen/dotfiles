@@ -53,26 +53,7 @@ function lgreen-run-tree { tree.com /F }
 Set-Alias tree lgreen-run-tree
 
 Set-Alias which get-command
-
-# Git alias
-function lgreen-run-git { git $args }
-Set-Alias g lgreen-run-git -option AllScope
-
-# Rather use git aliases so that you can have one
-# common config across platforms
-# Note: An issue I ran into is that "gc" is an alias for
-# Get-Content, and is not a good alias to override, as
-# Powershell scripts may use the alias!
-#
-# function Get-GitStatus { & git status $args }
-# function Get-GitAdd { & git add $args }
-# function Get-GitDiff { & git diff $args }
-# function Get-GitCommit { & git commit $args }
-# Set-Alias gs -Value Get-GitStatus
-# Set-Alias ga -Value Get-GitAdd
-# Set-Alias gd -Value Get-GitDiff
-# del alias:gc -Force
-# Set-Alias -Name gc -Value Get-GitCommit -Force
+Set-Alias g git
 
 # Enable a cool prompt
 Import-Module -Name posh-git
