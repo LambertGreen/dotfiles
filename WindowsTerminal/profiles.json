@@ -230,7 +230,7 @@
             "commandline" : "cmd.exe",
             "cursorColor" : "#FFFFFF",
             "cursorShape" : "bar",
-            "fontFace" : "Hack NF",
+            "fontFace" : "Iosevka",
             "fontSize" : 10,
             "guid" : "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
             "historySize" : 9001,

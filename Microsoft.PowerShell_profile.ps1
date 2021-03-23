@@ -24,10 +24,7 @@ function lgreen-run-tree { tree.com /F }
 Set-Alias tree lgreen-run-tree
 
 Set-Alias which get-command
-
-# Git alias
-function lgreen-run-git { git $args }
-Set-Alias g lgreen-run-git -option AllScope
+Set-Alias g git
 
 # Enable a cool prompt
 Import-Module -Name posh-git
