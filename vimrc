@@ -23,20 +23,25 @@ if has('termguicolors')
     set termguicolors
 endif
 
-if has('macunix') && exists('$ITERM_PROFILE')
-    if !has('nvim') && exists('$TMUX')
-        " From https://github.com/square/maximum-awesome/pull/245/files
-        let &t_SI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\'
-        let &t_EI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\'
+" Turning off CursorShape support due to issues on macOS and iTerm, and TMUX
+" Given that our primary editor is now Emacs, we should slim down Vim and
+" make it super rock solid, as it will serve as the `No debugging required` editor
+" that is used whenever there is an Emacs issue.
+"
+" if has('macunix') && exists('$ITERM_PROFILE')
+"     if !has('nvim') && exists('$TMUX')
+"         " From https://github.com/square/maximum-awesome/pull/245/files
+"         let &t_SI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=1\x7\<Esc>\\'
+"         let &t_EI = '\<Esc>Ptmux;\<Esc>\<Esc>]1337;CursorShape=0\x7\<Esc>\\'
 
-        let &t_8f = '\<Esc>[38:2:%lu:%lu:%lum'
-        let &t_8b = '\<Esc>[48:2:%lu:%lu:%lum'
-    else
-        " From https://github.com/square/maximum-awesome/pull/245/files
-        let &t_SI = '\<Esc>]1337;CursorShape=1\x7'
-        let &t_EI = '\<Esc>]1337;CursorShape=0\x7'
-    endif
-endif
+"         let &t_8f = '\<Esc>[38:2:%lu:%lu:%lum'
+"         let &t_8b = '\<Esc>[48:2:%lu:%lu:%lum'
+"     else
+"         " From https://github.com/square/maximum-awesome/pull/245/files
+"         let &t_SI = '\<Esc>]1337;CursorShape=1\x7'
+"         let &t_EI = '\<Esc>]1337;CursorShape=0\x7'
+"     endif
+" endif
 
 " Oni specific config
 if exists('g:gui_oni')
