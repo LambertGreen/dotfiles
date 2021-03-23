@@ -3,7 +3,9 @@
 if has('win32')
     :GuiFont! Hack\ NF:h12:1
 else
-    :GuiFont! Hack\ Nerd\ Font:h12
+" Tried to set the font for `Vimr` but it does not honor ginit.vim.
+" TODO: Ditch `Vimr` and find a better GUI client that is also cross platform.
+    :GuiFont! Iosevka:h12
 end
 
 " Remove ugly tabline
@@ -17,4 +19,3 @@ inoremap <S-Insert>  <C-R>+
 
 " Open window maximized, as the window usually shows up in a strange position
 call GuiWindowMaximized(1)
-

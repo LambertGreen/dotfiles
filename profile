@@ -34,8 +34,8 @@ lgreen_setup_profile_env() {
     export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 
     # Editor
-    export VISUAL=nvim
-    export EDITOR=$VISUAL
+    export EDITOR=nvim
+    export VISUAL=$EDITOR
 
     # BAT theme
     export BAT_THEME="TwoDark"
