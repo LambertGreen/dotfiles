@@ -9,3 +9,4 @@ lgreen_osx_flush_dns() {
 alias updatedb="/usr/libexec/locate.updatedb"
 alias flush-dns="killall -HUP mDNSResponder"
 alias restart-audio="killall coreaudiod"
+alias chrome="open -a 'Google Chrome'"
