@@ -193,7 +193,7 @@ lgreen_p4_last_change() {
 # If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
 # will use the current Emacs instance.
 lgreen_setup_running_inside_emacs() {
-    if [[ -z $INSIDE_EMACS ]]; then
+    if ! [[ -z $INSIDE_EMACS ]]; then
         export EDITOR="emacsclient -c -a"
         export GIT_EDITOR=$EDITOR
     fi
