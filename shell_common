@@ -247,4 +247,4 @@ lgreen_setup_rbenv
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
-# lgreen_setup_ntfy
+lgreen_setup_ntfy
