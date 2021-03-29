@@ -68,7 +68,7 @@ lgreen_setup_zinit() {
         # Might be safer to clone the repro than just running some script from the internet?
         # TODO: don't just execute, and rather clone from your own fork.
         #
-        #sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
         print -P "Actually not going to install anything automatically... that is not a secure thing to do."
         print -P "Clone a fork of the repo your self."
 

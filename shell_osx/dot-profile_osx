@@ -18,7 +18,7 @@
 # install libraries e.g. trying to build something
 # that needs an include file for a library installed
 # via brew.
-export PATH=/usr/local/bin:$PATH
+export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
 
 # Set locale
 export LC_ALL=en_US.UTF-8
