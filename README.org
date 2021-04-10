@@ -1,0 +1,51 @@
+# dotfiles
+
+Contains config files and setup scripts for 3 platforms:
+1. macOS
+2. Windows
+3. Linux
+
+* Install apps
+** Install package manager
+*** Install =Homebrew=
+#+begin_src sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#+end_src
+** Install packages
+*** Install packages using =Homebrew=
+**** Install terminal
+#+begin_src sh
+brew install iterm2 tmux
+#+end_src
+**** Install search tools
+#+begin_src sh
+brew install ripgrep coreutils fd
+#+end_src
+**** Install dev tools
+#+begin_src sh
+brew install cmake
+#+end_src
+**** Install utilities
+#+begin_src sh
+brew install stow
+#+end_src
+**** Install fonts
+#+begin_src sh
+brew tap homebrew/cask-fonts
+brew install --cask font-iosevka-nerd-font
+#+end_src
+**** Install Emacs
+#+begin_src sh
+brew tap d12frostd/emacs-plus
+brew install emacs-plus@27
+#+end_src
+* Symlink dotfiles
+Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
+
+** Symlink dotfiles using =Gnu Stow=
+*** Symlink Shell config
+#+begin_src sh
+stow -t ~ shell --dot
+stow -t ~ shell_osx --dot
+stow -t ~ shell_linux --dot
+#+end_src
