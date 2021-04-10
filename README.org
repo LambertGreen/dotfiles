@@ -7,27 +7,31 @@ Contains config files and setup scripts for 3 platforms:
 
 * Install apps
 ** Install package manager
-*** Install =Homebrew=
+*** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
 ** Install packages
-*** Install packages using =Homebrew=
+*** Install packages using =Homebrew= :Linux:macOS:
 **** Install terminal
 #+begin_src sh
 brew install iterm2 tmux
+#+end_src
+**** Install shell tools
+#+begin_src sh
+brew install fzf
 #+end_src
 **** Install search tools
 #+begin_src sh
 brew install ripgrep coreutils fd
 #+end_src
-**** Install dev tools
-#+begin_src sh
-brew install cmake
-#+end_src
 **** Install utilities
 #+begin_src sh
 brew install stow
+#+end_src
+**** Install dev tools
+#+begin_src sh
+brew install cmake
 #+end_src
 **** Install fonts
 #+begin_src sh
@@ -48,4 +52,17 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 stow -t ~ shell --dot
 stow -t ~ shell_osx --dot
 stow -t ~ shell_linux --dot
+#+end_src
+* Install app integrations
+Some of these are auto-installed, by apps themselves according to their config, but the below are not.
+** Shell integrations
+*** Install =Fzf=
+#+begin_src sh
+$(brew --prefix)/opt/fzf/install
+#+end_src
+** Editor integrations
+*** Install =Doom Emacs=
+#+begin_src sh
+git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
+~/.emacs.d/bin/doom install
 #+end_src
