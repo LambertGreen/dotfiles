@@ -29,6 +29,10 @@ brew install ripgrep coreutils fd
 #+begin_src sh
 brew install stow
 #+end_src
+**** Install automation tools
+#+begin_src sh
+brew install hammerspoon
+#+end_src
 **** Install dev tools
 #+begin_src sh
 brew install cmake
@@ -52,6 +56,10 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 stow -t ~ shell --dot
 stow -t ~ shell_osx --dot
 stow -t ~ shell_linux --dot
+#+end_src
+*** Symlink =Hammerspoon= config
+#+begin_src sh
+stow -t ~ hammerspoon --dot
 #+end_src
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
