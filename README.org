@@ -65,6 +65,13 @@ stow -t ~ shell_linux --dot
 #+begin_src sh
 stow -t ~ hammerspoon --dot
 #+end_src
+*** Symlink =Nvim= config
+#+begin_src sh
+stow -t ~ vim --dot
+stow -t ~ nvim --dot
+#+end_src
+**** TODO Fix first start of =Nvim= to no show errors [/]
+- [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
 ** Shell integrations
