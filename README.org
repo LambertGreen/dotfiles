@@ -13,7 +13,7 @@ Contains config files and setup scripts for 3 platforms:
 #+end_src
 ** Install packages
 *** Install packages using =Homebrew= :Linux:macOS:
-**** Install terminal
+**** Install terminals
 #+begin_src sh
 brew install iterm2 tmux
 #+end_src
@@ -51,6 +51,10 @@ brew install emacs-plus@27
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
 ** Symlink dotfiles using =Gnu Stow=
+*** Symlink =Tmux= config
+#+begin_src sh
+stow -t ~ tmux --dot
+#+end_src
 *** Symlink Shell config
 #+begin_src sh
 stow -t ~ shell --dot
