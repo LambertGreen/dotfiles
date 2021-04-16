@@ -11,7 +11,7 @@ lgreen_source_profile_if_not_sourced() {
 # Setup FZF to use fd
 lgreen_setup_fzf() {
     if [[ "$(command -v fd)" ]]; then
-        export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
+        export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
     fi
 }
 
