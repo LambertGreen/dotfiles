@@ -55,7 +55,8 @@ brew install emacs-plus@27
 #+begin_src sh
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
-** Install =Zinit= a =Zsh= plugin manager
+** Install =Zinit= a =Zsh= plugin manager :automated:
+The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
 #+begin_src sh
 mkdir ~/.zinit
 git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
