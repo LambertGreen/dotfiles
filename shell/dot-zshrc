@@ -114,9 +114,6 @@ lgreen_setup_zinit() {
     # Z
     zinit light agkozak/zsh-z
 
-    # Fzf-z
-    zinit light andrewferrier/fzf-z
-
     # For GNU ls (the binaries can be gls, gdircolors)
     zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
     zinit light trapd00r/LS_COLORS
