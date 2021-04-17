@@ -55,6 +55,11 @@ brew install emacs-plus@27
 #+begin_src sh
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
+** Install =Zinit= a =Zsh= plugin manager
+#+begin_src sh
+mkdir ~/.zinit
+git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
+#+end_src
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
