@@ -5,6 +5,9 @@ Contains config files and setup scripts for 3 platforms:
 2. Windows
 3. Linux
 
+* Usage
+This README provides steps to setup various applications and their associated configurations (the configurations are my own personal ones). To install and setup a specific application simply search this document based on the application name, and one will then get results filtered to the application e.g. if one searches for =Tmux=, then one will find the following: how to install it; how to install the =Tmux Plugin Manager=; how to symlink the config file;
+
 * Install apps
 ** Install package manager
 *** Install =Homebrew= :Linux:macOS:
@@ -46,6 +49,11 @@ brew install --cask font-iosevka-nerd-font
 #+begin_src sh
 brew tap d12frostd/emacs-plus
 brew install emacs-plus@27
+#+end_src
+* Install app specific plugin managers
+** Install =Tmux Plugin Manager=
+#+begin_src sh
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
