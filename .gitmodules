@@ -1,0 +1,3 @@
+[submodule "hammerspoon/dot-hammerspoon"]
+	path = hammerspoon/dot-hammerspoon
+	url = git@github.com:LambertGreen/dot-hammerspoon.git
