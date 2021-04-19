@@ -1,0 +1,7 @@
+[user]
+  email = lambert_green@msn.com
+  name = Lambert Green
+
+[credential "https://github.com"]
+    username = lambert_green@msn.com
+

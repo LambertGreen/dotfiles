@@ -1,0 +1,8 @@
+[include]
+	path = ~/.common.gitconfig
+
+[core]
+	autocrlf = true
+
+[credential]
+	helper = manager

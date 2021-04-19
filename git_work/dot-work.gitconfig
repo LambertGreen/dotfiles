@@ -1,0 +1,6 @@
+[user]
+  email = lgreen@tableau.com
+  name = Lambert Green
+
+[credential "https://gitlab.tableausoftware.com"]
+    username = lgreen@tableau.com

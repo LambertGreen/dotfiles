@@ -1,0 +1,37 @@
+# -*- mode: gitignore; -*-
+
+# MacOS
+.DS_Store
+
+# Emacs
+*.elc
+auto-save-list
+tramp
+.projectile
+.dir-locals.el
+flycheck_*.el
+
+# C++
+.ccls/
+.clangd/
+.cache
+compile_commands.json
+
+# Ignore tags created by etags, ctags, gtags (GNU global) and cscope
+TAGS
+.TAGS
+!TAGS/
+tags
+.tags
+!tags/
+gtags.files
+GTAGS
+GRTAGS
+GPATH
+GSYMS
+
+cscope.files
+cscope.out
+cscope.in.out
+cscope.po.out
+.cscope

@@ -1,0 +1,8 @@
+[include]
+    path = ~/.common.gitconfig
+
+[credential]
+    helper = cache
+
+[core]
+    autocrlf = input

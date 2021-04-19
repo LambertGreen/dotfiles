@@ -65,6 +65,14 @@ git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
 ** Symlink dotfiles using =Gnu Stow=
+*** Symlink =Git= config
+#+begin_src sh
+stow -t ~ git --dot
+stow -t ~ git_osx --dot
+stow -t ~ git_linux --dot
+stow -t ~ git_my --dot
+stow -t ~ git_work --dot
+#+end_src
 *** Symlink =Tmux= config
 #+begin_src sh
 stow -t ~ tmux --dot
