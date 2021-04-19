@@ -243,7 +243,7 @@ lgreen_source_work_shell() {
 }
 
 lgreen_ssh_tmux() {
-    ssh -t $@ "tmux -u attach-session -s Alpha || tmux -u new-session -s Alpha"
+    ssh -t $@ "tmux -u attach-session Alpha || tmux -u new-session -s Alpha"
 }
 
 lgreen_local_tmux() {
