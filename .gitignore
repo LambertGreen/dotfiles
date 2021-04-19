@@ -13,11 +13,3 @@ Session.vim
 
 # Karabiner backup directory
 config/karabiner/automatic_backups
-
-# Nvim
-nvim/.config/nvim/.netrwhist
-nvim/.config/nvim/autoload/
-nvim/.config/nvim/backup/
-nvim/.config/nvim/plugged/
-nvim/.config/nvim/swap/
-nvim/.config/nvim/undo/

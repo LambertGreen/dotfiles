@@ -56,24 +56,27 @@ lgreen_setup_common_shell() {
 }
 
 #--------------------------------------------
-# Zinit:
-# https://github.com/zdharma/zinit
+# Zinit
+#--------------------------------------------
+# Zinit: https://github.com/zdharma/zinit
+# Install: sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
 #--------------------------------------------
 lgreen_setup_zinit() {
     if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-        echo
-        echo "The ZSH plugin manger, Zinit, is not installed."
-        echo "Do you want to install it now? [Y/n] "
-        read REPLY
-        case $REPLY in
-            [Nn]) return;;
-        esac
-
         print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
-        command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-        command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful. Restart shell to load plugins.%f" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f"; return
+
+        # Might be safer to clone the repro than just running some script from the internet?
+        # TODO: don't just execute, and rather clone from your own fork.
+        #
+        #sh -c "$(curl -fsSL https://raw.githubusercontent.com/zdharma/zinit/master/doc/install.sh)"
+        print -P "Actually not going to install anything automatically... that is not a secure thing to do."
+        print -P "Clone a fork of the repo your self."
+
+        # Alternative:
+        # command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+        # command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
+        # print -P "%F{33}▓▒░ %F{34}Installation successful.%f" || \
+        # print -P "%F{160}▓▒░ The clone has failed.%f"
     fi
     source $HOME/.zinit/bin/zinit.zsh
 
@@ -88,8 +91,15 @@ lgreen_setup_zinit() {
         OMZ::lib/history.zsh \
         OMZ::lib/functions.zsh \
         OMZ::lib/misc.zsh \
-        OMZ::lib/completion.zsh \
-        OMZ::lib/git.zsh
+        OMZ::lib/completion.zsh
+
+    # # OMZ::History
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::lib/history.zsh
+
+    # # OMZ::Git
+    # [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    # zinit snippet OMZ::lib/git.zsh
 
     # OMZ::Color man-pages
     [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
@@ -114,26 +124,27 @@ lgreen_setup_zinit() {
     # Z
     zinit light agkozak/zsh-z
 
+    # Fzf-z
+    zinit light andrewferrier/fzf-z
+
     # For GNU ls (the binaries can be gls, gdircolors)
     zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
     zinit light trapd00r/LS_COLORS
+    # if [[ `which gdircolors &>/dev/null && $?` != 0 ]]; then
+    #     zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+    #     zinit light trapd00r/LS_COLORS
+    # fi
+    # if [[ `which dircolors &>/dev/null && $?` != 0 ]]; then
+    #     zinit ice atclone"dircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
+    #     zinit light trapd00r/LS_COLORS
+    # fi
 }
 
 lgreen_zsh_show_my_functions() {
     print -l ${(k)functions} | fzf -q "^lgreen"
 }
 
-lgreen_fix_compaudit_insecure_directories() {
-    compaudit
-    echo "Removing group write permissions.."
-    compaudit | xargs chmod g-w
-    echo "Done."
-}
 
-#-------------------
-# Main
-#-------------------
-#
 # Emacs Tramp: needs a simple prompt so just setup common shell
 # and return
 if [[ $TERM == "dumb" ]]; then
@@ -152,10 +163,7 @@ lgreen_setup_direnv_for_zsh
 
 # Initialize completions
 autoload -Uz compinit && compinit
-
-if [[ "$(command -v zinit)" ]]; then
-    zinit cdreplay -q
-fi
+zinit cdreplay -q
 
 
 #--------------------------------------------
@@ -165,3 +173,4 @@ if [[ "$ZPROF" = true ]]; then
     unset ZPROF
     zprof
 fi
+### End of Zinit's installer chunk

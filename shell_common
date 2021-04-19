@@ -1,23 +1,8 @@
 #!/usr/bin/env bash
 
-#############################################################
-# Common shell setup file to be sourced from
-# both bash and zsh profile.
-#############################################################
-
-lgreen_track_shell_sourced_count() {
-    # Add a variable to track how many times the shell
-    # setup has been invoked
-    if [ -z $LGREEN_SHELL_SOURCED_COUNT ]; then
-        export LGREEN_SHELL_SOURCED_COUNT=1
-    else
-        ((LGREEN_SHELL_SOURCED_COUNT++))
-    fi
-}
-
 # Source profile if it has not been sourced yet
 lgreen_source_profile_if_not_sourced() {
-    if ! [ $LGREEN_PROFILE_SOURCED_COUNT ]; then
+    if ! [ $LGREEN_PROFILE_SOURCED ]; then
         echo "WARNING: Profile has not been sourced, so sourcing it now..."
         source "$HOME/.profile"
     fi
@@ -26,7 +11,7 @@ lgreen_source_profile_if_not_sourced() {
 # Setup FZF to use fd
 lgreen_setup_fzf() {
     if [[ "$(command -v fd)" ]]; then
-        export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
+        export FZF_DEFAULT_COMMAND='fd --type f --hidden --no-ignore-vcs'
     fi
 }
 
@@ -242,25 +227,9 @@ lgreen_source_work_shell() {
     fi
 }
 
-lgreen_ssh_tmux() {
-    ssh -t $@ "tmux -u attach-session -s Alpha || tmux -u new-session -s Alpha"
-}
-
-lgreen_local_tmux() {
-    tmux new-session -A -s Alpha
-}
-
-lgreen_greet_user_at_shell_setup_end() {
-    # Only show a greeting if this is an interactive terminal
-    if [ -t 1 ] && [ -z $LGREEN_NO_GREET ] && [ $LGREEN_SHELL_SOURCED_COUNT -eq 1 ]; then
-        [[ "$(command -v neofetch)" ]] && neofetch || true
-    fi
-}
-
 #-------------------
 # Main
 #-------------------
-lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
 lgreen_setup_fzf
 lgreen_setup_perforce_config
@@ -276,7 +245,6 @@ lgreen_setup_pyenv
 lgreen_setup_jenv
 lgreen_setup_rbenv
 
-lgreen_setup_ntfy
-
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
+lgreen_setup_ntfy
