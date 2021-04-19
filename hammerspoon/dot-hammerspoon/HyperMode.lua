@@ -14,8 +14,8 @@ local hyperKey = 'Space'
 
 windowMove = {}
 windowMove[key("h", "left")] = wm.moveWindowLeft
-windowMove[key("j", "down")] = wm.moveWindowDown
-windowMove[key("k", "up")] = wm.moveWindowUp
+windowMove[key("j", "bottom")] = wm.moveWindowDown
+windowMove[key("k", "top")] = wm.moveWindowUp
 windowMove[key("l", "right")] = wm.moveWindowRight
 windowMove[key("u", "top-left")] = wm.moveWindowTopLeft
 windowMove[key("i", "top-right")] = wm.moveWindowTopRight
