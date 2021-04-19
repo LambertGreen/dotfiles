@@ -243,11 +243,11 @@ lgreen_source_work_shell() {
 }
 
 lgreen_ssh_tmux() {
-    ssh -t $@ "tmux -u attach-session || tmux -u new-session"
+    ssh -t $@ "tmux -u attach-session -s Alpha || tmux -u new-session -s Alpha"
 }
 
 lgreen_local_tmux() {
-    tmux new-session -A -s local
+    tmux new-session -A -s Alpha
 }
 
 lgreen_greet_user_at_shell_setup_end() {
