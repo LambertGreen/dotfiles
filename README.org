@@ -16,46 +16,100 @@ This README provides steps to setup various applications and their associated co
 #+end_src
 ** Install packages
 *** Install packages using =Homebrew= :Linux:macOS:
-**** Install terminals
+**** Create =Brewfile=
+***** Add common =Posix= packages
 #+begin_src sh
-brew install iterm2 tmux
+cat << EOF > ./Brewfile
+tap "homebrew/bundle"
+tap "homebrew/core"
+
+brew "bat"
+brew "coreutils"
+brew "dust"
+brew "fd"
+brew "htop"
+brew "ispell"
+brew "keychain"
+brew "neofetch"
+brew "neovim"
+brew "pstree"
+brew "ripgrep"
+brew "stow"
+brew "tldr"
+brew "tree"
+brew "tmux"
+EOF
 #+end_src
-**** Install shell tools
+
+***** Add =Posix= development packages
 #+begin_src sh
-brew install fzf
+cat << EOF >> ./Brewfile
+
+brew "automake"
+brew "python"
+brew "clang-format"
+brew "cmake"
+brew "direnv"
+brew "freetds@0.91", link: true
+brew "git"
+brew "openjdk"
+brew "gradle"
+brew "jenv"
+brew "jq"
+brew "llvm"
+brew "ninja"
+brew "node"
+brew "pyenv"
+brew "pyenv-virtualenv"
+brew "ruby-build"
+brew "rbenv"
+brew "rbtools"
+brew "ruby"
+brew "unixodbc"
+EOF
 #+end_src
-**** Install search tools
+
+***** Add =macOS= specific packages
+#+begin_src
+cat << EOF >> ./Brewfile
+
+tap "d12frosted/emacs-plus"
+brew "d12frosted/emacs-plus/emacs-plus@27"
+EOF
+#+end_src
+***** Add =macOS= development packages
 #+begin_src sh
-brew install ripgrep coreutils fd
+cat << EOF >> ./Brewfile
+
+tap "cartr/qt4"
+brew "cartr/qt4/pyqt@4"
+EOF
 #+end_src
-**** Install utilities
+***** Add =macOS= casks
 #+begin_src sh
-brew install stow
+cat << EOF >> ./Brewfile
+
+tap "homebrew/cask"
+tap "homebrew/cask-fonts"
+
+# cask "amethyst"       -- unused - replaced by Hammerspoon
+cask "appcleaner"
+#cask "caffeine"        -- unused - replaced by Hammerspoon
+cask "cursorcerer"
+cask "font-iosevka-nerd-font"
+EOF
 #+end_src
-**** Install automation tools
+**** Use =Brewfile=
 #+begin_src sh
-brew install hammerspoon
+brew bundle
 #+end_src
-**** Install dev tools
-#+begin_src sh
-brew install cmake
-#+end_src
-**** Install fonts
-#+begin_src sh
-brew tap homebrew/cask-fonts
-brew install --cask font-iosevka-nerd-font
-#+end_src
-**** Install Emacs
-#+begin_src sh
-brew tap d12frostd/emacs-plus
-brew install emacs-plus@27
-#+end_src
+
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager=
 #+begin_src sh
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
-** Install =Zinit= a =Zsh= plugin manager :automated:
+** Install =Zinit= a =Ash= plugin manager :automated:
 The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
 #+begin_src sh
 mkdir ~/.zinit
@@ -65,35 +119,47 @@ git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
 ** Symlink dotfiles using =Gnu Stow=
-*** Symlink =Git= config
+*** Create =run-stow.sh= file
+**** Create initial file
 #+begin_src sh
-stow -t ~ git --dot
-stow -t ~ git_osx --dot
-stow -t ~ git_linux --dot
-stow -t ~ git_my --dot
-stow -t ~ git_work --dot
+cat << EOF > ./run-stow.sh
+gnu_stow() { stow -t ~ $@ --dot }
+EOF
+chmod u+x ./run-stow.sh
 #+end_src
-*** Symlink =Tmux= config
+**** Add =Posix= config
 #+begin_src sh
-stow -t ~ tmux --dot
+cat << EOF >> ./run-stow.sh
+gnu_stow shell
+gnu_stow git
+gnu_stow git_my
+gnu_stow git_work
+gnu_stow tmux
+gnu_stow vim
+gnu_stow nvim
+EOF
 #+end_src
-*** Symlink Shell config
+**** Add =macOS= config
 #+begin_src sh
-stow -t ~ shell --dot
-stow -t ~ shell_osx --dot
-stow -t ~ shell_linux --dot
+cat << EOF >> ./run-stow.sh
+gnu_stow shell
+gnu_stow shell_osx
+gnu_stow git_osx
+gnu_stow hammerspoon
+EOF
 #+end_src
-*** Symlink =Hammerspoon= config
+**** Add =Linux= config
 #+begin_src sh
-stow -t ~ hammerspoon --dot
+cat << EOF >> ./run-stow.sh
+gnu_stow shell_linux
+gnu_stow git_linux
+EOF
 #+end_src
-*** Symlink =Nvim= config
+*** Use =run-stow.sh= file
 #+begin_src sh
-stow -t ~ vim --dot
-stow -t ~ nvim --dot
+./run-stow.sh
 #+end_src
-**** TODO Fix first start of =Nvim= to no show errors [/]
-- [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
+
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
 ** Shell integrations
@@ -107,3 +173,8 @@ $(brew --prefix)/opt/fzf/install
 git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
 ~/.emacs.d/bin/doom install
 #+end_src
+
+* TODOs
+** TODO Test reproducibility by using =Docker=
+** TODO Fix first start of =Nvim= to no show errors [/]
+- [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
