@@ -1,4 +1,4 @@
-# dotfiles
+#+TITLE: Dotfiles
 
 Contains config files and setup scripts for 3 platforms:
 1. macOS
