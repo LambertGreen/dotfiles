@@ -172,10 +172,14 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 **** Create initial file
 #+begin_src sh
 cat << EOF > ./run-stow.sh
-gnu_stow() { stow -t ~ $@ --dot }
+gnu_stow() {
+    stow -t ~ \$@ --dot
+}
 EOF
 chmod u+x ./run-stow.sh
 #+end_src
+
+#+RESULTS:
 
 **** Add =Posix= config
 #+begin_src sh
@@ -190,6 +194,8 @@ gnu_stow nvim
 EOF
 #+end_src
 
+#+RESULTS:
+
 **** Add =macOS= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -199,6 +205,8 @@ gnu_stow git_osx
 gnu_stow hammerspoon
 EOF
 #+end_src
+
+#+RESULTS:
 
 **** Add =Linux= config
 #+begin_src sh
