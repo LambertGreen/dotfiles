@@ -41,6 +41,8 @@ brew "tmux"
 EOF
 #+end_src
 
+#+RESULTS:
+
 ***** Add =Posix= development packages
 #+begin_src sh
 cat << EOF >> ./Brewfile
@@ -87,8 +89,11 @@ EOF
 #+begin_src
 cat << EOF >> ./Brewfile
 
-tap "d12frosted/emacs-plus"
-brew "d12frosted/emacs-plus/emacs-plus@27"
+#tap "d12frosted/emacs-plus"                    -- not sure which one is better
+#brew "d12frosted/emacs-plus/emacs-plus@27"     -- not sure which one is better
+
+tap "daviderestivo/emacs-head"
+brew "daviderestivo/emacs-head/emacs-head@28", args: ["with-cocoa", "with-modern-icon-elrumo2"]
 EOF
 #+end_src
 
@@ -108,13 +113,23 @@ cat << EOF >> ./Brewfile
 tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 
-# cask "amethyst"       -- unused - replaced by Hammerspoon
+#cask "amethyst"       -- unused - replaced by Hammerspoon
+#cask "caffeine"       -- unused - replaced by Hammerspoon
+
 cask "appcleaner"
-#cask "caffeine"        -- unused - replaced by Hammerspoon
+cask "alfred"
 cask "cursorcerer"
+cask "divvy"
 cask "font-iosevka-nerd-font"
+cask "hammerspoon"
+cask "iterm2"
+cask "keycastr"
+cask "parallels"
+cask "shortcutdetective"
 EOF
 #+end_src
+
+#+RESULTS:
 
 **** Use =Brewfile=
 #+begin_src sh
