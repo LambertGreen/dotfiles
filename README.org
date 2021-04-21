@@ -115,6 +115,20 @@ The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run b
 mkdir ~/.zinit
 git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 #+end_src
+* Install app integrations
+Some of these are auto-installed, by apps themselves according to their config, but the below are not.
+** Shell integrations
+*** Install =Fzf=
+#+begin_src sh
+$(brew --prefix)/opt/fzf/install
+#+end_src
+** Editor integrations
+*** Install =Doom Emacs=
+#+begin_src sh
+git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
+~/.emacs.d/bin/doom install
+#+end_src
+
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
@@ -158,20 +172,6 @@ EOF
 *** Use =run-stow.sh= file
 #+begin_src sh
 ./run-stow.sh
-#+end_src
-
-* Install app integrations
-Some of these are auto-installed, by apps themselves according to their config, but the below are not.
-** Shell integrations
-*** Install =Fzf=
-#+begin_src sh
-$(brew --prefix)/opt/fzf/install
-#+end_src
-** Editor integrations
-*** Install =Doom Emacs=
-#+begin_src sh
-git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.d
-~/.emacs.d/bin/doom install
 #+end_src
 
 * TODOs
