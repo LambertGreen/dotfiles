@@ -46,9 +46,10 @@ EOF
 cat << EOF >> ./Brewfile
 
 brew "automake"
-brew "python"
 brew "clang-format"
 brew "cmake"
+brew "editorconfig"
+brew "python"
 brew "direnv"
 brew "freetds@0.91", link: true
 brew "git"
@@ -66,6 +67,19 @@ brew "rbenv"
 brew "rbtools"
 brew "ruby"
 brew "unixodbc"
+EOF
+#+end_src
+
+***** Add =Linux= development packages
+#+begin_src sh
+cat << EOF >> ./Brewfile
+
+brew "bash"
+brew "fswatch"
+brew "gcc"
+brew "perl"
+brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
+brew "zsh"
 EOF
 #+end_src
 
