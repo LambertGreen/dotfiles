@@ -91,6 +91,7 @@ tap "d12frosted/emacs-plus"
 brew "d12frosted/emacs-plus/emacs-plus@27"
 EOF
 #+end_src
+
 ***** Add =macOS= development packages
 #+begin_src sh
 cat << EOF >> ./Brewfile
@@ -99,6 +100,7 @@ tap "cartr/qt4"
 brew "cartr/qt4/pyqt@4"
 EOF
 #+end_src
+
 ***** Add =macOS= casks
 #+begin_src sh
 cat << EOF >> ./Brewfile
@@ -113,6 +115,7 @@ cask "cursorcerer"
 cask "font-iosevka-nerd-font"
 EOF
 #+end_src
+
 **** Use =Brewfile=
 #+begin_src sh
 brew bundle
@@ -123,12 +126,14 @@ brew bundle
 #+begin_src sh
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
+
 ** Install =Zinit= a =Ash= plugin manager :automated:
 The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
 #+begin_src sh
 mkdir ~/.zinit
 git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
 #+end_src
+
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
 ** Shell integrations
@@ -136,6 +141,7 @@ Some of these are auto-installed, by apps themselves according to their config, 
 #+begin_src sh
 $(brew --prefix)/opt/fzf/install
 #+end_src
+
 ** Editor integrations
 *** Install =Doom Emacs=
 #+begin_src sh
@@ -155,6 +161,7 @@ gnu_stow() { stow -t ~ $@ --dot }
 EOF
 chmod u+x ./run-stow.sh
 #+end_src
+
 **** Add =Posix= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -167,6 +174,7 @@ gnu_stow vim
 gnu_stow nvim
 EOF
 #+end_src
+
 **** Add =macOS= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -176,6 +184,7 @@ gnu_stow git_osx
 gnu_stow hammerspoon
 EOF
 #+end_src
+
 **** Add =Linux= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -183,6 +192,7 @@ gnu_stow shell_linux
 gnu_stow git_linux
 EOF
 #+end_src
+
 *** Use =run-stow.sh= file
 #+begin_src sh
 ./run-stow.sh
