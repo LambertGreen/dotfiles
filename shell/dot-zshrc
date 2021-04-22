@@ -50,9 +50,7 @@ lgreen_init_fzf() {
 
 lgreen_setup_common_shell() {
     # Source common shell script
-    [ -f $HOME/.shell_common ] && source $HOME/.shell_common
-    # Source local config file if is present
-    [ -f $HOME/.zshrc_local ] && source $HOME/.zshrc_local
+    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
 #--------------------------------------------
@@ -91,16 +89,19 @@ lgreen_setup_zinit() {
         OMZ::lib/completion.zsh \
         OMZ::lib/git.zsh
 
+    # Some info on zinit's parameters
+    # - lucid: hides output from the loading of the plugin
+
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
     zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
     # zsh-completions
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" blockf
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid blockf
     zinit light zsh-users/zsh-completions
 
     # zsh-autosuggestions
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atload"_zsh_autosuggest_start"
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
     zinit light zsh-users/zsh-autosuggestions
 
     # Syntax highlighting
@@ -130,6 +131,11 @@ lgreen_fix_compaudit_insecure_directories() {
     echo "Done."
 }
 
+lgreen_source_local_zsh() {
+    # Source local config file if is present
+    [ -f "$HOME/.zshrc_local" ] && source $HOME/.zshrc_local
+}
+
 #-------------------
 # Main
 #-------------------
@@ -149,6 +155,7 @@ lgreen_setup_common_shell
 lgreen_init_p10k
 lgreen_init_fzf
 lgreen_setup_direnv_for_zsh
+lgreen_source_local_zsh
 
 # Initialize completions
 autoload -Uz compinit && compinit
