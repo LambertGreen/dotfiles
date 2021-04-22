@@ -50,8 +50,8 @@ lgreen_start_ssh_agent() {
 }
 
 lgreen_setup_ntfy() {
-    if [ "$(command -v ntfy)" ]; then
-        eval "$(ntfy shell-integration)"
+    if [[ "$(command -v ntfy)" ]]; then
+        eval "$(ntfy shell-integration -L600)"
     fi
 }
 

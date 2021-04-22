@@ -103,6 +103,11 @@ cat << EOF >> ./Brewfile
 
 tap "cartr/qt4"
 brew "cartr/qt4/pyqt@4"
+
+cask "docker"
+cask "virtualbox"
+cask "parallels"
+
 EOF
 #+end_src
 
@@ -113,18 +118,18 @@ cat << EOF >> ./Brewfile
 tap "homebrew/cask"
 tap "homebrew/cask-fonts"
 
-#cask "amethyst"       -- unused - replaced by Hammerspoon
-#cask "caffeine"       -- unused - replaced by Hammerspoon
+#cask "amethyst"    -- unused - replaced by Hammerspoon
+#cask "caffeine"    -- unused - replaced by Hammerspoon
+#cask "keycastr"    -- unused - replaced by Hammerspoon
 
 cask "appcleaner"
 cask "alfred"
 cask "cursorcerer"
+# TODO replace Divvy with Hammerspoon
 cask "divvy"
 cask "font-iosevka-nerd-font"
 cask "hammerspoon"
 cask "iterm2"
-cask "keycastr"
-cask "parallels"
 cask "shortcutdetective"
 EOF
 #+end_src
