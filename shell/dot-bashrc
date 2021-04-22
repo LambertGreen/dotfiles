@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
-if [[ $TERM == "dumb" ]]; then
+if [ "$TERM" = "dumb" ]; then
     export BASH_NO_EXEC_ZSH=1
 fi
 

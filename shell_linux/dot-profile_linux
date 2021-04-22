@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+lgreen_setup-local-bin() {
+	if [ -d "$HOME/local/bin" ]; then
+		export PATH="$HOME/local/bin":$PATH
+	fi
+}
+
 lgreen_setup-linuxbrew() {
 	if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
 		eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -21,7 +27,7 @@ lgreen_setup-umask-for-wsl() {
 }
 
 lgreen_setup-display-for-wsl() {
-	if [[ "$(< /proc/version)" == *microsoft* ]]; then
+	if [ "$(< /proc/version)" = "*microsoft*" ]; then
 		DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
 		export DISPLAY
 	fi
@@ -54,6 +60,7 @@ lgreen_setup-umask-for-wsl
 lgreen_setup-display-for-wsl
 lgreen_setup-fix-wsl2-interop
 lgreen_setup-linuxbrew
+lgreen_setup-local-bin
 lgreen_setup-perl
 
 # TODO: Consider if the below is needed at all for Centos7.  It causes issues on WSL Ubuntu,

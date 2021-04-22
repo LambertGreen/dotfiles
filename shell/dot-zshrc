@@ -3,7 +3,7 @@
 #--------------------------------------------
 # Start performance profiler (if enabled)
 #--------------------------------------------
-if [[ "$ZPROF" = true ]]; then
+if [ "$ZPROF" = true ]; then
   zmodload zsh/zprof
 fi
 
@@ -11,14 +11,14 @@ lgreen_setup_p10k() {
     # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
     # Initialization code that may require console input (password prompts, [y/n]
     # confirmations, etc.) must go above this block; everything else may go below.
-    if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+    if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]; then
         source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
     fi
 }
 
 lgreen_init_p10k() {
     # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-    [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+    [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
 }
 
 lgreen_profile_zsh() {
@@ -35,7 +35,7 @@ lgreen_setup_zsh() {
 
     # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
     if [ "$UNAME" = "Linux" ]; then
-        if [[ "$(< /proc/version)" == *@(Microsoft|WSL)* ]]; then
+        if [ "$(< /proc/version)" = "*@(Microsoft|WSL)*" ]; then
             unsetopt BG_NICE
         fi
     else
@@ -60,7 +60,7 @@ lgreen_setup_common_shell() {
 # https://github.com/zdharma/zinit
 #--------------------------------------------
 lgreen_setup_zinit() {
-    if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
+    if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
         echo
         echo "The ZSH plugin manger, Zinit, is not installed."
         echo "Do you want to install it now? [Y/n] "
@@ -92,19 +92,19 @@ lgreen_setup_zinit() {
         OMZ::lib/git.zsh
 
     # OMZ::Color man-pages
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" lucid
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
     zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
 
     # zsh-completions
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" blockf
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" blockf
     zinit light zsh-users/zsh-completions
 
     # zsh-autosuggestions
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atload"_zsh_autosuggest_start"
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atload"_zsh_autosuggest_start"
     zinit light zsh-users/zsh-autosuggestions
 
     # Syntax highlighting
-    [[ -v "$ZPLUGIN_ICE" ]] && zinit ice wait"0" atinit"zpcompinit" lucid
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma/fast-syntax-highlighting
 
     # Theme: powerlevel10k
@@ -136,7 +136,7 @@ lgreen_fix_compaudit_insecure_directories() {
 #
 # Emacs Tramp: needs a simple prompt so just setup common shell
 # and return
-if [[ $TERM == "dumb" ]]; then
+if [ "$TERM" = "dumb" ]; then
     lgreen_setup_common_shell
     unsetopt zle && PS1='$ '
     return
@@ -153,7 +153,7 @@ lgreen_setup_direnv_for_zsh
 # Initialize completions
 autoload -Uz compinit && compinit
 
-if [[ "$(command -v zinit)" ]]; then
+if [ "$(command -v zinit)" ]; then
     zinit cdreplay -q
 fi
 
@@ -161,7 +161,7 @@ fi
 #--------------------------------------------
 # Stop performance profiler (if enabled)
 #--------------------------------------------
-if [[ "$ZPROF" = true ]]; then
+if [ "$ZPROF" = true ]; then
     unset ZPROF
     zprof
 fi

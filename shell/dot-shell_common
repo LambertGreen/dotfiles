@@ -25,7 +25,7 @@ lgreen_source_profile_if_not_sourced() {
 
 # Setup FZF to use fd
 lgreen_setup_fzf() {
-    if [[ "$(command -v fd)" ]]; then
+    if [ "$(command -v fd)" ]; then
         export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
     fi
 }
@@ -38,11 +38,11 @@ lgreen_setup_perforce_config(){
 lgreen_start_ssh_agent() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        if [[ "$(command -v keychain)" ]]; then
+        if [ "$(command -v keychain)" ]; then
             eval "$(keychain --nogui --quiet --quick --eval id_rsa)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
-        if [[ "$(command -v keychain)" ]]; then
+        if [ "$(command -v keychain)" ]; then
             eval `keychain --nogui --quiet --quick --eval id_rsa`
             source "$HOME/.keychain/$(hostname)-sh"
         fi
@@ -50,50 +50,51 @@ lgreen_start_ssh_agent() {
 }
 
 lgreen_setup_ntfy() {
-    if [[ "$(command -v ntfy)" ]]; then
+    if [ "$(command -v ntfy)" ]; then
         eval "$(ntfy shell-integration)"
     fi
 }
 
 lgreen_setup_direnv_for_bash() {
-    if [[ "$(command -v direnv)" ]]; then
+    if [ "$(command -v direnv)" ]; then
         eval "$(direnv hook bash)"
     fi
 }
 
 lgreen_setup_direnv_for_zsh() {
-    if [[ "$(command -v direnv)" ]]; then
+    if [ "$(command -v direnv)" ]; then
         eval "$(direnv hook zsh)"
     fi
 }
 
 lgreen_setup_pyenv() {
-    if [[ "$(command -v pyenv)" ]]; then
+    if [ "$(command -v pyenv)" ]; then
         eval "$(pyenv init -)"
         eval "$(pyenv virtualenv-init -)"
     fi
 }
 
 lgreen_setup_jenv () {
-    if [[ "$(command -v jenv)" ]]; then
+    if [ "$(command -v jenv)" ]; then
         eval "$(jenv init -)"
         export JAVA_HOME="$HOME/.jenv/versions/`jenv version-name`"
     fi
 }
 
 lgreen_setup_rbenv () {
-    # Below instruction is from output of doing `brew install rbenv`
-    export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
-
-    if [[ "$(command -v rbenv)" ]]; then
-       eval "$(rbenv init -)"
+    if [ "$(command -v rbenv)" ]; then
+        # Below instruction is from output of doing `brew install rbenv`
+        export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
+        eval "$(rbenv init -)"
     fi
 }
 
 lgreen_setup_dev_env_node_js () {
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
-    [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
+    if [ "$(command -v nvm)" ]; then
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
+        [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
+    fi
 }
 
 lgreen_setup_dev_env_rust () {
@@ -183,11 +184,11 @@ lgreen_setup_dircolors() {
     theme=$HOME/dev/pub/dircolors/dircolors.ansi-light
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
-        if [[ -f $theme ]]; then
+        if [ -f "$theme" ]; then
             eval $(gdircolors $theme);
         fi
     elif [ "$UNAME" = "Linux" ]; then
-        if [[ -f $theme ]]; then
+        if [ -f "$theme" ]; then
             eval $(dircolors $theme);
         fi
     fi
@@ -208,7 +209,7 @@ lgreen_p4_last_change() {
 # If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
 # will use the current Emacs instance.
 lgreen_setup_running_inside_emacs() {
-    if ! [[ -z $INSIDE_EMACS ]]; then
+    if ! [ -z $INSIDE_EMACS ]; then
         export EDITOR="emacsclient -c -a"
         export GIT_EDITOR=$EDITOR
     fi
@@ -253,7 +254,7 @@ lgreen_local_tmux() {
 lgreen_greet_user_at_shell_setup_end() {
     # Only show a greeting if this is an interactive terminal
     if [ -t 1 ] && [ -z $LGREEN_NO_GREET ] && [ $LGREEN_SHELL_SOURCED_COUNT -eq 1 ]; then
-        [[ "$(command -v neofetch)" ]] && neofetch || true
+        [ "$(command -v neofetch)" ] && neofetch || true
     fi
 }
 
