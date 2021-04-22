@@ -1,11 +1,17 @@
 #!/usr/bin/env zsh
 
-#--------------------------------------------
-# Start performance profiler (if enabled)
-#--------------------------------------------
-if [ "$ZPROF" = true ]; then
-  zmodload zsh/zprof
-fi
+lgreen_conditionally_start_profiler() {
+    if [ "$ZPROF" = true ]; then
+        zmodload zsh/zprof
+    fi
+}
+
+lgreen_conditionally_stop_profiler() {
+    if [ "$ZPROF" = true ]; then
+        unset ZPROF
+        zprof
+    fi
+}
 
 lgreen_setup_p10k() {
     # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -53,11 +59,11 @@ lgreen_setup_common_shell() {
     [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
+lgreen_setup_zinit() {
 #--------------------------------------------
 # Zinit:
 # https://github.com/zdharma/zinit
 #--------------------------------------------
-lgreen_setup_zinit() {
     if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
         echo
         echo "The ZSH plugin manger, Zinit, is not installed."
@@ -136,10 +142,27 @@ lgreen_source_local_zsh() {
     [ -f "$HOME/.zshrc_local" ] && source $HOME/.zshrc_local
 }
 
+lgreen_zsh_init_completions() {
+    # Initialize completions
+    autoload -Uz compinit && compinit
+
+    if [ "$(command -v zinit)" ]; then
+        zinit cdreplay -q
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
-#
+# On CentOS 7 we are stuck with an old version of ZSH,
+# so run a new local one if available.
+if [ "$ZSH_VERSION" = "5.0.2" ]; then
+    if [ -f "$HOME/local/bin/zsh" ]; then
+        $HOME/local/bin/zsh
+        return
+    fi
+fi
+
 # Emacs Tramp: needs a simple prompt so just setup common shell
 # and return
 if [ "$TERM" = "dumb" ]; then
@@ -148,6 +171,7 @@ if [ "$TERM" = "dumb" ]; then
     return
 fi
 
+lgreen_conditionally_start_profiler
 lgreen_setup_zinit
 lgreen_setup_p10k
 lgreen_setup_zsh
@@ -156,19 +180,4 @@ lgreen_init_p10k
 lgreen_init_fzf
 lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
-
-# Initialize completions
-autoload -Uz compinit && compinit
-
-if [ "$(command -v zinit)" ]; then
-    zinit cdreplay -q
-fi
-
-
-#--------------------------------------------
-# Stop performance profiler (if enabled)
-#--------------------------------------------
-if [ "$ZPROF" = true ]; then
-    unset ZPROF
-    zprof
-fi
+lgreen_conditionally_stop_profiler
