@@ -41,8 +41,6 @@ brew "tmux"
 EOF
 #+end_src
 
-#+RESULTS:
-
 ***** Add =Posix= development packages
 #+begin_src sh
 cat << EOF >> ./Brewfile
@@ -134,8 +132,6 @@ cask "shortcutdetective"
 EOF
 #+end_src
 
-#+RESULTS:
-
 **** Use =Brewfile=
 #+begin_src sh
 brew bundle
@@ -174,27 +170,18 @@ make && sudo make install
 #+END_SRC
 *** Installing =ZSH=
 #+BEGIN_SRC sh
-ZSH_SRC_NAME=$HOME/packages/zsh.tar.xz
-ZSH_PACK_DIR=$HOME/packages/zsh
-ZSH_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
+ZSH_SRC_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
+ZSH_SRC_FILE="zsh.tar.xz"
 
-if [ ! -d "$ZSH_PACK_DIR" ]; then
-    echo "Creating zsh directory under packages directory"
-    mkdir -p "$ZSH_PACK_DIR"
-fi
-
-if [ ! -f "$ZSH_SRC_NAME" ]; then
-    curl -Lo "$ZSH_SRC_NAME" "$ZSH_LINK"
-fi
-
-tar xJvf "$ZSH_SRC_NAME" -C "$ZSH_PACK_DIR" --strip-components 1
-cd "$ZSH_PACK_DIR"
-
-./configure --prefix="$HOME/local" \
-    CPPFLAGS="-I$HOME/local/include" \
-    LDFLAGS="-L$HOME/local/lib"
-make -j && make install
+TMP_DIR=$(mktemp -d); pushd $TMP_DIR;
+curl -Lo "$ZSH_SRC_FILE" "$ZSH_SRC_LINK"
+tar xJvf "$ZSH_SRC_FILE" --strip-components 1
+./configure --prefix="/usr/local" \
+    CPPFLAGS="-I/usr/local/include" \
+    LDFLAGS="-L/usr/local/lib"
+make -j && sudo make install
 #+END_SRC
+
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager=
 #+begin_src sh
@@ -238,8 +225,6 @@ EOF
 chmod u+x ./run-stow.sh
 #+end_src
 
-#+RESULTS:
-
 **** Add =Posix= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -253,8 +238,6 @@ gnu_stow nvim
 EOF
 #+end_src
 
-#+RESULTS:
-
 **** Add =macOS= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
@@ -264,8 +247,6 @@ gnu_stow git_osx
 gnu_stow hammerspoon
 EOF
 #+end_src
-
-#+RESULTS:
 
 **** Add =Linux= config
 #+begin_src sh
