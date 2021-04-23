@@ -182,6 +182,17 @@ tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 make -j && sudo make install
 #+END_SRC
 
+*** Installing =fzf= from =Github=
+#+BEGIN_SRC sh
+git clone --depth 1 https://github.com/junegunn/fzf.git
+cd fzf
+./install
+#+END_SRC
+*** Installing =fd= using =Cargo=
+#+BEGIN_SRC sh
+cargo install fd-find
+ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
+#+END_SRC
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager=
 #+begin_src sh
