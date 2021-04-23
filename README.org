@@ -173,7 +173,7 @@ make && sudo make install
 ZSH_SRC_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
 ZSH_SRC_FILE="zsh.tar.xz"
 
-TMP_DIR=$(mktemp -d); pushd $TMP_DIR;
+TMP_DIR=$(mktemp -d) && cd $TMP_DIR
 curl -Lo "$ZSH_SRC_FILE" "$ZSH_SRC_LINK"
 tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 ./configure --prefix="/usr/local" \
