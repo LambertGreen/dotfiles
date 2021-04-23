@@ -15,6 +15,12 @@ lgreen_track_shell_sourced_count() {
     fi
 }
 
+lgreen_conditionally_start_attach_tmux() {
+    if [ -n "$SSH_TTY" -a -z "$TMUX" ]; then
+        tmux attach || tmux new -s Alpha
+    fi
+}
+
 # Source profile if it has not been sourced yet
 lgreen_source_profile_if_not_sourced() {
     if ! [ $LGREEN_PROFILE_SOURCED_COUNT ]; then
@@ -262,6 +268,7 @@ lgreen_greet_user_at_shell_setup_end() {
 # Main
 #-------------------
 lgreen_track_shell_sourced_count
+lgreen_conditionally_start_attach_tmux
 lgreen_source_profile_if_not_sourced
 lgreen_setup_fzf
 lgreen_setup_perforce_config
