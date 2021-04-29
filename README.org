@@ -193,6 +193,11 @@ cd fzf
 cargo install fd-find
 ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
+*** Installing =bat= using =Cargo=
+#+BEGIN_SRC sh
+cargo install bat
+ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
+#+END_SRC
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager=
 #+begin_src sh
