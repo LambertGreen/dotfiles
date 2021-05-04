@@ -287,3 +287,4 @@ EOF
 ** TODO Test reproducibility by using =Docker=
 ** TODO Fix first start of =Nvim= to no show errors [/]
 - [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
+** TODO Use =Org-babel= properties to generate file content rather than using =cat= command
