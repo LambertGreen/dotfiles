@@ -251,6 +251,7 @@ gnu_stow git_work
 gnu_stow tmux
 gnu_stow vim
 gnu_stow nvim
+gnu_stow emacs
 EOF
 #+end_src
 
