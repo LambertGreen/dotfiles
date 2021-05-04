@@ -4,6 +4,3 @@
 [submodule "emacs/dot-emacs.default"]
 	path = emacs/dot-emacs.default
 	url = git@github.com:LambertGreen/dot-emacs-default.git
-[submodule "emacs/dot-emacs.doom"]
-	path = emacs/dot-emacs.doom
-	url = git@github.com:LambertGreen/dot-emacs-doom.git
