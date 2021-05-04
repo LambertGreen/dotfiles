@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# If not an interactive shell just return
+# e.g. needed when running scp
+if [ -z "$PS1" ]; then
+    return
+fi
+
 # Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
 if [ "$TERM" = "dumb" ]; then
     export BASH_NO_EXEC_ZSH=1
