@@ -258,7 +258,6 @@ EOF
 **** Add =macOS= config
 #+begin_src sh
 cat << EOF >> ./run-stow.sh
-gnu_stow shell
 gnu_stow shell_osx
 gnu_stow git_osx
 gnu_stow hammerspoon
