@@ -264,6 +264,10 @@ lgreen_greet_user_at_shell_setup_end() {
     fi
 }
 
+lgreen_setup_chromium_depot_tools() {
+    export PATH="$HOME/dev/pub/depot_tools/:$PATH"
+}
+
 #-------------------
 # Main
 #-------------------

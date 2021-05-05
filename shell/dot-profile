@@ -19,7 +19,6 @@ lgreen_track_profile_sourced_count() {
     fi
 }
 
-
 lgreen_greet_user_at_profile_setup_start() {
     # Only show a greeting if this is an interactive terminal
     if [ -t 1 ] && [ -z $LGREEN_NO_GREET ]; then
