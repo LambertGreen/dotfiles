@@ -123,8 +123,8 @@ tap "homebrew/cask-fonts"
 cask "appcleaner"
 cask "alfred"
 cask "cursorcerer"
-# TODO replace Divvy with Hammerspoon
-cask "divvy"
+cask "divvy"                        # TODO Replace Divvy with Hammerspoon
+cask "lincastor"                    # TODO Replace Lincastor with Hammerspoon
 cask "font-iosevka-nerd-font"
 cask "hammerspoon"
 cask "iterm2"
