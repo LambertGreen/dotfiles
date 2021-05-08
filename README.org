@@ -14,6 +14,10 @@ This README provides steps to setup various applications and their associated co
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
+*** Install =Scoop= :Windows:
+#+begin_src ps
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#+end_src
 ** Install packages
 *** Install packages using =Homebrew= :Linux:macOS:
 **** Create =Brewfile=
@@ -135,6 +139,81 @@ EOF
 **** Use =Brewfile=
 #+begin_src sh
 brew bundle
+#+end_src
+*** Install packages using =Scoop= :Windows:
+#+begin_src ps
+#-----------------------
+# Command-line utilities
+#-----------------------
+scoop install ack
+scoop install aria2
+scoop install bat
+scoop install clink
+scoop install coreutils
+scoop install curl
+scoop install dust
+scoop install fd
+scoop install findutils
+scoop install fzf
+scoop install neofetch
+scoop install ripgrep
+scoop install tldr
+scoop install wget
+
+#----------
+# Terminals
+#----------
+scoop install alacritty
+
+#--------
+# Editors
+#--------
+scoop install emacs
+scoop install neovim
+scoop install vscode
+
+#------
+# Fonts
+#------
+scoop install firacode
+scoop install Hack
+scoop install iosevka
+scoop install Meslo
+
+#-----------------
+# System utilities
+#-----------------
+scoop install 7zip
+scoop install everything
+scoop install openssh
+scoop install processhacker
+scoop install rapidee
+scoop install sudo
+scoop install sysinternals
+scoop install windirstat
+
+#------------------
+# Desktop utilities
+#------------------
+scoop install autohotkey
+scoop install carnac
+scoop install keypirinha
+scoop install powertoys
+scoop install sumatrapdf
+scoop install vlc
+scoop install wox
+
+#------------
+# Development
+#------------
+scoop install cmake
+scoop install git
+scoop install nodejs
+scoop install openjdk
+scoop install perl
+scoop install python
+scoop install springboot
+scoop install vcredist2015
 #+end_src
 
 ** Install from sources
