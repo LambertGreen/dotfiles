@@ -1,9 +1,12 @@
 [submodule "hammerspoon/dot-hammerspoon"]
 	path = hammerspoon/dot-hammerspoon
-	url = git@github.com:LambertGreen/dot-hammerspoon.git
+	url = git@github.com:LambertGreen/dot-hammerspoon
 [submodule "emacs/dot-emacs.default"]
 	path = emacs/dot-emacs.default
 	url = git@github.com:LambertGreen/dot-emacs-default.git
 [submodule "emacs/dot-doom.d"]
 	path = emacs/dot-doom.d
 	url = git@github.com:LambertGreen/dot-emacs-doom.git
+[submodule "autohotkey/dot-autohotkey"]
+	path = autohotkey/dot-autohotkey
+	url = git@github.com:LambertGreen/dot-autohotkey.git
