@@ -380,6 +380,18 @@ endfun
 fun! Lgreen_BackgroundTransparent()
     hi Normal guibg=NONE ctermbg=NONE
 endfun
+
+function! FzfSpellSink(word)
+  exe 'normal! "_ciw'.a:word
+endfunction
+
+function! FzfSpell()
+  let suggestions = spellsuggest(expand("<cword>"))
+  return fzf#run({'source': suggestions, 'sink': function("FzfSpellSink"), 'down': 10 })
+endfunction
+
+nnoremap z= :call FzfSpell()<CR>
+
 " }}}
 " Auto commands {{{
 " Cusorline only in active window
