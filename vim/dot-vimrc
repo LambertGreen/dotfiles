@@ -131,12 +131,18 @@ set wildignore+=*/tmp/*,*.so,*.swp,*.zip
 " More natural window opening positions
 set splitbelow
 set splitright
-" Show trailing white-space
+" TODO Fix the trailing-white-space, since it is not working
+" - Note: the below works when pasted as individual commands.
+" - It seems that setting a theme overrides it.
+" " Show trailing white-space
 highlight ExtraWhitespace ctermbg=red guibg=red
 match ExtraWhitespace /\s\+$/
 set updatetime=500 " short time recommended by author of vim-gutter as this setting affects its update time
-" enable word completion
+" Enable word completion. Use `:set spell` to enable completion for buffer
 set complete+=kspell
+" Enable spell checking in markdown files and git commit messages
+autocmd BufRead,BufNewFile *.md setlocal spell spelllang=en_us
+autocmd FileType gitcommit setlocal spell spelllang=en_us
 " }}}
 " Os Platform specifics {{{
 if has('win32') && !has('nvim')
