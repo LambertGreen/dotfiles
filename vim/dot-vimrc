@@ -199,23 +199,9 @@ let g:mapleader = "\<Space>"
 let g:maplocalleader = "\\"
 " Alternative escape from insert mode
 :imap kj <Esc>
-" Copy/paste into system clipboard
-vmap <leader>y "+y
-vmap <leader>d "+d
-nmap <leader>p "+p
-nmap <leader>P "+P
-vmap <leader>p "+p
-vmap <leader>P "+P
-" Quick save
-:nnoremap <Leader>w :w<CR>
-:nnoremap <Leader>q :q<CR>
 " insert mode Emacs start/end of line style mapping
 inoremap <C-a> <C-o>0
 inoremap <C-e> <C-o>$
-" Quick semi-colon at end of line
-inoremap <C-;> <C-o>$;
-" Toggle highlighting
-:nnoremap <silent><expr> <Leader><Leader>h (&hls && v:hlsearch ? ':nohls' : ':set hls')."\n"
 " Go-to-tag by default show list if there are more than one matches
 nnoremap <C-]> g<C-]>
 " Yank buffer absolute path into clipboard (/something/src/foo.txt)
@@ -234,35 +220,26 @@ nnoremap <leader>wh <C-w>h
 nnoremap <leader>wj <C-w>j
 nnoremap <leader>wk <C-w>k
 nnoremap <leader>wl <C-w>l
-
 nnoremap <leader>wq :q<CR>
+nnoremap <leader>ws :split<CR>
+nnoremap <leader>wv :vsplit<CR>
 
 " terminal mode
 if v:version >= 800
-    " We are making it easy to exit terminal mode. This is also the setting in
-    " Doom Emacs.
-    tnoremap <Esc> <C-\><C-n>
-    " Now that we have used up Esc. To inovke an Esc to an application running
-    " in the terminal use: CTRL-V + Esc.
-    tnoremap <C-v><Esc> <Esc>
+    " Address a compatibility issue between using Escape key to exit the Neovim terminal
+    " and for using the Escape key for exiting Fzf windows (terminal based)
+    " https://github.com/junegunn/fzf.vim/issues/544#issuecomment-457456166
+    if has("nvim")
+        au TermOpen * tnoremap <buffer> <Esc> <C-\><C-n>
+        au FileType fzf tunmap <buffer> <Esc>
+    endif
     tnoremap <C-h> <C-\><C-n><C-w>h
     tnoremap <C-j> <C-\><C-n><C-w>j
     tnoremap <C-k> <C-\><C-n><C-w>k
     tnoremap <C-l> <C-\><C-n><C-w>l
-    " Quick open a terminal
-    if has('nvim')
-        :nnoremap <leader>; :vs\|:term<CR>
-    else
-        :nnoremap <leader>; :term<CR>
-    endif
 endif
-
-" Jump to QuickFix window
-nnoremap <leader>co :copen<CR>
-
 " Toggle terminal window (if neoterm is installed)
 nnoremap <leader>ot :Ttoggle<CR>
-
 " }}}
 " Fugitive mappings {{{
 function! Lgreen_ToggleGStatus()
@@ -284,7 +261,7 @@ inoremap <silent><C-w>z <C-o>:MaximizerToggle<CR>
 " }}}
 " Winteract mappings {{{
 " Activate interactive window resize mode
-nnoremap <leader><leader>W :InteractiveWindow<CR>
+nnoremap <leader>W :InteractiveWindow<CR>
 " }}}
 " NERDTree mappings {{{
 " Toggle: Using mapping from Doom Emacs: open project
@@ -304,62 +281,22 @@ nmap <Leader>t :TagbarToggle<CR>
 " I can commit one set of mappings to muscle memory.
 "
 " Git files selection
-nmap <leader>ff :GFiles<CR>
-nmap <leader><leader> :GFiles<CR>
+nnoremap <leader><leader> :GFiles<CR>
 " All files selection
-nmap <leader>fF :Files<CR>
-nmap <leader>. :Files<CR>
+nnoremap <leader>. :Files<CR>
 " Buffers selection
-nmap <leader>fb :Buffers<CR>
-" History selection
-nmap <leader>fh :History<CR>
-" Command history selection
-nmap <leader>f: :History:<CR>
-" Search history selection
-nmap <leader>f/ :History/<CR>
-" Tags in current buffer selection
-nmap <leader>ft :BTags<CR>
-" Tags selection
-nmap <leader>fT :Tags<CR>
+nnoremap <leader>bb :Buffers<CR>
 " Lines in current buffer selection
-nmap <leader>fl :BLines<CR>
-" Lines selection
-nmap <leader>fL :Lines<CR>
-" Rg
-nmap <leader>fg :Rg<CR>
-" Rg but wait for input before, so that next step can be a filter on results
-nmap <leader>fG :Rg
+nmap <leader>sb :BLines<CR>
 " Commands selection
-nmap <leader>fc :Commands<CR>
-" }}}
-" Fugitive mappings {{{
-nnoremap <leader>gs :Gstatus<CR>
-nnoremap <leader>gl :Glog<CR>
-nnoremap <leader>gc :Gcommit<CR>
-nnoremap <leader>gd :Gdiff<CR>
-nnoremap <leader>gb :Gblame<CR>
+nmap <leader>: :Commands<CR>
 " }}}
 " Make mappings {{{
 nnoremap <leader>m :Make<CR>
 " }}}
-" ALE mappings {{{
-nnoremap <leader>an :ALENext<CR>
-nnoremap <leader>ap :ALEPrevious<CR>
-nnoremap <leader>al :ALELint<CR>
-nnoremap <leader>af :ALEFix<CR>
-nnoremap <leader>ai :ALEInfo<CR>
-nnoremap <leader>ad :ALEDetail<CR>
-" }}}
 " CurtineIncSw mappings {{{
 " Switch to alternate file e.g. implementation<->header
 nnoremap <leader>ca :call CurtineIncSw()<CR>
-" }}}
-" UndoTree mappings {{{
-" Toggle undo tree
-nnoremap <leader>u :UndotreeToggle<CR>
-" }}}
-" ClangFormat mappings {{{
-nnoremap <leader>cf :ClangFormat<CR>
 " }}}
 " }}}
 " Functions {{{
@@ -455,6 +392,9 @@ if v:version >= 800
     " Frequently used {{{
     " Editing enhancments {{{
     Plug 'easymotion/vim-easymotion'
+    " easymotion settings {{{
+    map gs <Plug>(easymotion-prefix)
+    " }}}
     Plug 'andymass/vim-matchup'
     " matchup example {{{
     " %     Press anywhere to move back and forth between open/close blocks
