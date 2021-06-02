@@ -737,7 +737,7 @@ function! Lgreen_ColorSchemeAyu()
     highlight Comment cterm=italic gui=italic
 endfunction
 
-:call Lgreen_ColorSchemePalenight()
+:call silent! Lgreen_ColorSchemePalenight()
 
 " Make comments show in italics, for themes that don't support it natively.
 " Note: Italics may not show if the terminal's terminfo is not

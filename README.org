@@ -417,7 +417,7 @@ docker build -t lambertgreen/dotfiles .
 #+end_src
 ** Run docker container
 #+begin_src sh
-docker run -ti lambertgreen/dotfiles
+docker run -it lambertgreen/dotfiles
 #+end_src
 
 * TODOs
