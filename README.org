@@ -406,6 +406,20 @@ dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
 dploy link ./git_win/dot-gitconfig $home/.gitconfig
 #+end_src
 
+* Testing using Docker
+** Pull docker base image
+#+begin_src sh
+docker pull archlinux/archlinux:base-devel
+#+end_src
+** Build docker image
+#+begin_src sh
+docker build -t lambertgreen/dotfiles .
+#+end_src
+** Run docker container
+#+begin_src sh
+docker run -ti lambertgreen/dotfiles
+#+end_src
+
 * TODOs
 ** TODO Test reproducibility by using =Docker=
 ** TODO Fix first start of =Nvim= to no show errors [/]

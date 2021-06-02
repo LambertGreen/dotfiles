@@ -1,0 +1,2 @@
+# Don't include the .git folder
+.git
