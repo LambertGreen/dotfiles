@@ -320,52 +320,21 @@ git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
 ** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
-*** Create =run-stow.sh= file
-**** Create initial file
+*** Stow =Posix= configs
 #+begin_src sh
-cat << EOF > ./run-stow.sh
-gnu_stow() {
-    stow -t ~ \$@ --dot
-}
-EOF
-chmod u+x ./run-stow.sh
+stow shell git git_my git_work tmux vim nvim emacs
 #+end_src
 
-**** Add =Posix= config
+*** Stow =macOS= config
 #+begin_src sh
-cat << EOF >> ./run-stow.sh
-gnu_stow shell
-gnu_stow git
-gnu_stow git_my
-gnu_stow git_work
-gnu_stow tmux
-gnu_stow vim
-gnu_stow nvim
-gnu_stow emacs
-EOF
+stow shell_osx git_osx alacritty_osx hammerspoon
 #+end_src
 
-**** Add =macOS= config
+*** Stow =Linux= config
 #+begin_src sh
-cat << EOF >> ./run-stow.sh
-gnu_stow shell_osx
-gnu_stow git_osx
-gnu_stow hammerspoon
-EOF
+stow shell_linux git_linux alacritty_linux
 #+end_src
 
-**** Add =Linux= config
-#+begin_src sh
-cat << EOF >> ./run-stow.sh
-gnu_stow shell_linux
-gnu_stow git_linux
-EOF
-#+end_src
-
-*** Use =run-stow.sh= file
-#+begin_src sh
-./run-stow.sh
-#+end_src
 ** Symlink dotfiles using =Dploy= :Windows:
 Unforuntely there is no =Gnu Stow= for =Windows=, but the =dploy= python package comes to the rescue.
 #+begin_src ps
@@ -421,7 +390,7 @@ docker run -it lambertgreen/dotfiles
 #+end_src
 
 * TODOs
-** TODO Test reproducibility by using =Docker=
+** DONE Test reproducibility by using =Docker=
+CLOSED: [2021-06-02 Wed 16:05]
 ** TODO Fix first start of =Nvim= to no show errors [/]
 - [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
-** TODO Use =Org-babel= properties to generate file content rather than using =cat= command
