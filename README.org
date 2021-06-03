@@ -105,11 +105,7 @@ cat << EOF >> ./Brewfile
 
 tap "cartr/qt4"
 brew "cartr/qt4/pyqt@4"
-
 cask "docker"
-cask "virtualbox"
-cask "parallels"
-
 EOF
 #+end_src
 
@@ -175,10 +171,8 @@ scoop install vscode
 #------
 # Fonts
 #------
-scoop install firacode
 scoop install Hack
 scoop install iosevka
-scoop install Meslo
 
 #-----------------
 # System utilities
