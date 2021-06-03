@@ -428,17 +428,6 @@ if v:version >= 800
         " let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
         " }}}
         " }}}
-        " Snippets {{{
-        Plug 'SirVer/ultisnips'
-        " Ultisnips settings {{{
-        set runtimepath+=~/.vim/my-snippets/
-        let g:UltiSnipsListSnippets='<c-l>'
-        let g:UltiSnipsExpandTrigger='<c-j>'
-        let g:UltiSnipsJumpForwardTrigger='<c-n>'
-        let g:UltiSnipsJumpBackwardTrigger='<c-p>'
-        " }}}
-        Plug 'honza/vim-snippets'
-        " }}}
         " }}}
         " Fuzzy file search {{{
         Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
@@ -534,20 +523,6 @@ if v:version >= 800
         Plug 'nfvs/vim-perforce'
         " vim-perforce exmaple usage {{{
         " :P4info, P4edit, P4revert
-        " }}}
-        " }}}
-        " Tags {{{
-        Plug 'ludovicchabant/vim-gutentags'
-        " Gutentags settings {{{
-        let g:gutentags_project_root = ['.root', '.svn', '.git', '.hg', '.project', '.p4config']
-        let g:gutentags_ctags_tagfile = '.tags'
-        let g:gutentags_cache_dir = expand('~/.cache/tags')
-        if executable('rg')
-            let g:gutentags_file_list_command = 'rg --files'
-        endif
-        " Enable the below for debugging
-        " let g:gutentags_trace = 1
-        " :set statusline+=%{gutentags#statusline()}
         " }}}
         " }}}
         " Linting {{{
