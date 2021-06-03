@@ -451,12 +451,8 @@ if v:version >= 800
         " }}}
         " Graphical Editor Enhancements {{{
         " Status + Tab line {{{
-        Plug 'vim-airline/vim-airline'
-        " Airline settings {{{
-        let g:airline_powerline_fonts = 1
-        let g:airline#extensions#tabline#enabled = 1
-        let g:airline#extensions#ale#enabled = 1
-        " }}}
+        " TODO: Look for a better airline repclacement
+        " Plug 'vim-airline/vim-airline'
         " }}}
         " Gutter {{{
         " TODO: Trying out signify instead for a trial run.
@@ -555,22 +551,8 @@ if v:version >= 800
         " }}}
         " }}}
         " Linting {{{
-        Plug 'w0rp/ale'
-        " ale settings {{{
-        let g:ale_sign_error = '✘'
-        let g:ale_sign_warning = '⚠'
-        let g:ale_fixers = {
-        \   'cpp': ['remove_trailing_lines', 'trim_whitespace'],
-        \   'python': ['remove_trailing_lines', 'trim_whitespace', 'isort', 'yapf']
-        \}
-        let g:ale_python_auto_pipenv = 1
-        let g:ale_python_mypy_auto_pipenv = 1
-        let g:ale_python_mypy_options = '--ignore-missing-imports'
-        " TODO: Remove below options from main vimrc and have ale options for cpp
-        " be defined in specific projects.
-        " let g:ale_cpp_clangtidy_options = '-x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
-        " let g:ale_cpp_clangcheck_options = '-- -x c++'  " Needed to make clangtidy treat .h files as c++ rather than c files.
-        " }}}
+        " TODO: Look for lighter wait, or just remove linting
+        " Plug 'w0rp/ale'
         " }}}
         " Building/Testing {{{
         Plug 'tpope/vim-dispatch'
