@@ -386,5 +386,9 @@ docker run -it lambertgreen/dotfiles
 * TODOs
 ** DONE Test reproducibility by using =Docker=
 CLOSED: [2021-06-02 Wed 16:05]
-** TODO Fix first start of =Nvim= to no show errors [/]
-- [ ] It looks like one of the issue is related =gutentags= plugin and absence of =ctags=
+** DONE Fix first start of =Nvim= to no show errors
+CLOSED: [2021-06-02 Wed 21:33]
+** TODO Replace individual per package calls with combined single line installs
+For example ~scoop p1 p2 p3~
+** TODO Consider adding =Chemacs2= and =Doom= as sub-modules
+So that simply doing ~stow emacs~ get things all done, or provide shorter setup blocks.
