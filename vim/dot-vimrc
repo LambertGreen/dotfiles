@@ -590,21 +590,6 @@ if v:version >= 800
         Plug 'tmhedberg/SimpylFold'     " python folding
         " Disabling due to huge initialization cost i.e. >500ms
         " Plug 'ambv/black'               " python auto formater
-        Plug 'davidhalter/jedi-vim'
-        " Jedi-vim config {{{
-        let g:jedi#completions_enabled = 0  " let YCM handle completions, which also uses Jedi
-        let g:jedi#goto_command = ''
-        let g:jedi#goto_assignments_command = ''
-        let g:jedi#goto_definitions_command = ''
-        let g:jedi#documentation_command = ''
-        let g:jedi#usages_command = ''
-        let g:jedi#completions_command = ''
-        let g:jedi#rename_command = ''
-        nnoremap <localleader>r :call jedi#rename()<CR>
-        nnoremap <localleader>d :call jedi#goto()<CR>
-        nnoremap <localleader>g :call jedi#goto_assignments()<CR>
-        nnoremap <localleader>n :call jedi#usages()<CR>
-        " }}}
         " }}}
         " Cpp development {{{
         Plug 'kana/vim-operator-user'   " recommended by vim-clang-format
@@ -643,6 +628,7 @@ if v:version >= 800
         Plug 'editorconfig/editorconfig-vim'
         " }}}
         " Unused plugins {{{
+        " Plug 'davidhalter/jedi-vim'           " too large and IDE like for Vim
         " Plug 'ntpeters/vim-airline-colornum' " it's pretty but slow
         " Plug 'Raimondi/delimitMate'       " superceded by auto-pairs
         " Plug 'cohama/lexima.vim'          " had runaway insert issues!
