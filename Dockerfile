@@ -15,7 +15,12 @@ RUN echo 'user:user' | chpasswd
 USER user
 ENV HOME /home/user
 # Clone the dotfiles repo
-RUN mkdir -p ~/dev/my && git clone https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
+RUN git clone https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
+# Remove users existing Bash scripts (otherwise stow will not work for the Bash scripts).
+RUN rm ~/.bash*
+# Use stow to link in the dotfiles
+RUN cd ~/dev/my/dotfiles && \
+    stow shell shell_linux git git_my git_work git_linux tmux vim nvim emacs
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
 WORKDIR /home/user/dev/my/dotfiles
 CMD ["/bin/bash"]
