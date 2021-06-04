@@ -47,6 +47,10 @@ lgreen_setup_zsh() {
     else
         true
     fi
+
+    # We want history, yes, but not shared between shell instances
+    unsetopt incappendhistory
+    unsetopt sharehistory
 }
 
 lgreen_init_fzf() {
