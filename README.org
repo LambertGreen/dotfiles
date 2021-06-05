@@ -376,7 +376,7 @@ docker pull archlinux/archlinux:base-devel
 #+end_src
 ** Build docker image
 #+begin_src sh
-docker build -t lambertgreen/dotfiles .
+docker build --ssh default -t lambertgreen/dotfiles .
 #+end_src
 ** Run docker container
 #+begin_src sh

@@ -2,10 +2,11 @@ FROM archlinux/archlinux:base-devel
 # Install packages for dotfiles valiation
 RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
   pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh-client stow coreutils zsh tmux neovim emacs fd ripgrep python3 python-pip
+    sudo git openssh stow coreutils zsh tmux neovim emacs fd ripgrep python3 python-pip
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# Create a test user
-RUN useradd --create-home --comment "Arch dotfiles user" user && \
+# Create a test user (Note: we need to give the user an explicit uid, since we need to reference it
+# in the ssh mount command.)
+RUN useradd -u 100 --create-home --comment "Arch dotfiles user" user && \
     usermod -aG wheel user  # Grant sudo to the user
 # Add user to sudoers
 RUN sed -i /etc/sudoers -re 's/^#includedir.*/## **Removed the include directive** ##"/g' && \
@@ -15,9 +16,13 @@ RUN echo 'user:user' | chpasswd
 USER user
 ENV HOME /home/user
 # Download public key for github.com
-RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN mkdir -p -m 0700 ~/.ssh && \
+    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
+    echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config && \
+    sudo chmod 0600 ~/.ssh/* && \
+    sudo chown -v user ~/.ssh/*
 # Clone the dotfiles repo and also pull down sub-modules
-RUN --mount=type=ssh git clone git@github.com:LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
+RUN --mount=type=ssh,uid=100 git clone git@github.com:LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
     git submodule update --init --recursive
 # Remove users existing Bash scripts (otherwise stow will not work for the Bash scripts).
