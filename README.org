@@ -297,11 +297,9 @@ $(brew --prefix)/opt/fzf/install
 #+end_src
 
 ** Editor integrations
-*** Install =Chemacs 2=
+*** =Chemacs 2=
 Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
-#+begin_src sh
-git clone https://github.com/plexus/chemacs2.git ~/.emacs.d
-#+end_src
+The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
 
 *** Install =Doom Emacs=
 Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to.
