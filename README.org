@@ -281,7 +281,7 @@ pip install dploy
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #+end_src
 
-** Install =Zinit= a =Ash= plugin manager :automated:
+** Install =Zinit= a =Zsh= plugin manager :automated:
 The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
 #+begin_src sh
 mkdir ~/.zinit
