@@ -147,6 +147,10 @@ lgreen_source_local_zsh() {
 }
 
 lgreen_zsh_init_completions() {
+    if type brew &>/dev/null; then
+        FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+    fi
+
     # Initialize completions
     autoload -Uz compinit && compinit
 
@@ -184,4 +188,5 @@ lgreen_init_p10k
 lgreen_init_fzf
 lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
+lgreen_zsh_init_completions
 lgreen_conditionally_stop_profiler
