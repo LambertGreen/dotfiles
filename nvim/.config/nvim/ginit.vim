@@ -5,7 +5,7 @@ if has('win32')
 else
 " Tried to set the font for `Vimr` but it does not honor ginit.vim.
 " TODO: Ditch `Vimr` and find a better GUI client that is also cross platform.
-    :GuiFont! Iosevka Nerd Font:h12
+    :GuiFont! Iosevka Nerd Font:h15
 end
 
 " Remove ugly tabline
