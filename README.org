@@ -129,6 +129,7 @@ cask "font-iosevka-nerd-font"
 cask "hammerspoon"
 cask "iterm2"
 cask "shortcutdetective"
+cask "basictex"
 EOF
 #+end_src
 
@@ -308,6 +309,26 @@ git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
 ~/.emacs.doom/bin/doom install
 #+end_src
 
+*** Install =Latex tools=
+Note: The system should be installed via a package manager e.g. ~brew install basictex~, which provides the ~tlmgr~, which should then be used:
+#+begin_src sh
+sudo tlmgr update --self && \
+    sudo tlmgr install \
+    # for svg images
+    dvisvgm \
+    # for png images
+    dvipng \
+    # fonts
+    collection-fontsrecommended \
+    # source code highlighting
+    minted
+#+end_src
+
+I am not sure if the below is needed?
+#+begin_src sh
+sudo tlmgr install wrapfig marvosym wasy wasysym
+#+end_src
+
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
@@ -328,7 +349,7 @@ stow shell_linux git_linux alacritty_linux
 #+end_src
 
 ** Symlink dotfiles using =Dploy= :Windows:
-Unforuntely there is no =Gnu Stow= for =Windows=, but the =dploy= python package comes to the rescue.
+Unfortunately there is no =Gnu Stow= for =Windows=, but the =dploy= python package comes to the rescue.
 #+begin_src ps
 # Pre-requisates
 # - Install Dploy: ~pip instal dploy~
