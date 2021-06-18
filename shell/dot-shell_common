@@ -221,11 +221,20 @@ lgreen_setup_running_inside_emacs() {
     fi
 }
 
+lgreen_rg_with_pager() {
+    if [ -t 1 ]; then
+        command rg -p "$@" | less -RFX
+    else
+        command rg "$@"
+    fi
+}
+
 lgreen_setup_aliases() {
     alias vim=nvim
     alias gw=lgreen_run_gradlew
     alias g=git
     alias locate="locate -i" # case-insensitive as default
+    alias rg=lgreen_rg_with_pager
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
