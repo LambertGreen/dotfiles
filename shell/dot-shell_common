@@ -95,6 +95,11 @@ lgreen_setup_rbenv () {
     fi
 }
 
+lgreen_setup_non_sys_openssl () {
+    export OPENSSL_PATH=$(brew --prefix openssl@1.1)
+    export PATH="${OPENSSL_PATH}/bin:$PATH"
+}
+
 lgreen_setup_dev_env_node_js () {
     if [ "$(command -v nvm)" ]; then
         export NVM_DIR="$HOME/.nvm"
@@ -293,6 +298,7 @@ lgreen_setup_aliases
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_non_sys_openssl
 lgreen_setup_pyenv
 lgreen_setup_jenv
 lgreen_setup_rbenv
