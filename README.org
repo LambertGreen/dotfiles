@@ -339,6 +339,20 @@ I am not sure if the below is needed?
 #+begin_src sh
 sudo tlmgr install wrapfig marvosym wasy wasysym
 #+end_src
+*** Setup =Email tools=
+**** Authentication
+***** macOS
+****** TODO Fill in gaps via testing on a clean machine
+****** Add mail app-password to keychain
+******* Add app-password for mbsync from IMAP
+#+begin_src sh
+security find-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
+#+end_src
+
+******* Add app-password for SMTP server
+#+begin_src sh
+security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
+#+end_src
 *** Setup =Bible (KJV)=
 Dependencies: see installing of =Sword= in earlier section of this document.
 #+begin_src sh
