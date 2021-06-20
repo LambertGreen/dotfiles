@@ -298,12 +298,6 @@ mkdir -p $SWORD_PATH/mods.d
 
 echo yes |installmgr -init               # create a basic user config file
 echo yes |installmgr -sc                 # sync config with list of known remote repos
-echo yes |installmgr -r CrossWire        # refresh remote source
-echo yes |installmgr -ri CrossWire KJV   # install module from remote source
-installmgr -l                            # list installed modules
-
-#Test
-diatheke -b KJV -k Jn 3:16
 #+end_src
 
 * Install app integrations
@@ -344,6 +338,16 @@ sudo tlmgr update --self && \
 I am not sure if the below is needed?
 #+begin_src sh
 sudo tlmgr install wrapfig marvosym wasy wasysym
+#+end_src
+*** Setup =Bible (KJV)=
+Dependencies: see installing of =Sword= in earlier section of this document.
+#+begin_src sh
+echo yes |installmgr -r CrossWire        # refresh remote source
+echo yes |installmgr -ri CrossWire KJV   # install module from remote source
+installmgr -l                            # list installed modules
+
+#Test
+diatheke -b KJV -k Jn 3:16
 #+end_src
 
 * Symlink dotfiles
