@@ -44,6 +44,7 @@ brew "tree"
 brew "tmux"
 brew "isync"
 brew "mu"
+brew "sword"
 EOF
 #+end_src
 
@@ -289,6 +290,20 @@ The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run b
 #+begin_src sh
 mkdir ~/.zinit
 git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
+#+end_src
+** Install =Sword='s =installmgr=
+#+begin_src sh
+export SWORD_PATH=~/.sword
+mkdir -p $SWORD_PATH/mods.d
+
+echo yes |installmgr -init               # create a basic user config file
+echo yes |installmgr -sc                 # sync config with list of known remote repos
+echo yes |installmgr -r CrossWire        # refresh remote source
+echo yes |installmgr -ri CrossWire KJV   # install module from remote source
+installmgr -l                            # list installed modules
+
+#Test
+diatheke -b KJV -k Jn 3:16
 #+end_src
 
 * Install app integrations
