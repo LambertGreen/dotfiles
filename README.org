@@ -277,7 +277,8 @@ ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
 ** Install python apps with =pip=
 #+begin_src
-pip install dploy
+python3 -m pip install dploy
+python3 -m pip install ntfy
 #+end_src
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager=
