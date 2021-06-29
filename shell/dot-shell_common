@@ -245,9 +245,11 @@ lgreen_setup_aliases() {
     if [ "$UNAME" = "Linux" ]; then
         alias ls='ls --color'
         alias ll='ls -l --color'
+        alias lla='ls -la --color'
     elif [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -l --color'
+        alias lla='gls -la --color'
     fi
 }
 
