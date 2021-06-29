@@ -60,11 +60,20 @@ lgreen_source_os_profile() {
     fi
 }
 
+lgreen_setup_pyenv_profile() {
+    if [ "$(command -v pyenv)" ]; then
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init --path)"
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
 lgreen_track_profile_sourced_count
 lgreen_greet_user_at_profile_setup_start
 lgreen_setup_profile_env
+lgreen_setup_pyenv_profile
 lgreen_source_os_profile
 lgreen_greet_user_at_profile_setup_end
