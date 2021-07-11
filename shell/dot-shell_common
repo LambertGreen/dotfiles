@@ -96,8 +96,17 @@ lgreen_setup_rbenv () {
 }
 
 lgreen_setup_non_sys_openssl () {
-    export OPENSSL_PATH=$(brew --prefix openssl@1.1)
-    export PATH="${OPENSSL_PATH}/bin:$PATH"
+    if [ "$(command -v brew)" ]; then
+        OPENSSL_PATH=$(brew --prefix openssl@1.1)
+        export PATH="${OPENSSL_PATH}/bin:$PATH"
+    fi
+}
+
+lgreen_setup_non_sys_sqlite () {
+    if [ "$(command -v brew)" ]; then
+        SQLITE_PATH=$(brew --prefix sqlite)
+        export PATH="${SQLITE_PATH}/bin:$PATH"
+    fi
 }
 
 lgreen_setup_dev_env_node_js () {
@@ -301,6 +310,7 @@ lgreen_source_local_shell
 lgreen_source_work_shell
 
 lgreen_setup_non_sys_openssl
+lgreen_setup_non_sys_sqlite
 lgreen_setup_pyenv
 lgreen_setup_jenv
 lgreen_setup_rbenv
