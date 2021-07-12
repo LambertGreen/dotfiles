@@ -21,3 +21,4 @@ nvim/.config/nvim/backup/
 nvim/.config/nvim/plugged/
 nvim/.config/nvim/swap/
 nvim/.config/nvim/undo/
+/nvim/.config/nvim/spell/
