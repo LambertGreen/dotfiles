@@ -216,6 +216,28 @@ scoop install vcredist2015
 
 ** Install from sources
 Sometime we have to install from sources on systems that have dated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+*** Installing =git=
+#+BEGIN_SRC sh
+export VER="2.27.0"
+wget https://github.com/git/git/archive/v${VER}.tar.gz
+tar -xvf v${VER}.tar.gz
+rm -f v${VER}.tar.gz
+cd git-*
+make configure
+sudo ./configure --prefix=/usr/local
+sudo make
+sudo make install
+#+END_SRC
+*** Installing =curl=
+#+BEGIN_SRC sh
+export VER="7.67.0"
+wget https://curl.haxx.se/download/curl-${VER}.tar.gz
+gunzip -c curl-${VER}.tar.gz | tar xvf -
+cd curl-${VER}
+./configure --with-ssl --prefix=/usr/local
+make
+sudo make install
+#+END_SRC
 *** Installing =Tmux=
 **** Install =Tmux= from =Github=
 #+BEGIN_SRC sh
