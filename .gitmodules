@@ -17,3 +17,6 @@
 [submodule "emacs/dot-emacs.d"]
 	path = emacs/dot-emacs.d
 	url = https://github.com/plexus/chemacs2.git
+[submodule "emacs/dot-spacemacs.d"]
+	path = emacs/dot-spacemacs.d
+	url = git@github.com:LambertGreen/dot-spacemacs.git
