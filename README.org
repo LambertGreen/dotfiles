@@ -552,3 +552,10 @@ CLOSED: [2021-06-02 Wed 21:33]
 For example ~scoop p1 p2 p3~
 ** TODO Consider adding =Chemacs2= and =Doom= as sub-modules
 So that simply doing ~stow emacs~ get things all done, or provide shorter setup blocks.
+
+*** Notes
+I have already added =Chemacs2= as a submodule, and it was convenient, so I think we should simply add =Doom= as well. But then what about =Spacemacs=?
+
+** TODO Consider adding a =Brewfile=
+1. This is more automated, and one can run checks on a system against a Brewfile.
+2. Less blocks in this README
