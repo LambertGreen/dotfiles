@@ -216,6 +216,28 @@ scoop install vcredist2015
 
 ** Install from sources
 Sometime we have to install from sources on systems that have dated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+*** Installing =git=
+#+BEGIN_SRC sh
+export VER="2.27.0"
+wget https://github.com/git/git/archive/v${VER}.tar.gz
+tar -xvf v${VER}.tar.gz
+rm -f v${VER}.tar.gz
+cd git-*
+make configure
+sudo ./configure --prefix=/usr/local
+sudo make
+sudo make install
+#+END_SRC
+*** Installing =curl=
+#+BEGIN_SRC sh
+export VER="7.67.0"
+wget https://curl.haxx.se/download/curl-${VER}.tar.gz
+gunzip -c curl-${VER}.tar.gz | tar xvf -
+cd curl-${VER}
+./configure --with-ssl --prefix=/usr/local
+make
+sudo make install
+#+END_SRC
 *** Installing =Tmux=
 **** Install =Tmux= from =Github=
 #+BEGIN_SRC sh
@@ -530,3 +552,10 @@ CLOSED: [2021-06-02 Wed 21:33]
 For example ~scoop p1 p2 p3~
 ** TODO Consider adding =Chemacs2= and =Doom= as sub-modules
 So that simply doing ~stow emacs~ get things all done, or provide shorter setup blocks.
+
+*** Notes
+I have already added =Chemacs2= as a submodule, and it was convenient, so I think we should simply add =Doom= as well. But then what about =Spacemacs=?
+
+** TODO Consider adding a =Brewfile=
+1. This is more automated, and one can run checks on a system against a Brewfile.
+2. Less blocks in this README
