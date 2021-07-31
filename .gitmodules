@@ -20,3 +20,6 @@
 [submodule "emacs/dot-spacemacs.d"]
 	path = emacs/dot-spacemacs.d
 	url = git@github.com:LambertGreen/dot-spacemacs.git
+[submodule "emacs/dot-emacs.doom"]
+	path = emacs/dot-emacs.doom
+	url = https://github.com/hlissner/doom-emacs
