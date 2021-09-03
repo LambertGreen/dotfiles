@@ -10,6 +10,7 @@ This README provides steps to setup various applications and their associated co
 
 * Install apps
 ** Install package manager
+One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin priviledges on the machine.
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -19,199 +20,31 @@ This README provides steps to setup various applications and their associated co
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
 ** Install packages
+Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a Brewfile, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
 *** Install packages using =Homebrew= :Linux:macOS:
-**** Create =Brewfile=
-***** Add common =Posix= packages
+**** Bulk install using =Brewfile=
+Navigate to the ~brewfiles~ folder for the particular machine where the ~Brewfile~ export was generated, and run the import command e.g.:
 #+begin_src sh
-cat << EOF > ./Brewfile
-tap "homebrew/bundle"
-tap "homebrew/core"
-
-brew "bat"
-brew "coreutils"
-brew "dust"
-brew "fd"
-brew "htop"
-brew "ispell"
-brew "keychain"
-brew "neofetch"
-brew "neovim"
-brew "pstree"
-brew "ripgrep"
-brew "stow"
-brew "tldr"
-brew "tree"
-brew "tmux"
-brew "isync"
-brew "mu"
-brew "sword"
-EOF
+cd ./package_manager_exports/brewfiles/  # change directory to the exported brewfiles
+cd MacbookAir                            # change directory for the relevant machine
+# Edit Brewfile if needed to comment out uneeded packages
+brew bundle                              # bulk install packages
 #+end_src
-
-***** Add =Posix= development packages
+**** Creating/Updating =Brewfile=
 #+begin_src sh
-cat << EOF >> ./Brewfile
-
-brew "automake"
-brew "clang-format"
-brew "cmake"
-brew "editorconfig"
-brew "python"
-brew "direnv"
-brew "freetds@0.91", link: true
-brew "git"
-brew "openjdk"
-brew "gradle"
-brew "jenv"
-brew "jq"
-brew "llvm"
-brew "ninja"
-brew "node"
-brew "pyenv"
-brew "pyenv-virtualenv"
-brew "ruby-build"
-brew "rbenv"
-brew "rbtools"
-brew "ruby"
-brew "unixodbc"
-EOF
-#+end_src
-
-***** Add =Linux= development packages
-#+begin_src sh
-cat << EOF >> ./Brewfile
-
-brew "bash"
-brew "fswatch"
-brew "gcc"
-brew "perl"
-brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
-brew "zsh"
-EOF
-#+end_src
-
-***** Add =macOS= specific packages
-#+begin_src
-cat << EOF >> ./Brewfile
-
-#tap "d12frosted/emacs-plus"                    -- not sure which one is better
-#brew "d12frosted/emacs-plus/emacs-plus@27"     -- not sure which one is better
-
-tap "daviderestivo/emacs-head"
-brew "daviderestivo/emacs-head/emacs-head@28", args: ["with-cocoa", "with-modern-icon-elrumo2"]
-EOF
-#+end_src
-
-***** Add =macOS= development packages
-#+begin_src sh
-cat << EOF >> ./Brewfile
-
-tap "cartr/qt4"
-brew "cartr/qt4/pyqt@4"
-cask "docker"
-EOF
-#+end_src
-
-***** Add =macOS= casks
-#+begin_src sh
-cat << EOF >> ./Brewfile
-
-tap "homebrew/cask"
-tap "homebrew/cask-fonts"
-
-#cask "amethyst"    -- unused - replaced by Hammerspoon
-#cask "caffeine"    -- unused - replaced by Hammerspoon
-#cask "keycastr"    -- unused - replaced by Hammerspoon
-
-cask "appcleaner"
-cask "alfred"
-cask "cursorcerer"
-cask "divvy"                        # TODO Replace Divvy with Hammerspoon
-cask "lincastor"                    # TODO Replace Lincastor with Hammerspoon
-cask "font-iosevka-nerd-font"
-cask "hammerspoon"
-cask "iterm2"
-cask "shortcutdetective"
-cask "basictex"
-EOF
-#+end_src
-
-**** Use =Brewfile=
-#+begin_src sh
-brew bundle
+brew bundle dump
 #+end_src
 *** Install packages using =Scoop= :Windows:
+**** Bulk install using export file
+Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
 #+begin_src ps
-#-----------------------
-# Command-line utilities
-#-----------------------
-scoop install ack
-scoop install aria2
-scoop install bat
-scoop install clink
-scoop install coreutils
-scoop install curl
-scoop install dust
-scoop install fd
-scoop install findutils
-scoop install fzf
-scoop install neofetch
-scoop install ripgrep
-scoop install tldr
-scoop install wget
-
-#----------
-# Terminals
-#----------
-scoop install alacritty
-
-#--------
-# Editors
-#--------
-scoop install emacs
-scoop install neovim
-scoop install vscode
-
-#------
-# Fonts
-#------
-scoop install Hack
-scoop install iosevka
-
-#-----------------
-# System utilities
-#-----------------
-scoop install 7zip
-scoop install everything
-scoop install openssh
-scoop install processhacker
-scoop install rapidee
-scoop install sudo
-scoop install sysinternals
-scoop install windirstat
-
-#------------------
-# Desktop utilities
-#------------------
-scoop install autohotkey
-scoop install carnac
-scoop install keypirinha
-scoop install powertoys
-scoop install sumatrapdf
-scoop install vlc
-scoop install wox
-
-#------------
-# Development
-#------------
-scoop install cmake
-scoop install git
-scoop install nodejs
-scoop install openjdk
-scoop install perl
-scoop install python
-scoop install springboot
-scoop install vcredist2015
+cd ./package_manager_exports/scoop/  # change direcory to the exported scoop files
+# Edit scoop file if needed
+scoop install windows_rig.scoop      # bulk install
+#+end_src
+**** Creating/Updating Scoop export
+#+begin_src ps
+scoop export <filename>
 #+end_src
 
 ** Install from sources
@@ -302,6 +135,237 @@ ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 python3 -m pip install dploy
 python3 -m pip install ntfy
 #+end_src
+** List of used applications
+*** Terminals
+**** Common
+#+begin_example
+alacritty
+#+end_example
+**** Posix
+#+begin_example
+tmux
+#+end_example
+**** macOS
+#+begin_example
+iterm2
+#+end_example
+**** Windows
+#+begin_example
+WindowsTerminal
+#+end_example
+
+*** Shell
+**** Common
+#+begin_example
+neofetch
+#+end_example
+**** Posix
+#+begin_example
+zsh
+#+end_example
+**** Windows
+#+begin_example
+Powershell
+clink
+#+end_example
+
+*** Editor/File Utilities
+**** Common
+#+begin_example
+emacs
+neovim
+vscode
+
+coreutils
+ispell
+bat
+dust
+fd
+fzf
+ripgrep
+tree
+#+end_example
+*** Communications
+**** Common
+#+begin_example
+Slack
+Whatsapp
+#+end_example
+**** Posix
+#+begin_example
+isync
+mu
+#+end_example
+
+*** Fonts
+**** Common
+#+begin_example
+Hack
+Iosevka
+#+end_example
+*** System Utilities
+**** Common
+#+begin_example
+curl
+neofetch
+openssh
+ntfy
+#+end_example
+**** Posix
+#+begin_example
+htop
+pstree
+stow
+tldr
+#+end_example
+**** macOS
+#+begin_example
+#+end_example
+**** Linux
+#+begin_example
+keychain
+#+end_example
+**** Windows
+#+begin_example
+ack
+aria2
+findutils
+wget
+dploy
+sudo
+
+7zip
+everything
+processhacker
+rapidee
+sysinternals
+windirstat
+#+end_example
+
+*** User Utilities
+**** Common
+#+begin_example
+openssh
+#+end_example
+**** Posix
+#+begin_example
+coreutils
+isync
+mu
+stow
+sword
+#+end_example
+**** macOS
+#+begin_example
+#+end_example
+**** Linux
+#+begin_example
+keychain
+#+end_example
+**** Windows
+#+begin_example
+7zip
+everything
+processhacker
+rapidee
+sudo
+sysinternals
+windirstat
+#+end_example
+
+*** Desktop Utilities
+**** Common
+#+begin_example
+divvy
+#+end_example
+**** Posix
+#+begin_example
+#+end_example
+**** macOS
+#+begin_example
+d12frosted/emacs-plus
+daviderestivo/emacs-head
+amethyst                     # unused - replaced by Hammerspoon
+caffeine                     # unused - replaced by Hammerspoon
+keycastr                     # unused - replaced by Hammerspoon
+appcleaner
+alfred
+cursorcerer
+lincastor                    # TODO Replace Lincastor with Hammerspoon
+hammerspoon
+shortcutdetective
+basictex
+#+end_example
+**** Linux
+#+begin_example
+#+end_example
+**** Windows
+#+begin_example
+autohotkey
+carnac
+keypirinha
+powertoys
+sumatrapdf
+vlc
+wox
+#+end_example
+
+*** Development Utilities
+#+begin_example
+vcredist2015
+#+end_example
+
+**** Common
+#+begin_example
+automake
+clang-format
+cmake
+direnv
+docker
+editorconfig
+freetds@0.91
+git
+gradle
+jenv
+jq
+ninja
+node
+openjdk
+perl
+pyenv
+pyenv-virtualenv
+python
+qt4
+pyqt4
+rbenv
+rbtools
+ruby
+ruby-build
+universal-ctags
+unixodbc
+#+end_example
+**** Posix
+#+begin_example
+gcc
+llvm
+#+end_example
+**** macOS
+#+begin_example
+ptrace
+xcode
+#+end_example
+**** Linux
+#+begin_example
+fswatch
+strace
+#+end_example
+**** Windows
+#+begin_example
+vcredist2015
+windbg
+#+end_example
+
+
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager= :automated:
 The =Tmux= configuration file checks for the existence of the local directory, and if not present it runs the below command:
@@ -492,3 +556,4 @@ I have already added =Chemacs2= as a submodule, and it was convenient, so I thin
 ** TODO Consider adding a =Brewfile=
 1. This is more automated, and one can run checks on a system against a Brewfile.
 2. Less blocks in this README
+** TODO Double check =Scoop= sections on a Windows machine
