@@ -25,6 +25,7 @@ lgreen_source_profile_if_not_sourced() {
 
 lgreen_conditionally_start_attach_tmux() {
     if [ -n "$SSH_TTY" -a -z "$TMUX" ]; then
+        tmux -V
         tmux attach || tmux new -s Alpha
     fi
 }
@@ -293,6 +294,11 @@ lgreen_setup_chromium_depot_tools() {
     export PATH="$HOME/dev/pub/depot_tools/:$PATH"
 }
 
+lgreen_setup_doom_emacs() {
+    export DOOMDIR="$HOME/.emacs.doom"
+    export PATH="$PATH:$DOOMDIR/bin/"
+}
+
 #-------------------
 # Main
 #-------------------
@@ -316,6 +322,7 @@ lgreen_setup_jenv
 lgreen_setup_rbenv
 
 lgreen_setup_ntfy
+lgreen_setup_doom_emacs
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang

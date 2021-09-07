@@ -6,3 +6,5 @@
 
 [core]
     autocrlf = input
+[pull]
+	rebase = false
