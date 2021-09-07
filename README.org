@@ -21,6 +21,11 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 ** Install packages
 *** Install packages using =Homebrew= :Linux:macOS:
 **** Create =Brewfile=
+A brewfile file can be created from an already setup machine by running:
+#+begin_src sh
+brew bundle dump
+#+end_src
+
 ***** Add common =Posix= packages
 #+begin_src sh
 cat << EOF > ./Brewfile
@@ -135,6 +140,8 @@ cask "shortcutdetective"
 cask "basictex"
 EOF
 #+end_src
+**** Checked in =Brewfile='s
+- [[file:Brewfiles/][Macbook Air]]
 
 **** Use =Brewfile=
 #+begin_src sh
@@ -212,6 +219,11 @@ scoop install perl
 scoop install python
 scoop install springboot
 scoop install vcredist2015
+#+end_src
+
+*** Install packages using =Chocolatey= :Windows:
+#+begin_src ps
+choco install AutoHotKey
 #+end_src
 
 ** Install from sources
@@ -489,6 +501,9 @@ So that simply doing ~stow emacs~ get things all done, or provide shorter setup 
 *** Notes
 I have already added =Chemacs2= as a submodule, and it was convenient, so I think we should simply add =Doom= as well. But then what about =Spacemacs=?
 
-** TODO Consider adding a =Brewfile=
-1. This is more automated, and one can run checks on a system against a Brewfile.
-2. Less blocks in this README
+** TODO Add package manager export files for your machines [/]
+   Let's add these as a quick backup of existing installed applications.
+*** [ ] Add =Brewfile= for MacBook Air
+*** [ ] Add =Brewfile= for MacBook Pro
+*** [ ] Add =Scoop= export file for Windows Gaming rig
+*** [ ] Add =Brewfile= for Ubuntu WSL machine
