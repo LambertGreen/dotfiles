@@ -15,17 +15,17 @@ lgreen_track_shell_sourced_count() {
     fi
 }
 
-lgreen_conditionally_start_attach_tmux() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" ]; then
-        tmux attach || tmux new -s Alpha
-    fi
-}
-
 # Source profile if it has not been sourced yet
 lgreen_source_profile_if_not_sourced() {
     if ! [ $LGREEN_PROFILE_SOURCED_COUNT ]; then
         echo "WARNING: Profile has not been sourced, so sourcing it now..."
         source "$HOME/.profile"
+    fi
+}
+
+lgreen_conditionally_start_attach_tmux() {
+    if [ -n "$SSH_TTY" -a -z "$TMUX" ]; then
+        tmux attach || tmux new -s Alpha
     fi
 }
 
@@ -297,8 +297,8 @@ lgreen_setup_chromium_depot_tools() {
 # Main
 #-------------------
 lgreen_track_shell_sourced_count
-lgreen_conditionally_start_attach_tmux
 lgreen_source_profile_if_not_sourced
+lgreen_conditionally_start_attach_tmux
 lgreen_setup_fzf
 lgreen_setup_perforce_config
 lgreen_source_os_shell
