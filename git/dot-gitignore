@@ -14,7 +14,7 @@ flycheck_*.el
 # C++
 .ccls/
 .clangd/
-.cache
+.cache/
 compile_commands.json
 
 # Ignore tags created by etags, ctags, gtags (GNU global) and cscope
