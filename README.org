@@ -19,6 +19,12 @@ One each OS platform there are multiple options for package management. On Linux
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
+*** Install =Python Index Package manager= :Linux:macOS:Windows:
+It comes with =Python= and can be run using:
+#+begin_src sh
+python3 -m pip <PIP command params>
+#+end_src
+
 ** Install packages
 Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a Brewfile, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
 *** Install packages using =Homebrew= :Linux:macOS:
@@ -49,6 +55,16 @@ scoop install windows_rig.scoop      # bulk install
 **** Creating/Updating Scoop export
 #+begin_src ps
 scoop export <filename>
+#+end_src
+*** Install packages using =Python PIP= :Linux:macOS:Windows:
+**** Bulk install using export file
+The =python= =pip= export file is called a =requirments= file:
+#+begin_src sh
+python3 -m pip install -r <path-to-requirements.txt>
+#+end_src
+**** Creating/Updating PIP export
+#+begin_src sh
+python3 -m pip freeze > requirements.txt
 #+end_src
 
 *** Install packages using =Chocolatey= :Windows:
