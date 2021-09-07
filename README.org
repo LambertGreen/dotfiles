@@ -483,7 +483,7 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 ** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
 *** Stow =Posix= configs
 #+begin_src sh
-stow shell git git_my git_work tmux vim nvim emacs
+stow shell git git_my git_work tmux vim nvim emacs spelling
 #+end_src
 
 *** Stow =macOS= config
