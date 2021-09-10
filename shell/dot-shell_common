@@ -295,8 +295,9 @@ lgreen_setup_chromium_depot_tools() {
 }
 
 lgreen_setup_doom_emacs() {
-    export DOOMDIR="$HOME/.emacs.doom"
-    export PATH="$PATH:$DOOMDIR/bin/"
+    export DOOMDIR="$HOME/.doom.d"
+    export EMACSDIR="$HOME/.emacs.doom"
+    export PATH="$PATH:$EMACSDIR/bin/"
 }
 
 #-------------------

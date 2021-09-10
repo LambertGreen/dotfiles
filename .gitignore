@@ -1,18 +1,5 @@
-# Operating system files
-.DS_Store
-thumbs.db
-
-# Editor files
-tags
-.tags
-Session.vim
-.vimrc
-
-# Compiler files
-.clang-format
-
 # Karabiner backup directory
-config/karabiner/automatic_backups
+karabiner/.config/karabiner/automatic_backups/
 
 # Nvim
 nvim/.config/nvim/.netrwhist
@@ -21,4 +8,4 @@ nvim/.config/nvim/backup/
 nvim/.config/nvim/plugged/
 nvim/.config/nvim/swap/
 nvim/.config/nvim/undo/
-/nvim/.config/nvim/spell/
+nvim/.config/nvim/spell/

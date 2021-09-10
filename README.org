@@ -19,6 +19,12 @@ One each OS platform there are multiple options for package management. On Linux
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
+*** Install =Python Index Package manager= :Linux:macOS:Windows:
+It comes with =Python= and can be run using:
+#+begin_src sh
+python3 -m pip <PIP command params>
+#+end_src
+
 ** Install packages
 Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a Brewfile, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
 *** Install packages using =Homebrew= :Linux:macOS:
@@ -30,10 +36,14 @@ cd MacbookAir                            # change directory for the relevant mac
 # Edit Brewfile if needed to comment out uneeded packages
 brew bundle                              # bulk install packages
 #+end_src
+
+***** Checked in =Brewfile='s
+- [[file:Brewfiles/][Macbook Air]]
 **** Creating/Updating =Brewfile=
 #+begin_src sh
 brew bundle dump
 #+end_src
+
 *** Install packages using =Scoop= :Windows:
 **** Bulk install using export file
 Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
@@ -45,6 +55,21 @@ scoop install windows_rig.scoop      # bulk install
 **** Creating/Updating Scoop export
 #+begin_src ps
 scoop export <filename>
+#+end_src
+*** Install packages using =Python PIP= :Linux:macOS:Windows:
+**** Bulk install using export file
+The =python= =pip= export file is called a =requirments= file:
+#+begin_src sh
+python3 -m pip install -r <path-to-requirements.txt>
+#+end_src
+**** Creating/Updating PIP export
+#+begin_src sh
+python3 -m pip freeze > requirements.txt
+#+end_src
+
+*** Install packages using =Chocolatey= :Windows:
+#+begin_src ps
+choco install AutoHotKey
 #+end_src
 
 ** Install from sources
@@ -458,7 +483,7 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 ** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
 *** Stow =Posix= configs
 #+begin_src sh
-stow shell git git_my git_work tmux vim nvim emacs
+stow shell git git_my git_work tmux vim nvim emacs spelling
 #+end_src
 
 *** Stow =macOS= config
@@ -553,7 +578,10 @@ So that simply doing ~stow emacs~ get things all done, or provide shorter setup 
 *** Notes
 I have already added =Chemacs2= as a submodule, and it was convenient, so I think we should simply add =Doom= as well. But then what about =Spacemacs=?
 
-** TODO Consider adding a =Brewfile=
-1. This is more automated, and one can run checks on a system against a Brewfile.
-2. Less blocks in this README
+** TODO Add package manager export files for your machines [/]
+   Let's add these as a quick backup of existing installed applications.
+*** [ ] Add =Brewfile= for MacBook Air
+*** [ ] Add =Brewfile= for MacBook Pro
+*** [ ] Add =Scoop= export file for Windows Gaming rig
+*** [ ] Add =Brewfile= for Ubuntu WSL machine
 ** TODO Double check =Scoop= sections on a Windows machine
