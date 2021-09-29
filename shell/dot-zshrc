@@ -159,6 +159,22 @@ lgreen_zsh_init_completions() {
     fi
 }
 
+lgreen_setup_emacs_vterm() {
+    if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        && [[ -n ${EMACS_VTERM_PATH} ]] \
+        && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh ]]; then
+        source ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh
+
+        find_file() {
+            vterm_cmd find-file "$(realpath "${@:-.}")"
+        }
+
+        say() {
+            vterm_cmd message "%s" "$*"
+        }
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
@@ -189,4 +205,5 @@ lgreen_init_fzf
 lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
+lgreen_setup_emacs_vterm
 lgreen_conditionally_stop_profiler
