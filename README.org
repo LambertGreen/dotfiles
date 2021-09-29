@@ -10,7 +10,7 @@ This README provides steps to setup various applications and their associated co
 
 * Install apps
 ** Install package manager
-One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin priviledges on the machine.
+One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
