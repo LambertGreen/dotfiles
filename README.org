@@ -11,9 +11,29 @@ This README provides steps to setup various applications and their associated co
 * Install apps
 ** Install package manager
 One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
+
+Update:
+I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
+
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#+end_src
+*** Install =Nix=/=Home Manager= :Linux:macOS:
+**** Install =Nix= first
+#+begin_src sh
+sh <(curl -L https://nixos.org/nix/install) --daemon
+
+# Note: for security reasons verify the installation script using GPG signatures
+curl -o install-nix-2.3.16 https://releases.nixos.org/nix/nix-2.3.16/install
+curl -o install-nix-2.3.16.asc https://releases.nixos.org/nix/nix-2.3.16/install.asc
+gpg2 --recv-keys B541D55301270E0BCF15CA5D8170B4726D7198DE
+gpg2 --verify ./install-nix-2.3.16.asc
+sh ./install-nix-2.3.16
+#+end_src
+**** Install =Home manager=
+#+begin_src sh
+nix-env -iA nixpkgs.home-manager
 #+end_src
 *** Install =Scoop= :Windows:
 #+begin_src ps
@@ -44,6 +64,30 @@ brew bundle                              # bulk install packages
 brew bundle dump
 #+end_src
 
+*** Install packages using =Nix=/=Home Manager=
+=Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
+#+begin_src nix
+{ pkgs, ... }:
+
+{
+  nixpkgs.overlays = [
+    (import (builtins.fetchTarball {
+      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+    }))
+  ];
+
+  home.packages = [
+    pkgs.fd
+    pkgs.tmux
+  ];
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacsGcc;
+    extraPackages = (epkgs: [ epkgs.vterm ] );
+  };
+}
+#+end_src
 *** Install packages using =Scoop= :Windows:
 **** Bulk install using export file
 Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
@@ -585,3 +629,4 @@ I have already added =Chemacs2= as a submodule, and it was convenient, so I thin
 *** [ ] Add =Scoop= export file for Windows Gaming rig
 *** [ ] Add =Brewfile= for Ubuntu WSL machine
 ** TODO Double check =Scoop= sections on a Windows machine
+** TODO Add =Nix= files to the repo
