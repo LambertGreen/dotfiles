@@ -24,7 +24,7 @@ lgreen_source_profile_if_not_sourced() {
 }
 
 lgreen_conditionally_start_attach_tmux() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" ]; then
+    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
         tmux -V
         tmux attach || tmux new -s Alpha
     fi
