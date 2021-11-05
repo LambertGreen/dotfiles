@@ -170,6 +170,7 @@ lgreen_setup_emacs_vterm() {
         }
 
         say() {
+        message() {
             vterm_cmd message "%s" "$*"
         }
     fi
