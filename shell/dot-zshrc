@@ -169,9 +169,16 @@ lgreen_setup_emacs_vterm() {
             vterm_cmd find-file "$(realpath "${@:-.}")"
         }
 
-        say() {
+        message() {
             vterm_cmd message "%s" "$*"
         }
+    fi
+
+    # Workaround for % being written always by ZSH in Vterm
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        setopt PROMPT_CR
+        setopt PROMPT_SP
+        export PROMPT_EOL_MARK=""
     fi
 }
 
