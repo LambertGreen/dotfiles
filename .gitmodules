@@ -24,3 +24,6 @@
 	path = emacs/dot-emacs.doom
 	url = git@github.com:hlissner/doom-emacs.git
 	branch = develop
+[submodule "emacs/dot-emacs.spacemacs"]
+	path = emacs/dot-emacs.spacemacs
+	url = https://github.com/syl20bnr/spacemacs
