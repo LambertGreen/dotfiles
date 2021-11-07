@@ -430,7 +430,7 @@ if v:version >= 800
         " }}}
         " }}}
         " Fuzzy file search {{{
-        Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+        Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
         Plug 'junegunn/fzf.vim'
         " FZF settings {{{
         if executable('fd')
