@@ -23,6 +23,12 @@ lgreen_source_profile_if_not_sourced() {
     fi
 }
 
+lgreen_setup_tmux-256color() {
+    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ]; then
+        /usr/bin/tic -x "$HOME/.tmux-256color"
+    fi
+}
+
 lgreen_conditionally_start_attach_tmux() {
     if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
         tmux -V
@@ -311,6 +317,7 @@ lgreen_setup_doom_emacs() {
 #-------------------
 lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
+lgreen_setup_tmux-256color
 lgreen_conditionally_start_attach_tmux
 lgreen_setup_fzf
 lgreen_setup_perforce_config
