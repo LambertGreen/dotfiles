@@ -244,6 +244,12 @@ lgreen_rg_with_pager() {
     fi
 }
 
+lgreen_run_emacs() {
+# TODO Implement run-emacs
+    echo "Not implemented"
+    return 1
+}
+
 lgreen_setup_aliases() {
     alias vim=nvim
     alias gw=lgreen_run_gradlew
