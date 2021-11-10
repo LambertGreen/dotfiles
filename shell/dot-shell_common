@@ -250,20 +250,13 @@ lgreen_rg_with_pager() {
     fi
 }
 
-lgreen_run_emacs() {
-# TODO Implement run-emacs
-    echo "Not implemented"
-    return 1
-}
-
 lgreen_setup_aliases() {
-    alias vim=nvim
-    alias gw=lgreen_run_gradlew
+    alias e="emacsclient -t -a nvim"
     alias g=git
-    alias locate="locate -i" # case-insensitive as default
+    alias vi=nvim
     alias rg=lgreen_rg_with_pager
-    alias et="emacsclient -t -a nvim"
-    alias en="emacsclient -c -n -a ''"
+    alias gw=lgreen_run_gradlew
+    alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
