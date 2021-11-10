@@ -252,6 +252,7 @@ lgreen_rg_with_pager() {
 
 lgreen_setup_aliases() {
     alias e="emacsclient -t -a nvim"
+    alias ec="emacsclient -c -n -a ''"
     alias g=git
     alias vi=nvim
     alias rg=lgreen_rg_with_pager
