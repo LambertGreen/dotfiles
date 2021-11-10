@@ -38,7 +38,7 @@ lgreen_setup_profile_env() {
     export PATH=$HOME/bin:/usr/local/bin:/usr/local/sbin:$PATH
 
     # Editor
-    export EDITOR=nvim
+    export EDITOR="emacsclient -t -a nvim"
     export VISUAL=$EDITOR
 
     # BAT theme
