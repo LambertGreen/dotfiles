@@ -446,7 +446,7 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
 #+begin_src sh
 mkdir ~/.zinit
-git clone https://github.com/zdharma/zinit.git ~/.zinit/bin
+git clone https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
 #+end_src
 ** Install =Sword='s =installmgr=
 #+begin_src sh
