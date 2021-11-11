@@ -19,10 +19,3 @@
 # that needs an include file for a library installed
 # via brew.
 export PATH=/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:$PATH
-
-# Set locale
-export LC_ALL=en_US.UTF-8
-
-# Editor
-export EDITOR=nvim         # $EDITOR opens in terminal
-export VISUAL=vimr         # $VISUAL opens in GUI mode
