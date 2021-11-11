@@ -629,4 +629,17 @@ I have already added =Chemacs2= as a submodule, and it was convenient, so I thin
 *** [ ] Add =Scoop= export file for Windows Gaming rig
 *** [ ] Add =Brewfile= for Ubuntu WSL machine
 ** TODO Double check =Scoop= sections on a Windows machine
+** TODO Address that =Powershell= needs modules to be installed
+#+begin_src  ps
+install-module -Name PSFzf -Scope CurrentUser
+#+end_src
+Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
+Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
 ** TODO Add =Nix= files to the repo
+** TODO Address issue where SSH-Agent will not work in =Windows=
+The steps to get =git= working fine with =ssh= in =Windows= are:
+1. The ~Windows OpenSSH Agent~ service must be changed from status ~disabled~ to ~enabled~ and set to start automatically.
+2. Git must be configured to use the Windows SSH executable:
+#+begin_src ps
+git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
+#+end_src
