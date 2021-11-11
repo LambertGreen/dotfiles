@@ -20,6 +20,7 @@
 [submodule "emacs/dot-spacemacs.d"]
 	path = emacs/dot-spacemacs.d
 	url = git@github.com:LambertGreen/dot-spacemacs.git
+ branch = master
 [submodule "emacs/dot-emacs.doom"]
 	path = emacs/dot-emacs.doom
 	url = git@github.com:hlissner/doom-emacs.git
@@ -27,3 +28,4 @@
 [submodule "emacs/dot-emacs.spacemacs"]
 	path = emacs/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
+	branch = develop
