@@ -214,3 +214,8 @@ lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_setup_emacs_vterm
 lgreen_conditionally_stop_profiler
+
+# Remove any duplicates in the path variable
+# Note: it is best to remove the places where duplicates
+# are being applied, but I like this safety check
+typeset -U path
