@@ -260,14 +260,14 @@ lgreen_setup_aliases() {
     alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
-        alias ls='ls --color'
-        alias ll='ls -lh --color'
-        alias lla='ls -lha --color'
-    elif [ "$UNAME" = "Darwin" ]; then
+    if [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -lh --color'
         alias lla='gls -lha --color'
+    else
+        alias ls='ls --color'
+        alias ll='ls -lh --color'
+        alias lla='ls -lha --color'
     fi
 }
 
