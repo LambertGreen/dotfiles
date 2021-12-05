@@ -113,7 +113,7 @@ python3 -m pip freeze > requirements.txt
 
 *** Install packages using =Chocolatey= :Windows:
 #+begin_src ps
-choco install AutoHotKey
+choco install AutoHotKey --install-arguments '/uiAccess=1'
 #+end_src
 
 ** Install from sources
