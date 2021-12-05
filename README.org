@@ -39,6 +39,12 @@ nix-env -iA nixpkgs.home-manager
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
+*** Install =pacman= (from =MSYS2=) :Windows:
+We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
+#+begin_src sh
+scoop install msys2
+scoop hold msys2 # Add a hold since msys2 should be updated via pacman
+#+end_src
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
 It comes with =Python= and can be run using:
 #+begin_src sh
@@ -114,6 +120,11 @@ python3 -m pip freeze > requirements.txt
 *** Install packages using =Chocolatey= :Windows:
 #+begin_src ps
 choco install AutoHotKey --install-arguments '/uiAccess=1'
+#+end_src
+*** Install packages using =Pacman= :Windows:
+#+begin_src sh
+pacman -Syu # first update system
+pacman -S aspell aspell-en tmux zsh
 #+end_src
 
 ** Install from sources
