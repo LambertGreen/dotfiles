@@ -30,7 +30,13 @@ Set-Alias g git
 Import-Module -Name posh-git
 Import-Module -Name oh-my-posh
 
-Set-Theme Powerlevel10k-Lean
+Set-PoshPrompt Powerlevel10k_Lean
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
+
+# Chocolatey profile
+$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+if (Test-Path($ChocolateyProfile)) {
+  Import-Module "$ChocolateyProfile"
+}

@@ -1,0 +1,9 @@
+ThemeFile=dracula
+Transparency=low
+Font=Iosevka NF
+FontHeight=13
+FontSmoothing=full
+BoldAsFont=yes
+BoldAsColour=no
+AllowBlinking=yes
+Scrollbar=none
