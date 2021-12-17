@@ -627,18 +627,24 @@ CLOSED: [2021-06-02 Wed 16:05]
 CLOSED: [2021-06-02 Wed 21:33]
 ** TODO Replace individual per package calls with combined single line installs
 For example ~scoop p1 p2 p3~
-** TODO Consider adding =Chemacs2= and =Doom= as sub-modules
+** DONE Consider adding =Chemacs2= and =Doom= as sub-modules
+CLOSED: [2021-12-14 Tue 20:08]
 So that simply doing ~stow emacs~ get things all done, or provide shorter setup blocks.
 
 *** Notes
 I have already added =Chemacs2= as a submodule, and it was convenient, so I think we should simply add =Doom= as well. But then what about =Spacemacs=?
 
-** TODO Add package manager export files for your machines [/]
+** DONE Add package manager export files for your machines [4/4]
+CLOSED: [2021-12-14 Tue 20:08]
    Let's add these as a quick backup of existing installed applications.
-*** [ ] Add =Brewfile= for MacBook Air
-*** [ ] Add =Brewfile= for MacBook Pro
-*** [ ] Add =Scoop= export file for Windows Gaming rig
-*** [ ] Add =Brewfile= for Ubuntu WSL machine
+*** [X] Add =Brewfile= for MacBook Air
+CLOSED: [2021-12-14 Tue 20:08]
+*** [X] Add =Brewfile= for MacBook Pro
+CLOSED: [2021-12-14 Tue 20:08]
+*** [X] Add =Scoop= export file for Windows Gaming rig
+CLOSED: [2021-12-14 Tue 20:08]
+*** [X] Add =Brewfile= for Ubuntu WSL machine
+CLOSED: [2021-12-14 Tue 20:08]
 ** TODO Double check =Scoop= sections on a Windows machine
 ** TODO Address that =Powershell= needs modules to be installed
 #+begin_src  ps
