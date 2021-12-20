@@ -605,7 +605,30 @@ Using that one restores colours in htop for me. It can be installed by downloadi
 #+end_example
 
 The contents of the gist mentioned above are saved in file ~./tmux-256color~.
+** Setting up =24 bit true color= for =Emacs= in terminal mode
+The following file should be used to compile the appropriate terminfo
+#+begin_src sh
+# Use colon separators.
+xterm-24bit|xterm with 24-bit direct color mode,
+    use=xterm-256color,
+    setb24=\E[48:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+    setf24=\E[38:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+# Use semicolon separators.
+xterm-24bits|xterm with 24-bit direct color mode,
+    use=xterm-256color,
+    setb24=\E[48;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+    setf24=\E[38;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+#+end_src
 
+Save the above in a file e.g ~terminfo-24bit.src~ and then run the below:
+#+begin_src sh
+tic -x -o ~/.terminfo terminfo-24bit.src
+#+end_src
+
+Now =Emacs= can be started with true-color using:
+#+begin_src sh
+TERM=xterm-24bit emacs -nw
+#+end_src
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
