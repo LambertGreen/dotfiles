@@ -605,6 +605,14 @@ Using that one restores colours in htop for me. It can be installed by downloadi
 #+end_example
 
 The contents of the gist mentioned above are saved in file ~./tmux-256color~.
+** Setting up fonts for =Doom Emacs= on Windows
+There are some manual steps that need to be done:
+1. Run the below interactive functions:
+#+begin_src elisp
+(all-the-icons-install-fonts)      ;; for icons
+(+ligatures/install-patched-font)  ;; for ligatures
+#+end_src
+2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
 
 * Testing using Docker
 ** Pull docker base image
