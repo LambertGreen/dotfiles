@@ -535,11 +535,12 @@ diatheke -b KJV -k Jn 3:16
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
-** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
+** Symlink dotfiles using =Gnu Stow= :Linux:macOS:msys:
 *** Stow =Posix= configs
 #+begin_src sh
 stow shell git git_my git_work tmux vim nvim emacs spelling
 #+end_src
+Note: =stow= on =msys2= does not actually create symlinks, and instead does a copy.
 
 *** Stow =macOS= config
 #+begin_src sh
