@@ -1,12 +1,17 @@
-personal_ws-1.1 en 9 
+personal_ws-1.1 en 16 
 Neovim
+README
+Rebase
 TODOs
 Tmux
 WSL
+config
+integrations
+katas
 macOS
 memoization
-integrations
 performant
 repo
 reproducibility
 symlinked
+todo
