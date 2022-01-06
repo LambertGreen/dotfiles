@@ -24,7 +24,7 @@ lgreen_source_profile_if_not_sourced() {
 }
 
 lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ]; then
+    if [ ! -f "$HOME/.terminfo/74/tmux-256color" -a -f "$HOME/.tmux-256color" ]; then
         /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
