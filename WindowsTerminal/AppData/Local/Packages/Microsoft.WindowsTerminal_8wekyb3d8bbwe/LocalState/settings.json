@@ -1,6 +1,6 @@
 {
     "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions":
+    "actions": 
     [
         {
             "command": 
@@ -52,7 +52,10 @@
                 "backgroundImageOpacity": 0.80000000000000004,
                 "colorScheme": "One Half Dark",
                 "commandline": "powershell.exe",
-                "fontFace": "Iosevka",
+                "font": 
+                {
+                    "face": "Iosevka"
+                },
                 "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
                 "hidden": false,
                 "name": "Windows PowerShell",
