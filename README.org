@@ -467,6 +467,12 @@ mkdir -p $SWORD_PATH/mods.d
 echo yes |installmgr -init               # create a basic user config file
 echo yes |installmgr -sc                 # sync config with list of known remote repos
 #+end_src
+** Install =Keypirinha='s =PackageControl=
+1. Open the ~Keypirinha: Console~ (Shortcut: ~F2~)
+2. Enter the following:
+#+begin_src python
+import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-package";d=kpn.build_urllib_opener().open("https://github.com/ueffel/Keypirinha-PackageControl/releases/download/1.0.4/"+p);pb=d.read();d.close();f=open(os.path.join(kp.installed_package_dir(),p),"wb");f.write(pb);f.close()
+#+end_src
 
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
