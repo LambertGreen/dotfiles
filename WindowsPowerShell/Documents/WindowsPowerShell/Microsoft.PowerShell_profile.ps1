@@ -40,3 +40,19 @@ $ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
 if (Test-Path($ChocolateyProfile)) {
   Import-Module "$ChocolateyProfile"
 }
+
+# Enable Windows dark mode
+function lgreen-enable-dark-mode {
+  Set-ItemProperty `
+    -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize `
+    -Name AppsUseLightTheme `
+    -Value 0
+}
+
+# Disable Windows dark mode
+function lgreen-disable-dark-mode {
+  Set-ItemProperty `
+    -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize `
+    -Name AppsUseLightTheme `
+    -Value 1
+}
