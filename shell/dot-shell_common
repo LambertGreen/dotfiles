@@ -24,7 +24,7 @@ lgreen_source_profile_if_not_sourced() {
 }
 
 lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ]; then
+    if [ ! -f "$HOME/.terminfo/74/tmux-256color" -a -f "$HOME/.tmux-256color" ]; then
         /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
@@ -256,7 +256,7 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_aliases() {
-    alias e="emacsclient -t -a nvim"
+    alias e="TERM=xterm-24bit emacsclient -t -a nvim"
     alias ec="emacsclient -c -n -a ''"
     alias g=git
     alias vi=nvim
@@ -265,14 +265,14 @@ lgreen_setup_aliases() {
     alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
-        alias ls='ls --color'
-        alias ll='ls -lh --color'
-        alias lla='ls -lha --color'
-    elif [ "$UNAME" = "Darwin" ]; then
+    if [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -lh --color'
         alias lla='gls -lha --color'
+    else
+        alias ls='ls --color'
+        alias ll='ls -lh --color'
+        alias lla='ls -lha --color'
     fi
 }
 
