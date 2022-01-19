@@ -1,12 +1,21 @@
-personal_ws-1.1 en 9 
+personal_ws-1.1 en 20 
+JSON
 Neovim
+README
+Rebase
 TODOs
 Tmux
 WSL
+async
+config
+integrations
+katas
 macOS
 memoization
-integrations
 performant
 repo
+repro
 reproducibility
 symlinked
+todo
+unhandled
