@@ -255,6 +255,12 @@ lgreen_rg_with_pager() {
     fi
 }
 
+lgreen_setup_tmux() {
+    if [ -f "$HOME/.tmux/scripts/tmux.sh" ]; then
+        source "$HOME/.tmux/scripts/tmux.sh"
+    fi
+}
+
 lgreen_setup_aliases() {
     alias e="TERM=xterm-24bit emacsclient -t -a nvim"
     alias ec="emacsclient -c -n -a ''"
@@ -338,6 +344,7 @@ lgreen_setup_rbenv
 
 lgreen_setup_ntfy
 lgreen_setup_doom_emacs
+lgreen_setup_tmux
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
