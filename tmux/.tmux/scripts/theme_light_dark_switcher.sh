@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 
-lgreen_setup_tmux_theme_light() {
-    if [ -f "$TMUX_LIGHT_THEME" ]; then
-        tmux source "$TMUX_LIGHT_THEME"
-        export TMUX_THEME="light"
-    fi
+lgreen_source_tmux_theme_light() {
+    export TMUX_THEME_FILE="$(tmux showenv -g TMUX_THEME_LIGHT | sed 's/TMUX_THEME_LIGHT=//g')"
+    tmux source "$TMUX_THEME_FILE"
+    tmux setenv -g TMUX_THEME "light"
 }
 
-lgreen_setup_tmux_theme_dark() {
-    if [ -f "$TMUX_DARK_THEME" ]; then
-        tmux source "$TMUX_DARK_THEME"
-        export TMUX_THEME="dark"
-    fi
+lgreen_source_tmux_theme_dark() {
+    export TMUX_THEME_FILE="$(tmux showenv -g TMUX_THEME_DARK | sed 's/TMUX_THEME_DARK=//g')"
+    tmux source "$TMUX_THEME_FILE"
+    tmux setenv -g TMUX_THEME "dark"
 }
 
 lgreen_toggle_tmux_light_dark_mode() {
-    if [ "$TMUX_THEME" = "light" ]; then
-        lgreen_setup_tmux_theme_dark
+    if [ "$(tmux showenv -g TMUX_THEME)" = "TMUX_THEME=light" ]; then
+        lgreen_source_tmux_theme_dark
     else
-        lgreen_setup_tmux_theme_light
+        lgreen_source_tmux_theme_light
     fi
 }
 
 alias tt=lgreen_toggle_tmux_light_dark_mode
+
+lgreen_source_tmux_theme_dark
