@@ -262,6 +262,7 @@ lgreen_setup_tmux() {
 }
 
 lgreen_setup_aliases() {
+    alias emacs="TERM=xterm-24bit emacs -nw"
     alias e="TERM=xterm-24bit emacsclient -t -a nvim"
     alias ec="emacsclient -c -n -a ''"
     alias g=git
