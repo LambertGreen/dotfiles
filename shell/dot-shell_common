@@ -82,7 +82,7 @@ lgreen_setup_direnv_for_zsh() {
 
 lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
-        eval "$(pyenv init -)"
+        eval "$(pyenv init --path)"
         eval "$(pyenv virtualenv-init -)"
     fi
 }
