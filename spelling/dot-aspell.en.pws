@@ -1,19 +1,30 @@
-personal_ws-1.1 en 18 
+personal_ws-1.1 en 21
 Dialogs
 Hammerspoon
 JSON
 Neovim
 README
+JSON
+Neovim
+README
+Rebase
+TFS
 TODOs
 Tmux
 UX
 WSL
-integrations
 keybinds
+async
+config
+integrations
+katas
 macOS
 memoization
 performant
 repo
+repro
 reproducibility
 symlink
 symlinked
+todo
+unhandled

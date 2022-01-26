@@ -24,7 +24,7 @@ lgreen_source_profile_if_not_sourced() {
 }
 
 lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ]; then
+    if [ ! -f "$HOME/.terminfo/74/tmux-256color" -a -f "$HOME/.tmux-256color" ]; then
         /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
@@ -125,7 +125,12 @@ lgreen_setup_dev_env_node_js () {
 }
 
 lgreen_setup_dev_env_rust () {
-    export PATH="$PATH:$HOME/.cargo/bin"
+    if [ -f  "$HOME/.cargo/env" ]; then
+        source "$HOME/.cargo/env"
+    fi
+    if [ -d  "$HOME/.cargo/bin" ]; then
+        export PATH="$PATH:$HOME/.cargo/bin"
+    fi
 }
 
 lgreen_setup_dev_env_go () {
@@ -250,8 +255,15 @@ lgreen_rg_with_pager() {
     fi
 }
 
+lgreen_setup_tmux_theme_switcher() {
+    if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+        source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+    fi
+}
+
 lgreen_setup_aliases() {
-    alias e="emacsclient -t -a nvim"
+    alias emacs="TERM=xterm-24bit emacs -nw"
+    alias e="TERM=xterm-24bit emacsclient -t -a nvim"
     alias ec="emacsclient -c -n -a ''"
     alias g=git
     alias vi=nvim
@@ -260,14 +272,14 @@ lgreen_setup_aliases() {
     alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
-        alias ls='ls --color'
-        alias ll='ls -lh --color'
-        alias lla='ls -lha --color'
-    elif [ "$UNAME" = "Darwin" ]; then
+    if [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -lh --color'
         alias lla='gls -lha --color'
+    else
+        alias ls='ls --color'
+        alias ll='ls -lh --color'
+        alias lla='ls -lha --color'
     fi
 }
 
@@ -333,6 +345,7 @@ lgreen_setup_rbenv
 
 lgreen_setup_ntfy
 lgreen_setup_doom_emacs
+lgreen_setup_tmux_theme_switcher
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
