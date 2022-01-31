@@ -1,11 +1,19 @@
-personal_ws-1.1 en 20 
+personal_ws-1.1 en 21
+Dialogs
+Hammerspoon
+JSON
+Neovim
+README
 JSON
 Neovim
 README
 Rebase
+TFS
 TODOs
 Tmux
+UX
 WSL
+keybinds
 async
 config
 integrations
@@ -16,6 +24,7 @@ performant
 repo
 repro
 reproducibility
+symlink
 symlinked
 todo
 unhandled

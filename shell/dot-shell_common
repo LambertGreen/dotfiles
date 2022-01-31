@@ -82,7 +82,7 @@ lgreen_setup_direnv_for_zsh() {
 
 lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
-        eval "$(pyenv init -)"
+        eval "$(pyenv init --path)"
         eval "$(pyenv virtualenv-init -)"
     fi
 }
@@ -255,7 +255,14 @@ lgreen_rg_with_pager() {
     fi
 }
 
+lgreen_setup_tmux_theme_switcher() {
+    if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+        source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+    fi
+}
+
 lgreen_setup_aliases() {
+    alias emacs="TERM=xterm-24bit emacs -nw"
     alias e="TERM=xterm-24bit emacsclient -t -a nvim"
     alias ec="emacsclient -c -n -a ''"
     alias g=git
@@ -338,6 +345,7 @@ lgreen_setup_rbenv
 
 lgreen_setup_ntfy
 lgreen_setup_doom_emacs
+lgreen_setup_tmux_theme_switcher
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
