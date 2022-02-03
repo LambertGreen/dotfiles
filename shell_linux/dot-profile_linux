@@ -29,7 +29,7 @@ lgreen_setup-umask-for-wsl() {
 }
 
 lgreen_setup-display-for-wsl() {
-    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+    if [[ "$(< /proc/version)" = *icrosoft* ]]; then
         DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
         export DISPLAY
     fi
