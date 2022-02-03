@@ -82,7 +82,14 @@ lgreen_setup_direnv_for_zsh() {
 
 lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
-        eval "$(pyenv init --path)"
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+        if [ "$UNAME" = "Darwin" ]; then
+            eval "$(pyenv init -)"
+        elif [ "$UNAME" = "Linux" ]; then
+            eval "$(pyenv init --path)"
+        fi
         eval "$(pyenv virtualenv-init -)"
     fi
 }
