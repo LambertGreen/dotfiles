@@ -269,6 +269,7 @@ lgreen_setup_aliases() {
     alias vi=nvim
     alias rg=lgreen_rg_with_pager
     alias gw=lgreen_run_gradlew
+    alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
