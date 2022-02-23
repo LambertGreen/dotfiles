@@ -1,6 +1,8 @@
-personal_ws-1.1 en 25 
+personal_ws-1.1 en 25
+Dialogs
 Github
 HTTPS
+Hammerspoon
 JSON
 Neovim
 README
@@ -8,18 +10,21 @@ Rebase
 TFS
 TODOs
 Tmux
+UX
 WSL
 async
 config
 executables
 integrations
 katas
+keybinds
 macOS
 memoization
 performant
 repo
 repro
 reproducibility
+symlink
 symlinked
 todo
 unhandled
