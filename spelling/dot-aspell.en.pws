@@ -1,9 +1,7 @@
-personal_ws-1.1 en 21
+personal_ws-1.1 en 27 
 Dialogs
+Dotfiles
 Hammerspoon
-JSON
-Neovim
-README
 JSON
 Neovim
 README
@@ -13,11 +11,11 @@ TODOs
 Tmux
 UX
 WSL
-keybinds
 async
 config
 integrations
 katas
+keybinds
 macOS
 memoization
 performant
