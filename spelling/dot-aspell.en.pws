@@ -1,6 +1,8 @@
-personal_ws-1.1 en 27 
+personal_ws-1.1 en 27
 Dialogs
 Dotfiles
+Github
+HTTPS
 Hammerspoon
 JSON
 Neovim
@@ -13,6 +15,7 @@ UX
 WSL
 async
 config
+executables
 integrations
 katas
 keybinds
@@ -26,3 +29,4 @@ symlink
 symlinked
 todo
 unhandled
+vendoring
