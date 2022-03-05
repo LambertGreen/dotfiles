@@ -3,7 +3,8 @@
 
 [core]
 	autocrlf = true
-	sshCommand = 'C:/Windows/System32/OpenSSH/ssh.exe'
+	sshCommand = 'C:/ProgramData/scoop/apps/win32-openssh/current/ssh.exe'
+
 [user]
 	email = lambert_green@msn.com
 	name = Lambert
