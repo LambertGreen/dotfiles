@@ -266,8 +266,10 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
-        source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+        if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+            source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+        fi
     fi
 }
 
