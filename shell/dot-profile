@@ -57,6 +57,11 @@ lgreen_source_os_profile() {
         if [ -f "$HOME/.profile_linux" ]; then
             source "$HOME/.profile_linux"
         fi
+    elif [[ "$UNAME" == *"_NT"* ]]; then
+        # shellcheck source=profile_msys2
+        if [ -f "$HOME/.profile_msys2" ]; then
+            source "$HOME/.profile_msys2"
+        fi
     fi
 }
 

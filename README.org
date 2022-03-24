@@ -596,6 +596,19 @@ dploy link ./git/dot-gitignore $home/.gitignore
 dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
 dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
 dploy link ./git_win/dot-gitconfig $home/.gitconfig
+
+#-------------
+# Shell (msys2)
+#-------------
+dploy link ./shell/dot-bash_profile $home/.bash_profile
+dploy link ./shell/dot-bashrc $home/.bashrc
+dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
+dploy link ./shell/dot-profile $home/.profile
+dploy link ./shell/dot-shell_common $home/.shell_common
+dploy link ./shell/dot-zprofile $home/.zprofile
+dploy link ./shell/dot-zshrc $home/.zshrc
+dploy link ./shell_msys2/dot-profile_msys2 $home/.profile_msys2
+dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
 * Special app configurations
 ** Setting up =tmux-256color= support
