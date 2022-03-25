@@ -293,6 +293,12 @@ lgreen_setup_aliases() {
         alias ll='ls -lh --color'
         alias lla='ls -lha --color'
     fi
+
+    # On MSYS2 we need to help tmux along
+    # Needed: to use TMUX in non mintty terminals
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        alias tmux='script -c "tmux -u" /dev/null'
+    fi
 }
 
 lgreen_source_local_shell() {
