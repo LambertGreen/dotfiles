@@ -40,6 +40,10 @@ lgreen_setup_zsh() {
     umask 002
 
     # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
+    #
+    # TODO Create a simple uname() function wrapper that hides
+    # the detail of calling uname once and caching it.
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
         if [ "$(< /proc/version)" = "*@(Microsoft|WSL)*" ]; then
             unsetopt BG_NICE
@@ -128,6 +132,13 @@ lgreen_setup_zinit() {
     # For GNU ls (the binaries can be gls, gdircolors)
     zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
     zinit light trapd00r/LS_COLORS
+
+
+    # FZF does not work on MSYS2 so use FZY instead
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        zinit light aperezdc/zsh-fzy
+    fi
 }
 
 lgreen_zsh_show_my_functions() {
@@ -182,6 +193,17 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
+lgreen_setup_fzy_bindings() {
+
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        bindkey '\ec' fzy-cd-widget
+        bindkey '^T'  fzy-file-widget
+        bindkey '^R'  fzy-history-widget
+        bindkey '^P'  fzy-proc-widget
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
@@ -208,12 +230,20 @@ lgreen_setup_p10k
 lgreen_setup_zsh
 lgreen_setup_common_shell
 lgreen_init_p10k
-lgreen_init_fzf
+
+if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+if [[ "$UNAME" == *"_NT"* ]]; then
+    lgreen_setup_fzy_bindings
+else
+    lgreen_init_fzf
+fi
+
 lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_setup_emacs_vterm
 lgreen_conditionally_stop_profiler
+
 
 # Remove any duplicates in the path variable
 # Note: it is best to remove the places where duplicates
