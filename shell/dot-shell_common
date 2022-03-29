@@ -422,7 +422,6 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     # We should be using Emacs more anyway.
     # lgreen_conditionally_start_attach_tmux
 
-    lgreen_setup_fzf
     lgreen_source_os_shell
     lgreen_start_ssh_agent
     lgreen_setup_dircolors
@@ -433,6 +432,7 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_doom_emacs
 
     lgreen_setup_mintty_256color
+    lgreen_setup_dev_env_rust
 fi
 
 # Dev related setup: Not running these automatically to get faster load times
