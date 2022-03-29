@@ -215,6 +215,9 @@ lgreen_source_os_shell() {
     elif [ "$UNAME" = "Linux" ]; then
         # shellcheck source=shell_linux
         [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
+    elif [[ "$UNAME" == *"_NT"* ]]; then
+        # shellcheck source=shell_msys2
+        [ -f "$HOME/.shell_msys2" ] && source "$HOME/.shell_msys2"
     fi
 }
 
@@ -263,14 +266,15 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
-        source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+        if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+            source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+        fi
     fi
 }
 
 lgreen_setup_aliases() {
-    alias emacs="TERM=xterm-24bit emacs -nw"
-    alias e="TERM=xterm-24bit emacsclient -t -a nvim"
+    alias e="TERM=xterm-24bit emacs -nw"
     alias ec="emacsclient -c -n -a ''"
     alias g=git
     alias vi=nvim
@@ -288,6 +292,12 @@ lgreen_setup_aliases() {
         alias ls='ls --color'
         alias ll='ls -lh --color'
         alias lla='ls -lha --color'
+    fi
+
+    # On MSYS2 we need to help tmux along
+    # Needed: to use TMUX in non mintty terminals
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        alias tmux='script -c "tmux -u" /dev/null'
     fi
 }
 
@@ -328,32 +338,102 @@ lgreen_setup_doom_emacs() {
     export PATH="$PATH:$EMACSDIR/bin/"
 }
 
+lgreen_setup_mintty_256color() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        export TERM=xterm-256color
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
-lgreen_track_shell_sourced_count
-lgreen_source_profile_if_not_sourced
-lgreen_setup_tmux-256color
-lgreen_conditionally_start_attach_tmux
-lgreen_setup_fzf
-lgreen_setup_perforce_config
-lgreen_source_os_shell
-lgreen_start_ssh_agent
-lgreen_setup_dircolors
-lgreen_setup_running_inside_emacs
-lgreen_setup_aliases
-lgreen_source_local_shell
-lgreen_source_work_shell
+if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+if [ "$UNAME" = "Linux" ]; then
 
-lgreen_setup_non_sys_openssl
-lgreen_setup_non_sys_sqlite
-lgreen_setup_pyenv
-lgreen_setup_jenv
-lgreen_setup_rbenv
+    lgreen_track_shell_sourced_count
+    lgreen_source_profile_if_not_sourced
+    lgreen_setup_tmux-256color
 
-lgreen_setup_ntfy
-lgreen_setup_doom_emacs
-lgreen_setup_tmux_theme_switcher
+    # TODO Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+
+    lgreen_setup_fzf
+    lgreen_setup_perforce_config
+    lgreen_source_os_shell
+    lgreen_start_ssh_agent
+    lgreen_setup_dircolors
+    lgreen_setup_running_inside_emacs
+    lgreen_setup_aliases
+    lgreen_source_local_shell
+    lgreen_source_work_shell
+
+    lgreen_setup_non_sys_openssl
+    lgreen_setup_non_sys_sqlite
+    lgreen_setup_pyenv
+    lgreen_setup_jenv
+    lgreen_setup_rbenv
+
+    lgreen_setup_ntfy
+    lgreen_setup_doom_emacs
+    lgreen_setup_tmux_theme_switcher
+
+elif [ "$UNAME" = "Darwin" ]; then
+
+    lgreen_track_shell_sourced_count
+    lgreen_source_profile_if_not_sourced
+    lgreen_setup_tmux-256color
+
+    # TODO Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+
+    lgreen_setup_fzf
+    lgreen_setup_perforce_config
+    lgreen_source_os_shell
+    lgreen_start_ssh_agent
+    lgreen_setup_dircolors
+    lgreen_setup_running_inside_emacs
+    lgreen_setup_aliases
+    lgreen_source_local_shell
+    lgreen_source_work_shell
+
+    lgreen_setup_non_sys_openssl
+    lgreen_setup_non_sys_sqlite
+    lgreen_setup_pyenv
+    lgreen_setup_jenv
+    lgreen_setup_rbenv
+
+    lgreen_setup_ntfy
+    lgreen_setup_doom_emacs
+    lgreen_setup_tmux_theme_switcher
+
+elif [[ "$UNAME" == *"_NT"* ]]; then
+
+    lgreen_track_shell_sourced_count
+    lgreen_source_profile_if_not_sourced
+    lgreen_setup_tmux-256color
+
+    # TODO Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+
+    lgreen_source_os_shell
+    lgreen_start_ssh_agent
+    lgreen_setup_dircolors
+    lgreen_setup_running_inside_emacs
+    lgreen_setup_aliases
+    lgreen_source_local_shell
+    lgreen_source_work_shell
+    lgreen_setup_doom_emacs
+
+    lgreen_setup_mintty_256color
+    lgreen_setup_dev_env_rust
+fi
 
 # Dev related setup: Not running these automatically to get faster load times
 # lgreen_setup_dev_env_clang
