@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+lgreen_add_git_for_windows_to_path() {
+    export PATH="/c/Program Files/Git/cmd:$PATH"
+}
+
+lgreen_add_emacs_local_build_to_path() {
+    export PATH="/c/tools/emacs/bin:$PATH"
+}
+
+lgreen_add_git_for_windows_to_path
+lgreen_add_emacs_local_build_to_path

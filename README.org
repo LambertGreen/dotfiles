@@ -35,15 +35,19 @@ sh ./install-nix-2.3.16
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
 #+end_src
+*** Install =Chocolatey= :Windows:
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
 *** Install =Scoop= :Windows:
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
-*** Install =pacman= (from =MSYS2=) :Windows:
+*** Install =Pacman= (from =MSYS2=) :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
+*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a prefered shallower directory structure.
 #+begin_src sh
-scoop install msys2
-scoop hold msys2 # Add a hold since msys2 should be updated via pacman
+choco install msys2
 #+end_src
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
 It comes with =Python= and can be run using:
@@ -118,13 +122,17 @@ python3 -m pip freeze > requirements.txt
 #+end_src
 
 *** Install packages using =Chocolatey= :Windows:
+*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
 #+begin_src ps
 choco install AutoHotKey --install-arguments '/uiAccess=1'
+choco install msys2
+choco install git
 #+end_src
 *** Install packages using =Pacman= :Windows:
 #+begin_src sh
 pacman -Syu # first update system
-pacman -S aspell aspell-en tmux zsh
+pacman -S base-devel tmux zsh vim man-pages-posix neofetch
+pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building and running Emacs
 #+end_src
 
 ** Install from sources
@@ -385,16 +393,13 @@ autohotkey
 carnac
 keypirinha
 powertoys
+mousejiggler
 sumatrapdf
 vlc
 wox
 #+end_example
 
 *** Development Utilities
-#+begin_example
-vcredist2015
-#+end_example
-
 **** Common
 #+begin_example
 automake
@@ -427,6 +432,7 @@ unixodbc
 **** Posix
 #+begin_example
 gcc
+gdb
 llvm
 #+end_example
 **** macOS
@@ -444,7 +450,6 @@ strace
 vcredist2015
 windbg
 #+end_example
-
 
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager= :automated:
@@ -467,7 +472,7 @@ mkdir -p $SWORD_PATH/mods.d
 echo yes |installmgr -init               # create a basic user config file
 echo yes |installmgr -sc                 # sync config with list of known remote repos
 #+end_src
-** Install =Keypirinha='s =PackageControl=
+** Install =Keypirinha='s =PackageControl= :Windows:
 1. Open the ~Keypirinha: Console~ (Shortcut: ~F2~)
 2. Enter the following:
 #+begin_src python
@@ -541,12 +546,12 @@ diatheke -b KJV -k Jn 3:16
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
-** Symlink dotfiles using =Gnu Stow= :Linux:macOS:msys:
+** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
 *** Stow =Posix= configs
 #+begin_src sh
 stow shell git git_my git_work tmux vim nvim emacs spelling
 #+end_src
-Note: =stow= on =msys2= does not actually create symlinks, and instead does a copy.
+*Note*: =stow= on =msys2= does not actually create symlinks, and instead does a copy.
 
 *** Stow =macOS= config
 #+begin_src sh
@@ -596,6 +601,19 @@ dploy link ./git/dot-gitignore $home/.gitignore
 dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
 dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
 dploy link ./git_win/dot-gitconfig $home/.gitconfig
+
+#-------------
+# Shell (msys2)
+#-------------
+dploy link ./shell/dot-bash_profile $home/.bash_profile
+dploy link ./shell/dot-bashrc $home/.bashrc
+dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
+dploy link ./shell/dot-profile $home/.profile
+dploy link ./shell/dot-shell_common $home/.shell_common
+dploy link ./shell/dot-zprofile $home/.zprofile
+dploy link ./shell/dot-zshrc $home/.zshrc
+dploy link ./shell_msys2/dot-profile_msys2 $home/.profile_msys2
+dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
 * Special app configurations
 ** Setting up =tmux-256color= support
