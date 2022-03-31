@@ -136,7 +136,7 @@ pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-t
 #+end_src
 
 ** Install from sources
-Sometime we have to install from sources on systems that have dated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+Sometime we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
 *** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
