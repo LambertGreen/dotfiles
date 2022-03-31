@@ -1,11 +1,9 @@
 
 " Use a nice font
 if has('win32')
-    :GuiFont! Hack\ NF:h12:1
+    set guifont=Iosevka\ NF:h13
 else
-" Tried to set the font for `Vimr` but it does not honor ginit.vim.
-" TODO: Ditch `Vimr` and find a better GUI client that is also cross platform.
-    :GuiFont! Iosevka Nerd Font:h15
+    set guifont=Iosevka\ Nerd\ Font:h13
 end
 
 " Remove ugly tabline

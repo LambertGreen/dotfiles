@@ -136,7 +136,7 @@ pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-t
 #+end_src
 
 ** Install from sources
-Sometime we have to install from sources on systems that have dated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+Sometime we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
 *** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
@@ -681,7 +681,8 @@ docker run -it lambertgreen/dotfiles
 CLOSED: [2021-06-02 Wed 16:05]
 ** DONE Fix first start of =Nvim= to no show errors
 CLOSED: [2021-06-02 Wed 21:33]
-** TODO Replace individual per package calls with combined single line installs
+** DONE Replace individual per package calls with combined single line installs
+CLOSED: [2022-03-29 Tue 16:52]
 For example ~scoop p1 p2 p3~
 ** DONE Consider adding =Chemacs2= and =Doom= as sub-modules
 CLOSED: [2021-12-14 Tue 20:08]
@@ -716,3 +717,5 @@ The steps to get =git= working fine with =ssh= in =Windows= are:
 #+begin_src ps
 git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
+
+*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
