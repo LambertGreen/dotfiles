@@ -45,7 +45,7 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 #+end_src
 *** Install =Pacman= (from =MSYS2=) :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a prefered shallower directory structure.
+*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a preferred shallower directory structure.
 #+begin_src sh
 choco install msys2
 #+end_src
@@ -56,7 +56,7 @@ python3 -m pip <PIP command params>
 #+end_src
 
 ** Install packages
-Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a Brewfile, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
+Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a =Brewfile=, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
 *** Install packages using =Homebrew= :Linux:macOS:
 **** Bulk install using =Brewfile=
 Navigate to the ~brewfiles~ folder for the particular machine where the ~Brewfile~ export was generated, and run the import command e.g.:
