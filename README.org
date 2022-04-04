@@ -580,6 +580,16 @@ dploy stow ./WindowsPowerShell $home
 dploy stow ./WindowsTerminal $home
 
 #-------------
+# TMux
+#-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.tmux.conf
+
+dploy link ./tmux/dot-tmux.conf $home/.tmux.conf
+dploy link ./tmux/dot-tmux-256color $home/.tmux-256color
+dploy link ./tmux/.tmux $home/.tmux
+
+#-------------
 # Vim + Neovim
 #-------------
 dploy link ./vim/dot-vimrc $home/_vimrc
@@ -597,6 +607,9 @@ dploy link ./emacs/dot-doom.d $home/.doom.d
 #-------------
 # Git
 #-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.gitignore, ~/.gitconfig
+
 dploy link ./git/dot-gitignore $home/.gitignore
 dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
 dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
@@ -605,6 +618,9 @@ dploy link ./git_win/dot-gitconfig $home/.gitconfig
 #-------------
 # Shell (msys2)
 #-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.profile, ~/.bash_profile, ~/.bashrc, ~/.zshrc, ~/.zprofile, ~/.shell_common
+
 dploy link ./shell/dot-bash_profile $home/.bash_profile
 dploy link ./shell/dot-bashrc $home/.bashrc
 dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
