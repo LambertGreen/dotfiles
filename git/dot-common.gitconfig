@@ -28,9 +28,6 @@
     un = reset --hard HEAD
     uh = reset --hard HEAD^
 
-[fetch]
-    prune = true
-
 # Personal dev folder
 [includeIf "gitdir:**/dev/my/**"]
     path = ~/.my.gitconfig
