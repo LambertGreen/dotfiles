@@ -131,8 +131,9 @@ choco install git
 *** Install packages using =Pacman= :Windows:
 #+begin_src sh
 pacman -Syu # first update system
-pacman -S base-devel tmux zsh vim man-pages-posix neofetch
-pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building and running Emacs
+pacman -S base-devel git tmux zsh vim man-pages-posix neofetch fzy
+pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building Emacs
+pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
 #+end_src
 
 ** Install from sources
