@@ -719,3 +719,7 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
 
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+** TODO Add a one time bat file for setting up =Windows= ~PATH~ variable
+Maybe this needs to be a manual step?
+Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
