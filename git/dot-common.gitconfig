@@ -2,7 +2,7 @@
 #------------------
 
 [core]
-    editor = nvim
+    editor = vim
     pager = less -+X
     excludesfile = ~/.gitignore
     ingnorecase = false
