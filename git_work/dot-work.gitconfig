@@ -1,3 +1,5 @@
+# -*- mode: gitconfig; -*-
+
 [user]
   email = lgreen@tableau.com
   name = Lambert Green
