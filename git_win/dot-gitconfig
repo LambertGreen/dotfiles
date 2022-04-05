@@ -3,7 +3,7 @@
 
 [core]
 	autocrlf = true
-	sshCommand = 'C:/Users/Lambert/scoop/shims/ssh.exe'
+	sshCommand = 'C:/Users/Lambert/scoop/apps/openssh/current/ssh.exe'
 
 [user]
 	email = lambert_green@msn.com
