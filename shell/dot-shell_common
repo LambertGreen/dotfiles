@@ -255,6 +255,8 @@ lgreen_p4_last_change() {
 
 # If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
 # will use the current Emacs instance.
+# TODO We also need to set a simpler shell environment if we are inside Emacs and not inside VTerm
+# For example don't load ZSH nor any fancy prompts
 lgreen_setup_running_inside_emacs() {
     if  [ -n "$INSIDE_EMACS" ]; then
         export EDITOR="emacsclient"
@@ -349,6 +351,15 @@ lgreen_setup_mintty_256color() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         export TERM=xterm-256color
+    fi
+}
+
+# TODO Provide sanitize environment implementations for non-Linux as well
+lgreen_sanitize_environment() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Linux" ]; then
+        export PATH=/usr/bin:/bin
+        unset LD_LIBRARY_PATH PKG_CONFIG_PATH
     fi
 }
 

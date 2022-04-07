@@ -1,12 +1,11 @@
+# -*- mode: gitconfig; -*-
+
 [include]
     path = ~/.common.gitconfig
 
 [credential]
     helper = cache
 
-[core]
-    autocrlf = input
-	excludesFile = ~/.gitignore
 [init]
 	defaultBranch = main
 
@@ -33,5 +32,6 @@
     hunk-header-file-style = red
     hunk-header-line-number-style = "#067a00"
     hunk-header-style = file line-number syntax
+
 [pull]
 	rebase = false

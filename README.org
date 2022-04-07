@@ -12,7 +12,7 @@ This README provides steps to setup various applications and their associated co
 ** Install package manager
 One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
 
-Update:
+*Update (3/30/2022)*:
 I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
 
 *** Install =Homebrew= :Linux:macOS:
@@ -45,7 +45,7 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 #+end_src
 *** Install =Pacman= (from =MSYS2=) :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a prefered shallower directory structure.
+*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a preferred shallower directory structure.
 #+begin_src sh
 choco install msys2
 #+end_src
@@ -56,7 +56,7 @@ python3 -m pip <PIP command params>
 #+end_src
 
 ** Install packages
-Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a Brewfile, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
+Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a =Brewfile=, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
 *** Install packages using =Homebrew= :Linux:macOS:
 **** Bulk install using =Brewfile=
 Navigate to the ~brewfiles~ folder for the particular machine where the ~Brewfile~ export was generated, and run the import command e.g.:
@@ -131,12 +131,13 @@ choco install git
 *** Install packages using =Pacman= :Windows:
 #+begin_src sh
 pacman -Syu # first update system
-pacman -S base-devel tmux zsh vim man-pages-posix neofetch
-pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building and running Emacs
+pacman -S base-devel git tmux zsh vim man-pages-posix neofetch fzy
+pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building Emacs
+pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
 #+end_src
 
 ** Install from sources
-Sometime we have to install from sources on systems that have dated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+Sometime we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
 *** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
@@ -681,7 +682,8 @@ docker run -it lambertgreen/dotfiles
 CLOSED: [2021-06-02 Wed 16:05]
 ** DONE Fix first start of =Nvim= to no show errors
 CLOSED: [2021-06-02 Wed 21:33]
-** TODO Replace individual per package calls with combined single line installs
+** DONE Replace individual per package calls with combined single line installs
+CLOSED: [2022-03-29 Tue 16:52]
 For example ~scoop p1 p2 p3~
 ** DONE Consider adding =Chemacs2= and =Doom= as sub-modules
 CLOSED: [2021-12-14 Tue 20:08]
@@ -716,3 +718,9 @@ The steps to get =git= working fine with =ssh= in =Windows= are:
 #+begin_src ps
 git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
+
+*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+** TODO Add a one time bat file for setting up =Windows= ~PATH~ variable
+Maybe this needs to be a manual step?
+Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
