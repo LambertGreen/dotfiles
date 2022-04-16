@@ -1,4 +1,4 @@
-personal_ws-1.1 en 56 
+personal_ws-1.1 en 67 
 APIs
 Athmika
 Athmika's
@@ -8,33 +8,40 @@ Dev
 Dialogs
 Dojo
 Dotfiles
+Elisp
 GDB
 GTD
 Github
 GovCloud
+HSA
 HTTPS
 Hammerspoon
 JSON
 Kata
 LogicAssert
 Neovim
+OrgMode
 Prem
 README
+RSS
 Rebase
 SDK
 Senthilkumar
 Spacemacs
 TFS
+TODO's
 TODOs
 TSM
 Tmux
 UX
+VM
 WSL
 async
 backend
 boolean
 centric
 config
+configs
 cpp
 dojo
 dotfiles
@@ -44,8 +51,10 @@ katas
 keybinds
 macOS
 memoization
+merch
 minidump
 performant
+rebase
 repo
 repro
 reproducibility
@@ -53,5 +62,7 @@ symlink
 symlinked
 symlinking
 todo
+todos
 unhandled
 vendoring
+webdev
