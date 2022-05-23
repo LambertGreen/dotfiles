@@ -1,5 +1,6 @@
-personal_ws-1.1 en 67 
+personal_ws-1.1 en 70 
 APIs
+Artifactory
 Athmika
 Athmika's
 Covid
@@ -28,6 +29,7 @@ Rebase
 SDK
 Senthilkumar
 Spacemacs
+Supportabilty
 TFS
 TODO's
 TODOs
@@ -58,6 +60,7 @@ rebase
 repo
 repro
 reproducibility
+repros
 symlink
 symlinked
 symlinking
