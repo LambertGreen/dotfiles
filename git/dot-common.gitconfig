@@ -1,8 +1,7 @@
-# Common Git config
-#------------------
+# -*- mode: gitconfig; -*-
 
 [core]
-    editor = nvim
+    editor = vim
     pager = less -+X
     excludesfile = ~/.gitignore
     ingnorecase = false
@@ -27,6 +26,10 @@
     pu = push --tags
     un = reset --hard HEAD
     uh = reset --hard HEAD^
+
+# My org folder
+[includeIf "gitdir:~/org/**"]
+    path = ~/.my.gitconfig
 
 # Personal dev folder
 [includeIf "gitdir:**/dev/my/**"]

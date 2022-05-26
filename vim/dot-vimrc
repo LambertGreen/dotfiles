@@ -18,6 +18,12 @@ if !has('nvim')
     endif
 endif
 
+" Change current working directory to user home directory
+" - Only needed on Windows where the default directory is wherever Vim was launched from
+if has('win32') || has('win64')
+	cd $USERPROFILE
+endif
+
 " Terminal specific settings {{{
 if has('termguicolors')
     set termguicolors

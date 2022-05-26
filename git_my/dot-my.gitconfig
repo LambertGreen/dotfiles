@@ -1,3 +1,5 @@
+# -*- mode: gitconfig; -*-
+
 [user]
   email = lambert_green@msn.com
   name = Lambert Green
