@@ -1,7 +1,10 @@
-personal_ws-1.1 en 67 
+personal_ws-1.1 en 77 
 APIs
+Artifactory
+Aspirational
 Athmika
 Athmika's
+CMake
 Covid
 CrashShark
 Dev
@@ -16,9 +19,11 @@ GovCloud
 HSA
 HTTPS
 Hammerspoon
+Homebrew
 JSON
 Kata
 LogicAssert
+Magit
 Neovim
 OrgMode
 Prem
@@ -28,14 +33,17 @@ Rebase
 SDK
 Senthilkumar
 Spacemacs
+Supportabilty
 TFS
 TODO's
 TODOs
 TSM
 Tmux
 UX
+Unparented
 VM
 WSL
+Yumna's
 async
 backend
 boolean
@@ -48,6 +56,7 @@ dotfiles
 executables
 integrations
 katas
+keybind
 keybinds
 macOS
 memoization
@@ -58,6 +67,7 @@ rebase
 repo
 repro
 reproducibility
+repros
 symlink
 symlinked
 symlinking
