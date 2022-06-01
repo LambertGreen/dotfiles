@@ -238,7 +238,6 @@ else
     lgreen_init_fzf
 fi
 
-lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_setup_emacs_vterm

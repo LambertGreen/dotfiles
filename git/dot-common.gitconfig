@@ -27,6 +27,10 @@
     un = reset --hard HEAD
     uh = reset --hard HEAD^
 
+# My org folder
+[includeIf "gitdir:~/org/**"]
+    path = ~/.my.gitconfig
+
 # Personal dev folder
 [includeIf "gitdir:**/dev/my/**"]
     path = ~/.my.gitconfig

@@ -57,11 +57,11 @@ lgreen_start_ssh_agent() {
     if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --quick --eval id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick id_rsa id_ed25519)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "keychain --nogui --quiet --quick --eval id_rsa id_ed25519"
+            eval "keychain --nogui --quiet --quick id_rsa id_ed25519"
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
@@ -363,95 +363,52 @@ lgreen_sanitize_environment() {
     fi
 }
 
+lgreen_setup_dev_env_all() {
+    lgreen_setup_direnv_for_zsh
+    lgreen_setup_pyenv
+    lgreen_setup_jenv
+    lgreen_setup_rbenv
+    lgreen_setup_dev_env_rust
+    lgreen_setup_dev_env_clang
+
+    lgreen_setup_perforce_config
+
+    lgreen_setup_non_sys_openssl
+    lgreen_setup_non_sys_sqlite
+
+    lgreen_setup_ntfy
+}
+
+lgreen_setup_tmux_all() {
+    # TODO: Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+    lgreen_setup_tmux-256color
+    lgreen_setup_tmux_theme_switcher
+}
+
 #-------------------
 # Main
 #-------------------
+lgreen_track_shell_sourced_count
+lgreen_source_profile_if_not_sourced
+lgreen_source_os_shell
+lgreen_start_ssh_agent
+lgreen_setup_dircolors
+lgreen_setup_running_inside_emacs
+lgreen_setup_aliases
+lgreen_source_local_shell
+lgreen_source_work_shell
+
+lgreen_setup_doom_emacs
+
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [ "$UNAME" = "Linux" ]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
     lgreen_setup_fzf
-    lgreen_setup_perforce_config
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-
-    lgreen_setup_ntfy
-    lgreen_setup_doom_emacs
-    lgreen_setup_tmux_theme_switcher
-
 elif [ "$UNAME" = "Darwin" ]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
     lgreen_setup_fzf
-    lgreen_setup_perforce_config
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-
-    lgreen_setup_ntfy
-    lgreen_setup_doom_emacs
-    lgreen_setup_tmux_theme_switcher
-
 elif [[ "$UNAME" == *"_NT"* ]]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-    lgreen_setup_doom_emacs
-
     lgreen_setup_mintty_256color
     lgreen_setup_dev_env_rust
 fi
-
-# Dev related setup: Not running these automatically to get faster load times
-# lgreen_setup_dev_env_clang
