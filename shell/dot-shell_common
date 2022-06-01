@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1090
+# shellcheck disable=SC1091
+# shellcheck disable=SC2155
+# shellcheck disable=SC2154
+
 #############################################################
 # Common shell setup file to be sourced from
 # both bash and zsh profile.
@@ -8,7 +13,7 @@
 lgreen_track_shell_sourced_count() {
     # Add a variable to track how many times the shell
     # setup has been invoked
-    if [ -z $LGREEN_SHELL_SOURCED_COUNT ]; then
+    if [ -z "$LGREEN_SHELL_SOURCED_COUNT" ]; then
         export LGREEN_SHELL_SOURCED_COUNT=1
     else
         ((LGREEN_SHELL_SOURCED_COUNT++))
@@ -17,20 +22,20 @@ lgreen_track_shell_sourced_count() {
 
 # Source profile if it has not been sourced yet
 lgreen_source_profile_if_not_sourced() {
-    if ! [ $LGREEN_PROFILE_SOURCED_COUNT ]; then
+    if ! [ "$LGREEN_PROFILE_SOURCED_COUNT" ]; then
         echo "WARNING: Profile has not been sourced, so sourcing it now..."
         source "$HOME/.profile"
     fi
 }
 
 lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" -a -f "$HOME/.tmux-256color" ]; then
+    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ] && [ -f "$HOME/.tmux-256color" ]; then
         /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
 
 lgreen_conditionally_start_attach_tmux() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+    if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
         tmux -V
         tmux attach || tmux new -s Alpha
     fi
@@ -49,14 +54,14 @@ lgreen_setup_perforce_config(){
 
 # Keychain to start ssh-agent
 lgreen_start_ssh_agent() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --quick --eval id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick id_rsa id_ed25519)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval `keychain --nogui --quiet --quick --eval id_rsa id_ed25519`
+            eval "keychain --nogui --quiet --quick id_rsa id_ed25519"
             source "$HOME/.keychain/$(hostname)-sh"
         fi
     fi
@@ -84,7 +89,7 @@ lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
-        if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+        if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
         if [ "$UNAME" = "Darwin" ]; then
             eval "$(pyenv init -)"
         elif [ "$UNAME" = "Linux" ]; then
@@ -97,7 +102,7 @@ lgreen_setup_pyenv() {
 lgreen_setup_jenv () {
     if [ "$(command -v jenv)" ]; then
         eval "$(jenv init -)"
-        export JAVA_HOME="$HOME/.jenv/versions/`jenv version-name`"
+        export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"
     fi
 }
 
@@ -149,7 +154,7 @@ lgreen_setup_dev_env_go () {
 }
 
 lgreen_setup_dev_env_clang() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         export PATH="/usr/local/opt/llvm/bin:$PATH"
         export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
@@ -163,7 +168,7 @@ lgreen_setup_dev_env_clang() {
 }
 
 lgreen_time_shell() {
-  for _ in $(seq 1 10); do time "$@" -i -c exit; done
+    for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
 
 lgreen_color_test() {
@@ -178,17 +183,17 @@ lgreen_color_test() {
     for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' \
         '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' \
         '  36m' '1;36m' '  37m' '1;37m';
-        do FG=${FGs// /}
-            echo -en " $FGs \033[$FG  $T  "
-            for BG in 40m 41m 42m 43m 44m 45m 46m 47m;
-            do echo -en "$EINS \033[$FG\033[$BG  $T  \033[0m";
-            done
-            echo;
+    do FG=${FGs// /}
+       echo -en " $FGs \033[$FG  $T  "
+       for BG in 40m 41m 42m 43m 44m 45m 46m 47m;
+       do echo -en "$EINS \033[$FG\033[$BG  $T  \033[0m";
+           done
+       echo;
         done
-        echo
+    echo
 
     echo Testing TrueColor mode \(24 bit\):
-awk 'BEGIN{
+    awk 'BEGIN{
     s="/\\/\\/\\/\\/\\"; s=s s s s s s s s;
     for (colnum = 0; colnum<77; colnum++) {
         r = 255-(colnum*255/76);
@@ -208,7 +213,7 @@ lgreen_run_gradlew () {
 }
 
 lgreen_source_os_shell() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         # shellcheck source=shell_osx
         [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
@@ -224,14 +229,14 @@ lgreen_source_os_shell() {
 # Sets up lscolors/dircolors
 lgreen_setup_dircolors() {
     theme=$HOME/dev/pub/dircolors/dircolors.ansi-light
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ -f "$theme" ]; then
-            eval $(gdircolors $theme);
+            eval "$(gdircolors "$theme")"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ -f "$theme" ]; then
-            eval $(dircolors $theme);
+            eval "$(dircolors "$theme")"
         fi
     fi
 }
@@ -245,7 +250,7 @@ lgreen_p4_user() {
 }
 
 lgreen_p4_last_change() {
-    p4 changes -u ${lgreen_p4_user} -c ${lgreen_p4_client} -m 1 -L | cut -d\  -f2
+    p4 changes -u "${lgreen_p4_user}" -c "${lgreen_p4_client}" -m 1 -L | cut -d\  -f2
 }
 
 # If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
@@ -253,7 +258,7 @@ lgreen_p4_last_change() {
 # TODO We also need to set a simpler shell environment if we are inside Emacs and not inside VTerm
 # For example don't load ZSH nor any fancy prompts
 lgreen_setup_running_inside_emacs() {
-    if ! [ -z $INSIDE_EMACS ]; then
+    if  [ -n "$INSIDE_EMACS" ]; then
         export EDITOR="emacsclient"
         export GIT_EDITOR=$EDITOR
     fi
@@ -285,7 +290,7 @@ lgreen_setup_aliases() {
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
 
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -lh --color'
@@ -311,12 +316,12 @@ lgreen_source_local_shell() {
 
 lgreen_source_work_shell() {
     if [ -f "$HOME/dev/work/setup/setup.sh" ]; then
-       source "$HOME/dev/work/setup/setup.sh"
+        source "$HOME/dev/work/setup/setup.sh"
     fi
 }
 
 lgreen_ssh_tmux() {
-    ssh -t $@ "tmux -u attach-session || tmux -u new-session -s Alpha"
+    ssh -t "$@" "tmux -u attach-session || tmux -u new-session -s Alpha"
 }
 
 lgreen_local_tmux() {
@@ -325,8 +330,10 @@ lgreen_local_tmux() {
 
 lgreen_greet_user_at_shell_setup_end() {
     # Only show a greeting if this is an interactive terminal
-    if [ -t 1 ] && [ -z $LGREEN_NO_GREET ] && [ $LGREEN_SHELL_SOURCED_COUNT -eq 1 ]; then
-        [ "$(command -v neofetch)" ] && neofetch || true
+    if [ -t 1 ] && [ -z "$LGREEN_NO_GREET" ] && [ "$LGREEN_SHELL_SOURCED_COUNT" -eq 1 ]; then
+        if [ "$(command -v neofetch)" ]; then
+            neofetch
+        fi
     fi
 }
 
@@ -356,95 +363,52 @@ lgreen_sanitize_environment() {
     fi
 }
 
+lgreen_setup_dev_env_all() {
+    lgreen_setup_direnv_for_zsh
+    lgreen_setup_pyenv
+    lgreen_setup_jenv
+    lgreen_setup_rbenv
+    lgreen_setup_dev_env_rust
+    lgreen_setup_dev_env_clang
+
+    lgreen_setup_perforce_config
+
+    lgreen_setup_non_sys_openssl
+    lgreen_setup_non_sys_sqlite
+
+    lgreen_setup_ntfy
+}
+
+lgreen_setup_tmux_all() {
+    # TODO: Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+    lgreen_setup_tmux-256color
+    lgreen_setup_tmux_theme_switcher
+}
+
 #-------------------
 # Main
 #-------------------
+lgreen_track_shell_sourced_count
+lgreen_source_profile_if_not_sourced
+lgreen_source_os_shell
+lgreen_start_ssh_agent
+lgreen_setup_dircolors
+lgreen_setup_running_inside_emacs
+lgreen_setup_aliases
+lgreen_source_local_shell
+lgreen_source_work_shell
+
+lgreen_setup_doom_emacs
+
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [ "$UNAME" = "Linux" ]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
     lgreen_setup_fzf
-    lgreen_setup_perforce_config
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-
-    lgreen_setup_ntfy
-    lgreen_setup_doom_emacs
-    lgreen_setup_tmux_theme_switcher
-
 elif [ "$UNAME" = "Darwin" ]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
     lgreen_setup_fzf
-    lgreen_setup_perforce_config
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-
-    lgreen_setup_ntfy
-    lgreen_setup_doom_emacs
-    lgreen_setup_tmux_theme_switcher
-
 elif [[ "$UNAME" == *"_NT"* ]]; then
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_setup_tmux-256color
-
-    # TODO Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-
-    lgreen_source_os_shell
-    lgreen_start_ssh_agent
-    lgreen_setup_dircolors
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-    lgreen_setup_doom_emacs
-
     lgreen_setup_mintty_256color
     lgreen_setup_dev_env_rust
 fi
-
-# Dev related setup: Not running these automatically to get faster load times
-# lgreen_setup_dev_env_clang

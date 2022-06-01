@@ -1,10 +1,18 @@
+# -*- mode: gitconfig; -*-
+
 [include]
 	path = ~/.common.gitconfig
 
 [core]
 	autocrlf = true
-	sshCommand = 'C:/ProgramData/scoop/apps/win32-openssh/current/ssh.exe'
+	sshCommand = 'C:/Users/Lambert/scoop/apps/openssh/current/ssh.exe'
 
 [user]
 	email = lambert_green@msn.com
 	name = Lambert
+
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+
+[credential]
+	helper = manager-core

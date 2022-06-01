@@ -9,7 +9,14 @@ nvim/.config/nvim/plugged/
 nvim/.config/nvim/swap/
 nvim/.config/nvim/undo/
 nvim/.config/nvim/spell/
+
+# Tmux
+/tmux/.tmux/plugins/
+
+# Powershell
 /WindowsPowerShell/Documents/WindowsPowerShell/Modules/
+
+# Keypirinha
 /Keypirinha/scoop/apps/keypirinha/current/portable/Profile/User/Keypirinha-Notepad2.ini
 Keypirinha.history
 
