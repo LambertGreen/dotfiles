@@ -1,8 +1,10 @@
-personal_ws-1.1 en 71 
+personal_ws-1.1 en 77
 APIs
 Artifactory
+Aspirational
 Athmika
 Athmika's
+CMake
 Covid
 CrashShark
 Dev
@@ -17,9 +19,11 @@ GovCloud
 HSA
 HTTPS
 Hammerspoon
+Homebrew
 JSON
 Kata
 LogicAssert
+Magit
 Neovim
 OrgMode
 Pacman
@@ -37,8 +41,10 @@ TODOs
 TSM
 Tmux
 UX
+Unparented
 VM
 WSL
+Yumna's
 async
 backend
 boolean
@@ -51,6 +57,7 @@ dotfiles
 executables
 integrations
 katas
+keybind
 keybinds
 macOS
 memoization
