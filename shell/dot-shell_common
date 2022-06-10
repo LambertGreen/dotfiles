@@ -388,6 +388,15 @@ lgreen_setup_tmux_all() {
     lgreen_setup_tmux_theme_switcher
 }
 
+lgreen_setup_msys_path() {
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
+        export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
+        export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current"
+        export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
+    fi
+}
 #-------------------
 # Main
 #-------------------
@@ -411,4 +420,5 @@ elif [ "$UNAME" = "Darwin" ]; then
 elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_mintty_256color
     lgreen_setup_dev_env_rust
+    lgreen_setup_msys_path
 fi
