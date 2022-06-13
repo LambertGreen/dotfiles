@@ -35,7 +35,7 @@ lgreen_greet_user_at_profile_setup_end() {
 lgreen_setup_profile_env() {
     # Set PATH
     # Set local bins ahead of system PATH
-    export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH
+    export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 
     # Editor
     export EDITOR="emacsclient -t -a nvim"
