@@ -203,12 +203,6 @@ tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 make -j && sudo make install
 #+END_SRC
 
-*** Installing =fzf= from =Github=
-#+BEGIN_SRC sh
-git clone --depth 1 https://github.com/junegunn/fzf.git
-cd fzf
-./install
-#+END_SRC
 *** Installing =fd= using =Cargo=
 #+BEGIN_SRC sh
 cargo install fd-find
@@ -482,12 +476,6 @@ import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-pa
 
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
-** Shell integrations
-*** Install =Fzf=
-#+begin_src sh
-$(brew --prefix)/opt/fzf/install
-#+end_src
-
 ** Editor integrations
 *** =Chemacs 2=
 Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
