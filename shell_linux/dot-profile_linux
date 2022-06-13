@@ -46,6 +46,14 @@ lgreen_setup-fix-wsl2-interop() {
     fi
 }
 
+lgreen_setup-add-windows-path-to-wsl() {
+    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+        if [ -n "${WSLPATH}" ]; then
+            export PATH="$PATH:$WSLPATH"
+        fi
+    fi
+}
+
 lgreen_setup-xdg-config() {
     if [ -z "${XDG_RUNTIME_DIR}" ]; then
          XDG_RUNTIME_DIR=/run/user/$(id -ru)
@@ -63,6 +71,7 @@ lgreen_setup-package-config
 lgreen_setup-umask-for-wsl
 lgreen_setup-display-for-wsl
 lgreen_setup-fix-wsl2-interop
+lgreen_setup-add-windows-path-to-wsl
 lgreen_setup-linuxbrew
 lgreen_setup-local-bin
 lgreen_setup-perl
