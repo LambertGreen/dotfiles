@@ -15,7 +15,7 @@ One each OS platform there are multiple options for package management. On Linux
 *Update (3/30/2022)*:
 I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
 *Update (6/13/2022)*:
-I updated WSL on my home Windwos machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
+I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
 
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
