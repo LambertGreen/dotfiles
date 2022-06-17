@@ -1,5 +1,6 @@
-personal_ws-1.1 en 77
+personal_ws-1.1 en 86 
 APIs
+ARP
 Artifactory
 Aspirational
 Athmika
@@ -12,6 +13,7 @@ Dialogs
 Dojo
 Dotfiles
 Elisp
+Eshell
 GDB
 GTD
 Github
@@ -20,15 +22,21 @@ HSA
 HTTPS
 Hammerspoon
 Homebrew
+IPv4
+IPv6
 JSON
 Kata
 LogicAssert
 Magit
+NDP
 Neovim
+Observability
 OrgMode
+POSIX
 Pacman
 Prem
 README
+REPL
 RSS
 Rebase
 SDK
@@ -43,6 +51,7 @@ Tmux
 UX
 Unparented
 VM
+Vterm
 WSL
 Yumna's
 async
