@@ -281,8 +281,8 @@ lgreen_setup_tmux_theme_switcher() {
 }
 
 lgreen_setup_aliases() {
-    alias e="TERM=xterm-24bit emacs -nw"
-    alias ec="emacsclient -c -n -a ''"
+    alias e="$EDITOR"
+    alias ec=emacsclient
     alias g=git
     alias vi=nvim
     alias rg=lgreen_rg_with_pager
