@@ -611,7 +611,7 @@ dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
 * Special app configurations
 ** Setting up =tmux-256color= support
-I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific here.
+I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
 
 *** Setup on =macOS=
 See https://github.com/htop-dev/htop/issues/251
