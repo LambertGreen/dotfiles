@@ -57,11 +57,6 @@ lgreen_setup_zsh() {
     unsetopt sharehistory
 }
 
-lgreen_init_fzf() {
-    # Note: FZF exports are done in shell_common
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-}
-
 lgreen_setup_common_shell() {
     # Source common shell script
     [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
@@ -138,6 +133,13 @@ lgreen_setup_zinit() {
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         zinit light aperezdc/zsh-fzy
+    else
+        zinit ice from"gh-r" as"program"
+        zinit light junegunn/fzf
+
+        # zsh-fzf-history-search
+        zinit ice lucid wait'0'
+        zinit light joshskidmore/zsh-fzf-history-search
     fi
 }
 
@@ -234,14 +236,12 @@ lgreen_init_p10k
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_fzy_bindings
-else
-    lgreen_init_fzf
 fi
 
-lgreen_setup_direnv_for_zsh
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_setup_emacs_vterm
+lgreen_setup_direnv_for_zsh
 lgreen_conditionally_stop_profiler
 
 

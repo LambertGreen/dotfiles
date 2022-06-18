@@ -1,8 +1,11 @@
-personal_ws-1.1 en 71 
+personal_ws-1.1 en 86 
 APIs
+ARP
 Artifactory
+Aspirational
 Athmika
 Athmika's
+CMake
 Covid
 CrashShark
 Dev
@@ -10,6 +13,7 @@ Dialogs
 Dojo
 Dotfiles
 Elisp
+Eshell
 GDB
 GTD
 Github
@@ -17,14 +21,21 @@ GovCloud
 HSA
 HTTPS
 Hammerspoon
+Homebrew
+IPv
 JSON
 Kata
 LogicAssert
+Magit
+NDP
 Neovim
+Observability
 OrgMode
+POSIX
 Pacman
 Prem
 README
+REPL
 RSS
 Rebase
 SDK
@@ -37,8 +48,11 @@ TODOs
 TSM
 Tmux
 UX
+Unparented
 VM
+Vterm
 WSL
+Yumna's
 async
 backend
 boolean
@@ -51,6 +65,7 @@ dotfiles
 executables
 integrations
 katas
+keybind
 keybinds
 macOS
 memoization

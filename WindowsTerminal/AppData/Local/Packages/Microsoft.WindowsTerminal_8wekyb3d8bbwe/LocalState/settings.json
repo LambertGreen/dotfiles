@@ -86,6 +86,18 @@
                 "intenseTextStyle": "none",
                 "name": "mingw64",
                 "tabTitle": "Mingw64"
+            },
+            {
+                "guid": "{a5a97cb8-8961-5535-816d-772efe0c6a3f}",
+                "hidden": false,
+                "name": "Arch",
+                "source": "Windows.Terminal.Wsl"
+            },
+            {
+                "guid": "{a79db62a-2f16-5761-9937-8347f67a9532}",
+                "hidden": false,
+                "name": "Developer Command Prompt for VS 2017",
+                "source": "Windows.Terminal.VisualStudio"
             }
         ]
     },
