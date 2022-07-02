@@ -8,8 +8,17 @@ lgreen_setup-local-bin() {
 
 lgreen_setup-linuxbrew() {
     if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-        export PATH="/home/linuxbrew/.linuxbrew/bin":$PATH
+        # TODO: Find a long-term fix for PATH env setting and build systems
+        #
+        #Instead of prepending linuxbrew we instead append it to
+        # the PATH so as not to disrupt some builds that need the
+        # system loader first in the path.
+        export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+
+        # The below will update the shell environment:
+        # - Add some HOMEBREW environment variables
+        # - Update PATH, MANPATH, INFOPATH to have linuxbrew paths prepended
+        # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 }
 
@@ -46,6 +55,14 @@ lgreen_setup-fix-wsl2-interop() {
     fi
 }
 
+lgreen_setup-add-windows-path-to-wsl() {
+    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+        if [ -n "${WSLPATH}" ]; then
+            export PATH="$PATH:$WSLPATH"
+        fi
+    fi
+}
+
 lgreen_setup-xdg-config() {
     if [ -z "${XDG_RUNTIME_DIR}" ]; then
          XDG_RUNTIME_DIR=/run/user/$(id -ru)
@@ -63,6 +80,7 @@ lgreen_setup-package-config
 lgreen_setup-umask-for-wsl
 lgreen_setup-display-for-wsl
 lgreen_setup-fix-wsl2-interop
+lgreen_setup-add-windows-path-to-wsl
 lgreen_setup-linuxbrew
 lgreen_setup-local-bin
 lgreen_setup-perl

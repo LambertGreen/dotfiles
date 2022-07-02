@@ -14,6 +14,8 @@ One each OS platform there are multiple options for package management. On Linux
 
 *Update (3/30/2022)*:
 I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
+*Update (6/13/2022)*:
+I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
 
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
@@ -35,19 +37,18 @@ sh ./install-nix-2.3.16
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
 #+end_src
-*** Install =Chocolatey= :Windows:
-#+begin_src ps
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-#+end_src
 *** Install =Scoop= :Windows:
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
-*** Install =Pacman= (from =MSYS2=) :Windows:
+*** Install =Chocolatey= :Windows:
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
+*** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a preferred shallower directory structure.
 #+begin_src sh
-choco install msys2
+scoop install msys2
 #+end_src
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
 It comes with =Python= and can be run using:
@@ -121,13 +122,6 @@ python3 -m pip install -r <path-to-requirements.txt>
 python3 -m pip freeze > requirements.txt
 #+end_src
 
-*** Install packages using =Chocolatey= :Windows:
-*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
-#+begin_src ps
-choco install AutoHotKey --install-arguments '/uiAccess=1'
-choco install msys2
-choco install git
-#+end_src
 *** Install packages using =Pacman= :Windows:
 #+begin_src sh
 pacman -Syu # first update system
@@ -136,8 +130,17 @@ pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-t
 pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
 #+end_src
 
-** Install from sources
-Sometime we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+*** Install packages using =Chocolatey= :Windows:
+*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
+*Update (6/13/2022)*: Actually it is prefefered to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
+#+begin_src ps
+choco install AutoHotKey --install-arguments '/uiAccess=1'
+choco install msys2
+choco install git
+#+end_src
+** Install from sources :Linux:
+Sometimes we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+*Update (6/13/2022)*: I should correct that it is not the case that =Homebrew/Linuxbrew= does not run on =CentoOS 7=, but I have run into issues over time, which may be due to some other system causing issues e.g. work related management/security software.
 *** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
@@ -203,12 +206,6 @@ tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 make -j && sudo make install
 #+END_SRC
 
-*** Installing =fzf= from =Github=
-#+BEGIN_SRC sh
-git clone --depth 1 https://github.com/junegunn/fzf.git
-cd fzf
-./install
-#+END_SRC
 *** Installing =fd= using =Cargo=
 #+BEGIN_SRC sh
 cargo install fd-find
@@ -482,19 +479,13 @@ import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-pa
 
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
-** Shell integrations
-*** Install =Fzf=
-#+begin_src sh
-$(brew --prefix)/opt/fzf/install
-#+end_src
-
 ** Editor integrations
-*** =Chemacs 2=
+*** =Chemacs 2= :automated:
 Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
 The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
 
-*** Install =Doom Emacs=
-Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to.
+*** Install =Doom Emacs= :automated:
+Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to. Automated via being checked in as a git submodule.
 #+begin_src sh
 git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
 ~/.emacs.doom/bin/doom install
@@ -533,6 +524,8 @@ security find-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
 #+begin_src sh
 security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
 #+end_src
+***** Linux
+****** TODO Add steps for setting up email on ArchLinux (on WSL)
 *** Setup =Bible (KJV)=
 Dependencies: see installing of =Sword= in earlier section of this document.
 #+begin_src sh
@@ -618,7 +611,7 @@ dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
 * Special app configurations
 ** Setting up =tmux-256color= support
-I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific here.
+I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
 
 *** Setup on =macOS=
 See https://github.com/htop-dev/htop/issues/251
@@ -753,3 +746,4 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 ** TODO Add a one time bat file for setting up =Windows= ~PATH~ variable
 Maybe this needs to be a manual step?
 Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
+** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
