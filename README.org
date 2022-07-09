@@ -513,19 +513,31 @@ sudo tlmgr install wrapfig marvosym wasy wasysym
 *** Setup =Email tools=
 **** Authentication
 ***** macOS
-****** TODO Fill in gaps via testing on a clean machine
-****** Add mail app-password to keychain
+****** Add mail app-password to =keychain=
+Acquire a new app-password from your email account e.g. for =gmail= you can find it in account settings of your =google= profile.
+
 ******* Add app-password for mbsync from IMAP
 #+begin_src sh
-security find-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
+security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
 #+end_src
 
 ******* Add app-password for SMTP server
 #+begin_src sh
 security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
 #+end_src
+****** Download certificates from email provider
+See ~.mbsyncrc~ file for location to put the certificates.  Below command will download the certificate chain, from which the public keys should be extracted into separate ~.crt~ files.
+#+begin_src sh
+openssl s_client -connect imap.gmail.com:993 -showcerts
+#+end_src
 ***** Linux
 ****** TODO Add steps for setting up email on ArchLinux (on WSL)
+**** Setup
+#+begin_src sh
+mbsync -a
+mu init --maildir=~/.mail --my-address=lambert.green@gmail.com
+mu index
+#+end_src
 *** Setup =Bible (KJV)=
 Dependencies: see installing of =Sword= in earlier section of this document.
 #+begin_src sh
