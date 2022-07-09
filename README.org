@@ -668,6 +668,35 @@ There are some manual steps that need to be done:
 (+ligatures/install-patched-font)  ;; for ligatures
 #+end_src
 2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
+* Desktop Application Launch files
+Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
+
+** Windows StartMenu
+*** Emacs (WSL)
+#+begin_src sh
+C:\Users\Lambert\dev\my\scripts\start-emacs-in-wsl.vbs
+#+end_src
+*** Emacs (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe
+#+end_src
+*** Emacs Client (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\emacsclientw.exe -c -n --server-file  c:/users/lambert/.emacs.doom/.local/etc/server/server
+#+end_src
+*** Emacs Server (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe --daemon
+#+end_src
+*** Terminal - Alacritty
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory "%USERPROFILE%"
+#+end_src
+*** Unlock Desktop Session
+#+begin_src sh
+C:\Windows\System32\tscon.exe 8 /dest:console
+#+end_src
+
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
