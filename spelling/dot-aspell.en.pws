@@ -1,4 +1,4 @@
-personal_ws-1.1 en 86 
+personal_ws-1.1 en 89 
 APIs
 ARP
 Artifactory
@@ -53,6 +53,7 @@ VM
 Vterm
 WSL
 Yumna's
+archlinux
 async
 backend
 boolean
@@ -60,6 +61,7 @@ centric
 config
 configs
 cpp
+decrypting
 dojo
 dotfiles
 executables
@@ -68,6 +70,7 @@ katas
 keybind
 keybinds
 macOS
+mbsync
 memoization
 merch
 minidump
