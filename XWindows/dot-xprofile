@@ -1,0 +1,11 @@
+
+lgreen_setup_xcape(){
+    if [ "$(command -v xcape)" ]; then
+        xcape -e 'Control_L=Escape'
+    fi
+}
+
+#-------------------
+# Main
+#-------------------
+lgreen_setup_xcape
