@@ -657,9 +657,15 @@ tic -x -o ~/.terminfo terminfo-24bit.src
 #+end_src
 
 Now =Emacs= can be started with true-color using:
+*** Using ~COLORTERM=truecolor~ (preferred way)
+We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
+
+*** Using ~TERM=xterm-24bit~ (old way)
+This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
 #+begin_src sh
 TERM=xterm-24bit emacs -nw
 #+end_src
+
 ** Setting up fonts for =Doom Emacs= on Windows
 There are some manual steps that need to be done:
 1. Run the below interactive functions:
