@@ -1,4 +1,4 @@
-personal_ws-1.1 en 86 
+personal_ws-1.1 en 88 
 APIs
 ARP
 Artifactory
@@ -60,8 +60,10 @@ centric
 config
 configs
 cpp
+decrypting
 dojo
 dotfiles
+elfeed
 executables
 integrations
 katas
