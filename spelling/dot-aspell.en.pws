@@ -1,4 +1,4 @@
-personal_ws-1.1 en 88 
+personal_ws-1.1 en 89
 APIs
 ARP
 Artifactory
@@ -53,6 +53,7 @@ VM
 Vterm
 WSL
 Yumna's
+archlinux
 async
 backend
 boolean
@@ -70,6 +71,7 @@ katas
 keybind
 keybinds
 macOS
+mbsync
 memoization
 merch
 minidump
