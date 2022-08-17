@@ -750,7 +750,8 @@ install-module -Name PSFzf -Scope CurrentUser
 #+end_src
 Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
 Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
-** TODO Add =Nix= files to the repo
+** DONE Add =Nix= files to the repo
+CLOSED: [2022-08-17 Wed 11:32]
 ** TODO Address issue where SSH-Agent will not work in =Windows=
 The steps to get =git= working fine with =ssh= in =Windows= are:
 1. The ~Windows OpenSSH Agent~ service must be changed from status ~disabled~ to ~enabled~ and set to start automatically.
