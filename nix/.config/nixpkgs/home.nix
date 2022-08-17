@@ -18,4 +18,5 @@
     extraPackages = (epkgs: [ epkgs.vterm ] );
   };
 
+  services.emacs.enable = true;
 }
