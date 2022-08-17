@@ -766,3 +766,5 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 Maybe this needs to be a manual step?
 Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
 ** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+** TODO Add steps/scripts for updating packages
+I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing for to update a particular system?
