@@ -1,4 +1,4 @@
-personal_ws-1.1 en 89
+personal_ws-1.1 en 92
 APIs
 ARP
 Artifactory
@@ -66,10 +66,12 @@ dojo
 dotfiles
 elfeed
 executables
+frostburn
 integrations
 katas
 keybind
 keybinds
+localhost
 macOS
 mbsync
 memoization
