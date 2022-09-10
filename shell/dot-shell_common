@@ -289,6 +289,8 @@ lgreen_setup_aliases() {
     alias gw=lgreen_run_gradlew
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
+    alias cat=bat
+    alias vim=nvim
 
     if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
