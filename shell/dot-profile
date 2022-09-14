@@ -70,8 +70,18 @@ lgreen_source_os_profile() {
 lgreen_setup_nix_profile() {
     if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
         source $HOME/.nix-profile/etc/profile.d/nix.sh
+
+        # We need to set the locale archive as home-manager has
+        # issues finding locale without it
+        #
+        # Update (9/14/22): The locale issue is indeed nix related
+        # however we will try the fix mentionded here:
+        # https://github.com/nix-community/home-manager/issues/354
+        #
+        export LOCALE_ARCHIVE=$(nix-build '<nixpkgs>' -A glibcLocales)/lib/locale/locale-archive
     fi
 }
+
 #-------------------
 # Main
 #-------------------
