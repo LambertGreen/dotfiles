@@ -6,7 +6,6 @@ lgreen_setup-local-bin() {
     fi
 }
 
-lgreen_setup-linuxbrew() {
 lgreen_setup-nix-profile() {
     if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
         source $HOME/.nix-profile/etc/profile.d/nix.sh
@@ -22,6 +21,7 @@ lgreen_setup-nix-profile() {
     fi
 }
 
+lgreen_setup-homebrew-on-linux() {
     if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
         # TODO: Find a long-term fix for PATH env setting and build systems
         #
@@ -29,6 +29,9 @@ lgreen_setup-nix-profile() {
         # the PATH so as not to disrupt some builds that need the
         # system loader first in the path.
         export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+
+        export HOMEBREW_CURL_PATH=$(which curl)
+        export HOMEBREW_GIT_PATH=$(which git)
 
         # The below will update the shell environment:
         # - Add some HOMEBREW environment variables
@@ -96,8 +99,8 @@ lgreen_setup-umask-for-wsl
 lgreen_setup-display-for-wsl
 lgreen_setup-fix-wsl2-interop
 lgreen_setup-add-windows-path-to-wsl
-lgreen_setup-linuxbrew
 lgreen_setup-nix-profile
+lgreen_setup-homebrew-on-linux
 lgreen_setup-local-bin
 lgreen_setup-perl
 
