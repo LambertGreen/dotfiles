@@ -625,18 +625,15 @@ dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 ** Setting up =tmux-256color= support
 I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
 
-*** Setup on =macOS=
-See https://github.com/htop-dev/htop/issues/251
-#+begin_example
-Aha. It seems the terminfo for tmux-256color that comes with the latest Homebrew ncurses, or even the one downloaded from invisible-island.net is not configured to work properly with htop. Very strange.
+The =tmux-256color= terminfo must be setup on the remote machine:
+#+begin_src sh
+tic -x ./tmux/dot-tmux-256color
+#+end_src
 
-After a bit of looking around, it seems the best one to use is the one provided by the maintainer of tmux, found here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
+Note: the terminfo file was sourced from here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
 
-Using that one restores colours in htop for me. It can be installed by downloading the gist and running /usr/bin/tic -x <gist filename>.
-#+end_example
-
-The contents of the gist mentioned above are saved in file ~./tmux-256color~.
-** Setting up =24 bit true color= for =Emacs= in terminal mode
+Using new versions of =tmux= and the =tmux-256color= terminfo should be sufficient to get 24bit color in the terminal. Below is older information that is hopefully no longer needed:
+*** Setting up =24 bit true color= for =Emacs= in terminal mode
 The following file should be used to compile the appropriate terminfo
 #+begin_src sh
 # Use colon separators.
@@ -657,10 +654,10 @@ tic -x -o ~/.terminfo terminfo-24bit.src
 #+end_src
 
 Now =Emacs= can be started with true-color using:
-*** Using ~COLORTERM=truecolor~ (preferred way)
+**** Using ~COLORTERM=truecolor~ (preferred way)
 We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
 
-*** Using ~TERM=xterm-24bit~ (old way)
+**** Using ~TERM=xterm-24bit~ (old way)
 This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
 #+begin_src sh
 TERM=xterm-24bit emacs -nw
