@@ -7,6 +7,21 @@ lgreen_setup-local-bin() {
 }
 
 lgreen_setup-linuxbrew() {
+lgreen_setup-nix-profile() {
+    if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
+        source $HOME/.nix-profile/etc/profile.d/nix.sh
+
+        # We need to set the locale archive as home-manager has
+        # issues finding locale without it
+        #
+        # Update (9/14/22): The locale issue is indeed nix related
+        # however we will try the fix mentionded here:
+        # https://github.com/nix-community/home-manager/issues/354
+        #
+        export LOCALE_ARCHIVE=$(nix-build '<nixpkgs>' -A glibcLocales)/lib/locale/locale-archive
+    fi
+}
+
     if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
         # TODO: Find a long-term fix for PATH env setting and build systems
         #
@@ -82,6 +97,7 @@ lgreen_setup-display-for-wsl
 lgreen_setup-fix-wsl2-interop
 lgreen_setup-add-windows-path-to-wsl
 lgreen_setup-linuxbrew
+lgreen_setup-nix-profile
 lgreen_setup-local-bin
 lgreen_setup-perl
 
