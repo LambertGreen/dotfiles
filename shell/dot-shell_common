@@ -273,7 +273,7 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+    if [ -n "$SSH_TTY" -a "$TMUX" -a -z "$INSIDE_EMACS" ]; then
         if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
             source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
         fi
@@ -412,6 +412,7 @@ lgreen_setup_aliases
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_tmux_all
 lgreen_setup_doom_emacs
 
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
