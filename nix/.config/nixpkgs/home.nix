@@ -28,8 +28,6 @@
       stow
       tmux
       zsh
-      curl
-      keychain
       aspell
       binutils
       ripgrep
