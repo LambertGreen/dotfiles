@@ -1,4 +1,4 @@
-personal_ws-1.1 en 103
+personal_ws-1.1 en 110 
 APIs
 ARP
 Artifactory
@@ -44,6 +44,7 @@ SDK
 Senthilkumar
 Spacemacs
 Splunk
+Stoica
 Supportabilty
 TFS
 TLDR
@@ -51,6 +52,7 @@ TODO's
 TODOs
 TSM
 Tmux
+UTF
 UX
 Unparented
 VM
@@ -69,13 +71,14 @@ config
 configs
 cpp
 decrypting
+defacto
 demonstratable
 dojo
 dotfiles
 elfeed
 executables
-iTerm
 frostburn
+iTerm
 integrations
 katas
 keybind
@@ -88,6 +91,7 @@ merch
 minidump
 performant
 pre
+programmatically
 rebase
 remoting
 repo
@@ -102,5 +106,6 @@ todo
 todos
 unhandled
 untriaged
+untrusted
 vendoring
 webdev
