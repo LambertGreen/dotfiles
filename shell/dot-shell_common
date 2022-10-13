@@ -28,9 +28,15 @@ lgreen_source_profile_if_not_sourced() {
     fi
 }
 
-lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ] && [ -f "$HOME/.tmux-256color" ]; then
-        /usr/bin/tic -x "$HOME/.tmux-256color"
+lgreen_one_time_system_setup_check() {
+    if [ ! -f "$HOME/.lgreen_one_time_system_setup" ]; then
+        echo "**** WARNING *****"
+        echo "Fresh system detected: please run one time setup steps."
+
+        # FIXME Add better support for running one time setup
+        # Setup TMUX terminfo for user and sudo
+        # /usr/bin/tic -x "$HOME/.tmux-256color"
+        # sudo /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
 
@@ -392,7 +398,6 @@ lgreen_setup_tmux_all() {
     # Tmux is often writing output to the screen.
     # We should be using Emacs more anyway.
     # lgreen_conditionally_start_attach_tmux
-    lgreen_setup_tmux-256color
     lgreen_setup_tmux_theme_switcher
 }
 
@@ -410,6 +415,7 @@ lgreen_setup_msys_path() {
 #-------------------
 lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
+lgreen_one_time_system_setup_check
 lgreen_source_os_shell
 lgreen_start_ssh_agent
 lgreen_setup_dircolors
