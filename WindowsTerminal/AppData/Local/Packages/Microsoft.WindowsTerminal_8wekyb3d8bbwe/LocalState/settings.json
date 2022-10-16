@@ -77,6 +77,10 @@
                 "antialiasingMode": "cleartype",
                 "colorScheme": "One Half Dark",
                 "commandline": "c:\\users\\lgreen\\scoop\\apps\\msys2\\current\\msys2_shell.cmd -defterm -here -no-start -mingw64 -shell zsh",
+                "font": 
+                {
+                    "face": "Iosevka"
+                },
                 "guid": "{fe654498-c0c5-46df-82b3-66639c0e1444}",
                 "icon": "C:\\Users\\lgreen\\scoop\\apps\\msys2\\current\\mingw64.ico",
                 "intenseTextStyle": "none",

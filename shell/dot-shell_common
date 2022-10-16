@@ -28,9 +28,15 @@ lgreen_source_profile_if_not_sourced() {
     fi
 }
 
-lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ] && [ -f "$HOME/.tmux-256color" ]; then
-        /usr/bin/tic -x "$HOME/.tmux-256color"
+lgreen_one_time_system_setup_check() {
+    if [ ! -f "$HOME/.lgreen_one_time_system_setup" ]; then
+        echo "**** WARNING *****"
+        echo "Fresh system detected: please run one time setup steps."
+
+        # FIXME Add better support for running one time setup
+        # Setup TMUX terminfo for user and sudo
+        # /usr/bin/tic -x "$HOME/.tmux-256color"
+        # sudo /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
 
@@ -61,8 +67,10 @@ lgreen_start_ssh_agent() {
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
+            export LD_PRELOAD=/lib64/libnss_sss.so.2
             eval "keychain --nogui --quiet --quick id_rsa id_ed25519"
             source "$HOME/.keychain/$(hostname)-sh"
+            unset LD_PRELOAD
         fi
     fi
 }
@@ -273,7 +281,7 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+    if [ -n "$SSH_TTY" -a "$TMUX" -a -z "$INSIDE_EMACS" ]; then
         if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
             source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
         fi
@@ -290,11 +298,17 @@ lgreen_setup_aliases() {
     alias e="$EDITOR"
     alias ec=emacsclient
     alias g=git
-    alias vi=nvim
     alias rg=lgreen_rg_with_pager
     alias gw=lgreen_run_gradlew
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
+    if [ "$(command -v bat)" ]; then
+        alias cat=bat
+    fi
+    if [ "$(command -v nvim)" ]; then
+        alias vim=nvim
+        alias vi=nvim
+    fi
 
     if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
@@ -390,7 +404,6 @@ lgreen_setup_tmux_all() {
     # Tmux is often writing output to the screen.
     # We should be using Emacs more anyway.
     # lgreen_conditionally_start_attach_tmux
-    lgreen_setup_tmux-256color
     lgreen_setup_tmux_theme_switcher
 }
 
@@ -408,6 +421,7 @@ lgreen_setup_msys_path() {
 #-------------------
 lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
+lgreen_one_time_system_setup_check
 lgreen_source_os_shell
 lgreen_start_ssh_agent
 lgreen_setup_dircolors
@@ -417,6 +431,7 @@ lgreen_setup_lscolors
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_tmux_all
 lgreen_setup_doom_emacs
 
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi

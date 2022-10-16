@@ -67,11 +67,6 @@ lgreen_source_os_profile() {
     fi
 }
 
-lgreen_setup_nix_profile() {
-    if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
-        source $HOME/.nix-profile/etc/profile.d/nix.sh
-    fi
-}
 #-------------------
 # Main
 #-------------------
@@ -79,5 +74,4 @@ lgreen_track_profile_sourced_count
 lgreen_greet_user_at_profile_setup_start
 lgreen_setup_profile_env
 lgreen_source_os_profile
-lgreen_setup_nix_profile
 lgreen_greet_user_at_profile_setup_end
