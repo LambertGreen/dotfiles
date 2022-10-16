@@ -280,6 +280,12 @@ lgreen_setup_tmux_theme_switcher() {
     fi
 }
 
+lgreen_setup_lscolors() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-dark)
+    fi
+}
+
 lgreen_setup_aliases() {
     alias e="$EDITOR"
     alias ec=emacsclient
@@ -407,6 +413,7 @@ lgreen_start_ssh_agent
 lgreen_setup_dircolors
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
+lgreen_setup_lscolors
 lgreen_source_local_shell
 lgreen_source_work_shell
 
