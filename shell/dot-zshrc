@@ -140,6 +140,9 @@ lgreen_setup_zinit() {
         # zsh-fzf-history-search
         zinit ice lucid wait'0'
         zinit light joshskidmore/zsh-fzf-history-search
+
+        # fzf-tab
+        zinit light Aloxaf/fzf-tab
     fi
 }
 
