@@ -1,4 +1,4 @@
-personal_ws-1.1 en 110 
+personal_ws-1.1 en 114 
 APIs
 ARP
 Artifactory
@@ -20,10 +20,12 @@ GTD
 Github
 GovCloud
 HSA
+HSErr
 HTTPS
 Hammerspoon
 Homebrew
 Hyperforce
+IPC
 IPv
 JSON
 Kata
@@ -65,6 +67,7 @@ async
 backend
 blademaster
 boolean
+breakpoint
 centric
 commandline
 config
@@ -101,6 +104,7 @@ repros
 symlink
 symlinked
 symlinking
+syscalls
 timebox
 todo
 todos
