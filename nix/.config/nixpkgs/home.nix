@@ -25,7 +25,6 @@
   home = {
     packages = with pkgs; [
       git
-      stow
       tmux
       zsh
       aspell
@@ -52,7 +51,6 @@
     bat.enable = true;
     command-not-found.enable = true;
     dircolors.enable = true;
-    htop.enable = true;
     info.enable = true;
     exa.enable = true;
 
