@@ -3,10 +3,15 @@
 
 [core]
 	autocrlf = true
-	sshCommand = 'C:/Users/lgreen/scoop/shims/ssh.exe'
 
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 [user]
 	email = lambert_green@msn.com
 	name = Lambert
 [credential "helperselector"]
-	selected = manager-core
+	selected = wincred
+[safe]
+	directory = D:/dev/work/nerv/third-party/google-
+	directory = D:/dev/work/nerv/third-party/google-breakpad
+	directory = D:/dev/work/setup
+	directory = C:/Users/lgreen/scoop/apps/scoop/current
