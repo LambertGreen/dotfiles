@@ -1,0 +1,9 @@
+set startup-with-shell off
+set print pretty on
+set print object on
+set print static-members on
+set print vtbl on
+set print demangle on
+set pagination off
+add-auto-load-safe-path /home/tsi/lgreen/dev/my/dotfiles/gdb/dot-gdbinit
+add-auto-load-safe-path /usr/lib64/libthread_db-1.0.so

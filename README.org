@@ -14,6 +14,8 @@ One each OS platform there are multiple options for package management. On Linux
 
 *Update (3/30/2022)*:
 I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
+*Update (6/13/2022)*:
+I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
 
 *** Install =Homebrew= :Linux:macOS:
 #+begin_src sh
@@ -35,19 +37,18 @@ sh ./install-nix-2.3.16
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
 #+end_src
-*** Install =Chocolatey= :Windows:
-#+begin_src ps
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-#+end_src
 *** Install =Scoop= :Windows:
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
-*** Install =Pacman= (from =MSYS2=) :Windows:
+*** Install =Chocolatey= :Windows:
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
+*** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-*Note* I moved from using =Scoop= to =Chocolatey= to avoid =Scoop='s shims and because =Chocolatey= installs in ~C:/toos/msys2~ which is a preferred shallower directory structure.
 #+begin_src sh
-choco install msys2
+scoop install msys2
 #+end_src
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
 It comes with =Python= and can be run using:
@@ -121,22 +122,25 @@ python3 -m pip install -r <path-to-requirements.txt>
 python3 -m pip freeze > requirements.txt
 #+end_src
 
+*** Install packages using =Pacman= :Windows:
+#+begin_src sh
+pacman -Syu # first update system
+pacman -S base-devel git tmux zsh vim man-pages-posix neofetch fzy
+pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building Emacs
+pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
+#+end_src
+
 *** Install packages using =Chocolatey= :Windows:
 *Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
+*Update (6/13/2022)*: Actually it is prefefered to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
 #+begin_src ps
 choco install AutoHotKey --install-arguments '/uiAccess=1'
 choco install msys2
 choco install git
 #+end_src
-*** Install packages using =Pacman= :Windows:
-#+begin_src sh
-pacman -Syu # first update system
-pacman -S base-devel tmux zsh vim man-pages-posix neofetch
-pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building and running Emacs
-#+end_src
-
-** Install from sources
-Sometime we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+** Install from sources :Linux:
+Sometimes we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
+*Update (6/13/2022)*: I should correct that it is not the case that =Homebrew/Linuxbrew= does not run on =CentoOS 7=, but I have run into issues over time, which may be due to some other system causing issues e.g. work related management/security software.
 *** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
@@ -202,12 +206,6 @@ tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 make -j && sudo make install
 #+END_SRC
 
-*** Installing =fzf= from =Github=
-#+BEGIN_SRC sh
-git clone --depth 1 https://github.com/junegunn/fzf.git
-cd fzf
-./install
-#+END_SRC
 *** Installing =fd= using =Cargo=
 #+BEGIN_SRC sh
 cargo install fd-find
@@ -481,19 +479,13 @@ import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-pa
 
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
-** Shell integrations
-*** Install =Fzf=
-#+begin_src sh
-$(brew --prefix)/opt/fzf/install
-#+end_src
-
 ** Editor integrations
-*** =Chemacs 2=
+*** =Chemacs 2= :automated:
 Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
 The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
 
-*** Install =Doom Emacs=
-Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to.
+*** Install =Doom Emacs= :automated:
+Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to. Automated via being checked in as a git submodule.
 #+begin_src sh
 git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
 ~/.emacs.doom/bin/doom install
@@ -521,16 +513,30 @@ sudo tlmgr install wrapfig marvosym wasy wasysym
 *** Setup =Email tools=
 **** Authentication
 ***** macOS
-****** TODO Fill in gaps via testing on a clean machine
-****** Add mail app-password to keychain
+****** Add mail app-password to =keychain=
+Acquire a new app-password from your email account e.g. for =gmail= you can find it in account settings of your =google= profile.
+
 ******* Add app-password for mbsync from IMAP
 #+begin_src sh
-security find-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
+security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
 #+end_src
 
 ******* Add app-password for SMTP server
 #+begin_src sh
 security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
+#+end_src
+****** Download certificates from email provider
+See ~.mbsyncrc~ file for location to put the certificates.  Below command will download the certificate chain, from which the public keys should be extracted into separate ~.crt~ files.
+#+begin_src sh
+openssl s_client -connect imap.gmail.com:993 -showcerts
+#+end_src
+***** Linux
+****** TODO Add steps for setting up email on ArchLinux (on WSL)
+**** Setup
+#+begin_src sh
+mbsync -a
+mu init --maildir=~/.mail --my-address=lambert.green@gmail.com
+mu index
 #+end_src
 *** Setup =Bible (KJV)=
 Dependencies: see installing of =Sword= in earlier section of this document.
@@ -633,20 +639,17 @@ dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
 * Special app configurations
 ** Setting up =tmux-256color= support
-I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific here.
+I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
 
-*** Setup on =macOS=
-See https://github.com/htop-dev/htop/issues/251
-#+begin_example
-Aha. It seems the terminfo for tmux-256color that comes with the latest Homebrew ncurses, or even the one downloaded from invisible-island.net is not configured to work properly with htop. Very strange.
+The =tmux-256color= terminfo must be setup on the remote machine:
+#+begin_src sh
+tic -x ./tmux/dot-tmux-256color
+#+end_src
 
-After a bit of looking around, it seems the best one to use is the one provided by the maintainer of tmux, found here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
+Note: the terminfo file was sourced from here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
 
-Using that one restores colours in htop for me. It can be installed by downloading the gist and running /usr/bin/tic -x <gist filename>.
-#+end_example
-
-The contents of the gist mentioned above are saved in file ~./tmux-256color~.
-** Setting up =24 bit true color= for =Emacs= in terminal mode
+Using new versions of =tmux= and the =tmux-256color= terminfo should be sufficient to get 24bit color in the terminal. Below is older information that is hopefully no longer needed:
+*** Setting up =24 bit true color= for =Emacs= in terminal mode
 The following file should be used to compile the appropriate terminfo
 #+begin_src sh
 # Use colon separators.
@@ -667,9 +670,15 @@ tic -x -o ~/.terminfo terminfo-24bit.src
 #+end_src
 
 Now =Emacs= can be started with true-color using:
+**** Using ~COLORTERM=truecolor~ (preferred way)
+We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
+
+**** Using ~TERM=xterm-24bit~ (old way)
+This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
 #+begin_src sh
 TERM=xterm-24bit emacs -nw
 #+end_src
+
 ** Setting up fonts for =Doom Emacs= on Windows
 There are some manual steps that need to be done:
 1. Run the below interactive functions:
@@ -678,6 +687,35 @@ There are some manual steps that need to be done:
 (+ligatures/install-patched-font)  ;; for ligatures
 #+end_src
 2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
+* Desktop Application Launch files
+Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
+
+** Windows StartMenu
+*** Emacs (WSL)
+#+begin_src sh
+C:\Users\Lambert\dev\my\scripts\start-emacs-in-wsl.vbs
+#+end_src
+*** Emacs (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe
+#+end_src
+*** Emacs Client (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\emacsclientw.exe -c -n --server-file  c:/users/lambert/.emacs.doom/.local/etc/server/server
+#+end_src
+*** Emacs Server (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe --daemon
+#+end_src
+*** Terminal - Alacritty
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory "%USERPROFILE%"
+#+end_src
+*** Unlock Desktop Session
+#+begin_src sh
+C:\Windows\System32\tscon.exe 8 /dest:console
+#+end_src
+
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
@@ -725,7 +763,8 @@ install-module -Name PSFzf -Scope CurrentUser
 #+end_src
 Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
 Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
-** TODO Add =Nix= files to the repo
+** DONE Add =Nix= files to the repo
+CLOSED: [2022-08-17 Wed 11:32]
 ** TODO Address issue where SSH-Agent will not work in =Windows=
 The steps to get =git= working fine with =ssh= in =Windows= are:
 1. The ~Windows OpenSSH Agent~ service must be changed from status ~disabled~ to ~enabled~ and set to start automatically.
@@ -735,3 +774,22 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
 
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
+** TODO Add a one time bat file for setting up =Windows= ~PATH~ variable
+Maybe this needs to be a manual step?
+Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
+** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+** TODO Add steps/scripts for updating packages
+I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing for to update a particular system?
+
+*** An example that of a complex update on the Linux machine:
+1. Update system and installed packages using ~sudo yum update~
+2. Update =Nix= and installed packages using ~nix-channel --update~
+3. Update =HomeManager= packages using ~home-manager switch~
+
+*** An example of multiple updates on Windows machine:
+1. Update system using =Windows Update= (fortunately this is already automatic)
+2. Update =Scoop= and installed packages using ~scoop update~
+3. Update =Msys2= and installed packages using ~pacman -Syu~
+4. Update =Choco= and installed packages using ~choco update~
+5. For each =WSL= instance update that Linux distribution.

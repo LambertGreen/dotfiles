@@ -7,3 +7,6 @@ BoldAsFont=yes
 BoldAsColour=no
 AllowBlinking=yes
 Scrollbar=none
+EmojiPlacement=align
+Term=xterm-256color
+Language=en_US
