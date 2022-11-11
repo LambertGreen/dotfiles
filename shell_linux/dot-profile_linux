@@ -6,6 +6,15 @@ lgreen_setup-local-bin() {
     fi
 }
 
+lgreen_setup-sss-preload-when-on-domain() {
+    echo $HOME | grep -q "/tsi/"
+    if [ $? ]; then
+        if [ -f "/lib64/libnss_sss.so.2" ]; then
+            export LD_PRELOAD=/lib64/libnss_sss.so.2
+        fi
+    fi
+}
+
 lgreen_setup-nix-profile() {
     if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
         source $HOME/.nix-profile/etc/profile.d/nix.sh
@@ -101,6 +110,7 @@ lgreen_setup-package-config() {
     fi
 }
 
+lgreen_setup-sss-preload-when-on-domain
 lgreen_setup-package-config
 lgreen_setup-umask-for-wsl
 lgreen_setup-display-for-wsl
