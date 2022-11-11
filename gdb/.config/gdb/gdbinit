@@ -1,3 +1,5 @@
+# -*- gdb-script -*-
+
 set startup-with-shell off
 set print pretty on
 set print object on
