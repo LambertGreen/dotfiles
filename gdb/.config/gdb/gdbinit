@@ -7,5 +7,6 @@ set print static-members on
 set print vtbl on
 set print demangle on
 set pagination off
+set debug-file-directory /usr/lib/debug
 add-auto-load-safe-path /home/tsi/lgreen/dev/my/dotfiles/gdb/dot-gdbinit
 add-auto-load-safe-path /usr/lib64/libthread_db-1.0.so
