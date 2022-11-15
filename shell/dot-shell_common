@@ -47,11 +47,35 @@ lgreen_conditionally_start_attach_tmux() {
     fi
 }
 
-# Setup FZF to use fd
+# FZF color themes
+lgreen_setup_fzf_color_dark() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark'
+}
+
+lgreen_setup_fzf_color_light() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=light'
+}
+
+lgreen_setup_fzf_color_one_dark() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark
+        --color=fg:-1,bg:-1,hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046,marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+
+lgreen_setup_fzf_color_paper_color() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=fg:#4d4d4c,bg:#eeeeee,hl:#d7005f
+        --color=fg+:#4d4d4c,bg+:#e8e8e8,hl+:#d7005f
+        --color=info:#4271ae,prompt:#8959a8,pointer:#d7005f
+        --color=marker:#4271ae,spinner:#4271ae,header:#4271ae'
+}
+
 lgreen_setup_fzf() {
+    # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then
         export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
     fi
+
+    lgreen_setup_fzf_color_one_dark
 }
 
 lgreen_setup_perforce_config(){
