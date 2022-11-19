@@ -303,7 +303,7 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -n "$SSH_TTY" -a "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+    if [ -n "$TMUX" ]; then
         if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
             source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
         fi
@@ -311,6 +311,7 @@ lgreen_setup_tmux_theme_switcher() {
 }
 
 lgreen_setup_aliases() {
+    # shellcheck disable=SC2139
     alias e="$EDITOR"
     alias ec=emacsclient
     alias g=git
@@ -385,7 +386,7 @@ lgreen_setup_doom_emacs() {
 }
 
 lgreen_setup_mintty_256color() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         export TERM=xterm-256color
     fi
@@ -393,7 +394,7 @@ lgreen_setup_mintty_256color() {
 
 # TODO Provide sanitize environment implementations for non-Linux as well
 lgreen_sanitize_environment() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
         export PATH=/usr/bin:/bin
         unset LD_LIBRARY_PATH PKG_CONFIG_PATH
@@ -425,7 +426,7 @@ lgreen_setup_tmux_all() {
 }
 
 lgreen_setup_msys_path() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
         export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
@@ -450,7 +451,7 @@ lgreen_source_work_shell
 lgreen_setup_tmux_all
 lgreen_setup_doom_emacs
 
-if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
 if [ "$UNAME" = "Linux" ]; then
     lgreen_setup_fzf
 elif [ "$UNAME" = "Darwin" ]; then
