@@ -27,7 +27,7 @@
       git
       tmux
       zsh
-      aspell
+      # aspell - installing this via Homebrew
       binutils
       ripgrep
       tree
@@ -36,10 +36,12 @@
       tldr
       neofetch
       direnv
-      (python39.withPackages (ps: with ps; [
-        pip
-        pynvim
-      ]))
+      nixfmt
+      # Installing python and pyenv via Homebrew
+      # (python39.withPackages (ps: with ps; [
+      #   pip
+      #   pynvim
+      # ]))
       (nerdfonts.override { fonts = [ "Iosevka" ]; })
       glibcLocales
     ];
