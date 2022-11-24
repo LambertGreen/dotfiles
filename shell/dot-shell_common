@@ -339,6 +339,9 @@ lgreen_setup_aliases() {
         alias lla='ls -lha --color'
     fi
 
+    alias lldb=$(brew --prefix)/bin/lldb
+    alias gdb=$(brew --prefix)/bin/gdb
+
     # On MSYS2 we need to help tmux along
     # Needed: to use TMUX in non mintty terminals
     if [[ "$UNAME" == *"_NT"* ]]; then
