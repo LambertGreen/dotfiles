@@ -586,6 +586,16 @@ dploy stow ./WindowsPowerShell $home
 dploy stow ./WindowsTerminal $home
 
 #-------------
+# TMux
+#-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.tmux.conf
+
+dploy link ./tmux/dot-tmux.conf $home/.tmux.conf
+dploy link ./tmux/dot-tmux-256color $home/.tmux-256color
+dploy link ./tmux/.tmux $home/.tmux
+
+#-------------
 # Vim + Neovim
 #-------------
 dploy link ./vim/dot-vimrc $home/_vimrc
@@ -603,6 +613,9 @@ dploy link ./emacs/dot-doom.d $home/.doom.d
 #-------------
 # Git
 #-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.gitignore, ~/.gitconfig
+
 dploy link ./git/dot-gitignore $home/.gitignore
 dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
 dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
@@ -611,6 +624,9 @@ dploy link ./git_win/dot-gitconfig $home/.gitconfig
 #-------------
 # Shell (msys2)
 #-------------
+# First remove any existing files since dploy does not have a force function
+rm ~/.profile, ~/.bash_profile, ~/.bashrc, ~/.zshrc, ~/.zprofile, ~/.shell_common
+
 dploy link ./shell/dot-bash_profile $home/.bash_profile
 dploy link ./shell/dot-bashrc $home/.bashrc
 dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
@@ -625,18 +641,15 @@ dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 ** Setting up =tmux-256color= support
 I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
 
-*** Setup on =macOS=
-See https://github.com/htop-dev/htop/issues/251
-#+begin_example
-Aha. It seems the terminfo for tmux-256color that comes with the latest Homebrew ncurses, or even the one downloaded from invisible-island.net is not configured to work properly with htop. Very strange.
+The =tmux-256color= terminfo must be setup on the remote machine:
+#+begin_src sh
+tic -x ./tmux/dot-tmux-256color
+#+end_src
 
-After a bit of looking around, it seems the best one to use is the one provided by the maintainer of tmux, found here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
+Note: the terminfo file was sourced from here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
 
-Using that one restores colours in htop for me. It can be installed by downloading the gist and running /usr/bin/tic -x <gist filename>.
-#+end_example
-
-The contents of the gist mentioned above are saved in file ~./tmux-256color~.
-** Setting up =24 bit true color= for =Emacs= in terminal mode
+Using new versions of =tmux= and the =tmux-256color= terminfo should be sufficient to get 24bit color in the terminal. Below is older information that is hopefully no longer needed:
+*** Setting up =24 bit true color= for =Emacs= in terminal mode
 The following file should be used to compile the appropriate terminfo
 #+begin_src sh
 # Use colon separators.
@@ -657,10 +670,10 @@ tic -x -o ~/.terminfo terminfo-24bit.src
 #+end_src
 
 Now =Emacs= can be started with true-color using:
-*** Using ~COLORTERM=truecolor~ (preferred way)
+**** Using ~COLORTERM=truecolor~ (preferred way)
 We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
 
-*** Using ~TERM=xterm-24bit~ (old way)
+**** Using ~TERM=xterm-24bit~ (old way)
 This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
 #+begin_src sh
 TERM=xterm-24bit emacs -nw
@@ -703,6 +716,60 @@ C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory 
 C:\Windows\System32\tscon.exe 8 /dest:console
 #+end_src
 
+* Setup base developer environment
+Our primary developer environment is =Doom Emacs=.  To validate that we have a good base install of =Doom Emacs= we can run:
+#+begin_src sh
+doom doctor
+#+end_src
+While we don't necessarily need to have all the things installed to have a clean report from ~doom doctor~, I like to have a clean report, and so below are the things that need to be installed to get such clean report.
+
+** Python
+*** Upgrade system pip
+#+begin_src sh
+python3 -m pip install --upgrade pip
+#+end_src
+*** Install global packages
+#+begin_src sh
+python3 -m pip install black pyflakes isort pytest nose pipenv
+#+end_src
+*** Install =pyenv=
+#+begin_src sh
+brew install pyenv
+#+end_src
+**** Install some versions
+#+begin_src sh
+pyenv install -l  # list available options
+peynv install $some_version
+#+end_src
+** CPP
+#+begin_src sh
+brew install llvm
+#+end_src
+** CC
+#+begin_src sh
+brew install glslang
+#+end_src
+** Markdown
+#+begin_src sh
+brew install markdown
+#+end_src
+** Shell
+#+begin_src sh
+brew install shfmt shellcheck
+#+end_src
+** Web
+*** Install =npm=
+#+begin_src sh
+brew install npm
+#+end_src
+*** Install packages using =npm=
+#+begin_src sh
+npm install -g node stylelint js-beautify js-tidy
+#+end_src
+** Org
+#+begin_src sh
+brew install graphviz gnuplot
+#+end_src
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
@@ -760,7 +827,6 @@ The steps to get =git= working fine with =ssh= in =Windows= are:
 git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
 
-*Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
 ** TODO Add a one time bat file for setting up =Windows= ~PATH~ variable
 Maybe this needs to be a manual step?
