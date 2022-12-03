@@ -28,9 +28,15 @@ lgreen_source_profile_if_not_sourced() {
     fi
 }
 
-lgreen_setup_tmux-256color() {
-    if [ ! -f "$HOME/.terminfo/74/tmux-256color" ] && [ -f "$HOME/.tmux-256color" ]; then
-        /usr/bin/tic -x "$HOME/.tmux-256color"
+lgreen_one_time_system_setup_check() {
+    if [ ! -f "$HOME/.lgreen_one_time_system_setup" ]; then
+        echo "**** WARNING *****"
+        echo "Fresh system detected: please run one time setup steps."
+
+        # FIXME Add better support for running one time setup
+        # Setup TMUX terminfo for user and sudo
+        # /usr/bin/tic -x "$HOME/.tmux-256color"
+        # sudo /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
 
@@ -41,20 +47,44 @@ lgreen_conditionally_start_attach_tmux() {
     fi
 }
 
-# Setup FZF to use fd
+# FZF color themes
+lgreen_setup_fzf_color_dark() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark'
+}
+
+lgreen_setup_fzf_color_light() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=light'
+}
+
+lgreen_setup_fzf_color_one_dark() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark
+        --color=fg:-1,bg:-1,hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046,marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+
+lgreen_setup_fzf_color_paper_color() {
+    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=fg:#4d4d4c,bg:#eeeeee,hl:#d7005f
+        --color=fg+:#4d4d4c,bg+:#e8e8e8,hl+:#d7005f
+        --color=info:#4271ae,prompt:#8959a8,pointer:#d7005f
+        --color=marker:#4271ae,spinner:#4271ae,header:#4271ae'
+}
+
 lgreen_setup_fzf() {
+    # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then
         export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
     fi
+
+    lgreen_setup_fzf_color_one_dark
 }
 
-lgreen_setup_perforce_config(){
+lgreen_setup_perforce_config() {
     export P4CONFIG=.p4config
 }
 
 # Keychain to start ssh-agent
 lgreen_start_ssh_agent() {
-    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
             eval "$(keychain --nogui --quiet --quick id_rsa id_ed25519)"
@@ -89,7 +119,7 @@ lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
-        if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+        if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
         if [ "$UNAME" = "Darwin" ]; then
             eval "$(pyenv init -)"
         elif [ "$UNAME" = "Linux" ]; then
@@ -99,14 +129,14 @@ lgreen_setup_pyenv() {
     fi
 }
 
-lgreen_setup_jenv () {
+lgreen_setup_jenv() {
     if [ "$(command -v jenv)" ]; then
         eval "$(jenv init -)"
         export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"
     fi
 }
 
-lgreen_setup_rbenv () {
+lgreen_setup_rbenv() {
     if [ "$(command -v rbenv)" ]; then
         # Below instruction is from output of doing `brew install rbenv`
         export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
@@ -114,21 +144,21 @@ lgreen_setup_rbenv () {
     fi
 }
 
-lgreen_setup_non_sys_openssl () {
+lgreen_setup_non_sys_openssl() {
     if [ "$(command -v brew)" ]; then
         OPENSSL_PATH=$(brew --prefix openssl@1.1)
         export PATH="${OPENSSL_PATH}/bin:$PATH"
     fi
 }
 
-lgreen_setup_non_sys_sqlite () {
+lgreen_setup_non_sys_sqlite() {
     if [ "$(command -v brew)" ]; then
         SQLITE_PATH=$(brew --prefix sqlite)
         export PATH="${SQLITE_PATH}/bin:$PATH"
     fi
 }
 
-lgreen_setup_dev_env_node_js () {
+lgreen_setup_dev_env_node_js() {
     if [ "$(command -v nvm)" ]; then
         export NVM_DIR="$HOME/.nvm"
         [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
@@ -136,16 +166,16 @@ lgreen_setup_dev_env_node_js () {
     fi
 }
 
-lgreen_setup_dev_env_rust () {
-    if [ -f  "$HOME/.cargo/env" ]; then
+lgreen_setup_dev_env_rust() {
+    if [ -f "$HOME/.cargo/env" ]; then
         source "$HOME/.cargo/env"
     fi
-    if [ -d  "$HOME/.cargo/bin" ]; then
+    if [ -d "$HOME/.cargo/bin" ]; then
         export PATH="$PATH:$HOME/.cargo/bin"
     fi
 }
 
-lgreen_setup_dev_env_go () {
+lgreen_setup_dev_env_go() {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
     export PATH="$PATH:${GOPATH}/bin:${GOROOT}/bin"
@@ -154,7 +184,7 @@ lgreen_setup_dev_env_go () {
 }
 
 lgreen_setup_dev_env_clang() {
-    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         export PATH="/usr/local/opt/llvm/bin:$PATH"
         export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
@@ -175,21 +205,21 @@ lgreen_color_test() {
     echo Terminal Colors:
 
     #   Copied from http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
-    T='gYw'   # The test text
+    T='gYw' # The test text
 
     echo -e "\n                 40m     41m     42m     43m\
-        44m     45m     46m     47m";
+        44m     45m     46m     47m"
 
     for FGs in '    m' '   1m' '  30m' '1;30m' '  31m' '1;31m' '  32m' \
         '1;32m' '  33m' '1;33m' '  34m' '1;34m' '  35m' '1;35m' \
-        '  36m' '1;36m' '  37m' '1;37m';
-    do FG=${FGs// /}
-       echo -en " $FGs \033[$FG  $T  "
-       for BG in 40m 41m 42m 43m 44m 45m 46m 47m;
-       do echo -en "$EINS \033[$FG\033[$BG  $T  \033[0m";
-           done
-       echo;
+        '  36m' '1;36m' '  37m' '1;37m'; do
+        FG=${FGs// /}
+        echo -en " $FGs \033[$FG  $T  "
+        for BG in 40m 41m 42m 43m 44m 45m 46m 47m; do
+            echo -en "$EINS \033[$FG\033[$BG  $T  \033[0m"
         done
+        echo
+    done
     echo
 
     echo Testing TrueColor mode \(24 bit\):
@@ -208,12 +238,12 @@ lgreen_color_test() {
 }'
 }
 
-lgreen_run_gradlew () {
+lgreen_run_gradlew() {
     ./gradlew "$@"
 }
 
 lgreen_source_os_shell() {
-    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         # shellcheck source=shell_osx
         [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
@@ -229,7 +259,7 @@ lgreen_source_os_shell() {
 # Sets up lscolors/dircolors
 lgreen_setup_dircolors() {
     theme=$HOME/dev/pub/dircolors/dircolors.ansi-light
-    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ -f "$theme" ]; then
             eval "$(gdircolors "$theme")"
@@ -258,7 +288,7 @@ lgreen_p4_last_change() {
 # TODO We also need to set a simpler shell environment if we are inside Emacs and not inside VTerm
 # For example don't load ZSH nor any fancy prompts
 lgreen_setup_running_inside_emacs() {
-    if  [ -n "$INSIDE_EMACS" ]; then
+    if [ -n "$INSIDE_EMACS" ]; then
         export EDITOR="emacsclient"
         export GIT_EDITOR=$EDITOR
     fi
@@ -273,24 +303,38 @@ lgreen_rg_with_pager() {
 }
 
 lgreen_setup_tmux_theme_switcher() {
-    if [ -n "$SSH_TTY" -a -z "$TMUX" -a -z "$INSIDE_EMACS" ]; then
+    if [ -n "$TMUX" ]; then
         if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
             source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
         fi
     fi
 }
 
+lgreen_setup_lscolors() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-dark)
+    fi
+}
+
 lgreen_setup_aliases() {
+    # shellcheck disable=SC2139
     alias e="$EDITOR"
     alias ec=emacsclient
     alias g=git
-    alias vi=nvim
     alias rg=lgreen_rg_with_pager
     alias gw=lgreen_run_gradlew
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
+    alias ssh='TERM=xterm-256color ssh'
+    if [ "$(command -v bat)" ]; then
+        alias cat=bat
+    fi
+    if [ "$(command -v nvim)" ]; then
+        alias vim=nvim
+        alias vi=nvim
+    fi
 
-    if [ -z "$UNAME" ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         alias ls='gls --color'
         alias ll='gls -lh --color'
@@ -300,6 +344,9 @@ lgreen_setup_aliases() {
         alias ll='ls -lh --color'
         alias lla='ls -lha --color'
     fi
+
+    alias lldb=$(brew --prefix)/bin/lldb
+    alias gdb=$(brew --prefix)/bin/gdb
 
     # On MSYS2 we need to help tmux along
     # Needed: to use TMUX in non mintty terminals
@@ -348,7 +395,7 @@ lgreen_setup_doom_emacs() {
 }
 
 lgreen_setup_mintty_256color() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         export TERM=xterm-256color
     fi
@@ -356,7 +403,7 @@ lgreen_setup_mintty_256color() {
 
 # TODO Provide sanitize environment implementations for non-Linux as well
 lgreen_sanitize_environment() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
         export PATH=/usr/bin:/bin
         unset LD_LIBRARY_PATH PKG_CONFIG_PATH
@@ -384,12 +431,11 @@ lgreen_setup_tmux_all() {
     # Tmux is often writing output to the screen.
     # We should be using Emacs more anyway.
     # lgreen_conditionally_start_attach_tmux
-    lgreen_setup_tmux-256color
     lgreen_setup_tmux_theme_switcher
 }
 
 lgreen_setup_msys_path() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then
         export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
         export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
@@ -402,17 +448,20 @@ lgreen_setup_msys_path() {
 #-------------------
 lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
+lgreen_one_time_system_setup_check
 lgreen_source_os_shell
 lgreen_start_ssh_agent
 lgreen_setup_dircolors
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
+lgreen_setup_lscolors
 lgreen_source_local_shell
 lgreen_source_work_shell
 
+lgreen_setup_tmux_all
 lgreen_setup_doom_emacs
 
-if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
 if [ "$UNAME" = "Linux" ]; then
     lgreen_setup_fzf
 elif [ "$UNAME" = "Darwin" ]; then

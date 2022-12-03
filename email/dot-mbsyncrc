@@ -5,9 +5,11 @@ User lambert.green@gmail.com
 PassCmd "security find-generic-password -s mbsync-gmail-password -w"
 AuthMechs PLAIN
 SSLType IMAPS
-# The below cert files need to be downloaded (e.g. use openssl)
+# On macOS: The below cert files need to be downloaded (e.g. use openssl)
+# openssl s_client -connect imap.gmail.com:993 -showcerts
 CertificateFile ~/.certs/gmail.crt
 CertificateFile ~/.certs/google.crt
+CertificateFile ~/.certs/globalsign.crt
 
 # THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
 # - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE

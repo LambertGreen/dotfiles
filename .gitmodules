@@ -23,7 +23,7 @@
 	branch = master
 [submodule "emacs/dot-emacs.doom"]
 	path = emacs/dot-emacs.doom
-	url = git@github.com:hlissner/doom-emacs.git
+	url = git@github.com:LambertGreen/doomemacs.git
 	branch = master
 [submodule "emacs/dot-emacs.spacemacs"]
 	path = emacs/dot-emacs.spacemacs
