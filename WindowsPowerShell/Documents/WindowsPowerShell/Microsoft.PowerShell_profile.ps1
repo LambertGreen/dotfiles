@@ -56,3 +56,4 @@ function lgreen-disable-dark-mode {
     -Name AppsUseLightTheme `
     -Value 1
 }
+Set-Alias okta-aws C:\okta-aws.bat

@@ -140,6 +140,9 @@ lgreen_setup_zinit() {
         # zsh-fzf-history-search
         zinit ice lucid wait'0'
         zinit light joshskidmore/zsh-fzf-history-search
+
+        # fzf-tab
+        zinit light Aloxaf/fzf-tab
     fi
 }
 
@@ -241,6 +244,7 @@ fi
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_setup_emacs_vterm
+lgreen_setup_direnv_for_zsh
 lgreen_conditionally_stop_profiler
 
 

@@ -38,9 +38,10 @@ lgreen_setup_profile_env() {
     export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 
     # Editor
-    export EDITOR="TERM=xterm-24bit emacsclient -t -a nvim"
+    export EDITOR="emacsclient -t -a nvim"
     export GIT_EDITOR=$EDITOR
     export VISUAL="emacsclient -n -c -a nvim"
+    export COLORTERM=truecolor
 
     # BAT theme
     export BAT_THEME="TwoDark"
@@ -66,11 +67,6 @@ lgreen_source_os_profile() {
     fi
 }
 
-lgreen_setup_nix_profile() {
-    if [ -e $HOME/.nix-profile/etc/profile.d/nix.sh ]; then
-        source $HOME/.nix-profile/etc/profile.d/nix.sh
-    fi
-}
 #-------------------
 # Main
 #-------------------
@@ -78,5 +74,4 @@ lgreen_track_profile_sourced_count
 lgreen_greet_user_at_profile_setup_start
 lgreen_setup_profile_env
 lgreen_source_os_profile
-lgreen_setup_nix_profile
 lgreen_greet_user_at_profile_setup_end

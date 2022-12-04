@@ -1,0 +1,24 @@
+# -*- gdb-script -*-
+
+set startup-with-shell off
+set print pretty on
+set print object on
+set print static-members on
+set print vtbl on
+set print demangle on
+set pagination off
+
+set auto-load local-gdbinit on
+set auto-load safe-path /home/tsi/lgreen/dev/work
+add-auto-load-safe-path /usr/share/gdb/auto-load/usr/lib64/libglib-2.0.so.0.5600.1-gdb.py
+add-auto-load-safe-path /usr/lib64/libthread_db-1.0.so
+
+set debug-file-directory /usr/lib/debug
+set substitute-path external /home/tsi/lgreen/dev/work/blitz/repositories
+
+python
+import sys, os.path
+sys.path.insert(0, os.path.expanduser('~/.config/gdb'))
+import TableauPrinters
+TableauPrinters.register_printers()
+end
