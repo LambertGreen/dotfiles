@@ -656,6 +656,12 @@ There are some manual steps that need to be done:
 (+ligatures/install-patched-font)  ;; for ligatures
 #+end_src
 2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
+* Desktop Application Launch files
+Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
+
+** Windows StartMenu
+Copy the files from ~./windows_startmenu/programs~ to ~C:/Users/Lambert/AppData/Roaming/Microsoft/Windows/Start Menu/Programs~
+
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
