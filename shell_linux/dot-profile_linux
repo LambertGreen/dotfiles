@@ -63,7 +63,7 @@ lgreen_setup-perl() {
 }
 
 lgreen_setup-umask-for-wsl() {
-    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+    if [[ "$(</proc/version)" = *microsoft* ]]; then
         # Note: WSL does not currently apply umask properly.
         if [ "$(umask)" = "0000" ]; then
             umask 022
@@ -72,7 +72,7 @@ lgreen_setup-umask-for-wsl() {
 }
 
 lgreen_setup-display-for-wsl() {
-    if [[ "$(< /proc/version)" = *icrosoft* ]]; then
+    if [[ "$(</proc/version)" = *icrosoft* ]]; then
         DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
         export DISPLAY
     fi
@@ -80,7 +80,7 @@ lgreen_setup-display-for-wsl() {
 
 lgreen_setup-fix-wsl2-interop() {
     # Issue: https://github.com/microsoft/WSL/issues/5065
-    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+    if [[ "$(</proc/version)" = *microsoft* ]]; then
         for i in $(pstree -np -s $$ | grep -o -E '[0-9]+'); do
             if [[ -e "/run/WSL/${i}_interop" ]]; then
                 export WSL_INTEROP=/run/WSL/${i}_interop
@@ -90,7 +90,7 @@ lgreen_setup-fix-wsl2-interop() {
 }
 
 lgreen_setup-add-windows-path-to-wsl() {
-    if [[ "$(< /proc/version)" = *microsoft* ]]; then
+    if [[ "$(</proc/version)" = *microsoft* ]]; then
         if [ -n "${WSLPATH}" ]; then
             export PATH="$PATH:$WSLPATH"
         fi
@@ -99,8 +99,8 @@ lgreen_setup-add-windows-path-to-wsl() {
 
 lgreen_setup-xdg-config() {
     if [ -z "${XDG_RUNTIME_DIR}" ]; then
-         XDG_RUNTIME_DIR=/run/user/$(id -ru)
-         export XDG_RUNTIME_DIR
+        XDG_RUNTIME_DIR=/run/user/$(id -ru)
+        export XDG_RUNTIME_DIR
     fi
 }
 
