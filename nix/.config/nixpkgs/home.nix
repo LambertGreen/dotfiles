@@ -18,7 +18,8 @@
 
   nixpkgs.overlays = [
     (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+      url =
+        "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
     }))
   ];
 
@@ -59,11 +60,9 @@
     emacs = {
       enable = true;
       package = pkgs.emacsNativeComp;
-      extraPackages = (epkgs: [ epkgs.vterm ] );
+      extraPackages = (epkgs: [ epkgs.vterm ]);
     };
   };
 
-  fonts = {
-    fontconfig.enable = true;
-  };
+  fonts = { fontconfig.enable = true; };
 }
