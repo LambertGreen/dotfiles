@@ -37,6 +37,7 @@
       tldr
       neofetch
       direnv
+      xcape
       nixfmt
       # Installing python and pyenv via Homebrew
       # (python39.withPackages (ps: with ps; [
