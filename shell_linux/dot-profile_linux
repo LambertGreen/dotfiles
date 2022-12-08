@@ -37,7 +37,7 @@ lgreen_setup-homebrew-on-linux() {
         #Instead of prepending linuxbrew we instead append it to
         # the PATH so as not to disrupt some builds that need the
         # system loader first in the path.
-        #export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
+        export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
 
         # Homebrew writes out an error if the system versions of curl and git are
         # old (this happens on CentOS 7). However I ran into issues when I installed
@@ -46,13 +46,13 @@ lgreen_setup-homebrew-on-linux() {
         # for both curl and git (https://github.com/Linuxbrew/brew/wiki/FAQ#why-does-curl-fail), then
         # use Homebrew to download latest versions, and removing the workaround, then pointing
         # Homebrew to these versions.
-        export HOMEBREW_CURL_PATH=/home/linuxbrew/.linuxbrew/bin/curl
-        export HOMEBREW_GIT_PATH=/home/linuxbrew/.linuxbrew/bin/git
+        # export HOMEBREW_CURL_PATH=/home/linuxbrew/.linuxbrew/bin/curl
+        # export HOMEBREW_GIT_PATH=/home/linuxbrew/.linuxbrew/bin/git
 
         # The below will update the shell environment:
         # - Add some HOMEBREW environment variables
         # - Update PATH, MANPATH, INFOPATH to have linuxbrew paths prepended
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        # eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     fi
 }
 
