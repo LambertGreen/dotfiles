@@ -1,11 +1,10 @@
-
-    [Desktop Entry]
-    Type=Application
-    Exec=xcape -e 'Control_L=Escape'
-    Hidden=true
-    NoDisplay=true
-    X-GNOME-Autostart-enabled=true
-    Name[en_US]=XCape
-    Name=XCape
-    Comment[en_US]=Runs xcape
-    Comment=Runs xcape
+[Desktop Entry]
+Name=XCape
+Comment=Runs xcape
+Type=Application
+Exec=xcape -e 'Control_L=Escape'
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Xcape
+Comment[en_US]=More control to escape
