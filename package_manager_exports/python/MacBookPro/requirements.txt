@@ -16,7 +16,7 @@ nose==1.3.7
 ntfy==2.7.0
 packaging @ file:///private/tmp/sip--packaging-20210619-27993-9g9qk9/packaging-20.9
 pbkdf2==1.3
-pipenv==2021.5.29
+pipenv==2022.1.8
 platformdirs==2.3.0
 pluggy==0.13.1
 py==1.10.0
