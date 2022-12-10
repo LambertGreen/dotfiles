@@ -18,7 +18,8 @@
 
   nixpkgs.overlays = [
     (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+      url =
+        "https://github.com/nix-community/emacs-overlay/archive/master.tar.gz";
     }))
   ];
 
@@ -36,6 +37,7 @@
       tldr
       neofetch
       direnv
+      xcape
       nixfmt
       # Installing python and pyenv via Homebrew
       # (python39.withPackages (ps: with ps; [
@@ -59,11 +61,9 @@
     emacs = {
       enable = true;
       package = pkgs.emacsNativeComp;
-      extraPackages = (epkgs: [ epkgs.vterm ] );
+      extraPackages = (epkgs: [ epkgs.vterm ]);
     };
   };
 
-  fonts = {
-    fontconfig.enable = true;
-  };
+  fonts = { fontconfig.enable = true; };
 }
