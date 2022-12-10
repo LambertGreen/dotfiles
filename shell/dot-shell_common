@@ -443,6 +443,15 @@ lgreen_setup_msys_path() {
         export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
     fi
 }
+
+lgreen_show_vivid_color_themes() {
+    for theme in $(vivid themes); do
+        echo "theme: $theme"
+        LS_COLORS=$(vivid generate $theme)
+        ls
+        echo
+    done
+}
 #-------------------
 # Main
 #-------------------
