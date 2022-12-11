@@ -62,6 +62,12 @@ lgreen_setup_common_shell() {
     [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
+lgreen_fixup_zsh_autosuggestion_highlight_style() {
+    # The original value is `fg=8` but that color is too light for light themes (e.g. doom-one-light)
+    # Use the command `fast-theme -p` to print out color values
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
+}
+
 lgreen_setup_zinit() {
 #--------------------------------------------
 # Zinit:
@@ -243,6 +249,7 @@ fi
 
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
+lgreen_fixup_zsh_autosuggestion_highlight_style
 lgreen_setup_emacs_vterm
 lgreen_setup_direnv_for_zsh
 lgreen_conditionally_stop_profiler
