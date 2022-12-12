@@ -130,11 +130,6 @@ lgreen_setup_zinit() {
     # Z
     zinit light agkozak/zsh-z
 
-    # For GNU ls (the binaries can be gls, gdircolors)
-    zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
-    zinit light trapd00r/LS_COLORS
-
-
     # FZF does not work on MSYS2 so use FZY instead
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
     if [[ "$UNAME" == *"_NT"* ]]; then

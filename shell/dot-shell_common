@@ -310,10 +310,20 @@ lgreen_setup_tmux_theme_switcher() {
     fi
 }
 
-lgreen_setup_lscolors() {
+lgreen_setup_vivid_lscolors() {
+    # TODO Add light/dark mode theme support
     if [ "$(command -v vivid)" ]; then
         export LS_COLORS=$(vivid generate one-dark)
     fi
+}
+
+lgreen_show_vivid_color_themes() {
+    for theme in $(vivid themes); do
+        echo "theme: $theme"
+        LS_COLORS=$(vivid generate $theme)
+        ls
+        echo
+    done
 }
 
 lgreen_setup_aliases() {
@@ -444,14 +454,6 @@ lgreen_setup_msys_path() {
     fi
 }
 
-lgreen_show_vivid_color_themes() {
-    for theme in $(vivid themes); do
-        echo "theme: $theme"
-        LS_COLORS=$(vivid generate $theme)
-        ls
-        echo
-    done
-}
 #-------------------
 # Main
 #-------------------
@@ -463,7 +465,7 @@ lgreen_start_ssh_agent
 lgreen_setup_dircolors
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
-lgreen_setup_lscolors
+lgreen_setup_vivid_lscolors
 lgreen_source_local_shell
 lgreen_source_work_shell
 
