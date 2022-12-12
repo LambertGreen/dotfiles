@@ -256,21 +256,6 @@ lgreen_source_os_shell() {
     fi
 }
 
-# Sets up lscolors/dircolors
-lgreen_setup_dircolors() {
-    theme=$HOME/dev/pub/dircolors/dircolors.ansi-light
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
-        if [ -f "$theme" ]; then
-            eval "$(gdircolors "$theme")"
-        fi
-    elif [ "$UNAME" = "Linux" ]; then
-        if [ -f "$theme" ]; then
-            eval "$(dircolors "$theme")"
-        fi
-    fi
-}
-
 lgreen_p4_client() {
     p4 set -q P4CLIENT | cut -c10-
 }
@@ -462,7 +447,6 @@ lgreen_source_profile_if_not_sourced
 lgreen_one_time_system_setup_check
 lgreen_source_os_shell
 lgreen_start_ssh_agent
-lgreen_setup_dircolors
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
 lgreen_setup_vivid_lscolors
