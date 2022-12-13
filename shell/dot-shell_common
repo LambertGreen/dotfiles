@@ -47,35 +47,11 @@ lgreen_conditionally_start_attach_tmux() {
     fi
 }
 
-# FZF color themes
-lgreen_setup_fzf_color_dark() {
-    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark'
-}
-
-lgreen_setup_fzf_color_light() {
-    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=light'
-}
-
-lgreen_setup_fzf_color_one_dark() {
-    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=dark
-        --color=fg:-1,bg:-1,hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
-        --color=info:#98c379,prompt:#61afef,pointer:#be5046,marker:#e5c07b,spinner:#61afef,header:#61afef '
-}
-
-lgreen_setup_fzf_color_paper_color() {
-    export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS' --color=fg:#4d4d4c,bg:#eeeeee,hl:#d7005f
-        --color=fg+:#4d4d4c,bg+:#e8e8e8,hl+:#d7005f
-        --color=info:#4271ae,prompt:#8959a8,pointer:#d7005f
-        --color=marker:#4271ae,spinner:#4271ae,header:#4271ae'
-}
-
 lgreen_setup_fzf() {
     # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then
         export FZF_DEFAULT_COMMAND="fd --hidden --no-ignore-vcs --exclude '.git' --exclude 'node_modules'"
     fi
-
-    lgreen_setup_fzf_color_one_dark
 }
 
 lgreen_setup_perforce_config() {
@@ -295,20 +271,87 @@ lgreen_setup_tmux_theme_switcher() {
     fi
 }
 
-lgreen_setup_vivid_lscolors() {
-    # TODO Add light/dark mode theme support
+lgreen_setup_lscolors_theme_one_light() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-light)
+    fi
+}
+
+lgreen_setup_lscolors_theme_one_dark() {
     if [ "$(command -v vivid)" ]; then
         export LS_COLORS=$(vivid generate one-dark)
     fi
 }
 
-lgreen_show_vivid_color_themes() {
+lgreen_show_lscolors_themes() {
     for theme in $(vivid themes); do
         echo "theme: $theme"
-        LS_COLORS=$(vivid generate $theme)
+        LS_COLORS=$(vivid generate "$theme")
         ls
         echo
     done
+}
+
+lgreen_setup_fzf_theme_dark() {
+    export FZF_DEFAULT_OPTS='--color=dark --color=fg:-1,bg:-1'
+}
+
+lgreen_setup_fzf_theme_light() {
+    export FZF_DEFAULT_OPTS='--color=light --color=fg:-1,bg:-1'
+}
+
+lgreen_setup_fzf_theme_one_light() {
+    # This is just my own hack of the OneDark theme i.e.
+    # I replaced the fg and bg colors.
+    export FZF_DEFAULT_OPTS='
+        --color=fg:-1,bg:-1
+        --color=hl:#c678dd,fg+:#4b5263,bg+:#ffffff,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046
+        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+
+lgreen_setup_fzf_theme_one_dark() {
+    export FZF_DEFAULT_OPTS='
+        --color=fg:-1,bg:-1
+        --color=hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046
+        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+
+lgreen_setup_bat_theme_one_half_light() {
+    export BAT_THEME="OneHalfLight"
+}
+
+lgreen_setup_bat_theme_one_half_dark() {
+    export BAT_THEME="OneHalfDark"
+}
+
+lgreen_setup_shell_theme_mode_light() {
+    export LGREEN_SHELL_THEME_MODE="light"
+    lgreen_setup_lscolors_theme_one_light
+    lgreen_setup_fzf_theme_one_light
+    lgreen_setup_bat_theme_one_half_light
+    if [ -n "$TMUX" ]; then
+        lgreen_source_tmux_theme_light
+    fi
+}
+
+lgreen_setup_shell_theme_mode_dark() {
+    export LGREEN_SHELL_THEME_MODE="dark"
+    lgreen_setup_lscolors_theme_one_dark
+    lgreen_setup_fzf_theme_one_dark
+    lgreen_setup_bat_theme_one_half_dark
+    if [ -n "$TMUX" ]; then
+        lgreen_source_tmux_theme_dark
+    fi
+}
+
+lgreen_toggle_shell_theme_mode() {
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_dark
+    else
+        lgreen_setup_shell_theme_mode_light
+    fi
 }
 
 lgreen_setup_aliases() {
@@ -318,6 +361,7 @@ lgreen_setup_aliases() {
     alias g=git
     alias rg=lgreen_rg_with_pager
     alias gw=lgreen_run_gradlew
+    alias tt=lgreen_toggle_shell_theme_mode
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
     alias ssh='TERM=xterm-256color ssh'
@@ -449,11 +493,14 @@ lgreen_source_os_shell
 lgreen_start_ssh_agent
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
-lgreen_setup_vivid_lscolors
 lgreen_source_local_shell
 lgreen_source_work_shell
-
 lgreen_setup_tmux_all
+
+# TODO Read light/dark mode from the system
+# For now we just default to light mode
+lgreen_setup_shell_theme_mode_light
+
 lgreen_setup_doom_emacs
 
 if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi

@@ -28,10 +28,10 @@ lgreen_toggle_tmux_light_dark_mode() {
 
 lgreen_source_startup_theme() {
     if [ ! "$(tmux showenv -g TMUX_THEME_FILE 2>/dev/null)" ]; then
-        lgreen_source_tmux_theme_dark
+        # TODO Consider reading light/dark mode from system
+        # For now using light mode as the default
+        lgreen_source_tmux_theme_light
     fi
 }
-
-alias tt=lgreen_toggle_tmux_light_dark_mode
 
 lgreen_source_startup_theme

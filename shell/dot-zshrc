@@ -107,6 +107,22 @@ lgreen_setup_zinit() {
     # Some info on zinit's parameters
     # - lucid: hides output from the loading of the plugin
 
+    # FZF does not work on MSYS2 so use FZY instead
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        zinit light aperezdc/zsh-fzy
+    else
+        zinit ice from"gh-r" as"program"
+        zinit light junegunn/fzf
+
+        # zsh-fzf-history-search
+        zinit ice lucid wait'0'
+        zinit light joshskidmore/zsh-fzf-history-search
+
+        # fzf-tab
+        zinit light Aloxaf/fzf-tab
+    fi
+
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
     zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
@@ -129,22 +145,6 @@ lgreen_setup_zinit() {
 
     # Z
     zinit light agkozak/zsh-z
-
-    # FZF does not work on MSYS2 so use FZY instead
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        zinit light aperezdc/zsh-fzy
-    else
-        zinit ice from"gh-r" as"program"
-        zinit light junegunn/fzf
-
-        # zsh-fzf-history-search
-        zinit ice lucid wait'0'
-        zinit light joshskidmore/zsh-fzf-history-search
-
-        # fzf-tab
-        zinit light Aloxaf/fzf-tab
-    fi
 }
 
 lgreen_zsh_show_my_functions() {
@@ -248,7 +248,6 @@ lgreen_fixup_zsh_autosuggestion_highlight_style
 lgreen_setup_emacs_vterm
 lgreen_setup_direnv_for_zsh
 lgreen_conditionally_stop_profiler
-
 
 # Remove any duplicates in the path variable
 # Note: it is best to remove the places where duplicates
