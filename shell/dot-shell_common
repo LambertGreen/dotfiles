@@ -188,13 +188,15 @@ lgreen_setup_dev_env_clang() {
     if [ "$UNAME" = "Darwin" ]; then
         export PATH="/usr/local/opt/llvm/bin:$PATH"
         export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
+
+    elif [ "$UNAME" = "Linux" ]; then
+        # Removed clang install on Linux.
+        # Anyway this version specific paths don't seem like the right way to do this.
+        # UPDATE (1/9/23): Hmm, not quite sure why I put this back... could it be for 'clangd'?
+
+        export PATH=/home/linuxbrew/.linuxbrew/Cellar/llvm@14/14.0.6/bin:$PATH
+        export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/Cellar/llvm@14/14.0.6/lib:$LD_LIBRARY_PATH
     fi
-
-    # Removed clang install on Linux.
-    # Anyway this version specific paths don't seem like the right way to do this.
-
-    # export PATH=/usr/local/clang_9.0.0/bin:$PATH
-    # export LD_LIBRARY_PATH=/usr/local/clang_9.0.0/lib:$LD_LIBRARY_PATH
 }
 
 lgreen_time_shell() {
