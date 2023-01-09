@@ -62,6 +62,12 @@ lgreen_setup_common_shell() {
     [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
+lgreen_fixup_zsh_autosuggestion_highlight_style() {
+    # The original value is `fg=8` but that color is too light for light themes (e.g. doom-one-light)
+    # Use the command `fast-theme -p` to print out color values
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
+}
+
 lgreen_setup_zinit() {
 #--------------------------------------------
 # Zinit:
@@ -101,6 +107,22 @@ lgreen_setup_zinit() {
     # Some info on zinit's parameters
     # - lucid: hides output from the loading of the plugin
 
+    # FZF does not work on MSYS2 so use FZY instead
+    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        zinit light aperezdc/zsh-fzy
+    else
+        zinit ice from"gh-r" as"program"
+        zinit light junegunn/fzf
+
+        # zsh-fzf-history-search
+        zinit ice lucid wait'0'
+        zinit light joshskidmore/zsh-fzf-history-search
+
+        # fzf-tab
+        zinit light Aloxaf/fzf-tab
+    fi
+
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
     zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
@@ -123,27 +145,6 @@ lgreen_setup_zinit() {
 
     # Z
     zinit light agkozak/zsh-z
-
-    # For GNU ls (the binaries can be gls, gdircolors)
-    zinit ice atclone"gdircolors -b LS_COLORS > c.zsh" atpull'%atclone' pick"c.zsh" nocompile'!'
-    zinit light trapd00r/LS_COLORS
-
-
-    # FZF does not work on MSYS2 so use FZY instead
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        zinit light aperezdc/zsh-fzy
-    else
-        zinit ice from"gh-r" as"program"
-        zinit light junegunn/fzf
-
-        # zsh-fzf-history-search
-        zinit ice lucid wait'0'
-        zinit light joshskidmore/zsh-fzf-history-search
-
-        # fzf-tab
-        zinit light Aloxaf/fzf-tab
-    fi
 }
 
 lgreen_zsh_show_my_functions() {
@@ -198,6 +199,10 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
+lgreen_setup_fzf_bindings() {
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+}
+
 lgreen_setup_fzy_bindings() {
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
@@ -239,14 +244,16 @@ lgreen_init_p10k
 if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_fzy_bindings
+else
+    lgreen_setup_fzf_bindings
 fi
 
 lgreen_source_local_zsh
 lgreen_zsh_init_completions
+lgreen_fixup_zsh_autosuggestion_highlight_style
 lgreen_setup_emacs_vterm
 lgreen_setup_direnv_for_zsh
 lgreen_conditionally_stop_profiler
-
 
 # Remove any duplicates in the path variable
 # Note: it is best to remove the places where duplicates

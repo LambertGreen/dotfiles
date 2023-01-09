@@ -1,4 +1,4 @@
-personal_ws-1.1 en 114
+personal_ws-1.1 en 116 
 APIs
 ARP
 Artifactory
@@ -81,6 +81,7 @@ dotfiles
 elfeed
 executables
 frostburn
+glyphs
 iTerm
 integrations
 katas
