@@ -10,3 +10,5 @@
     autocrlf = input
 [pull]
 	rebase = false
+[init]
+	defaultBranch = main
