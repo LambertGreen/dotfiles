@@ -7,10 +7,6 @@
 	autocrlf = true
 	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 
-[user]
-	email = lambert_green@msn.com
-	name = Lambert
-
 [credential "helperselector"]
 	selected = wincred
 
