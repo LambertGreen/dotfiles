@@ -29,3 +29,7 @@
 	path = emacs/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
 	branch = develop
+[submodule "alfred-settings"]
+	path = alfred-settings
+	url = git@github.com:LambertGreen/alfred-settings.git
+	branch = main
