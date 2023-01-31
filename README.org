@@ -692,7 +692,8 @@ There are some manual steps that need to be done:
 * Special local machine files
 Ideally we should find a better solution but for now there are some local overrides that are needed on each machine.
 ** Local =Tmux= config
-This is for setting up a theme for the particular machine.
+This is for setting up a theme for the particular machine:
++ Write the below to ~.tmux.local.conf~
 #+begin_src conf
 # Theme files
 setenv -g TMUX_THEME_DARK $HOME/.tmux/themes/tmux.green.dark.conf
@@ -706,6 +707,7 @@ setenv -g TMUX_THEME dark
 # have access to the currently running instance of Tmux.
 # bind T run-shell '~/.tmux/scripts/tmux.sh toggle' \; display-message "Theme toggled."
 #+end_src
+
 * Desktop Application Launch files
 Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
 
