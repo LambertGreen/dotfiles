@@ -846,3 +846,5 @@ I have being remembering the commands to run to make the primary package manager
 3. Update =Msys2= and installed packages using ~pacman -Syu~
 4. Update =Choco= and installed packages using ~choco update~
 5. For each =WSL= instance update that Linux distribution.
+
+***  [ ] Consider using =topgrade=
