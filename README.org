@@ -99,6 +99,7 @@ brew bundle dump
   };
 }
 #+end_src
+
 *** Install packages using =Scoop= :Windows:
 **** Bulk install using export file
 Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
@@ -107,10 +108,12 @@ cd ./package_manager_exports/scoop/  # change direcory to the exported scoop fil
 # Edit scoop file if needed
 scoop install windows_rig.scoop      # bulk install
 #+end_src
+
 **** Creating/Updating Scoop export
 #+begin_src ps
 scoop export <filename>
 #+end_src
+
 *** Install packages using =Python PIP= :Linux:macOS:Windows:
 **** Bulk install using export file
 The =python= =pip= export file is called a =requirments= file:
@@ -132,12 +135,13 @@ pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
 
 *** Install packages using =Chocolatey= :Windows:
 *Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
-*Update (6/13/2022)*: Actually it is prefefered to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
+*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
 #+begin_src ps
 choco install AutoHotKey --install-arguments '/uiAccess=1'
 choco install msys2
 choco install git
 #+end_src
+
 ** Install from sources :Linux:
 Sometimes we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
 *Update (6/13/2022)*: I should correct that it is not the case that =Homebrew/Linuxbrew= does not run on =CentoOS 7=, but I have run into issues over time, which may be due to some other system causing issues e.g. work related management/security software.
@@ -153,6 +157,7 @@ sudo ./configure --prefix=/usr/local
 sudo make
 sudo make install
 #+END_SRC
+
 *** Installing =curl=
 #+BEGIN_SRC sh
 export VER="7.67.0"
@@ -163,6 +168,7 @@ cd curl-${VER}
 make
 sudo make install
 #+END_SRC
+
 *** Installing =Tmux=
 **** Install =Tmux= from =Github=
 #+BEGIN_SRC sh
@@ -172,6 +178,7 @@ sh autogen.sh
 ./configure
 make && sudo make install
 #+END_SRC
+
 **** Install =Tmux= from =Sourceforge=
 #+BEGIN_SRC sh
 # Install libevent
@@ -192,6 +199,7 @@ cd tmux-$TMUX_VERSION
 LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib" ./configure --prefix=/usr/local
 make && sudo make install
 #+END_SRC
+
 *** Installing =ZSH=
 #+BEGIN_SRC sh
 ZSH_SRC_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
@@ -211,30 +219,36 @@ make -j && sudo make install
 cargo install fd-find
 ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
+
 *** Installing =bat= using =Cargo=
 #+BEGIN_SRC sh
 cargo install bat
 ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
+
 ** Install python apps with =pip=
-#+begin_src
+#+begin_src sh
 python3 -m pip install dploy
 python3 -m pip install ntfy
 #+end_src
+
 ** List of used applications
 *** Terminals
 **** Common
 #+begin_example
 alacritty
 #+end_example
+
 **** Posix
 #+begin_example
 tmux
 #+end_example
+
 **** macOS
 #+begin_example
 iterm2
 #+end_example
+
 **** Windows
 #+begin_example
 WindowsTerminal
@@ -244,15 +258,19 @@ WindowsTerminal
 **** Common
 #+begin_example
 neofetch
+ntfy
 #+end_example
+
 **** Posix
 #+begin_example
 zsh
+vivid
 #+end_example
+
 **** Windows
 #+begin_example
-Powershell
 clink
+Powershell
 #+end_example
 
 *** Editor/File Utilities
@@ -260,7 +278,6 @@ clink
 #+begin_example
 emacs
 neovim
-vscode
 
 coreutils
 ispell
@@ -271,12 +288,14 @@ fzf
 ripgrep
 tree
 #+end_example
+
 *** Communications
 **** Common
 #+begin_example
 Slack
 Whatsapp
 #+end_example
+
 **** Posix
 #+begin_example
 isync
@@ -289,28 +308,23 @@ mu
 Hack
 Iosevka
 #+end_example
+
 *** System Utilities
 **** Common
 #+begin_example
 curl
-neofetch
 openssh
-ntfy
 #+end_example
+
 **** Posix
 #+begin_example
 htop
 pstree
 stow
 tldr
-#+end_example
-**** macOS
-#+begin_example
-#+end_example
-**** Linux
-#+begin_example
 keychain
 #+end_example
+
 **** Windows
 #+begin_example
 ack
@@ -333,40 +347,22 @@ windirstat
 #+begin_example
 openssh
 #+end_example
+
 **** Posix
 #+begin_example
-coreutils
 isync
 mu
 stow
 sword
-#+end_example
-**** macOS
-#+begin_example
-#+end_example
-**** Linux
-#+begin_example
-keychain
-#+end_example
-**** Windows
-#+begin_example
-7zip
-everything
-processhacker
-rapidee
-sudo
-sysinternals
-windirstat
 #+end_example
 
 *** Desktop Utilities
 **** Common
 #+begin_example
 divvy
+nomachine
 #+end_example
-**** Posix
-#+begin_example
-#+end_example
+
 **** macOS
 #+begin_example
 d12frosted/emacs-plus
@@ -381,10 +377,14 @@ lincastor                    # TODO Replace Lincastor with Hammerspoon
 hammerspoon
 shortcutdetective
 basictex
+karabiner-elements
 #+end_example
+
 **** Linux
 #+begin_example
+albert
 #+end_example
+
 **** Windows
 #+begin_example
 autohotkey
@@ -427,22 +427,26 @@ ruby-build
 universal-ctags
 unixodbc
 #+end_example
+
 **** Posix
 #+begin_example
 gcc
 gdb
 llvm
 #+end_example
+
 **** macOS
 #+begin_example
 ptrace
 xcode
 #+end_example
+
 **** Linux
 #+begin_example
 fswatch
 strace
 #+end_example
+
 **** Windows
 #+begin_example
 vcredist2015
@@ -462,6 +466,7 @@ The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run b
 mkdir ~/.zinit
 git clone https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
 #+end_src
+
 ** Install =Sword='s =installmgr=
 #+begin_src sh
 export SWORD_PATH=~/.sword
@@ -470,6 +475,7 @@ mkdir -p $SWORD_PATH/mods.d
 echo yes |installmgr -init               # create a basic user config file
 echo yes |installmgr -sc                 # sync config with list of known remote repos
 #+end_src
+
 ** Install =Keypirinha='s =PackageControl= :Windows:
 1. Open the ~Keypirinha: Console~ (Shortcut: ~F2~)
 2. Enter the following:
@@ -510,6 +516,7 @@ I am not sure if the below is needed?
 #+begin_src sh
 sudo tlmgr install wrapfig marvosym wasy wasysym
 #+end_src
+
 *** Setup =Email tools=
 **** Authentication
 ***** macOS
@@ -525,11 +532,13 @@ security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
 #+begin_src sh
 security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
 #+end_src
+
 ****** Download certificates from email provider
 See ~.mbsyncrc~ file for location to put the certificates.  Below command will download the certificate chain, from which the public keys should be extracted into separate ~.crt~ files.
 #+begin_src sh
 openssl s_client -connect imap.gmail.com:993 -showcerts
 #+end_src
+
 ***** Linux
 ****** TODO Add steps for setting up email on ArchLinux (on WSL)
 **** Setup
@@ -538,6 +547,7 @@ mbsync -a
 mu init --maildir=~/.mail --my-address=lambert.green@gmail.com
 mu index
 #+end_src
+
 *** Setup =Bible (KJV)=
 Dependencies: see installing of =Sword= in earlier section of this document.
 #+begin_src sh
@@ -688,7 +698,6 @@ There are some manual steps that need to be done:
 (+ligatures/install-patched-font)  ;; for ligatures
 #+end_src
 2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
-
 
 * Special local machine files
 Ideally we should find a better solution but for now there are some local overrides that are needed on each machine.
