@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 lgreen_source_tmux_theme_light() {
-    TMUX_THEME_FILE="$(tmux showenv -g TMUX_THEME_LIGHT | sed 's/TMUX_THEME_LIGHT=//g')"
+    TMUX_THEME_FILE="$(tmux showenv -g TMUX_THEME_LIGHT 2>/dev/null | sed 's/TMUX_THEME_LIGHT=//g')"
     if [ -f "$TMUX_THEME_FILE" ]; then
         tmux source "$TMUX_THEME_FILE"
         tmux setenv -g TMUX_THEME_FILE "$TMUX_THEME_FILE"
