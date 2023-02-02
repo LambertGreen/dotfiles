@@ -21,6 +21,7 @@ I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
+
 *** Install =Nix=/=Home Manager= :Linux:macOS:
 **** Install =Nix= first
 #+begin_src sh
@@ -33,23 +34,28 @@ gpg2 --recv-keys B541D55301270E0BCF15CA5D8170B4726D7198DE
 gpg2 --verify ./install-nix-2.3.16.asc
 sh ./install-nix-2.3.16
 #+end_src
+
 **** Install =Home manager=
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
 #+end_src
+
 *** Install =Scoop= :Windows:
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
+
 *** Install =Chocolatey= :Windows:
 #+begin_src ps
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 #+end_src
+
 *** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
 #+begin_src sh
 scoop install msys2
 #+end_src
+
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
 It comes with =Python= and can be run using:
 #+begin_src sh
@@ -314,6 +320,7 @@ Iosevka
 #+begin_example
 curl
 openssh
+topgrade
 #+end_example
 
 **** Posix
@@ -697,6 +704,7 @@ There are some manual steps that need to be done:
 (all-the-icons-install-fonts)      ;; for icons
 (+ligatures/install-patched-font)  ;; for ligatures
 #+end_src
+
 2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
 
 * Special local machine files
@@ -721,27 +729,32 @@ setenv -g TMUX_THEME dark
 * Desktop Application Launch files
 Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
 
-** Windows StartMenu
+** Windows =Start Menu=
 *** Emacs (WSL)
 #+begin_src sh
 C:\Users\Lambert\dev\my\scripts\start-emacs-in-wsl.vbs
 #+end_src
+
 *** Emacs (MSYS2)
 #+begin_src sh
 C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe
 #+end_src
+
 *** Emacs Client (MSYS2)
 #+begin_src sh
 C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\emacsclientw.exe -c -n --server-file  c:/users/lambert/.emacs.doom/.local/etc/server/server
 #+end_src
+
 *** Emacs Server (MSYS2)
 #+begin_src sh
 C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe --daemon
 #+end_src
+
 *** Terminal - Alacritty
 #+begin_src sh
 C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory "%USERPROFILE%"
 #+end_src
+
 *** Unlock Desktop Session
 #+begin_src sh
 C:\Windows\System32\tscon.exe 8 /dest:console
@@ -813,6 +826,63 @@ npm install -g node stylelint js-beautify js-tidy
 brew install graphviz gnuplot
 #+end_src
 
+* Upgrading System/Apps/Packages
+I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.
+** Use =topgrade=
+*** Dry run
+#+begin_src sh
+topgrade -n
+#+end_src
+
+** Manual update commands
+*** Homebrew :Linux:macOS:
+#+begin_src sh
+brew update
+#+end_src
+
+*** Scoop :Windows:
+#+begin_src powershell
+scoop update; scoop upgrade *
+#+end_src
+
+*** Choco :Windows:
+#+begin_src powershell
+choco upgrade
+#+end_src
+
+*** Pacman :Windows:Linux:
+#+begin_src sh
+pacman -Syu
+#+end_src
+
+*** Nix/Home Manager :Linux:macOS:
+#+begin_src sh
+nix-channel --update
+home-manager switch
+#+end_src
+
+*** Python Index Package manager
+#+begin_src sh
+brew update
+pip3 -m install pip --upgrade
+#+end_src
+
+*** Linux OS :Linux:
+**** CentOS
+#+begin_src sh
+sudo yum update
+#+end_src
+
+**** Ubuntu
+#+begin_src sh
+sudo apt update
+#+end_src
+
+**** Arch
+#+begin_src sh
+pacman -Syu
+#+end_src
+
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
@@ -877,7 +947,8 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 Maybe this needs to be a manual step?
 Anyway we want to make sure that the ~SYSTEM~ ~PATH~ has often used programs such as =Git=, =Ssh=, etc. set.
 ** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
-** TODO Add steps/scripts for updating packages
+** DONE Add steps/scripts for updating packages
+CLOSED: [2023-02-02 Thu 13:06]
 I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing for to update a particular system?
 
 *** An example that of a complex update on the Linux machine:
@@ -892,4 +963,5 @@ I have being remembering the commands to run to make the primary package manager
 4. Update =Choco= and installed packages using ~choco update~
 5. For each =WSL= instance update that Linux distribution.
 
-***  [ ] Consider using =topgrade=
+*** [X] Consider using =topgrade=
+CLOSED: [2023-02-02 Thu 13:05]
