@@ -637,6 +637,7 @@ dploy link ./shell/dot-zshrc $home/.zshrc
 dploy link ./shell_msys2/dot-profile_msys2 $home/.profile_msys2
 dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
 #+end_src
+
 * Special app configurations
 ** Setting up =tmux-256color= support
 I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
@@ -742,6 +743,7 @@ Our primary developer environment is =Doom Emacs=.  To validate that we have a g
 #+begin_src sh
 doom doctor
 #+end_src
+
 While we don't necessarily need to have all the things installed to have a clean report from ~doom doctor~, I like to have a clean report, and so below are the things that need to be installed to get such clean report.
 
 ** Python
@@ -749,57 +751,70 @@ While we don't necessarily need to have all the things installed to have a clean
 #+begin_src sh
 python3 -m pip install --upgrade pip
 #+end_src
+
 *** Install global packages
 #+begin_src sh
 python3 -m pip install black pyflakes isort pytest nose pipenv
 #+end_src
+
 *** Install =pyenv=
 #+begin_src sh
 brew install pyenv
 #+end_src
+
 **** Install some versions
 #+begin_src sh
 pyenv install -l  # list available options
 peynv install $some_version
 #+end_src
+
 ** CPP
 #+begin_src sh
 brew install llvm
 #+end_src
+
 ** CC
 #+begin_src sh
 brew install glslang
 #+end_src
+
 ** Markdown
 #+begin_src sh
 brew install markdown
 #+end_src
+
 ** Shell
 #+begin_src sh
 brew install shfmt shellcheck
 #+end_src
+
 ** Web
 *** Install =npm=
 #+begin_src sh
 brew install npm
 #+end_src
+
 *** Install packages using =npm=
 #+begin_src sh
 npm install -g node stylelint js-beautify js-tidy
 #+end_src
+
 ** Org
 #+begin_src sh
 brew install graphviz gnuplot
 #+end_src
+
 * Testing using Docker
 ** Pull docker base image
 #+begin_src sh
 docker pull archlinux/archlinux:base-devel
 #+end_src
+
 ** Build docker image
 #+begin_src sh
 docker build --ssh default -t lambertgreen/dotfiles .
 #+end_src
+
 ** Run docker container
 #+begin_src sh
 docker run -it lambertgreen/dotfiles
