@@ -63,7 +63,7 @@ lgreen_start_ssh_agent() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --quick id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa id_rsa_personal id_ed25519)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
@@ -380,6 +380,7 @@ lgreen_setup_aliases() {
     alias cdr='cd $(git rev-parse --show-toplevel)'
     alias locate="locate -i" # case-insensitive as default
     alias ssh='TERM=xterm-256color ssh'
+    alias fzf="fzf --ansi"
     if [ "$(command -v bat)" ]; then
         alias cat=bat
     fi

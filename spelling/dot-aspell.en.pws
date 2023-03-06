@@ -1,11 +1,14 @@
-personal_ws-1.1 en 117 
+personal_ws-1.1 en 128 
 APIs
 ARP
+Alacritty
 Artifactory
 Aspirational
 Athmika
 Athmika's
 CMake
+CentOS
+Choco
 Covid
 CrashShark
 DNS
@@ -18,6 +21,7 @@ Eshell
 GDB
 GTD
 Github
+Gmail
 GovCloud
 HSA
 HSErr
@@ -30,14 +34,19 @@ IPv
 JSON
 Kata
 LogicAssert
+MSYS
 Magit
+Msys
 NDP
 Neovim
 Observability
 OrgMode
 POSIX
 Pacman
+Pipelog
+Posix
 Prem
+ProductSupportability
 README
 REPL
 RSS
@@ -76,6 +85,7 @@ cpp
 decrypting
 defacto
 demonstratable
+dev
 dojo
 dotfiles
 elfeed
@@ -100,6 +110,7 @@ programmatically
 rebase
 remoting
 repo
+repos
 repro
 reproducibility
 repros
