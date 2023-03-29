@@ -966,3 +966,8 @@ I have being remembering the commands to run to make the primary package manager
 
 **** [X] Consider using =topgrade=
 CLOSED: [2023-02-02 Thu 13:05]
+** TODO Add steps for installing =Powershell= modules
++ Also consider just checking in the module files?
+** TODO Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]]
+** TODO Add steps for adding =scoop= buckets
++ Example: ~scoop bucket add nerd-fonts~
