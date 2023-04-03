@@ -1,0 +1,30 @@
+"------------------------------------------------------------------------------
+" VS Vim Configuration
+"------------------------------------------------------------------------------
+
+let mapleader=" "
+
+" break out of the tyranny of text! Navigate by method
+nnoremap <leader>m :vsc Edit.NextMethod<CR>
+nnoremap <leader>M :vsc Edit.PreviousMethod<CR>
+
+nnoremap R :vsc Refactor.Rename<CR>
+
+" jump between compilation errors
+nnoremap <leader>e :vsc View.NextError<CR>
+nnoremap <leader>E :vsc View.PreviousError<CR>
+
+" testing and debugging
+nnoremap <leader>b :vsc Debug.ToggleBreakpoint<CR>
+nnoremap <leader>r :vsc TestExplorer.RunAllTestsInContext<CR>
+nnoremap <leader>R :vsc TestExplorer.DebugAllTestsInContext<CR>
+
+" open the change parameter window, a bit fake because it's not a text-object
+nnoremap cia :vsc Refactor.ReorderParameters<CR>
+
+map gi :vsc Edit.GoToImplementation<CR>
+map gr :vsc Edit.FindAllReferences<CR>
+map gp :vsc Edit.PeekDefinition<CR>
+
+set vsvimcaret=50
+set expandtab=true
