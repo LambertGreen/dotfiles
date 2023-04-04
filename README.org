@@ -904,8 +904,9 @@ docker run -it lambertgreen/dotfiles
 *** Windows [0/3]
 **** TODO Double check =Scoop= sections on a Windows machine
 **** TODO Address that =Powershell= needs modules to be installed
-#+begin_src  ps
-install-module -Name PSFzf -Scope CurrentUser
+#+begin_src powershell
+Install-Module -Name PSReadLine -Scope CurrentUser
+Install-Module -Name PSFzf -Scope CurrentUser
 #+end_src
 Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
 Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
