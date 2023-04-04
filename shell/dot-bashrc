@@ -11,6 +11,11 @@ if [ "$TERM" = "dumb" ]; then
     export BASH_NO_EXEC_ZSH=1
 fi
 
+# Don't use ZSH on MSYS2 as it's too slow
+if [[ "$UNAME" == *"_NT"* ]]; then
+    export BASH_NO_EXEC_ZSH=1
+fi
+
 # If zsh is installed then run it instead
 # Note: In general the chsh command can be used to change a user's shell
 # but this does not work for domain users.
