@@ -27,12 +27,6 @@ Set-Alias which get-command
 Set-Alias g git
 
 # Enable a cool prompt
-#
-# TODO: Remove the below and use the updated method for Oh-My-Posh or switch to Starship
-#
-# Import-Module -Name posh-git
-# Import-Module -Name oh-my-posh
-# Set-PoshPrompt Powerlevel10k_Lean
 oh-my-posh init pwsh | Invoke-Expression
 
 # Set code codepage so that unicode is correctly displayed in Vim

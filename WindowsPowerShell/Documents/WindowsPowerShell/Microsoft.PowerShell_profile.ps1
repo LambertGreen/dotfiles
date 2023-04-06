@@ -27,10 +27,8 @@ Set-Alias which get-command
 Set-Alias g git
 
 # Enable a cool prompt
-Import-Module -Name posh-git
-Import-Module -Name oh-my-posh
-
-Set-PoshPrompt Powerlevel10k_Lean
+#
+oh-my-posh init pwsh | Invoke-Expression
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
