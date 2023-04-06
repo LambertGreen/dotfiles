@@ -72,10 +72,13 @@ lgreen_setup-umask-for-wsl() {
 }
 
 lgreen_setup-display-for-wsl() {
-    if [[ "$(</proc/version)" = *icrosoft* ]]; then
-        DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
-        export DISPLAY
-    fi
+    # BUG: Fix me - the below is no longer applicable in WSL2 networking
+    # and instead will return a DNS server rather than host for DISPLAY
+    #
+    # if [[ "$(</proc/version)" = *icrosoft* ]]; then
+    #     DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
+    #     export DISPLAY
+    # fi
 }
 
 lgreen_setup-fix-wsl2-interop() {
