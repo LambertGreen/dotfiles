@@ -33,3 +33,6 @@
 	path = alfred-settings
 	url = git@github.com:LambertGreen/alfred-settings.git
 	branch = main
+[submodule "nvim/.config/nvim"]
+	path = nvim/.config/nvim
+	url = git@github.com:LambertGreen/dot-nvim.git
