@@ -151,6 +151,12 @@ lgreen_setup_dev_env_rust() {
     fi
 }
 
+lgreen_setup_dev_env_ruby() {
+    if [ -d "$HOME/.gem/ruby/2.6.0/bin" ]; then
+        export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
+    fi
+}
+
 lgreen_setup_dev_env_go() {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
@@ -473,8 +479,10 @@ lgreen_setup_dev_env_all() {
     lgreen_setup_pyenv
     lgreen_setup_jenv
     lgreen_setup_rbenv
+
     lgreen_setup_dev_env_rust
     lgreen_setup_dev_env_clang
+    lgreen_setup_dev_env_ruby
 
     lgreen_setup_perforce_config
 
