@@ -39,3 +39,6 @@
 [submodule "nvim/.config/doom-nvim"]
 	path = nvim/.config/doom-nvim
 	url = https://github.com/doom-neovim/doom-nvim.git
+[submodule "nvim_win/AppData/Local/nvim"]
+	path = nvim_win/AppData/Local/nvim
+	url = git@github.com:LambertGreen/dot-nvim.git
