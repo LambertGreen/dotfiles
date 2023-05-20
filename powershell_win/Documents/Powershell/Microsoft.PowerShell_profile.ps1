@@ -27,7 +27,6 @@ Set-Alias which get-command
 Set-Alias g git
 
 # Enable a cool prompt
-#
 oh-my-posh init pwsh | Invoke-Expression
 
 # Set code codepage so that unicode is correctly displayed in Vim

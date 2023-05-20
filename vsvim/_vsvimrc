@@ -2,29 +2,55 @@
 " VS Vim Configuration
 "------------------------------------------------------------------------------
 
+"=================
+" General settings
+"=================
+set vsvimcaret=50
+set expandtab=true
+
+"=================
+" Key maps
+"=================
 let mapleader=" "
 
-" break out of the tyranny of text! Navigate by method
-nnoremap <leader>m :vsc Edit.NextMethod<CR>
-nnoremap <leader>M :vsc Edit.PreviousMethod<CR>
+" Vim specific
+"-------------
+inoremap kj <Esc>
+nmap <leader>bs :w<CR>
 
+" Code Editing
+"-------------
+" Toggling comments
+nmap gc :vsc Edit.ToggleLineComment<CR>
+vmap gc :vsc Edit.ToggleLineComment<CR>
+
+" Refactoring
 nnoremap R :vsc Refactor.Rename<CR>
-
-" jump between compilation errors
-nnoremap <leader>e :vsc View.NextError<CR>
-nnoremap <leader>E :vsc View.PreviousError<CR>
-
-" testing and debugging
-nnoremap <leader>b :vsc Debug.ToggleBreakpoint<CR>
-nnoremap <leader>r :vsc TestExplorer.RunAllTestsInContext<CR>
-nnoremap <leader>R :vsc TestExplorer.DebugAllTestsInContext<CR>
-
 " open the change parameter window, a bit fake because it's not a text-object
 nnoremap cia :vsc Refactor.ReorderParameters<CR>
 
+" Code Navigation
+"------------------
 map gi :vsc Edit.GoToImplementation<CR>
 map gr :vsc Edit.FindAllReferences<CR>
 map gp :vsc Edit.PeekDefinition<CR>
 
-set vsvimcaret=50
-set expandtab=true
+nnoremap <leader>m :vsc Edit.NextMethod<CR>
+nnoremap <leader>M :vsc Edit.PreviousMethod<CR>
+
+" jump between compilation errors
+"---------------------------------
+nnoremap <leader>e :vsc View.NextError<CR>
+nnoremap <leader>E :vsc View.PreviousError<CR>
+
+" Building
+"----------------------
+nnoremap <leader>pc :vsc Build.BuildSolution<CR>
+
+" testing and debugging
+"----------------------
+nnoremap <leader>ts :vsc TestExplorer.RunSelectedTests<CR>
+
+nnoremap <leader>tb :vsc Debug.ToggleBreakpoint<CR>
+nnoremap <leader>tr :vsc TestExplorer.RunAllTestsInContext<CR>
+nnoremap <leader>tR :vsc TestExplorer.DebugAllTestsInContext<CR>
