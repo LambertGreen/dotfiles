@@ -1,4 +1,4 @@
-personal_ws-1.1 en 135 
+personal_ws-1.1 en 149 
 APIs
 ARP
 Alacritty
@@ -11,7 +11,9 @@ CentOS
 Choco
 Covid
 CrashShark
+Crashpad
 DNS
+Das
 Dev
 Dialogs
 Dojo
@@ -37,14 +39,18 @@ JSON
 Kata
 LogicAssert
 MSYS
+Maceda
 Magit
+Medak
 Msys
 NDP
 Neovim
+NoMachine
 Observability
 OrgMode
 POSIX
 Pacman
+Pallavulu
 Pipelog
 Posix
 Prem
@@ -59,9 +65,11 @@ Senthilkumar
 Spacemacs
 Splunk
 Stoica
+Supportability
 Supportabilty
 TFS
 TLDR
+TMP
 TOC
 TODO's
 TODOs
@@ -74,6 +82,7 @@ VM
 Vterm
 WSL
 Wikipage
+Xcode
 YouTube
 Yumna's
 archlinux
@@ -91,6 +100,7 @@ decrypting
 defacto
 demonstratable
 dev
+diego
 dojo
 dotfiles
 elfeed
@@ -103,6 +113,7 @@ integrations
 katas
 keybind
 keybinds
+libc
 linter
 localhost
 macOS
@@ -110,6 +121,7 @@ mbsync
 memoization
 merch
 minidump
+nibedita
 performant
 pre
 programmatically
@@ -129,8 +141,10 @@ syscalls
 timebox
 todo
 todos
+toolchain
 unhandled
 untriaged
 untrusted
 vendoring
 webdev
+webpage
