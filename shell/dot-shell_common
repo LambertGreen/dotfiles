@@ -63,7 +63,7 @@ lgreen_start_ssh_agent() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa id_rsa_personal id_ed25519)"
+            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa_personal id_rsa)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
