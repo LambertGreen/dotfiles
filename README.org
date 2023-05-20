@@ -900,6 +900,14 @@ docker build --ssh default -t lambertgreen/dotfiles .
 docker run -it lambertgreen/dotfiles
 #+end_src
 
+* Issues
+** =Sub-modules= sometimes are not updated and need manual intervention
+I am not sure what the cause is but the following steps help to pull down latest from within the sub-module directory:
+#+begin_src sh
+git reset --hard HEAD
+git pull
+#+end_src
+
 * TODOs [12/25]
 ** By OS Platform [0/7]
 *** Windows [0/6]
@@ -988,3 +996,4 @@ git clone https://github.com/LambertGreen/OfficeKeyFix
 **** [ ] Set =ZSH= as user shell
 This will make the shell start much faster than having =bash= ~execv zsh~.
 + Update the ~/etc/passwd~ file
+
