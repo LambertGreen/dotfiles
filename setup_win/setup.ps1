@@ -22,6 +22,17 @@ function lgreen-setup-clink-fzf {
     # 4. copy *.lua ~/AppData/Local/clink
 }
 
+function lgreen-setup-clink-flex-prompt {
+    # TODO: Automated setting up clink fzf integration
+    # Manual steps:
+    #
+    # 1. cd ~/dev/pub
+    # 2. git clone git@github.com:chrisant996/clink-flex-prompt.git
+    # 3. cd clink-flex-prompt
+    # 4. copy *.lua ~/AppData/Local/clink
+
+}
+
 function lgreen-setup-scheduled-task-for-divvy {
 
     $ProgramPath = "$env:LOCALAPPDATA\Mizage LLC\Divvy\Divvy.exe"
