@@ -1,4 +1,4 @@
-personal_ws-1.1 en 149 
+personal_ws-1.1 en 150 
 APIs
 ARP
 Alacritty
@@ -137,6 +137,7 @@ runtime
 symlink
 symlinked
 symlinking
+symlinks
 syscalls
 timebox
 todo
