@@ -567,6 +567,8 @@ installmgr -l                            # list installed modules
 diatheke -b KJV -k Jn 3:16
 #+end_src
 
+* Run setup scripts
++ See folders: ~setup_win~, ~setup_linux~, ~setup_osx~
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
@@ -590,7 +592,7 @@ stow shell_linux git_linux alacritty_linux
 *** Stow =Windows= config
 + Run =mingw= as Administrator
 #+begin_src sh
-stow WindowsPowerShell WindowsTerminal Keypirinha autohotkey clink emacs git git_my git_work git_win nvim_win tmux
+stow WindowsPowerShell WindowsTerminal Keypirinha autohotkey clink emacs git git_my git_work git_win nvim_win tmux win_wsl
 #+end_src
 
 * Special app configurations
@@ -845,18 +847,16 @@ git reset --hard HEAD
 git pull
 #+end_src
 
-* TODOs [15/25]
-** By OS Platform [2/7]
-*** Windows [1/6]
-**** TODO Double check =Scoop= sections on a Windows machine
-**** TODO Address that =Powershell= needs modules to be installed
-#+begin_src powershell
-Install-Module -Name PSReadLine -Scope CurrentUser
-Install-Module -Name PSFzf -Scope CurrentUser
-#+end_src
-Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
-Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
-**** TODO Address issue where SSH-Agent will not work in =Windows=
+* TODOs [18/18]
+** Open
+**  Completed [12/12]
+*** By OS Platform [5/5]
+**** Windows [4/4]
+***** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
+CLOSED: [2023-05-22 Mon 22:27]
++ Yes, we can use =stow= from =msys=
+***** DONE Address issue where SSH-Agent will not work in =Windows=
+CLOSED: [2023-05-22 Mon 22:32]
 The steps to get =git= working fine with =ssh= in =Windows= are:
 1. The ~Windows OpenSSH Agent~ service must be changed from status ~disabled~ to ~enabled~ and set to start automatically.
 2. Git must be configured to use the Windows SSH executable:
@@ -865,18 +865,36 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
 
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
-**** TODO Add steps for installing =Powershell= modules
-+ Also consider just checking in the module files?
-**** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
-CLOSED: [2023-05-22 Mon 22:27]
-+ Yes, we can use =stow= from =msys=
-**** TODO Add steps for adding =scoop= buckets
-+ Example: ~scoop bucket add nerd-fonts~
-*** macOS [1/1]
-**** DONE Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+***** DONE Address that =Powershell= needs modules to be installed
+CLOSED: [2023-05-22 Mon 22:38]
+****** Description
+#+begin_src powershell
+Install-Module -Name PSReadLine -Scope CurrentUser
+Install-Module -Name PSFzf -Scope CurrentUser
+#+end_src
+Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
+Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
+****** Solution
+The module installation was added to ~./setup_win/setup.ps1~
+***** DONE Disable =Office= key hijacking of =Hyper=
+CLOSED: [2023-05-22 Mon 23:02]
+****** Description
+******* Disable the single press Office key registration
+#+begin_src bat
+REG ADD HKCU\Software\Classes\ms-officeapp\Shell\Open\Command /t REG_SZ /d rundll32
+#+end_src
+
+******* The real disable
+#+begin_src sh
+git clone https://github.com/LambertGreen/OfficeKeyFix
+#+end_src
+****** Solution
++ Added a function to powershell setup script
+
+**** macOS [1/1]
+***** DONE Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
 CLOSED: [2023-05-22 Mon 21:05]
 + Added ~alfred-settings~ as a sub-module.
-**  Completed [12/12]
 *** DONE Test reproducibility by using =Docker=
 CLOSED: [2021-06-02 Wed 16:05]
 *** DONE Fix first start of =Nvim= to no show errors
@@ -922,23 +940,5 @@ I have being remembering the commands to run to make the primary package manager
 
 **** [X] Consider using =topgrade=
 CLOSED: [2023-02-02 Thu 13:05]
-** DONE Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
+*** DONE Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
 CLOSED: [2023-05-22 Mon 15:53]
-** TODO Add section for one-time setup for OS system [0/4]
-*** [ ] Add section for =Windows=
-**** [ ] Disable =Office= key hijacking of =Hyper=
-***** Disable the single press Office key registration
-#+begin_src bat
-REG ADD HKCU\Software\Classes\ms-officeapp\Shell\Open\Command /t REG_SZ /d rundll32
-#+end_src
-
-***** The real disable
-#+begin_src sh
-git clone https://github.com/LambertGreen/OfficeKeyFix
-#+end_src
-
-*** [ ] Add section for =WSL2=
-**** [ ] Set =ZSH= as user shell
-This will make the shell start much faster than having =bash= ~execv zsh~.
-+ Update the ~/etc/passwd~ file
-

@@ -4,6 +4,20 @@ function lgreen-setup-powershell-modules {
     Install-Module -Name PSFzf -Scope CurrentUser
 }
 
+function lgreen-setup-scoop-buckets {
+   iex "scoop bucket add nerd fonts"
+}
+
+function lgreen-setup-clink-fzf {
+    # TODO: Automated setting up clink fzf integration
+    # Manual steps:
+    #
+    # 1. cd ~/dev/pub
+    # 2. git clone git@github.com:chrisant996/clink-fzf.git
+    # 3. cd clink-fzf
+    # 4. copy *.lua ~/AppData/Local/clink
+}
+
 function lgreen-setup-scheduled-task-for-divvy {
 
     $ProgramPath = "$env:LOCALAPPDATA\Mizage LLC\Divvy\Divvy.exe"
@@ -48,4 +62,12 @@ function lgreen-setup-firewall-forward-ssh-to-wsl-sshd {
 
     # Display all portproxy information
     iex "netsh interface portproxy show v4tov4"
+}
+
+function lgreen-setup-disable-office-hyper-key-hijacking {
+    # TODO: Automate setup disable office hyper key hikacking
+    #
+    # Manual Steps:
+    # 1. git clone https://github.com/LambertGreen/OfficeKeyFix ~/dev/my/officekeyfix
+    # 2. build
 }
