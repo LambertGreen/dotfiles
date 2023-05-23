@@ -5,7 +5,11 @@ function lgreen-setup-powershell-modules {
 }
 
 function lgreen-setup-scoop-buckets {
-   iex "scoop bucket add nerd fonts"
+    iex "scoop bucket add nerd fonts"
+}
+
+function lgreen-setup-powershell-prompt {
+    iex "winget install JanDeDobbeleer.OhMyPosh -s winget"
 }
 
 function lgreen-setup-clink-fzf {
