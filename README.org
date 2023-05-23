@@ -50,6 +50,9 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 #+end_src
 
+*** Install =Winget= :Windows:
++ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
+
 *** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
 #+begin_src sh
