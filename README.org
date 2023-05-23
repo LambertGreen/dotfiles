@@ -237,7 +237,6 @@ ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 
 ** Install python apps with =pip=
 #+begin_src sh
-python3 -m pip install dploy
 python3 -m pip install ntfy
 #+end_src
 
@@ -341,7 +340,6 @@ ack
 aria2
 findutils
 wget
-dploy
 sudo
 
 7zip
@@ -572,7 +570,7 @@ diatheke -b KJV -k Jn 3:16
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
-** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
+** Symlink dotfiles using =Gnu Stow= :Linux:macOS:Windows:
 *** Stow =Posix= configs
 #+begin_src sh
 stow shell git git_my git_work tmux vim nvim emacs spelling
@@ -589,74 +587,10 @@ stow shell_osx git_osx alacritty_osx hammerspoon
 stow shell_linux git_linux alacritty_linux
 #+end_src
 
-** Symlink dotfiles using =Dploy= :Windows:
-Unfortunately there is no =Gnu Stow= for =Windows=, but the =dploy= python package comes to the rescue.
-#+begin_src ps
-# Pre-requisates
-# - Install Dploy: ~pip instal dploy~
-# - Run the below in an Admin session e.g. ~sudo powershell~
-
-#-------------------
-# Windows only stuff
-#-------------------
-dploy stow ./alacritty_win $home
-dploy link ./autohotkey/dot-autohotkey $home/.autohotkey
-dploy stow ./Keypirinha $home
-dploy stow ./WindowsPowerShell $home
-dploy stow ./WindowsTerminal $home
-
-#-------------
-# TMux
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.tmux.conf
-
-dploy link ./tmux/dot-tmux.conf $home/.tmux.conf
-dploy link ./tmux/dot-tmux-256color $home/.tmux-256color
-dploy link ./tmux/.tmux $home/.tmux
-
-#-------------
-# Vim + Neovim
-#-------------
-dploy link ./vim/dot-vimrc $home/_vimrc
-dploy link ./vim/dot-gvimrc $home/_gvimrc
-dploy stow ./nvim/.config/nvim $home/appdata/local/nvim
-
-#-------------
-# Emacs
-#-------------
-dploy link ./emacs/dot-emacs-profile $home/.emacs-profile
-dploy link ./emacs/dot-emacs-profiles.el $home/.emacs-profiles.el
-dploy link ./emacs/dot-emacs.default $home/.emacs.default
-dploy link ./emacs/dot-doom.d $home/.doom.d
-
-#-------------
-# Git
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.gitignore, ~/.gitconfig
-
-dploy link ./git/dot-gitignore $home/.gitignore
-dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
-dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
-dploy link ./git_work/dot-work.gitconfig $home/.work.gitconfig
-dploy link ./git_win/dot-gitconfig $home/.gitconfig
-
-#-------------
-# Shell (msys2)
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.profile, ~/.bash_profile, ~/.bashrc, ~/.zshrc, ~/.zprofile, ~/.shell_common
-
-dploy link ./shell/dot-bash_profile $home/.bash_profile
-dploy link ./shell/dot-bashrc $home/.bashrc
-dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
-dploy link ./shell/dot-profile $home/.profile
-dploy link ./shell/dot-shell_common $home/.shell_common
-dploy link ./shell/dot-zprofile $home/.zprofile
-dploy link ./shell/dot-zshrc $home/.zshrc
-dploy link ./shell_msys2/dot-profile_msys2 $home/.profile_msys2
-dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
+*** Stow =Windows= config
++ Run =mingw= as Administrator
+#+begin_src sh
+stow WindowsPowerShell WindowsTerminal Keypirinha autohotkey clink emacs git git_my git_work git_win nvim_win tmux
 #+end_src
 
 * Special app configurations
@@ -904,16 +838,16 @@ docker run -it lambertgreen/dotfiles
 #+end_src
 
 * Issues
-** =Sub-modules= sometimes are not updated and need manual intervention
+** Issue: =Sub-modules= sometimes are not updated and need manual intervention
 I am not sure what the cause is but the following steps help to pull down latest from within the sub-module directory:
 #+begin_src sh
 git reset --hard HEAD
 git pull
 #+end_src
 
-* TODOs [12/25]
-** By OS Platform [0/7]
-*** Windows [0/6]
+* TODOs [15/25]
+** By OS Platform [2/7]
+*** Windows [1/6]
 **** TODO Double check =Scoop= sections on a Windows machine
 **** TODO Address that =Powershell= needs modules to be installed
 #+begin_src powershell
@@ -933,11 +867,15 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
 **** TODO Add steps for installing =Powershell= modules
 + Also consider just checking in the module files?
-**** TODO Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
+**** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
+CLOSED: [2023-05-22 Mon 22:27]
++ Yes, we can use =stow= from =msys=
 **** TODO Add steps for adding =scoop= buckets
 + Example: ~scoop bucket add nerd-fonts~
-*** macOS [0/1]
-**** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+*** macOS [1/1]
+**** DONE Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+CLOSED: [2023-05-22 Mon 21:05]
++ Added ~alfred-settings~ as a sub-module.
 **  Completed [12/12]
 *** DONE Test reproducibility by using =Docker=
 CLOSED: [2021-06-02 Wed 16:05]
@@ -984,7 +922,8 @@ I have being remembering the commands to run to make the primary package manager
 
 **** [X] Consider using =topgrade=
 CLOSED: [2023-02-02 Thu 13:05]
-** TODO Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
+** DONE Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
+CLOSED: [2023-05-22 Mon 15:53]
 ** TODO Add section for one-time setup for OS system [0/4]
 *** [ ] Add section for =Windows=
 **** [ ] Disable =Office= key hijacking of =Hyper=
@@ -992,10 +931,12 @@ CLOSED: [2023-02-02 Thu 13:05]
 #+begin_src bat
 REG ADD HKCU\Software\Classes\ms-officeapp\Shell\Open\Command /t REG_SZ /d rundll32
 #+end_src
+
 ***** The real disable
 #+begin_src sh
 git clone https://github.com/LambertGreen/OfficeKeyFix
 #+end_src
+
 *** [ ] Add section for =WSL2=
 **** [ ] Set =ZSH= as user shell
 This will make the shell start much faster than having =bash= ~execv zsh~.
