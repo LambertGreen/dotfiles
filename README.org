@@ -8,6 +8,12 @@ Contains config files and setup scripts for 3 platforms:
 * Usage
 This README provides steps to setup various applications and their associated configurations (the configurations are my own personal ones). To install and setup a specific application simply search this document based on the application name, and one will then get results filtered to the application e.g. if one searches for =Tmux=, then one will find the following: how to install it; how to install the =Tmux Plugin Manager=; how to symlink the config file;
 
+* Sync =Git= sub-modules
+This project makes use of sub-modules. After cloning the repository an additional step is needed to sync the sub-modules:
+#+begin_src sh
+git submodules update --init --recursive
+#+end_src
+
 * Install apps
 ** Install package manager
 One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
