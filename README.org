@@ -8,6 +8,12 @@ Contains config files and setup scripts for 3 platforms:
 * Usage
 This README provides steps to setup various applications and their associated configurations (the configurations are my own personal ones). To install and setup a specific application simply search this document based on the application name, and one will then get results filtered to the application e.g. if one searches for =Tmux=, then one will find the following: how to install it; how to install the =Tmux Plugin Manager=; how to symlink the config file;
 
+* Sync =Git= sub-modules
+This project makes use of sub-modules. After cloning the repository an additional step is needed to sync the sub-modules:
+#+begin_src sh
+git submodules update --init --recursive
+#+end_src
+
 * Install apps
 ** Install package manager
 One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
@@ -49,6 +55,9 @@ Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.
 #+begin_src ps
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 #+end_src
+
+*** Install =Winget= :Windows:
++ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
 
 *** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
@@ -234,7 +243,6 @@ ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 
 ** Install python apps with =pip=
 #+begin_src sh
-python3 -m pip install dploy
 python3 -m pip install ntfy
 #+end_src
 
@@ -338,7 +346,6 @@ ack
 aria2
 findutils
 wget
-dploy
 sudo
 
 7zip
@@ -566,10 +573,12 @@ installmgr -l                            # list installed modules
 diatheke -b KJV -k Jn 3:16
 #+end_src
 
+* Run setup scripts
++ See folders: ~setup_win~, ~setup_linux~, ~setup_osx~
 * Symlink dotfiles
 Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
 
-** Symlink dotfiles using =Gnu Stow= :Linux:macOS:
+** Symlink dotfiles using =Gnu Stow= :Linux:macOS:Windows:
 *** Stow =Posix= configs
 #+begin_src sh
 stow shell git git_my git_work tmux vim nvim emacs spelling
@@ -586,73 +595,10 @@ stow shell_osx git_osx alacritty_osx hammerspoon
 stow shell_linux git_linux alacritty_linux
 #+end_src
 
-** Symlink dotfiles using =Dploy= :Windows:
-Unfortunately there is no =Gnu Stow= for =Windows=, but the =dploy= python package comes to the rescue.
-#+begin_src ps
-# Pre-requisates
-# - Install Dploy: ~pip instal dploy~
-# - Run the below in an Admin session e.g. ~sudo powershell~
-
-#-------------------
-# Windows only stuff
-#-------------------
-dploy stow ./alacritty_win $home
-dploy link ./autohotkey/dot-autohotkey $home/.autohotkey
-dploy stow ./Keypirinha $home
-dploy stow ./WindowsPowerShell $home
-dploy stow ./WindowsTerminal $home
-
-#-------------
-# TMux
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.tmux.conf
-
-dploy link ./tmux/dot-tmux.conf $home/.tmux.conf
-dploy link ./tmux/dot-tmux-256color $home/.tmux-256color
-dploy link ./tmux/.tmux $home/.tmux
-
-#-------------
-# Vim + Neovim
-#-------------
-dploy link ./vim/dot-vimrc $home/_vimrc
-dploy link ./vim/dot-gvimrc $home/_gvimrc
-dploy stow ./nvim/.config/nvim $home/appdata/local/nvim
-
-#-------------
-# Emacs
-#-------------
-dploy link ./emacs/dot-emacs-profile $home/.emacs-profile
-dploy link ./emacs/dot-emacs-profiles.el $home/.emacs-profiles.el
-dploy link ./emacs/dot-emacs.default $home/.emacs.default
-dploy link ./emacs/dot-doom.d $home/.doom.d
-
-#-------------
-# Git
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.gitignore, ~/.gitconfig
-
-dploy link ./git/dot-gitignore $home/.gitignore
-dploy link ./git/dot-common.gitconfig $home/.common.gitconfig
-dploy link ./git_my/dot-my.gitconfig $home/.my.gitconfig
-dploy link ./git_win/dot-gitconfig $home/.gitconfig
-
-#-------------
-# Shell (msys2)
-#-------------
-# First remove any existing files since dploy does not have a force function
-rm ~/.profile, ~/.bash_profile, ~/.bashrc, ~/.zshrc, ~/.zprofile, ~/.shell_common
-
-dploy link ./shell/dot-bash_profile $home/.bash_profile
-dploy link ./shell/dot-bashrc $home/.bashrc
-dploy link ./shell/dot-p10k.zsh $home/.p10k.zsh
-dploy link ./shell/dot-profile $home/.profile
-dploy link ./shell/dot-shell_common $home/.shell_common
-dploy link ./shell/dot-zprofile $home/.zprofile
-dploy link ./shell/dot-zshrc $home/.zshrc
-dploy link ./shell_msys2/dot-profile_msys2 $home/.profile_msys2
-dploy link ./shell_msys2/dot-shell_msys2 $home/.shell_msys2
+*** Stow =Windows= config
++ Run =mingw= as Administrator
+#+begin_src sh
+stow WindowsPowerShell WindowsTerminal Keypirinha autohotkey clink emacs git git_my git_work git_win nvim_win tmux win_wsl
 #+end_src
 
 * Special app configurations
@@ -899,17 +845,60 @@ docker build --ssh default -t lambertgreen/dotfiles .
 docker run -it lambertgreen/dotfiles
 #+end_src
 
-* TODOs [12/16]
-** By OS Platform [0/4]
-*** Windows [0/3]
-**** TODO Double check =Scoop= sections on a Windows machine
-**** TODO Address that =Powershell= needs modules to be installed
-#+begin_src  ps
-install-module -Name PSFzf -Scope CurrentUser
+* Issues
+** Issue: =Sub-modules= sometimes are not updated and need manual intervention
+I am not sure what the cause is but the following steps help to pull down latest from within the sub-module directory:
+#+begin_src sh
+git reset --hard HEAD
+git pull
 #+end_src
-Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
-Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
-**** TODO Address issue where SSH-Agent will not work in =Windows=
+
+* TODOs [17/24]
+** Open
+*** TODO Add steps/scripts for updating packages
+**** Description
+I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than one package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing to update a particular system?
+
+***** An example of a complex update on the Linux machine:
+1. Update system and installed packages using ~sudo yum update~
+2. Update =Nix= and installed packages using ~nix-channel --update~
+3. Update =HomeManager= packages using ~home-manager switch~
+
+***** An example of multiple updates on Windows machine:
+1. Update system using =Windows Update= (fortunately this is already automatic)
+2. Update =Scoop= and installed packages using ~scoop update~
+3. Update =Msys2= and installed packages using ~pacman -Syu~
+4. Update =Choco= and installed packages using ~choco update~
+5. For each =WSL= instance update that Linux distribution.
+**** Investigation
+***** [X] Consider using =topgrade=
+CLOSED: [2023-02-02 Thu 13:05]
+**** Solution Proposals
+***** Create update shell functions
+*** TODO Add application install steps/scripts
+**** Description
+While we have simplified install and setup for most applications e.g. ~stow nvim && brew install nvim~ some applications require one to register the provider in the package manager e.g. installing a =scoop= bucket or installing a =brew= tap. It is not easy to remember that installing =emacs= on macOS requires: ~brew tap d12frosted/emacs-plus && brew install emacs-plus~
+**** Solution Proposals
+***** Add install instructions inside this README
+***** Add install shell script functions
+***** Use the bulk install method, but with editing the file for the specific apps one wants to install
+**** Solution
++ We will go with adding instructions in the README since seems like the best place to start. We can always go from there to putting the info into a script function.
+
+*Update*: Silly you!  You wasted time opening the story when a solution was already in place i.e. use the bulk import files for each package manager! So, what if you only want to install a single application: you can still delete all the other entries in the import file!
+
+*Update*: Actually maybe I should instead consider the fact that when I really needed to install a single application the bulk method did not come to mind, and a better README would have an "install emacs" section.  So what it is also in the bulk import file.  Notice that you have a "List of used applications" section... why? It would be better if the list was there from the install instructions.
+
+*Update*: Well, I have gone full circle, and found that the bulk install is a good option after all. *shrug*
+
+**  Completed [16/16]
+*** By OS Platform [5/5]
+**** Windows [4/4]
+***** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
+CLOSED: [2023-05-22 Mon 22:27]
++ Yes, we can use =stow= from =msys=
+***** DONE Address issue where SSH-Agent will not work in =Windows=
+CLOSED: [2023-05-22 Mon 22:32]
 The steps to get =git= working fine with =ssh= in =Windows= are:
 1. The ~Windows OpenSSH Agent~ service must be changed from status ~disabled~ to ~enabled~ and set to start automatically.
 2. Git must be configured to use the Windows SSH executable:
@@ -918,9 +907,36 @@ git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
 #+end_src
 
 *Update (3/31/22)*: there is a long standing issue with the Windows SSH. Recommendation is to install OpenSSH via =Scoop=/=Choco=.
-*** macOS [0/1]
-**** TODO Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
-**  Completed
+***** DONE Address that =Powershell= needs modules to be installed
+CLOSED: [2023-05-22 Mon 22:38]
+****** Description
+#+begin_src powershell
+Install-Module -Name PSReadLine -Scope CurrentUser
+Install-Module -Name PSFzf -Scope CurrentUser
+#+end_src
+Note: modules ~z, get-childitemcolor~ require the parameter ~-AllowClobber~ as well.
+Note: alternatively we could check-in the modules into this repository given they will show up under the symlinked =WindowsPowerShell= directory.
+****** Solution
+The module installation was added to ~./setup_win/setup.ps1~
+***** DONE Disable =Office= key hijacking of =Hyper=
+CLOSED: [2023-05-22 Mon 23:02]
+****** Description
+******* Disable the single press Office key registration
+#+begin_src bat
+REG ADD HKCU\Software\Classes\ms-officeapp\Shell\Open\Command /t REG_SZ /d rundll32
+#+end_src
+
+******* The real disable
+#+begin_src sh
+git clone https://github.com/LambertGreen/OfficeKeyFix
+#+end_src
+****** Solution
++ Added a function to powershell setup script
+
+**** macOS [1/1]
+***** DONE Add steps for setting up apps that don't have =dotfiles= support e.g. =Alfred=
+CLOSED: [2023-05-22 Mon 21:05]
++ Added ~alfred-settings~ as a sub-module.
 *** DONE Test reproducibility by using =Docker=
 CLOSED: [2021-06-02 Wed 16:05]
 *** DONE Fix first start of =Nvim= to no show errors
@@ -948,21 +964,5 @@ CLOSED: [2021-12-14 Tue 20:08]
 CLOSED: [2021-12-14 Tue 20:08]
 *** DONE Add =Nix= files to the repo
 CLOSED: [2022-08-17 Wed 11:32]
-*** DONE Add steps/scripts for updating packages
-CLOSED: [2023-02-02 Thu 13:06]
-I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing for to update a particular system?
-
-**** An example that of a complex update on the Linux machine:
-1. Update system and installed packages using ~sudo yum update~
-2. Update =Nix= and installed packages using ~nix-channel --update~
-3. Update =HomeManager= packages using ~home-manager switch~
-
-**** An example of multiple updates on Windows machine:
-1. Update system using =Windows Update= (fortunately this is already automatic)
-2. Update =Scoop= and installed packages using ~scoop update~
-3. Update =Msys2= and installed packages using ~pacman -Syu~
-4. Update =Choco= and installed packages using ~choco update~
-5. For each =WSL= instance update that Linux distribution.
-
-**** [X] Consider using =topgrade=
-CLOSED: [2023-02-02 Thu 13:05]
+*** DONE Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
+CLOSED: [2023-05-22 Mon 15:53]

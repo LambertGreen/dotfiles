@@ -63,7 +63,7 @@ lgreen_start_ssh_agent() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa_personal id_rsa)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
@@ -148,6 +148,12 @@ lgreen_setup_dev_env_rust() {
     fi
     if [ -d "$HOME/.cargo/bin" ]; then
         export PATH="$PATH:$HOME/.cargo/bin"
+    fi
+}
+
+lgreen_setup_dev_env_ruby() {
+    if [ -d "$HOME/.gem/ruby/2.6.0/bin" ]; then
+        export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
     fi
 }
 
@@ -373,6 +379,7 @@ lgreen_setup_aliases() {
     alias e="$EDITOR"
     alias ec=emacsclient
     alias g=git
+    alias groot='pushd "$(git rev-parse --show-toplevel)"'
     alias rg=lgreen_rg_with_pager
     alias gw=lgreen_run_gradlew
     alias tt=lgreen_toggle_shell_theme_mode
@@ -473,8 +480,10 @@ lgreen_setup_dev_env_all() {
     lgreen_setup_pyenv
     lgreen_setup_jenv
     lgreen_setup_rbenv
+
     lgreen_setup_dev_env_rust
     lgreen_setup_dev_env_clang
+    lgreen_setup_dev_env_ruby
 
     lgreen_setup_perforce_config
 

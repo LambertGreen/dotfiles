@@ -5,17 +5,13 @@
 
 [core]
 	autocrlf = true
-	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+	sshCommand = C:/Program\\ Files/OpenSSH-Win64/ssh.exe
 
 [credential "helperselector"]
 	selected = wincred
 
 [safe]
-	directory = D:/dev/work/nerv/third-party/google-
 	directory = D:/dev/work/nerv/third-party/google-breakpad
 	directory = D:/dev/work/setup
-	directory = C:/Users/lgreen/scoop/apps/scoop/current
 
-[url "git@github.com:"]
-	insteadOf = https://github.com/
 

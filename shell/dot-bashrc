@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+lgreen_setup_zoxide() {
+    # shellcheck disable=SC2139
+    if [ "$(command -v zoxide)" ]; then
+        eval "$(zoxide init bash)"
+    fi
+}
+
 # If not an interactive shell just return
 # e.g. needed when running scp
 if [ -z "$PS1" ]; then
@@ -8,6 +15,11 @@ fi
 
 # Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
 if [ "$TERM" = "dumb" ]; then
+    export BASH_NO_EXEC_ZSH=1
+fi
+
+# Don't use ZSH on MSYS2 as it's too slow
+if [[ "$UNAME" == *"_NT"* ]]; then
     export BASH_NO_EXEC_ZSH=1
 fi
 
@@ -23,4 +35,6 @@ else
     # shellcheck source=shell_common
     [ -f ~/.shell_common ] && source ~/.shell_common
     [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+    lgreen_setup_zoxide
 fi

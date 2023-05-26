@@ -38,6 +38,3 @@
 # Work dev folder
 [includeIf "gitdir:**/dev/work/**"]
     path = ~/.work.gitconfig
-
-[url "git@github.com:"]
-	insteadOf = https://github.com/
