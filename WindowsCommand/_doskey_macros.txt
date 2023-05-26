@@ -1,0 +1,4 @@
+ll=ls -la $*
+vim=nvim $*
+g=git $*
+gw=gradlew $*
