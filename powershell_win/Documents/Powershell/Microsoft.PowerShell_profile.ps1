@@ -25,6 +25,7 @@ Set-Alias tree lgreen-run-tree
 
 Set-Alias which get-command
 Set-Alias g git
+Set-Alias gw ./gradlew
 
 # Enable a cool prompt
 oh-my-posh init pwsh | Invoke-Expression
@@ -47,7 +48,7 @@ function lgreen-enable-dark-mode {
 }
 
 # Disable Windows dark mode
-function lgreen-disable-dark-mode {
+function lgreen-enable-light-mode {
   Set-ItemProperty `
     -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize `
     -Name AppsUseLightTheme `
