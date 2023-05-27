@@ -65,7 +65,7 @@
                 "useAcrylic": true
             },
             {
-                "commandline": "%SystemRoot%\\System32\\cmd.exe /k \"\"c:\\Program Files (x86)\\clink\\clink_x64.exe\" inject  && doskey /macrofile=%userprofile%\\_doskey_macros.txt\"",
+                "commandline": "%SystemRoot%\\System32\\cmd.exe /k dev",
                 "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
                 "hidden": false,
                 "name": "Command Prompt"
