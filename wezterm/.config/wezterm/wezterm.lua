@@ -12,4 +12,5 @@ return {
 	font = wezterm.font 'Iosevka NF',
 	hide_tab_bar_if_only_one_tab = true,
 	color_scheme = scheme_for_appearance(wezterm.gui.get_appearance()),
+	window_background_opacity = 0.95
 }
