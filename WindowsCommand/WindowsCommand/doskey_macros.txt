@@ -1,4 +1,6 @@
-ll=ls -la $*
+ll=ls --color -l $*
+lla=ls --color -la $*
 vim=nvim $*
+e=nvim $*
 g=git $*
 gw=gradlew $*
