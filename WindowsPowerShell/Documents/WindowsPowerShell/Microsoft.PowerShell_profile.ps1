@@ -6,6 +6,9 @@ Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Import-Module PSFzf
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
 
+# Enable git completions
+Import-Module posh-git
+
 # Enable fast directory navigation using z command
 Import-Module z
 
