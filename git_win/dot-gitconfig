@@ -5,7 +5,6 @@
 
 [core]
 	autocrlf = true
-	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 
 [credential "helperselector"]
 	selected = wincred
