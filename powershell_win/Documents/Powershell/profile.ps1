@@ -31,7 +31,7 @@ Set-Alias g git
 Set-Alias gw ./gradlew
 
 # Enable a cool prompt
-oh-my-posh init pwsh | Invoke-Expression
+oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/jandedobbeleer.omp.json" | Invoke-Expression
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
