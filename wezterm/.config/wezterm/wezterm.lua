@@ -11,7 +11,7 @@ end
 -- Allow working with both the current release and the nightly
 local config = {}
 if wezterm.config_builder then
-  config = wezterm.config_builder()
+	config = wezterm.config_builder()
 end
 
 -- Set font
@@ -28,10 +28,12 @@ config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
 -- Background transparency
 if wezterm.target_triple:find('windows') then
 	config.window_background_opacity = 0.95
-	config.win32_system_backdrop = 'Acrylic'
+	-- TODO: This option is still pretty new, and hence one should check for
+	-- existence before use
+	-- config.win32_system_backdrop = 'Acrylic'
 elseif wezterm.target_triple:find('apple') then
-	config.window_background_opacity = 0.80
-	config.macos_window_background_blur = 10
+	config.window_background_opacity = 0.90
+	config.macos_window_background_blur = 20
 end
 
 return config
