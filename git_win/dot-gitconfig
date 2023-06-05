@@ -13,5 +13,7 @@
 [safe]
 	directory = D:/dev/work/nerv/third-party/google-breakpad
 	directory = D:/dev/work/setup
-
-
+	directory = d:/dev/work/nerv/google-crashpad
+	directory = D:/dev/work/nerv/google-crashpad
+	directory = D:/dev/work/tableaubuild/bazel/blitz/repositories/tabcrash
+	directory = %(prefix)///wsl.localhost/Ubuntu-20.04/home/lgreen/dev/work/tabcrash
