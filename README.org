@@ -853,7 +853,7 @@ git reset --hard HEAD
 git pull
 #+end_src
 
-* TODOs [17/24]
+* TODOs [18/19]
 ** Open
 *** TODO Add steps/scripts for updating packages
 **** Description
@@ -875,22 +875,6 @@ I have being remembering the commands to run to make the primary package manager
 CLOSED: [2023-02-02 Thu 13:05]
 **** Solution Proposals
 ***** Create update shell functions
-*** TODO Add application install steps/scripts
-**** Description
-While we have simplified install and setup for most applications e.g. ~stow nvim && brew install nvim~ some applications require one to register the provider in the package manager e.g. installing a =scoop= bucket or installing a =brew= tap. It is not easy to remember that installing =emacs= on macOS requires: ~brew tap d12frosted/emacs-plus && brew install emacs-plus~
-**** Solution Proposals
-***** Add install instructions inside this README
-***** Add install shell script functions
-***** Use the bulk install method, but with editing the file for the specific apps one wants to install
-**** Solution
-+ We will go with adding instructions in the README since seems like the best place to start. We can always go from there to putting the info into a script function.
-
-*Update*: Silly you!  You wasted time opening the story when a solution was already in place i.e. use the bulk import files for each package manager! So, what if you only want to install a single application: you can still delete all the other entries in the import file!
-
-*Update*: Actually maybe I should instead consider the fact that when I really needed to install a single application the bulk method did not come to mind, and a better README would have an "install emacs" section.  So what it is also in the bulk import file.  Notice that you have a "List of used applications" section... why? It would be better if the list was there from the install instructions.
-
-*Update*: Well, I have gone full circle, and found that the bulk install is a good option after all. *shrug*
-
 **  Completed [16/16]
 *** By OS Platform [5/5]
 **** Windows [4/4]
@@ -966,3 +950,19 @@ CLOSED: [2021-12-14 Tue 20:08]
 CLOSED: [2022-08-17 Wed 11:32]
 *** DONE Update steps to setup =SSH= first so that ~git submodule~ command will work (i.e. use the =sshagent= instead of failing accessing the SSH key)
 CLOSED: [2023-05-22 Mon 15:53]
+*** DONE Add application install steps/scripts (Decision: no, rather use existing bulk install instructions)
+CLOSED: [2023-06-05 Mon 12:19]
+**** Description
+While we have simplified install and setup for most applications e.g. ~stow nvim && brew install nvim~ some applications require one to register the provider in the package manager e.g. installing a =scoop= bucket or installing a =brew= tap. It is not easy to remember that installing =emacs= on macOS requires: ~brew tap d12frosted/emacs-plus && brew install emacs-plus~
+**** Solution Proposals
+***** Add install instructions inside this README
+***** Add install shell script functions
+***** Use the bulk install method, but with editing the file for the specific apps one wants to install
+**** Solution
++ We will go with adding instructions in the README since seems like the best place to start. We can always go from there to putting the info into a script function.
+
+*Update*: Silly you!  You wasted time opening the story when a solution was already in place i.e. use the bulk import files for each package manager! So, what if you only want to install a single application: you can still delete all the other entries in the import file!
+
+*Update*: Actually maybe I should instead consider the fact that when I really needed to install a single application the bulk method did not come to mind, and a better README would have an "install emacs" section.  So what it is also in the bulk import file.  Notice that you have a "List of used applications" section... why? It would be better if the list was there from the install instructions.
+
+*Update*: Well, I have gone full circle, and found that the bulk install is a good option after all... *shrug*. There are pros/cons for the options. Considering that more often than not we need to setup dotfiles in monolithic manner and not piecemeal we choose the bulk setup approach.
