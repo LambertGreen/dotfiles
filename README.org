@@ -155,6 +155,7 @@ pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
 choco install AutoHotKey --install-arguments '/uiAccess=1'
 choco install msys2
 choco install git
+choco install gnuwin32-m4
 #+end_src
 
 ** Install from sources :Linux:
@@ -249,8 +250,11 @@ python3 -m pip install ntfy
 ** List of used applications
 *** Terminals
 **** Common
++ *Update (6/6/2023)*: I am preferring to use =Wezterm= over =Alacritty=:
+  + =Wezterm= has better font rendering, and config is done via =Lua=
 #+begin_example
 alacritty
+wezterm
 #+end_example
 
 **** Posix
@@ -301,6 +305,16 @@ fd
 fzf
 ripgrep
 tree
+#+end_example
+
+**** Windows
+#+begin_example
+gnuwin32-m4
+#+end_example
+
+**** macOS
+#+begin_example
+coreutils
 #+end_example
 
 *** Communications
