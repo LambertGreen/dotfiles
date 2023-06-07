@@ -40,6 +40,10 @@ lgreen_one_time_system_setup_check() {
     fi
 }
 
+lgreen_one_time_system_setup_mark_good() {
+	touch "$HOME/.lgreen_one_time_system_setup"
+}
+
 lgreen_conditionally_start_attach_tmux() {
     if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
         tmux -V
