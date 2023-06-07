@@ -392,6 +392,7 @@ lgreen_setup_aliases() {
     alias locate="locate -i" # case-insensitive as default
     alias ssh='TERM=xterm-256color ssh'
     alias fzf="fzf --ansi"
+    alias bazel="./bazel.sh"
     if [ "$(command -v bat)" ]; then
         alias cat=bat
     fi
