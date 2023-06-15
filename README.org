@@ -41,6 +41,9 @@ gpg2 --verify ./install-nix-2.3.16.asc
 sh ./install-nix-2.3.16
 #+end_src
 
+***** Uninstalling
++ https://nixos.org/manual/nix/stable/installation/uninstall.html
+
 **** Install =Home manager=
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
