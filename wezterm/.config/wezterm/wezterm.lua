@@ -15,8 +15,11 @@ if wezterm.config_builder then
 end
 
 -- Set font
-if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
+if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka NF'
+elseif wezterm.target_triple:find('apple') then
+	config.font = wezterm.font 'Iosevka Nerd Font'
+	config.font_size = 13
 else
 	config.font = wezterm.font 'Iosevka Nerd Font'
 end
@@ -34,6 +37,7 @@ if wezterm.target_triple:find('windows') then
 elseif wezterm.target_triple:find('apple') then
 	config.window_background_opacity = 0.90
 	config.macos_window_background_blur = 20
+	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end
 
 return config
