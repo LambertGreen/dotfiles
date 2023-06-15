@@ -287,6 +287,26 @@ lgreen_setup_tmux_theme_switcher() {
     fi
 }
 
+lgreen_setup_tmux_theme_catpuccin_latte() {
+    local sed_cmd="sed"
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
+    tmux source-file .tmux.conf
+}
+
+lgreen_setup_tmux_theme_catpuccin_mocha() {
+    local sed_cmd=""
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
+    tmux source-file .tmux.conf
+}
+
 lgreen_setup_lscolors_theme_one_light() {
     if [ "$(command -v vivid)" ]; then
         export LS_COLORS=$(vivid generate one-light)
