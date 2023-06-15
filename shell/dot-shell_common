@@ -226,6 +226,10 @@ lgreen_color_test() {
 }'
 }
 
+lgreen_term_title_clear() {
+	printf "\033]0;\007"
+}
+
 lgreen_run_gradlew() {
     ./gradlew "$@"
 }
