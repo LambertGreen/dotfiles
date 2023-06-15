@@ -79,6 +79,7 @@ lgreen_setup-display-for-wsl() {
     #     DISPLAY=$(grep nameserver /etc/resolv.conf | awk '{print $2; exit;}'):0.0
     #     export DISPLAY
     # fi
+    return
 }
 
 lgreen_setup-fix-wsl2-interop() {
