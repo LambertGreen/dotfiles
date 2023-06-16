@@ -298,7 +298,7 @@ lgreen_setup_tmux_theme_catpuccin_latte() {
 }
 
 lgreen_setup_tmux_theme_catpuccin_mocha() {
-    local sed_cmd=""
+    local sed_cmd="sed"
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         sed_cmd="gsed"
