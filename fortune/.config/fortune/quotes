@@ -1,0 +1,1161 @@
+# https://gist.githubusercontent.com/scottashipp/c587dd35d253ce7c6a2bbee15abe143c/raw/2e65a6aa125c8db8e142222719f76623642b60e6/softwareengineering
+%
+Simple things should be simple, complex things should be possible.
+  The Wiki Way: Quick Collaboration on the Web, Bo Leuf, Ward
+   -- Cunningham
+%
+Simplicity is the soul of efficiency.
+  Austin Freeman
+%
+I have yet to see any problem, however complicated, which, when you
+looked at it in the right way, did not become still more complicated.
+  Poul Anderson
+%
+... with proper design, the features come cheaply. This approach
+is arduous, but continues to succeed.
+  Dennis Ritchie
+%
+It's hard enough to find an error in your code when you're looking
+for it; it's even harder when you've assumed your code is error-free.
+  Steve McConnell
+%
+You're bound to be unhappy if you optimize everything.
+  Donald Knuth
+%
+Computers are good at following instructions, but not at reading
+your mind.
+  Donald Knuth
+%
+A good way to stay flexible is to write less code.
+  Pragmatic Programmer
+%
+Measuring programming progress by lines of code is like measuring
+aircraft building progress by weight.
+  Bill Gates
+%
+But in our enthusiasm, we could not resist a radical overhaul of
+the system, in which all of its major weaknesses have been exposed,
+analyzed, and replaced with new weaknesses.
+  Bruce Leverett
+%
+How does a project get to be a year late?... One day at a time.
+  Fred Brooks
+%
+The best performance improvement is the transition from the
+nonworking state to the working state.
+  John Ousterhout
+%
+If the code and the comments disagree, then both are probably
+wrong.
+  attributed to Norm Schryer
+%
+... nearly everybody is convinced that every style but their own
+is ugly and unreadable. Leave out the but their own and they're
+probably right...
+  Jerry Coffin (on indentation)
+%
+Ugly programs are like ugly suspension bridges: they're much
+more liable to collapse than pretty ones, because the way humans
+(especially engineer-humans) perceive beauty is intimately related
+to our ability to process and understand complexity.
+  Eric S. Raymond
+%
+Just another day writing tomorrow's legacy code.  % Coding for
+a living is learning for a living.
+  Paul Robinson
+%
+If you can't write clearly, you probably don't think nearly as
+well as you think.
+  Kurt Vonnegut
+%
+It is imperative in science to doubt. It is absolutely necessary,
+for progress in science, to have uncertainty as a fundamental part
+of your inner nature. To make progress in understanding, we must
+remain modest and allow that we do not know.
+  Richard Feynman
+%
+You never actually find a perfect answer to a problem. You just
+find the answer that has the fewest problems.
+  James Gosling
+%
+A good programmer is someone who always looks both ways before
+crossing a one-way street.
+  Doug Linder
+%
+A good scientist is a person with original ideas. A good engineer
+is a person who makes a design that works with as few original
+ideas as possible.
+  Freeman Dyson
+%
+The hardest problem in computer science is not begin an opinionated
+jerk about everything.
+  Nick Takayama
+%
+Making hackers work in a noisy, distracting environment is like
+having a paint factory where the air is full of soot.
+  Paul Graham
+%
+In carpentry, you measure twice and cut once. In software
+development, you never measure and make cuts until you run out
+of time.
+  Adam Morse
+%
+A Fallacy of Software: If it works, and we don't change anything,
+it will keep working.
+  Jessica Kerr
+%
+Writing software as if we are the only person that ever has to
+comprehend it is one of the biggest mistakes and false assumptions
+that can be made.
+  Karolina Szczur
+%
+Your code has two users: the computer, and every other person
+who has to work with what you wrote.
+  Sam Morgan
+%
+In a complex system you don't get to change just one thing - ever.
+  Michael Feathers
+%
+A distributed system is one in which the failure of a computer
+you didn’t even know existed can render your own computer unusable.
+  Leslie Lamport
+%
+Make sure you know what's inside the box before trying to think
+outside of it.
+%
+The cure for boredom is curiosity. There is no
+cure for curiosity.
+  Dorothy Parker
+%
+Simplicity is prerequisite for reliability
+  Edsger W.Dijkstra
+%
+Rules of Optimization:
+ Rule 1: Don't do it.  Rule 2 (for experts only): Don't do it yet.
+  M.A. Jackson
+%
+More computing sins are committed in the name of efficiency
+(without necessarily achieving it) than for any other single reason -
+including blind stupidity.
+  W.A. Wulf
+%
+The competent programmer is fully aware of the strictly limited
+size of his own skull; therefore he approaches the programming task
+in full humility, and among other things he avoids clever tricks
+like the plague.
+  Edsger Dijkstra
+%
+Correctness is clearly the prime quality. If a system does
+not do what it is supposed to do, then everything else about it
+matters little.
+  Bertrand Meyer
+%
+ An API that isn't comprehensible isn't usable.
+  James Gosling
+%
+The bearing of a child takes nine months, no matter how many
+women are assigned. Many software tasks have this characteristic
+because of the sequential nature of debugging.
+   Fred Brooks
+%
+Hofstadter's Law: It always takes longer than you expect, even
+when you take into account Hofstadter's Law.
+%
+Copy and paste is a design error.
+  David Parnas
+%
+One principle problem of educating software engineers is that
+they will not use a new method until they believe it works and,
+more importantly, that they will not believe the method will work
+until they see it for themselves.
+  Humphrey, W.S., "The Personal Software Process"
+%
+Eagleson's law: Any code of your own that you haven't looked at for
+six or more months might as well have been written by someone else.
+%
+Any fool can use a computer. Many do.
+  Ted Nelson
+%
+Incorrect documentation is often worse than no documentation.
+  Bertrand Meyer
+%
+Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it.
+  Brian W. Kernighan
+%
+It's not at all important to get it right the first time. It's
+vitally important to get it right the last time.
+  Andrew Hunt and David Thomas
+%
+Make everything as simple as possible, but not simpler.
+  Albert Einstein
+%
+First, solve the problem. Then, write the code.
+  John Johnson
+%
+Plan to throw one (implementation) away; you will, anyhow.
+  Fred Brooks
+%
+Remember that there is no code faster than no code.
+   Taligent's Guide to Designing Programs
+%
+More good code has been written in languages denounced as bad
+than in languages proclaimed wonderful.
+   Bjarne Stroustrup, The Design and Evolution of C++ (1994)
+%
+Smart data structures and dumb code works a lot better than the
+other way around.
+   Eric S. Raymond, The Cathedral and the Bazaar
+%
+It's hard to read through a book on the principles of magic
+without glancing at the cover periodically to make sure it isn't
+a book on software design.
+   Bruce Tognazzini
+%
+A language that doesn't have everything is actually easier to
+program in than some that do.
+   Dennis Ritchie
+%
+... the purpose of abstraction is not to be vague, but to create
+a new semantic level in which one can be absolutely precise.
+   Edsger W. Dijkstra, "The Humble Programmer" (1972)
+%
+... the cost of adding a feature isn't just the time it takes
+to code it. The cost also includes the addition of an obstacle to
+future expansion.  ...The trick is to pick the features that don't
+fight each other.
+   John Carmack
+%
+Increasingly, people seem to misinterpret complexity as
+sophistication, which is baffling   - the incomprehensible should
+cause suspicion rather than admiration.
+   Niklaus Wirth
+%
+One of the most dangerous (and evil) things ever injected into
+the project world is the notion of process maturity. Process
+maturity is for replicable manufacturing contexts. Projects
+are one-time shots. Replicability is never the primary issue on
+one-time shots. More evil than good has come from the notion that we
+should stick to the methodology. This is a recipe for non-adaptive
+death. I'd rather die by commission.
+   David Schmaltz
+%
+The fundamental problem with program maintenance is that fixing
+a defect has a substantial (20-50 percent) chance of introducing
+another. So the whole process is two steps forward and one step
+back..
+     Fred Brooks
+%
+The difference between a good and a poor architect is that the poor
+architect succumbs to every temptation and the good one resists it.
+   Ludwig Wittgenstein
+%
+Refactoring provides enough energy to a system for it to relax
+into a new and more comfortable state, a new local minimum.
+   Kevlin Henney, "The Imperial Clothing Crisis" (2002)
+%
+Beauty is more important in computing than anywhere else in
+technology because software is so complicated. Beauty is the ultimate
+defense against complexity.
+   David Gelernter, Machine Beauty, Basic Books (1998)
+%
+Fools ignore complexity; pragmatists suffer it; experts avoid it;
+geniuses remove it.
+   Alan Perlis
+%
+...Simplifications have had a much greater long-range scientific
+impact than individual feats of ingenuity. .... Simplicity and
+elegance are unpopular because they require hard work and discipline
+to achieve and education to be appreciated.
+   Edsger W. Dijkstra
+%
+Any intelligent fool can make things bigger, more complex, and
+more violent. It takes a touch of genius - and a lot of courage -
+to move in the opposite direction.
+   Albert Einstein
+%
+The structure of a system reflects the structure of the
+organization that built it.
+   Mel Conway
+%
+The unavoidable price of reliability is simplicity.
+   C.A.R. Hoare
+%
+Controlling complexity is the essence of computer programming.
+   Brian Kernighan
+%
+Complexity is a sign of technical immaturity. Simplicity of use
+is the real sign of a well design product whether it is an ATM or
+a Patriot missile.
+   Daniel T. Ling
+%
+Every good work of software starts by scratching a developer's
+personal itch.  %
+Simplicity does not precede complexity, but
+follows it.
+   Alan J. Perlis
+%
+Computer Science is the first engineering discipline in which the
+complexity of the objects created is limited solely by the skill
+of the creator, and not by the strength of raw materials.
+   B. Reid
+%
+Technical skill is mastery of complexity, while creativity is
+mastery of simplicity.
+   E. Christopher Zeeman
+%
+Architect: Someone who knows the difference between that which
+could be done and that which should be done.
+   Larry McVoy
+%
+If the automobile had followed the same development cycle as the
+computer, a Rolls-Royce would today cost $100, get a million miles
+per gallon, and explode once a year, killing everyone inside.
+   Robert X. Cringely
+%
+There's an old story about the person who wished his computer
+were as easy to use as his telephone. That wish has come true,
+since I no longer know how to use my telephone.
+   Bjarne Stroustrup
+%
+A common mistake that people make when trying to design something
+completely foolproof was to underestimate the ingenuity of complete
+fools.
+   Douglas Adams
+%
+If our designs are failing due to the constant rain of changing
+requirements, it is our designs that are at fault. We must somehow
+find a way to make our designs resilient to such changes and protect
+them from rotting.
+   Robert C. Martin
+%
+If you cannot grok the overall structure of a program while taking
+a shower, you are not ready to code it.
+   Richard Pattis
+%
+How good the design is doesn't matter near as much as whether the
+design is getting better or worse. If it is getting better, day by
+day, I can live with it forever. If it is getting worse, I will die.
+   Kent Beck
+%
+ Good programmers know what to write. Great ones know what to rewrite
+ (and reuse).
+%
+Nothing resolves design issues like an implementation.
+   J. D. Horton
+%
+By the time [the Leaning Tower of Pisa] was ten percent built,
+everyone knew it would be a total disaster. But the investment was
+so big they felt compelled to go on. Since its completion, it cost
+a fortune to maintain and is still in danger of collapsing. There
+are no plans to replace it, since it was never needed in the first
+place. I expect every installation has its own pet software which
+is analogous to the above.
+   Ken Iverson
+%
+In theory, there is no difference between theory and practice. But,
+in practice, there is.
+   Jan L. A. van de Snepscheut
+%
+If you lie to the compiler, it will get its revenge.
+  Henry Spencer
+%
+Trying to outsmart a compiler defeats much of the purpose of
+using one.
+  Kernighan and Plauger, The Elements of Programming Style
+%
+Once a new technology starts rolling, if you're not part of the
+steamroller, you're part of the road.
+  Stewart Brand
+%
+Get into a rut early: Do the same process the same way. Accumulate
+idioms. Standardize. The only difference(!) between Shakespeare and
+you was the size of his idiom list - not the size of his vocabulary.
+%
+Just because the standard provides a cliff in front of you,
+you are not necessarily required to jump off it.
+  Norman Diamond
+%
+If you have a procedure with ten parameters, you probably
+missed some.  %
+There are two ways to write error-free programs;
+only the third works.
+  Alan J. Perlis
+%
+Should array indices start at 0 or 1? My compromise of 0.5 was
+rejected without, I thought, proper consideration.
+  Stan Kelly-Bootle
+%
+Good engineering is not primarily making good decisions, it's
+seeking good feedback which lets you quickly discard bad decisions.
+  Kent Beck
+%
+Point of view is worth 80 IQ points.
+  Alan Kay
+%
+We just have to accept that developer skill is a far more
+significant variable than language choice or methodological nuances.
+  Michael Feathers
+%
+Testing does not cost, it pays, both during development and over
+the system’s lifecycle.
+  Mary Poppendieck
+%
+If your tests look cumbersome and complex, it reflects on the
+design of your system.
+  Jez Humble and Dave Farley
+%
+ Perfection (in design) is achieved not when there is nothing more
+ to add, but rather when there is nothing more to take away.
+    Antoine de Saint-Exupery
+%
+I did say something along the lines of C makes it easy to shoot
+yourself in the foot; C++ makes it harder, but when you do, it
+blows your whole leg off.
+  Bjarne Stroustrup
+%
+UNIX is simple. It just takes a genius to understand its
+simplicity.
+  Dennis Ritchie
+%
+When someone says, I want a programming language in which I need
+only say what I want done, give him a lollipop.
+  Alan Perlis
+%
+You can't have great software without a great team, and most
+software teams behave like dysfunctional families.
+  Jim McCarthy
+%
+That's the thing about people who think they hate computers.
+What they really hate is lousy programmers.
+  Larry Niven and Jerry Pournelle Oath of Fealty
+%
+Einstein argued that there must be simplified explanations of
+nature, because God is not capricious or arbitrary. No such faith
+comforts the software engineer.
+  Fred Brooks, Jr.
+%
+As we said in the preface to the first edition, C wears well
+as one's experience with it grows. With a decade more experience,
+we still feel that way.
+  Brian Kernighan and Dennis Ritchie
+%
+Optimization hinders evolution.  % C++ tries to guard against
+Murphy, not Machiavelli.
+  Damian Conway
+%
+I have always found that plans are useless, but planning is
+indispensable.
+  Dwight Eisenhower
+%
+ Any fool can write code that a computer can understand. Good
+ programmers write code that humans can understand.
+    Martin Fowler
+%
+Perl is another example of filling a tiny, short-term need,
+and then being a real problem in the longer term.
+  Alan Kay
+%
+It is practically impossible to teach good programming style
+to students that have had prior exposure to Basic; as potential
+programmers they are mentally mutilated beyond hope of regeneration.
+  Edsger Dijkstra
+%
+Comparing to another activity is useful if it helps you formulate
+questions, it's dangerous when you use it to justify answers.
+  Martin Fowler
+%
+There will always be things we wish to say in our programs that in
+all known languages can only be said poorly.
+%
+Every program is a part of some other program and rarely fits.
+%
+Style distinguishes excellence from accomplishment.
+  James Coplien
+%
+Every program has (at least) two purposes: the one for which it
+was written, and another for which it wasn't.
+  Alan J. Perlis
+%
+The most amazing achievement of the computer software industry
+is its continuing cancellation of the steady and staggering gains
+made by the computer hardware industry.
+  Henry Petroski
+%
+Technology is dominated by two types of people: Those who
+understand what they do not manage. Those who manage what they do
+not understand.
+  Putt's Law
+%
+The perfect project plan is possible if one first documents a
+list of all the unknowns.
+  Bill Langley
+%
+Program testing can be used to show the presence of bugs, but
+never to show their absence!
+    Edsger Dijkstra
+%
+There's no obfuscated Perl contest because it's pointless.
+  Jeff Polk
+%
+Software and cathedrals are much the same - first we build them,
+then we pray.
+  Anonymous
+%
+If debugging is the process of removing bugs, then programming
+must be the process of putting them in.
+  Edsger Dijkstra
+%
+No matter how slick the demo is in rehearsal, when you do it in
+front of a live audience the probability of a flawless presentation
+is inversely proportional to the number of people watching, raised
+to the power of the amount of money involved.
+  Mark Gibbs
+%
+It is easier to write an incorrect program than understand a
+correct one.  %
+If you need more than 3 levels of indentation,
+you're screwed anyway, and should fix your program.
+  Linux 1.3.53 Coding Style documentation
+%
+A Perl program is correct if it gets the job done before your
+boss fires you.
+  Larry Wall
+%
+I have a pretty major problem with a language where one of the
+most common variables has the name $_
+  Brian Hook, about PERL
+%
+Testing is the process of comparing the invisible to the ambiguous,
+so as to avoid the unthinkable happening to the anonymous.
+    James Bach
+%
+The programmer, like the poet, works only slightly removed from
+pure thought-stuff. He builds his castles in the air, from air,
+creating by exertion of the imagination. Few media of creation are
+so flexible, so easy to polish and rework, so readily capable of
+realizing grand conceptual structures. (This very tractability has
+its own problems.)
+  Fred Brooks
+%
+The evolution of languages: FORTRAN is a non-typed language. C
+is a weakly typed language. Ada is a strongly typed language. C++
+is a strongly hyped language.
+  Ron Sercely
+%
+He who hasn't hacked assembly language as a youth has no heart. He
+who does as an adult has no brain.
+  John Moore
+%
+BASIC - A programming language. Related to certain social diseases
+in that those who have it will not admit it in polite company.
+  Anonymous
+%
+With enough eyes, all bugs are shallow.
+  Eric S. Raymond
+%
+The camel has evolved to be relatively self-sufficient. On
+the other hand, the camel has not evolved to smell good. Neither
+has Perl.
+  Larry Wall
+%
+Don't get suckered in by the comments ... they can be terribly
+misleading.
+  Dave Storer
+%
+We know about as much about software quality problems as they
+knew about the Black Plague in the 1600s. We've seen the victims'
+agonies and helped burn the corpses. We don't know what causes it;
+we don't really know if there is only one disease. We just suffer
+and keep pouring our sewage into our water supply.
+   Tom Van Vleck
+%
+If something is worth doing once, it's worth building a tool
+to do it.  %
+If you think good architecture is expensive, try bad
+architecture.
+   Brian Foote and Joseph Yoder
+%
+When we use a language, we should commit ourselves to knowing it,
+being able to read it, and writing it idiomatically.
+  Ron Jeffries
+%
+ Beware of bugs in the above code; I have only proved it correct,
+ not tried it.
+  Donald Knuth
+%
+The ideal engineer is a composite ... he is not a scientist,
+he is not a mathematician, he is not a sociologist, or a writer;
+but he may use the knowledge and techniques of any or all of these
+disciplines in solving engineering problems.
+  N. W. Dougherty
+%
+One of the great skills in using any language is knowing what
+not to use, what not to say. ... There's that simplicity thing again.
+  Ron Jeffries
+%
+Good engineering is characterized by gradual, stepwise refinement
+of products that yields increased performance under given constraints
+and with given resources.
+  Niklaus Wirth
+%
+Programming languages should be designed not by piling feature
+on top of feature, but by removing the weaknesses and restrictions
+that make additional features appear necessary.
+   Revised Report on the Algorithmic Language Scheme
+%
+A designer can mull over complicated designs for months. Then
+suddenly the simple, elegant, beautiful solution occurs to him. When
+it happens to you, it feels as if God is talking! And maybe He is.
+  Leo Frankowski (in The Cross-Time Engineer)
+%
+It should be noted that no ethically-trained software engineer
+would ever consent to write a DestroyBaghdad procedure. Basic
+professional ethics would instead require him to write a DestroyCity
+procedure, to which Baghdad could be given as a parameter.
+  Nathaniel S. Borenstein
+%
+The problem with using C++ ... is that there's already a strong
+tendency in the language to require you to know everything before
+you can do anything.
+  Larry Wall
+%
+Unix was not designed to stop people from doing stupid things,
+because that would also stop them from doing clever things.
+  Doug Gwyn
+%
+We try to solve the problem by rushing through the design process
+so that enough time is left at the end of the project to uncover the
+errors that were made because we rushed through the design process.
+    Glenford Myers
+%
+First you listen to the users; then you ignore them.
+  Ken Arnold
+%
+The hardest part of design ... is keeping features out.
+  Donald Norman
+%
+Computers are high-speed idiots, programmed by low-speed idiots.
+%
+You know you're on the right track with code changes when you
+spend the majority of your time deleting code.
+%
+The key to understanding recursion is to begin by understanding
+recursion. The rest is easy.
+   Koenig/Moo, Accelerated C++
+%
+Always code as if the person who ends up maintaining your code will
+be a violent psychopath who knows where you live.
+%
+Programs should
+be written and polished until they acquire publication quality.
+  Niklaus Wirth
+%
+... programming requires more concentration than other
+activities. It's the reason programmers get upset about 'quick
+interruptions' - such interruptions are tantamount to asking a
+juggler to keep three balls in the air and hold your groceries
+at the same time."   Steve McConnell, Code Complete %
+Avoiding
+complexity reduces bugs.
+  Linus Torvalds
+%
+In a room full of top software designers, if two agree on the
+same thing, that's a majority.
+  Bill Curtis
+%
+If at first you don't succeed, call it version 1.0.
+  Pat Rice
+%
+It's harder than you might think to squander millions of dollars,
+but a flawed software development process is a tool well suited to
+the job.
+  Alan Cooper
+%
+One: demonstrations always crash. And two: the probability of them
+crashing goes up exponentially with the number of people watching.
+  Steve Jobs
+%
+About 90 percent of the downtime comes from, at most, 10 percent
+of the defects.   Barry Boehm %
+Time pressure gradually corrupts an
+engineer's standard of quality and perfection. It has a detrimental
+effect on people as well as products.
+   Niklaus Wirth
+%
+In a software project team of 10, there are probably 3 people
+who produce enough defects to make them net negative producers.
+   Gordon Schul
+%
+It's not the prevention of bugs but the recovery the ability to
+gracefully exterminate them -- that counts.
+  Victoria Livschitz
+%
+When debugging, novices insert corrective code; experts remove
+defective code.   Richard Pattis %
+Product quality has almost
+nothing to do with defects or their lack.
+  Tom DeMarco
+%
+Every big computing disaster has come from taking too many ideas
+and putting them in one place.
+   Gordon Bell
+%
+There has never been an unexpectedly short debugging period in
+the history of computers.
+   Steven Levy
+%
+It has been discovered that C++ provides a remarkable facility
+for concealing the trival details of a program such as where its
+bugs are.
+  David Keppel
+%
+Whoever thought of putting coders in noise-transparent cubicles
+needs to be beaten with a cluebat.
+  Anonymous Slashdotter
+%
+ Using Unix is the computing equivalent of listening only to music
+ by David Cassidy.
+  Rob Pike
+%
+Conceptual integrity is the most important consideration in
+system design.
+  Fred Brooks, "The Mythical Man-Month"
+%
+The belief that complex systems require armies of designers
+and programmers is wrong. A system that is not understood in its
+entirety, or at least to a significant degree of detail by a single
+individual, should probably not be built.
+  Niklaus Wirth
+%
+Experience doesn't necessarily teach anything.
+  Gerald M. Weinberg, "Understanding the Professional Programmer"
+%
+No matter what the problem is, it's always a people problem.
+  Gerald M. Weinberg
+%
+I think there is a world market for maybe five computers
+  Thomas Watson, Chairman of IBM, 1943
+%
+There is no reason why anyone would want a computer in the home.
+  Ken Olson, Present, Chairman and founder of Digital Equipment
+  Corporation, 1977
+%
+But what... is it good for?
+  Engineer at the Advanced Computing Systems division of IBM,
+  commenting on the microchip, 1968
+%
+I have traveled the length and breadth of this country and talked
+with the best people, and I can assure you that data processing is
+a fad that won't last out the year.
+  Editor in charge of business books for Prentice Hall, 1957
+%
+While a calculator on the ENIAC is equipped with 10000 vacuum
+tubes and weighs 30 tons, computers of the future may have only
+1000 vacuum tubes and weigh only 1.5 tons.
+  Popular mechanics, 1949
+%
+Hiring people to write code to sell is not the same as hiring
+people to design and build durable, usable, dependable software.
+  Larry Constantine
+%
+If we play genie and grant client wishes, we are apt to construct
+castles of code in the air.
+  Larry Constantine
+%
+In fast moving markets, adaptation is significantly more important
+than optimization.
+  Larry Constantine
+%
+A primary cause of complexity is that software vendors uncritically
+adopt almost any feature that users want.
+  Niklaus Wirth
+%
+The best meetings get real work done. When your people learn that
+your meetings actually accomplish something, they will stop making
+excuses to be elsewhere.
+  Larry Constantine
+%
+A dynamic duo who work well together can be worth any three people
+working in isolation.
+  Larry Constantine
+%
+Prolific programmers contribute to certain disaster.
+  Niklaus Wirth
+%
+Wirth's law: Software gets slower faster than hardware gets faster.
+  Niklaus Wirth
+%
+If builders built buildings the way programmers wrote programs,
+then the first woodpecker that came along would destroy civilisation.
+  Gerald Weinberg
+%
+Documentation is the castor oil of programming. Managers think
+it is good for programmers and programmers hate it!
+  Gerald Weinberg
+%
+The best way to get a project done faster is to start sooner.
+  Jim Highsmith
+%
+Managers often form a [programming] team which by any reasonable
+judgment cannot perform the designated task in the allotted
+time. Inevitably the team is given an extension when the time
+limit is reached and the reality must be faced. Had it been faced
+earlier, the work could probably have been organized differently -
+in recognition of the longer schedule - and thus produced, in the
+end, more quickly.
+  Gerald Weinberg
+%
+Programming can be fun, so can cryptography; however they should
+not be combined.
+  Kreitzberg and Shneiderman
+%
+Let us change our traditional attitude to the construction of
+programs. Instead of imagining that our main task is to instruct
+a computer what to to, let us concentrate rather on explaining to
+human beings what we want a computer to do.
+  Donald Knuth
+%
+Good code is its own best documentation. As you're about to add
+a comment, ask yourself, How can I improve the code so that this
+comment isn't needed?' Improve the code and then document it to
+make it even clearer.
+  Steve McConnell
+%
+The job of the average manager requires a shift in focus every
+few minutes. The job of the average software developer requires
+that the developer not shift focus more often than every few hours.
+  Steve McConnell
+%
+It's OK to figure out murder mysteries, but you shouldn't need
+to figure out code. You should be able to read it.
+  Steve McConnell
+%
+Testing by itself does not improve software quality. Test results
+are an indicator of quality, but in and of themselves, they don't
+improve it. Trying to improve software quality by increasing the
+amount of testing is like trying to lose weight by weighing yourself
+more often. What you eat before you step onto the scale determines
+how much you will weigh, and the software development techniques
+you use determine how many errors testing will find. If you want
+to lose weight, don't buy a new scale; change your diet. If you
+want to improve your software, don't test more; develop better.
+  Steve McConnell
+%
+A brute force solution that works is better than an elegant
+solution that doesn't work.
+  Steve McConnell
+%
+Good visual layout shows the logical structure of a program.
+  Steve McConnell
+%
+Even when you have skilled, motivated, hard-working people,
+the wrong team structure can undercut their efforts instead of
+catapulting them to success.  A poor team structure can increase
+development time, reduce quality, damage morale, increase turnover,
+and ultimately lead to project cancellation.
+  Steve McConnell
+%
+Brooks Law: Adding manpower to a late software project makes it
+later!
+%
+It's better to wait for a productive programmer to become
+available than it is to wait for the first available programmer to
+become productive.
+  Steve McConnell
+%
+Software projects fail for one of two general reasons: the
+project team lacks the knowledge to conduct a software project
+successfully, or the project team lacks the resolve to conduct a
+project effectively.
+  Steve McConnell
+%
+In software, the chain isn't as strong as its weakest link;
+it's as weak as all the weak links multiplied together.
+  Steve McConnell
+%
+... the designer of a new system must not only be the implementor
+and the first large-scale user; the designer should also write the
+first user manual. ...If I had not participated fully in all these
+activities, literally hundreds of improvements would never have
+been made, because I would never have thought of them or perceived
+why they were important.
+  Donald Knuth
+%
+An organization that treats its programmers as morons will soon
+have programmers that are willing and able to act like morons only.
+  Bjarne Stroustrup
+%
+Design and programming are human activities; forget that and all
+is lost.
+  Bjarne Stroustrup
+%
+Before software can be reusable it first has to be usable.
+  Ralph Johnson
+%
+If you think your management doesn't know what it's doing or
+that your organisation turns out low-quality software crap that
+embarrasses you, then leave.
+  Edward Yourdon
+%
+The most important single aspect of software development is to
+be clear about what you are trying to build.
+  Bjarne Stroustrup
+%
+Most of you are familiar with the virtues of a programmer. There
+are three, of course: laziness, impatience, and hubris.
+  Larry Wall
+%
+We must not forget that the wheel is reinvented so often because it
+is a very good idea; I've learned to worry more about the soundness
+of ideas that were invented only once.
+  David L. Parnas (Why Software Jewels are Rare, IEEE Computer, 2/96)
+%
+Real programmers can write assembly code in any language.
+  Larry Wall
+%
+We all agree on the necessity of compromise. We just can't agree
+on when it's necessary to compromise.
+  Larry Wall
+%
+I think it's a new feature. Don't tell anyone it was an accident.
+  Larry Wall
+%
+Theory is when you know something, but it doesn't work. Practice
+is when something works, but you don't know why. Programmers combine
+theory and practice: Nothing works and they don't know why.
+  Unknown
+%
+The process of preparing programs for a digital computer is
+especially attractive, not only because it can be economically and
+scientifically rewarding, but also because it can be an aesthetic
+experience much like composing poetry or music.
+  Donald Knuth
+%
+For every complex problem there is an answer that is clear,
+simple, and wrong.
+  H. L. Mencken
+%
+Good programmers use their brains, but good guidelines save us
+having to think out every case.
+  Francis Glassborow
+%
+Up to a point, it is better to just let the snags [bugs] be there
+than to spend such time in design that there are none.
+  Alan M. Turing
+%
+Don't document bad code--rewrite it.
+    Kernighan and Plauger
+%
+The price of reliability is the pursuit of the utmost
+simplicity. It is a price which the very rich may find hard to pay.
+  C.A.R. Hoare
+%
+Programmer's Drinking Song (sung to the tune of 100 Bottles of
+Beer'') 99 little bugs in the code, 99 bugs in the code, fix one
+bug, compile it again, 101 little bugs in the code.  101 little
+bugs in the code....  (Repeat until BUGS = 0)
+  Anonymous
+%
+There are two ways of constructing a software design: One way
+is to make it so simple that there are obviously no deficiencies,
+and the other way is to make it so complicated that there are no
+obvious deficiencies. The first method is far more difficult.
+  C.A.R. Hoare
+%
+Premature optimization is the root of all evil in programming.
+  C.A.R. Hoare
+%
+You cannot teach beginners top-down programming, because they
+don't know which end is up.
+  C.A.R. Hoare
+%
+The key to performance is elegance, not battalions of special
+cases.
+  Jon Bentley and Doug McIlroy
+%
+A complex system that works is invariably found to have evolved
+from a simple system that works.
+  John Gall
+%
+Adding last-minute features, whether in response to competitive
+pressure, as a developer's pet feature, or on the whim of management,
+causes more bugs in software than almost anything else.
+  John Robbins
+%
+Inside every large program, there is a small program trying to
+get out.
+  C.A.R. Hoare
+%
+Programs must be written for people to read, and only incidentally
+for machines to execute.
+  Abelson and Sussman
+%
+The software isn't finished until the last user is dead.
+  Anonymous
+%
+It is better to have 100 functions operate on one data structure
+than 10 functions on 10 data structures.  %
+Brian Russell's Laws
+of Software Relativity (cf. Belady and Lehman's Laws of Software
+Evolution)
+  * As a software project approaches release, its mass increases.
+  *The energy required to release a software project is inversely
+  proportional to the time before a scheduled release.  *It takes
+  infinite energy to release a finished product on time; therefore,
+  all software projects are both incomplete and late.  *Time is
+  relative to the observer of a software project. The last month of
+  development appears to an outside observer to take a year.  *If a
+  software project becomes too large, it will collapse into a black
+  hole.  Time and money are absorbed but nothing ever comes out.
+    Usenet post
+%
+The bitterness of poor quality remains long after the sweetness
+of meeting the schedule has been forgotten.
+  Anonymous
+%
+Why do we never have time to do it right, but always have time
+to do it over?
+  Anonymous
+%
+The goal of product management is customer satisfaction. The
+product management role is positioned to achieve this by acting
+as the customer advocate to the team and as the team advocate to
+the customer. It is important to distinguish between the customer
+and the end user--the customer is the one who pays for the product
+while the end user is the one who uses the product.
+  Anonymous
+%
+The goal of Computer Science is to build something that will last
+at least until we've finished building it.
+  Anonymous
+%
+Re-use before you buy before you build.
+  Anonymous
+%
+Better train people and risk they leave - than do nothing and
+risk they stay.
+  Anonymous
+%
+There is not now, and never will be, a language in which it is
+the least bit difficult to write bad programs.
+  Anonymous
+%
+Building large applications is still really difficult. Making
+them serve an organisation well for many years is almost impossible.
+  Malcolm P Atkinson
+%
+We have to stop optimizing for programmers and start optimizing
+for users.
+  Jeff Atwood
+%
+A program is never less than 90% complete, and never more than
+95%
+complete.
+  Terry Baker
+%
+Programming today is a race between software engineers striving to
+build bigger and better idiot-proof programs, and the Universe trying
+to produce bigger and better idiots. So far, the Universe is winning.
+  Rich Cook
+%
+Optimism is an occupational hazard of programming: feedback is
+the treatment.
+  Kent Beck
+%
+A good threat is worth a thousand tests.
+  Boris Beizer, about publicizing test cases to programmers
+%
+More than the act of testing, the act of designing tests is one
+of the best bug preventers known. The thinking that must be done
+to create a useful test can discover and eliminate bugs before they
+are coded - indeed, test-design thinking can discover and eliminate
+bugs at every stage in the creation of software, from conception
+to specification, to design, coding and the rest.
+  Boris Beizer
+%
+If you can't test it, don't build it. If you don't test it,
+rip it out.
+  Boris Beizer
+%
+Bugs lurk in corners and congregate at boundaries.
+  Boris Beizer
+%
+Walking on water and developing software from a specification
+are easy if both are frozen.
+  Edward V. Berard
+%
+Agile methods derive much of their agility by relying on the tacit
+knowledge embodied in the team, rather than writing the knowleadge
+down in plans.
+  Barry Boehm
+%
+Poor management can increase software costs more rapidly than
+any other factor.
+  Barry Boehm
+%
+Just because you don't know a technology, doesn't mean you won't
+be called upon to work with it.
+  Mike Bongiovanni
+%
+The most likely way for the world to be destroyed, most experts
+agree, is by accident. That's where we come in; we're computer
+professionals. We cause accidents.
+  Nathaniel S. Borenstein
+%
+The first 90 percent of the code accounts for the first 90 percent
+of the development time...The remaining 10 percent of the code
+accounts for the other 90 percent of the development time.
+   Tom Cargill
+%
+Documentation is like sex; when it's good, it's very, very good,
+and when it's bad, it's better than nothing.
+  Dick Brandon
+%
+The hardest part of the software task is arriving at a complete
+and consistent specification, and much of the essence of building
+a program is in fact the debugging of the specification.
+  Fred Brooks
+%
+A little retrospection shows that although many fine, useful
+software systems have been designed by committees and built as part
+of multipart projects, those software systems that have excited
+passionate fans are those that are the products of one or a few
+designing minds, great designers.
+  Fred Brooks
+%
+Good judgment comes from experience, and experience comes from
+bad judgment.
+  Fred Brooks
+%
+Any sufficiently advanced bug is indistinguishable from a feature.
+  Bruce Brown
+%
+Analysis occurs only when the domain expert is in the room
+(otherwise it is pseudo-analysis)
+  Brad Kain
+%
+The only new software development projects undertaken are those
+that haven't been done before or those whose predecessors are not
+publicly available. This business reality, more than any other
+factor, is what makes software development so hard and risky,
+which makes attention to process so important.
+  Sam Guckenheimer and Juan Perez, in Software Engineering with
+  Microsoft
+Visual Studio Team System %
+I find that writing unit tests actually
+increases my programming speed.
+  Martin Fowler
+%
+When to use iterative development? You should use iterative
+development only on projects that you want to succeed.
+  Martin Fowler
+%
+All programming is maintenance programming, because you are rarely
+writing original code.
+  Dave Thomas
+%
+Even the best planning is not so omniscient as to get it right
+the first time.
+  Fred Brooks
