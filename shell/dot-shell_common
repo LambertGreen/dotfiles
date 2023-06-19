@@ -391,15 +391,15 @@ lgreen_toggle_shell_theme_mode() {
 }
 
 lgreen_man() {
-	env \
-		LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-		LESS_TERMCAP_md=$(printf "\e[1;31m") \
-		LESS_TERMCAP_me=$(printf "\e[0m") \
-		LESS_TERMCAP_se=$(printf "\e[0m") \
-		LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-		LESS_TERMCAP_ue=$(printf "\e[0m") \
-		LESS_TERMCAP_us=$(printf "\e[1;32m") \
-		man "$@"
+    env \
+        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+        LESS_TERMCAP_md=$(printf "\e[1;31m") \
+        LESS_TERMCAP_me=$(printf "\e[0m") \
+        LESS_TERMCAP_se=$(printf "\e[0m") \
+        LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+        LESS_TERMCAP_ue=$(printf "\e[0m") \
+        LESS_TERMCAP_us=$(printf "\e[1;32m") \
+        man "$@"
 }
 
 lgreen_setup_aliases() {
@@ -540,6 +540,16 @@ lgreen_setup_msys_path() {
     fi
 }
 
+lgreen_show_fortune_quote() {
+    if [ "$(command -v fortune)" ]; then
+        if [ "$(command -v cowsay)" ]; then
+            if [ -f "$HOME/.config/fortune/quotes" ]; then
+                fortune ~/.config/fortune/quotes | cowsay
+            fi
+        fi
+    fi
+}
+
 #-------------------
 # Main
 #-------------------
@@ -570,3 +580,5 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_dev_env_rust
     lgreen_setup_msys_path
 fi
+
+lgreen_show_fortune_quote
