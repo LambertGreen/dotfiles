@@ -870,7 +870,7 @@ git reset --hard HEAD
 git pull
 #+end_src
 
-* TODOs [18/19]
+* TODOs [18/21]
 ** Open
 *** TODO Add steps/scripts for updating packages
 **** Description
@@ -892,6 +892,9 @@ I have being remembering the commands to run to make the primary package manager
 CLOSED: [2023-02-02 Thu 13:05]
 **** Solution Proposals
 ***** Create update shell functions
+*** TODO Add =fortune= to =nvim= startup screen
+**** Description
++ Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
 **  Completed [16/16]
 *** By OS Platform [5/5]
 **** Windows [4/4]
