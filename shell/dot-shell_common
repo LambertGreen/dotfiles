@@ -95,6 +95,15 @@ lgreen_setup_direnv_for_zsh() {
     fi
 }
 
+lgreen_setup_autoenv() {
+    if [ "$(command -v brew)" ]; then
+        activation_file="$(brew --prefix autoenv)/activate.sh"
+        if [ -f "$activation_file" ]; then
+            source "$activation_file"
+        fi
+    fi
+}
+
 lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
@@ -581,4 +590,5 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_msys_path
 fi
 
+lgreen_setup_autoenv
 lgreen_show_fortune_quote
