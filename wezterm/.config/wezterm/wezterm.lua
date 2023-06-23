@@ -40,6 +40,10 @@ elseif wezterm.target_triple:find('apple') then
 	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end
 
+-- Keybindings
+--
+config.enable_csi_u_key_encoding = true
+
 config.leader = { key = 'a', mods = "CTRL|ALT" }
 config.keys = {
 	{ key = "\"", mods = "LEADER", action = wezterm.action { SplitVertical = { domain = "CurrentPaneDomain" } } },
