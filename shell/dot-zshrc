@@ -55,6 +55,11 @@ lgreen_setup_zsh() {
     # We want history, yes, but not shared between shell instances
     unsetopt incappendhistory
     unsetopt sharehistory
+
+    # Enable variable expansion of vars of directories
+    # Enables doing:  ls $deep_dir/<tab>
+    setopt AUTO_CD
+    setopt CDABLE_VARS
 }
 
 lgreen_setup_common_shell() {
