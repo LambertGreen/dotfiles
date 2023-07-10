@@ -862,16 +862,32 @@ docker build --ssh default -t lambertgreen/dotfiles .
 docker run -it lambertgreen/dotfiles
 #+end_src
 
-* Issues
-** Issue: =Sub-modules= sometimes are not updated and need manual intervention
+* Issues & Solutions :issue:
+** Open :open:
+** Solved :solved:
+*** DONE Issue: =Sub-modules= sometimes are not updated and need manual intervention
+CLOSED: [2023-07-10 Mon 12:13]
 I am not sure what the cause is but the following steps help to pull down latest from within the sub-module directory:
 #+begin_src sh
 git reset --hard HEAD
 git pull
 #+end_src
 
-* TODOs [18/21]
+*** DONE Issue: If ~.config~ directory does not exist then first stow of package under ~.config~ will make ~.config~ a symlink
+CLOSED: [2023-07-10 Mon 12:27]
+**** Description
+The issue does not occur if there is an existing ~.config~ directory
+**** Solution
++ First ensure an existing ~.config~ directory exists, before running the =stow= command.
++ We need to add information in this document with the setup steps for a new machine.
+
+* TODOs [18/23]
 ** Open
+*** TODO Add section with steps for setting a new machine [0/2]
+Till recently the steps were pretty straight-forward i.e. just sync repo; install apps with package-manager; run =stow=. However doing a brand-new install is not that straight-forward e.g. bulk installing apps requires some manual work e.g. editing a reference package-manager file from exports; ensuring ~.config~ directory is created first before running =stow=; etc.  Further there is OS specific considerations as well.
+
+**** [ ] Use =org-babel= blocks so that manual steps are copy/paste.
+**** [ ] Use scripts were applicable
 *** TODO Add steps/scripts for updating packages
 **** Description
 I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than one package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing to update a particular system?
