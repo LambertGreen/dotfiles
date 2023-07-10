@@ -38,14 +38,20 @@ lgreen_setup_profile_env() {
     export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
 
     # Editor
-    export EDITOR="emacsclient -t -a nvim"
-    export GIT_EDITOR=$EDITOR
-    export VISUAL="emacsclient -n -c -a nvim"
+    #
+    # TODO: Consider removing  editor here, and rely on defaults
+    # When inside an editor context e.g. inside of Emacs, then
+    # Emacs can update config appropriately
+    #
+    # export EDITOR="emacsclient -t -a nvim"
+    # export GIT_EDITOR=$EDITOR
+    # export VISUAL="emacsclient -n -c -a nvim"
+
     export COLORTERM=truecolor
 }
 
 lgreen_source_os_profile() {
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    if [ -z $UNAME ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         # shellcheck source=profile_osx
         if [ -f "$HOME/.profile_osx" ]; then
