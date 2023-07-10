@@ -432,6 +432,7 @@ lgreen_setup_aliases() {
     if [ "$(command -v nvim)" ]; then
         alias vim=nvim
         alias vi=nvim
+        alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=doom-nvim nvim"
     fi
 
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
