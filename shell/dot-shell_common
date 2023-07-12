@@ -303,7 +303,7 @@ lgreen_setup_tmux_theme_catpuccin_latte() {
         sed_cmd="gsed"
     fi
     $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
-    tmux source-file .tmux.conf
+    tmux source-file ~/.tmux.conf
 }
 
 lgreen_setup_tmux_theme_catpuccin_mocha() {
@@ -313,7 +313,7 @@ lgreen_setup_tmux_theme_catpuccin_mocha() {
         sed_cmd="gsed"
     fi
     $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
-    tmux source-file .tmux.conf
+    tmux source-file ~/.tmux.conf
 }
 
 lgreen_setup_lscolors_theme_one_light() {
