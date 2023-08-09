@@ -300,7 +300,6 @@ Powershell
 emacs
 neovim
 
-coreutils
 ispell
 bat
 dust

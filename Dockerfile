@@ -2,7 +2,7 @@ FROM archlinux/archlinux:base-devel
 # Install packages for dotfiles valiation
 RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
   pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh stow coreutils zsh tmux neovim emacs fd ripgrep python3 python-pip
+    sudo git openssh stow zsh tmux neovim emacs fd ripgrep python3 python-pip
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Create a test user (Note: we need to give the user an explicit uid, since we need to reference it
 # in the ssh mount command.)
