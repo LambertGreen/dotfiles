@@ -151,8 +151,15 @@ lgreen_setup_non_sys_sqlite() {
 lgreen_setup_dev_env_node_js() {
     if [ "$(command -v nvm)" ]; then
         export NVM_DIR="$HOME/.nvm"
+
+        # mac specific?
         [ -s "/usr/local/opt/nvm/nvm.sh" ] && source "/usr/local/opt/nvm/nvm.sh"
         [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
+
+        # linuxbrew
+        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
+        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+
     fi
 }
 
@@ -510,7 +517,12 @@ lgreen_sanitize_environment() {
 }
 
 lgreen_setup_dev_env_all() {
-    lgreen_setup_direnv_for_zsh
+    # TODO: Decide if autoenv is better direnv
+    # Trying out autoenv over direnv, since autoenv allows sourcing of scripts
+    # and direnv only allows exporting of environment variables.
+    #
+    # lgreen_setup_direnv_for_zsh
+    lgreen_setup_autoenv
     lgreen_setup_pyenv
     lgreen_setup_jenv
     lgreen_setup_rbenv
