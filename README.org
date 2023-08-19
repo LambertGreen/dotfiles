@@ -882,7 +882,7 @@ The issue does not occur if there is an existing ~.config~ directory
 + We need to add information in this document with the setup steps for a new machine.
 
 * TODOs [18/23]
-** Open [1/6]
+** Open [0/3]
 *** TODO Add section with steps for setting a new machine [0/2]
 Till recently the steps were pretty straight-forward i.e. just sync repo; install apps with package-manager; run =stow=. However doing a brand-new install is not that straight-forward e.g. bulk installing apps requires some manual work e.g. editing a reference package-manager file from exports; ensuring ~.config~ directory is created first before running =stow=; etc.  Further there is OS specific considerations as well.
 
@@ -911,8 +911,8 @@ CLOSED: [2023-02-02 Thu 13:05]
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description
 + Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
-** Completed [16/16]
-*** By OS Platform [5/5]
+** Completed [8/8]
+*** By OS Platform [0/0]
 **** Windows [4/4]
 ***** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
 CLOSED: [2023-05-22 Mon 22:27]
