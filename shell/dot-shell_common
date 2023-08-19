@@ -130,6 +130,7 @@ lgreen_setup_rbenv() {
         # Below instruction is from output of doing `brew install rbenv`
         export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
         eval "$(rbenv init -)"
+        export PATH="$PATH:$HOME/.rbenv/shims"
     fi
 }
 
@@ -161,12 +162,6 @@ lgreen_setup_dev_env_rust() {
     fi
     if [ -d "$HOME/.cargo/bin" ]; then
         export PATH="$PATH:$HOME/.cargo/bin"
-    fi
-}
-
-lgreen_setup_dev_env_ruby() {
-    if [ -d "$HOME/.gem/ruby/2.6.0/bin" ]; then
-        export PATH="$PATH:$HOME/.gem/ruby/2.6.0/bin"
     fi
 }
 
@@ -522,7 +517,6 @@ lgreen_setup_dev_env_all() {
 
     lgreen_setup_dev_env_rust
     lgreen_setup_dev_env_clang
-    lgreen_setup_dev_env_ruby
 
     lgreen_setup_perforce_config
 
