@@ -1,4 +1,4 @@
-personal_ws-1.1 en 172 
+personal_ws-1.1 en 183 
 APIs
 ARP
 Aetherials
@@ -19,12 +19,14 @@ DNS
 Das
 Demolitionist
 Dev
+DevOps
 Dialogs
 Dojo
 Dotfiles
 Elisp
 Eshell
 GDB
+GPay
 GTD
 Github
 Gmail
@@ -40,6 +42,7 @@ IC
 IPC
 IPv
 JSON
+Jaden
 Kata
 Keddie
 LocalWords
@@ -61,6 +64,7 @@ OrgMode
 POSIX
 Pacman
 Pallavulu
+Paypal
 Pipelog
 Posix
 Prem
@@ -76,6 +80,7 @@ Scrollback
 Senthilkumar
 Spacemacs
 Splunk
+StackOverflow
 Stoica
 Submodules
 Supportability
@@ -97,6 +102,7 @@ VM
 Vterm
 WSL
 Wikipage
+Woot
 Xcode
 YouTube
 Yumna's
@@ -123,7 +129,9 @@ elfeed
 executables
 frostburn
 glyphs
+gregorio
 hackathon
+hacky
 iTerm
 integrations
 katas
@@ -133,6 +141,8 @@ libc
 linter
 localhost
 macOS
+makefile
+manabat
 mbsync
 memoization
 merch
@@ -152,6 +162,7 @@ repro
 reproducibility
 repros
 responder
+rollup
 runtime
 submodule
 symlink
