@@ -26,6 +26,6 @@ lgreen_update_github_remote_url_for_work_user_account() {
     git remote set-url origin $new_url
 }
 
-lgreen_update_gitub_submodules_remote_url_for_personal_user_account() {
+lgreen_update_github_submodules_remote_url_for_personal_user_account() {
     git submodule foreach 'source ~/dev/my/dotfiles/setup/setup.sh; lgreen_update_github_remote_url_for_personal_user_account'
 }
