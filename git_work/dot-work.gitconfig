@@ -1,8 +1,5 @@
 # -*- mode: gitconfig; -*-
 
 [user]
-  email = lgreen@tableau.com
+  email = lambert.green@salesforce.com
   name = Lambert Green
-
-[credential "https://gitlab.tableausoftware.com"]
-    username = lgreen@tableau.com
