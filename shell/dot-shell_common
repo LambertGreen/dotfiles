@@ -41,7 +41,7 @@ lgreen_one_time_system_setup_check() {
 }
 
 lgreen_one_time_system_setup_mark_good() {
-	touch "$HOME/.lgreen_one_time_system_setup"
+    touch "$HOME/.lgreen_one_time_system_setup"
 }
 
 lgreen_conditionally_start_attach_tmux() {
@@ -157,8 +157,8 @@ lgreen_setup_dev_env_node_js() {
         [ -s "/usr/local/opt/nvm/etc/bash_completion" ] && source "/usr/local/opt/nvm/etc/bash_completion"
 
         # linuxbrew
-        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"  # This loads nvm
-        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/nvm.sh"                                       # This loads nvm
+        [ -s "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/home/linuxbrew/.linuxbrew/opt/nvm/etc/bash_completion.d/nvm" # This loads nvm bash_completion
 
     fi
 }
@@ -238,7 +238,7 @@ lgreen_color_test() {
 }
 
 lgreen_term_title_clear() {
-	printf "\033]0;\007"
+    printf "\033]0;\007"
 }
 
 lgreen_run_gradlew() {
@@ -379,7 +379,8 @@ lgreen_setup_shell_theme_mode_light() {
     lgreen_setup_fzf_theme_one_light
     lgreen_setup_bat_theme_one_half_light
     if [ -n "$TMUX" ]; then
-        lgreen_source_tmux_theme_light
+        # lgreen_source_tmux_theme_light
+        lgreen_setup_tmux_theme_catpuccin_latte
     fi
 }
 
@@ -389,7 +390,8 @@ lgreen_setup_shell_theme_mode_dark() {
     lgreen_setup_fzf_theme_one_dark
     lgreen_setup_bat_theme_one_half_dark
     if [ -n "$TMUX" ]; then
-        lgreen_source_tmux_theme_dark
+        # lgreen_source_tmux_theme_dark
+        lgreen_setup_tmux_theme_catpuccin_mocha
     fi
 }
 

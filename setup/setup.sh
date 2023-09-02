@@ -29,3 +29,8 @@ lgreen_update_github_remote_url_for_work_user_account() {
 lgreen_update_github_submodules_remote_url_for_personal_user_account() {
     git submodule foreach 'source ~/dev/my/dotfiles/setup/setup.sh; lgreen_update_github_remote_url_for_personal_user_account'
 }
+
+lgreen_setup_wezterm_shell_completions() {
+    wezterm shell-completion --shell zsh >~/.config/zsh/completions/_wezterm
+    wezterm shell-completion --shell bash >~/.config/bash/completions/_wezterm
+}
