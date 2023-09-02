@@ -19,7 +19,7 @@ function lgreen-setup-clink-fzf {
     # 1. cd ~/dev/pub
     # 2. git clone git@github.com:chrisant996/clink-fzf.git
     # 3. cd clink-fzf
-    # 4. copy *.lua ~/AppData/Local/clink
+    # 4. cp *.lua ~/AppData/Local/clink
 }
 
 function lgreen-setup-clink-flex-prompt {
@@ -29,7 +29,7 @@ function lgreen-setup-clink-flex-prompt {
     # 1. cd ~/dev/pub
     # 2. git clone git@github.com:chrisant996/clink-flex-prompt.git
     # 3. cd clink-flex-prompt
-    # 4. copy *.lua ~/AppData/Local/clink
+    # 4. cp *.lua ~/AppData/Local/clink
 
 }
 
