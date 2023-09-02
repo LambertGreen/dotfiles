@@ -379,7 +379,8 @@ lgreen_setup_shell_theme_mode_light() {
     lgreen_setup_fzf_theme_one_light
     lgreen_setup_bat_theme_one_half_light
     if [ -n "$TMUX" ]; then
-        lgreen_source_tmux_theme_light
+        # lgreen_source_tmux_theme_light
+        lgreen_setup_tmux_theme_catpuccin_latte
     fi
 }
 
@@ -389,7 +390,8 @@ lgreen_setup_shell_theme_mode_dark() {
     lgreen_setup_fzf_theme_one_dark
     lgreen_setup_bat_theme_one_half_dark
     if [ -n "$TMUX" ]; then
-        lgreen_source_tmux_theme_dark
+        # lgreen_source_tmux_theme_dark
+        lgreen_setup_tmux_theme_catpuccin_mocha
     fi
 }
 
