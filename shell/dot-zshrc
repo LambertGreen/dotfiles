@@ -32,6 +32,10 @@ lgreen_profile_zsh() {
   ZPROF=true $shell -i -c exit
 }
 
+lgreen_setup_custom_completions() {
+    fpath=(~/.config/zsh/completions $fpath)
+}
+
 lgreen_setup_zsh() {
     # Set zle to use Emacs keybinds
     bindkey -e
@@ -247,6 +251,7 @@ lgreen_conditionally_start_profiler
 lgreen_setup_zinit
 lgreen_setup_p10k
 lgreen_setup_zsh
+lgreen_setup_custom_completions
 lgreen_setup_common_shell
 lgreen_init_p10k
 

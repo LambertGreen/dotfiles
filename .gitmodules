@@ -1,29 +1,29 @@
 [submodule "autohotkey/dot-autohotkey"]
 	path = autohotkey/dot-autohotkey
-	url = git@github.com:LambertGreen/dot-autohotkey.git
+	url = ../dot-autohotkey.git
 	branch = main
 [submodule "hammerspoon/dot-hammerspoon"]
 	path = hammerspoon/dot-hammerspoon
-	url = git@github.com:LambertGreen/dot-hammerspoon
+	url = ../dot-hammerspoon
 	branch = main
 [submodule "emacs/dot-emacs.d"]
 	path = emacs/dot-emacs.d
 	url = git@github.com:plexus/chemacs2.git
 [submodule "emacs/dot-emacs.default"]
 	path = emacs/dot-emacs.default
-	url = git@github.com:LambertGreen/dot-emacs-default.git
+	url = ../dot-emacs-default.git
 	branch = main
 [submodule "emacs/dot-doom.d"]
 	path = emacs/dot-doom.d
-	url = git@github.com:LambertGreen/dot-emacs-doom.git
+	url = ../dot-emacs-doom.git
 	branch = master
 [submodule "emacs/dot-spacemacs.d"]
 	path = emacs/dot-spacemacs.d
-	url = git@github.com:LambertGreen/dot-spacemacs.git
+	url = ../dot-spacemacs.git
 	branch = master
 [submodule "emacs/dot-emacs.doom"]
 	path = emacs/dot-emacs.doom
-	url = git@github.com:LambertGreen/doomemacs.git
+	url = ../doomemacs.git
 	branch = master
 [submodule "emacs/dot-emacs.spacemacs"]
 	path = emacs/dot-emacs.spacemacs
@@ -31,14 +31,14 @@
 	branch = develop
 [submodule "alfred-settings"]
 	path = alfred-settings
-	url = git@github.com:LambertGreen/alfred-settings.git
+	url = ../alfred-settings.git
 	branch = main
 [submodule "nvim/.config/nvim"]
 	path = nvim/.config/nvim
-	url = git@github.com:LambertGreen/dot-nvim.git
+	url = ../dot-nvim.git
 [submodule "nvim/.config/doom-nvim"]
 	path = nvim/.config/doom-nvim
-	url = git@github.com:LambertGreen/doom-nvim.git
+	url = ../doom-nvim.git
 [submodule "nvim_win/AppData/Local/nvim"]
 	path = nvim_win/AppData/Local/nvim
-	url = git@github.com:LambertGreen/dot-nvim.git
+	url = ../dot-nvim.git
