@@ -558,6 +558,13 @@ lgreen_setup_msys_path() {
     fi
 }
 
+lgreen_setup_msys_nativesymlinks() {
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+    if [[ "$UNAME" == *"_NT"* ]]; then
+        export MSYS=winsymlinks:nativestrict
+    fi
+}
+
 lgreen_show_fortune_quote() {
     if [ "$(command -v fortune)" ]; then
         if [ "$(command -v cowsay)" ]; then
@@ -597,6 +604,7 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_mintty_256color
     lgreen_setup_dev_env_rust
     lgreen_setup_msys_path
+    lgreen_setup_msys_nativesymlinks
 fi
 
 lgreen_setup_autoenv
