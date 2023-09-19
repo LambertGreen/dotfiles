@@ -452,8 +452,20 @@ lgreen_setup_aliases() {
 
     # shellcheck disable=SC2139
     if [ "$(command -v brew)" ]; then
-        alias lldb="$(brew --prefix)/bin/lldb"
         alias gdb="$(brew --prefix)/bin/gdb"
+    fi
+
+    # Set alias to lldb
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Darwin" ]; then
+        if [ -f "/usr/local/opt/llvm/bin/lldb" ]; then
+            alias lldb=/usr/local/opt/llvm/bin/lldb
+        fi
+    else
+        # shellcheck disable=SC2139
+        if [ "$(command -v brew)" ]; then
+            alias lldb="$(brew --prefix)/bin/lldb"
+        fi
     fi
 
     # On MSYS2 we need to help tmux along
