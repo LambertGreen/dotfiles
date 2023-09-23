@@ -2,6 +2,9 @@ function lgreen-setup-powershell-modules {
     Install-Module -Name PSReadLine -Scope CurrentUser
     Install-Module -Name CompletionPredictor -Scope CurrentUser
     Install-Module -Name PSFzf -Scope CurrentUser
+    Install-Module -Name Get-ChildItemColor -Scope CurrentUser
+    Install-Module -Name z -Scope CurrentUser
+    Install-Module -Name posh-git -Scope CurrentUser
 }
 
 function lgreen-setup-scoop-buckets {
