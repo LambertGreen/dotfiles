@@ -44,7 +44,7 @@ end
 --
 config.enable_csi_u_key_encoding = true
 
-config.leader = { key = 'a', mods = "CTRL|ALT" }
+config.leader = { key = 'a', mods = "CTRL|ALT", timeout_milliseconds = 2000 }
 config.keys = {
 	{ key = "\"", mods = "LEADER", action = wezterm.action { SplitVertical = { domain = "CurrentPaneDomain" } } },
 	{ key = "%",  mods = "LEADER", action = wezterm.action { SplitHorizontal = { domain = "CurrentPaneDomain" } } },
