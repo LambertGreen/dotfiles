@@ -11,6 +11,18 @@ function lgreen-setup-scoop-buckets {
     iex "scoop bucket add nerd fonts"
 }
 
+function lgreen-setup-scoop-global-apps {
+
+	# We reference the install path in ..\WindowsCommand\WindowsCommand\dev.cmd
+	sudo scoop install clink -g
+}
+
+function lgreen-setup-choco-apps {
+
+	# We reference the install path in ..\shell_msys2\dot-profile_msys2
+	sudo choco install git
+}
+
 function lgreen-setup-powershell-prompt {
     iex "winget install JanDeDobbeleer.OhMyPosh -s winget"
 }
