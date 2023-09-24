@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-lgreen_setup_msys_path() {
-	# Add Git to front of path
-	export PATH="/c/Program Files/Git/cmd:$PATH"
-
-	export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
-	export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
-	export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current"
-	export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
-}
-
 lgreen_setup_msys_nativesymlinks() {
 	export MSYS=winsymlinks:nativestrict
 }
@@ -25,7 +15,6 @@ lgreen_setup_oh-my-posh() {
 	eval "$(oh-my-posh init bash)"
 }
 
-lgreen_setup_msys_path
 lgreen_setup_msys_nativesymlinks
 lgreen_setup_mintty_256color
 lgreen_setup_oh-my-posh
