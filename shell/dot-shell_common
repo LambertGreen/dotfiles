@@ -592,5 +592,5 @@ elif [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_dev_env_rust
 fi
 
-lgreen_setup_autoenv
+lgreen_setup_dev_env_all
 lgreen_show_fortune_quote
