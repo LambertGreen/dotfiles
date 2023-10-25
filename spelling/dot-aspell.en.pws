@@ -1,4 +1,4 @@
-personal_ws-1.1 en 188 
+personal_ws-1.1 en 190 
 APIs
 ARP
 Aetherials
@@ -10,6 +10,7 @@ Athmika
 Athmika's
 CMake
 CentOS
+ChatGPT
 Choco
 Chthonics
 Covid
@@ -140,6 +141,7 @@ integrations
 katas
 keybind
 keybinds
+keymap
 libc
 linter
 localhost
