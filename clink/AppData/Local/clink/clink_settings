@@ -3,8 +3,9 @@
 autosuggest.enable = True
 
 # name: Auto-update the Clink program files
-# type: boolean
-clink.autoupdate = False
+# type: enum
+# options: off,check,prompt,auto
+clink.autoupdate = off
 
 # name: Selects default key bindings
 # type: enum
