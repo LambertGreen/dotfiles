@@ -6,7 +6,7 @@
 flexprompt = flexprompt or {}
 flexprompt.settings = flexprompt.settings or {}
 flexprompt.settings.charset = "unicode"
-flexprompt.settings.connection = "dotted"
+flexprompt.settings.connection = "disconnected"
 flexprompt.settings.flow = "concise"
 flexprompt.settings.frame_color =
 {
@@ -15,17 +15,16 @@ flexprompt.settings.frame_color =
     "darkwhite",
     "darkblack",
 }
-flexprompt.settings.heads = "blurred"
-flexprompt.settings.left_frame = "none"
-flexprompt.settings.left_prompt = "{battery}{histlabel}{cwd}{git}{exit}{duration}{time:format=%a %H:%M}"
+flexprompt.settings.heads = "pointed"
+flexprompt.settings.lean_separators = "vertical"
+flexprompt.settings.left_frame = "round"
+flexprompt.settings.left_prompt = "{battery}{histlabel}{cwd}{git}{duration}{time:format=%H:%M:%S}"
 flexprompt.settings.lines = "two"
 flexprompt.settings.powerline_font = true
 flexprompt.settings.right_frame = "none"
-flexprompt.settings.separators = "none"
-flexprompt.settings.spacing = "compact"
-flexprompt.settings.style = "classic"
+flexprompt.settings.spacing = "normal"
+flexprompt.settings.style = "lean"
 flexprompt.settings.symbols =
 {
     prompt = "❯",
 }
-flexprompt.settings.tails = "blurred"
