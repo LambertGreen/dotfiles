@@ -12,6 +12,11 @@ clink.autoupdate = off
 # options: bash,windows
 clink.default_bindings = bash
 
+# name: Controls what startup logo to show
+# type: enum
+# options: none,full,short
+clink.logo = none
+
 # name: Strips CR and LF chars on paste
 # type: enum
 # options: delete,space,ampersand,crlf
