@@ -1,4 +1,4 @@
-personal_ws-1.1 en 185 
+personal_ws-1.1 en 190 
 APIs
 ARP
 Aetherials
@@ -10,6 +10,7 @@ Athmika
 Athmika's
 CMake
 CentOS
+ChatGPT
 Choco
 Chthonics
 Covid
@@ -85,6 +86,7 @@ Stoica
 Submodules
 Supportability
 Supportabilty
+SurfingKeys
 TFS
 TLDR
 TMP
@@ -93,9 +95,11 @@ TODO's
 TODOs
 TSM
 Tmux
+Treemacs
 UI
 UTF
 UX
+Uhm
 Unparented
 Untracked
 VM
@@ -137,6 +141,7 @@ integrations
 katas
 keybind
 keybinds
+keymap
 libc
 linter
 localhost

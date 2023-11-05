@@ -31,7 +31,8 @@ Set-Alias g git
 Set-Alias gw ./gradlew
 
 # Enable a cool prompt
-oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH/jandedobbeleer.omp.json" | Invoke-Expression
+# Using Oh-My-Posh v3: installed via scoop
+& ([ScriptBlock]::Create((oh-my-posh init pwsh --config "~/dev/pub/oh-my-posh/themes/amro.omp.json" --print) -join "`n"))
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null

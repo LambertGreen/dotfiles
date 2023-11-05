@@ -2,10 +2,25 @@ function lgreen-setup-powershell-modules {
     Install-Module -Name PSReadLine -Scope CurrentUser
     Install-Module -Name CompletionPredictor -Scope CurrentUser
     Install-Module -Name PSFzf -Scope CurrentUser
+    Install-Module -Name Get-ChildItemColor -Scope CurrentUser
+    Install-Module -Name z -Scope CurrentUser
+    Install-Module -Name posh-git -Scope CurrentUser
 }
 
 function lgreen-setup-scoop-buckets {
     iex "scoop bucket add nerd fonts"
+}
+
+function lgreen-setup-scoop-global-apps {
+
+	# We reference the install path in ..\WindowsCommand\WindowsCommand\dev.cmd
+	sudo scoop install clink -g
+}
+
+function lgreen-setup-choco-apps {
+
+	# We reference the install path in ..\shell_msys2\dot-profile_msys2
+	sudo choco install git
 }
 
 function lgreen-setup-powershell-prompt {
@@ -19,7 +34,7 @@ function lgreen-setup-clink-fzf {
     # 1. cd ~/dev/pub
     # 2. git clone git@github.com:chrisant996/clink-fzf.git
     # 3. cd clink-fzf
-    # 4. copy *.lua ~/AppData/Local/clink
+    # 4. cp *.lua ~/AppData/Local/clink
 }
 
 function lgreen-setup-clink-flex-prompt {
@@ -29,7 +44,7 @@ function lgreen-setup-clink-flex-prompt {
     # 1. cd ~/dev/pub
     # 2. git clone git@github.com:chrisant996/clink-flex-prompt.git
     # 3. cd clink-flex-prompt
-    # 4. copy *.lua ~/AppData/Local/clink
+    # 4. cp *.lua ~/AppData/Local/clink
 
 }
 

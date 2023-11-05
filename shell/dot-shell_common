@@ -73,6 +73,7 @@ lgreen_start_ssh_agent() {
         if [ "$(command -v keychain)" ]; then
             eval "keychain --nogui --quiet --quick id_rsa id_ed25519"
             source "$HOME/.keychain/$(hostname)-sh"
+            source "$HOME/.keychain/$(hostname)-sh-gpg"
         fi
     fi
 }
@@ -511,13 +512,6 @@ lgreen_setup_doom_emacs() {
     export PATH="$PATH:$EMACSDIR/bin/"
 }
 
-lgreen_setup_mintty_256color() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        export TERM=xterm-256color
-    fi
-}
-
 # TODO Provide sanitize environment implementations for non-Linux as well
 lgreen_sanitize_environment() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
@@ -557,23 +551,6 @@ lgreen_setup_tmux_all() {
     lgreen_setup_tmux_theme_switcher
 }
 
-lgreen_setup_msys_path() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
-        export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
-        export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current"
-        export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
-    fi
-}
-
-lgreen_setup_msys_nativesymlinks() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        export MSYS=winsymlinks:nativestrict
-    fi
-}
-
 lgreen_show_fortune_quote() {
     if [ "$(command -v fortune)" ]; then
         if [ "$(command -v cowsay)" ]; then
@@ -610,11 +587,8 @@ if [ "$UNAME" = "Linux" ]; then
 elif [ "$UNAME" = "Darwin" ]; then
     lgreen_setup_fzf
 elif [[ "$UNAME" == *"_NT"* ]]; then
-    lgreen_setup_mintty_256color
     lgreen_setup_dev_env_rust
-    lgreen_setup_msys_path
-    lgreen_setup_msys_nativesymlinks
 fi
 
-lgreen_setup_autoenv
+lgreen_setup_dev_env_all
 lgreen_show_fortune_quote

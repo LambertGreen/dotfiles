@@ -3,13 +3,19 @@
 autosuggest.enable = True
 
 # name: Auto-update the Clink program files
-# type: boolean
-clink.autoupdate = False
+# type: enum
+# options: off,check,prompt,auto
+clink.autoupdate = off
 
 # name: Selects default key bindings
 # type: enum
 # options: bash,windows
 clink.default_bindings = bash
+
+# name: Controls what startup logo to show
+# type: enum
+# options: none,full,short
+clink.logo = none
 
 # name: Strips CR and LF chars on paste
 # type: enum
