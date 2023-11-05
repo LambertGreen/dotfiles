@@ -167,9 +167,6 @@ lgreen_setup_dev_env_rust() {
     if [ -f "$HOME/.cargo/env" ]; then
         source "$HOME/.cargo/env"
     fi
-    if [ -d "$HOME/.cargo/bin" ]; then
-        export PATH="$PATH:$HOME/.cargo/bin"
-    fi
 }
 
 lgreen_setup_dev_env_go() {
