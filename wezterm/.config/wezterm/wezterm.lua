@@ -1,10 +1,14 @@
 local wezterm = require 'wezterm'
 
+-- Color schemes
+local light_theme = "OneHalfLight"
+local dark_theme = "OneHalfDark"
+
 local function scheme_for_appearance(appearance)
 	if appearance:find "Dark" then
-		return "Catppuccin Mocha"
+		return dark_theme
 	else
-		return "Catppuccin Latte"
+		return light_theme
 	end
 end
 
@@ -38,20 +42,19 @@ elseif wezterm.target_triple:find('apple') then
 	config.window_decorations = "RESIZE"
 end
 
--- Color scheme
-config.color_scheme = "Catppuccin Frappe" -- scheme_for_appearance(wezterm.gui.get_appearance())
+config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
 
 local function ToggleTheme(window, _)
 	-- local current_mode = wezterm.get_config().color_scheme
 	local current_mode = window:effective_config().color_scheme
 	local overrides = window:get_config_overrides() or {}
 
-	if current_mode == "Catppuccin Latte" then
-		overrides.color_scheme = "Catppuccin Frappe"
+	if current_mode == light_theme then
+		overrides.color_scheme = dark_theme
 		-- TODO: Trigger dark mode script
 		-- os.execute("/path/to/your/dark_mode_script.sh")
 	else
-		overrides.color_scheme = "Catppuccin Latte"
+		overrides.color_scheme = light_theme
 		--  TODO: Trigger light mode script
 		-- os.execute("/path/to/your/light_mode_script.sh")
 	end
