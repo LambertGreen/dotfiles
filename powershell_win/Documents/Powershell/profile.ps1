@@ -10,6 +10,7 @@ Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory
 Import-Module posh-git
 
 # Enable fast directory navigation using z command
+# TODO: Consider using Zoxide
 Import-Module z
 
 # Enable ls colors
