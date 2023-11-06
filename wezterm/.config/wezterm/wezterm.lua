@@ -38,8 +38,7 @@ if wezterm.target_triple:find('windows') then
 elseif wezterm.target_triple:find('apple') then
 	config.window_background_opacity = 0.90
 	config.macos_window_background_blur = 20
-	-- config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
-	config.window_decorations = "RESIZE"
+	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end
 
 config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
