@@ -67,7 +67,7 @@ lgreen_start_ssh_agent() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --eval --inherit any id_rsa_personal id_rsa)"
+            eval "$(keychain --nogui --quiet --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
@@ -167,9 +167,6 @@ lgreen_setup_dev_env_node_js() {
 lgreen_setup_dev_env_rust() {
     if [ -f "$HOME/.cargo/env" ]; then
         source "$HOME/.cargo/env"
-    fi
-    if [ -d "$HOME/.cargo/bin" ]; then
-        export PATH="$PATH:$HOME/.cargo/bin"
     fi
 }
 

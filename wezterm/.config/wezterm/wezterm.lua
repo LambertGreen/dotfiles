@@ -1,10 +1,14 @@
 local wezterm = require 'wezterm'
 
-function scheme_for_appearance(appearance)
+-- Color schemes
+local light_theme = "OneHalfLight"
+local dark_theme = "OneHalfDark"
+
+local function scheme_for_appearance(appearance)
 	if appearance:find "Dark" then
-		return "Catppuccin Mocha"
+		return dark_theme
 	else
-		return "Catppuccin Latte"
+		return light_theme
 	end
 end
 
@@ -25,9 +29,6 @@ else
 end
 config.hide_tab_bar_if_only_one_tab = true
 
--- Color scheme
-config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
-
 -- Background transparency
 if wezterm.target_triple:find('windows') then
 	config.window_background_opacity = 0.95
@@ -40,39 +41,61 @@ elseif wezterm.target_triple:find('apple') then
 	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end
 
+config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
+
+local function ToggleTheme(window, _)
+	-- local current_mode = wezterm.get_config().color_scheme
+	local current_mode = window:effective_config().color_scheme
+	local overrides = window:get_config_overrides() or {}
+
+	if current_mode == light_theme then
+		overrides.color_scheme = dark_theme
+		-- TODO: Trigger dark mode script
+		-- os.execute("/path/to/your/dark_mode_script.sh")
+	else
+		overrides.color_scheme = light_theme
+		--  TODO: Trigger light mode script
+		-- os.execute("/path/to/your/light_mode_script.sh")
+	end
+
+	window:set_config_overrides(overrides)
+	wezterm.log_info("Switched to: " .. overrides.color_scheme)
+end
+
 -- Keybindings
 --
 config.enable_csi_u_key_encoding = true
 
 config.leader = { key = 'a', mods = "CTRL|ALT", timeout_milliseconds = 2000 }
 config.keys = {
-	{ key = "f", mods = "CMD|CTRL", action = "ToggleFullScreen" },
-	{ key = "\"", mods = "LEADER", action = wezterm.action { SplitVertical = { domain = "CurrentPaneDomain" } } },
-	{ key = "%",  mods = "LEADER", action = wezterm.action { SplitHorizontal = { domain = "CurrentPaneDomain" } } },
-	{ key = "z",  mods = "LEADER", action = "TogglePaneZoomState" },
-	{ key = "c",  mods = "LEADER", action = wezterm.action { SpawnTab = "CurrentPaneDomain" } },
-	{ key = "o",  mods = "LEADER", action = wezterm.action { ActivatePaneDirection = "Next" } },
-	{ key = "h",  mods = "LEADER", action = wezterm.action { ActivatePaneDirection = "Left" } },
-	{ key = "j",  mods = "LEADER", action = wezterm.action { ActivatePaneDirection = "Down" } },
-	{ key = "k",  mods = "LEADER", action = wezterm.action { ActivatePaneDirection = "Up" } },
-	{ key = "l",  mods = "LEADER", action = wezterm.action { ActivatePaneDirection = "Right" } },
-	{ key = "H",  mods = "LEADER", action = wezterm.action { AdjustPaneSize = { "Left", 5 } } },
-	{ key = "J",  mods = "LEADER", action = wezterm.action { AdjustPaneSize = { "Down", 5 } } },
-	{ key = "K",  mods = "LEADER", action = wezterm.action { AdjustPaneSize = { "Up", 5 } } },
-	{ key = "L",  mods = "LEADER", action = wezterm.action { AdjustPaneSize = { "Right", 5 } } },
-	{ key = 'p',  mods = "LEADER", action = wezterm.action { ActivateTabRelative = -1 } },
-	{ key = 'n',  mods = "LEADER", action = wezterm.action { ActivateTabRelative = 1 } },
-	{ key = "1",  mods = "LEADER", action = wezterm.action { ActivateTab = 0 } },
-	{ key = "2",  mods = "LEADER", action = wezterm.action { ActivateTab = 1 } },
-	{ key = "3",  mods = "LEADER", action = wezterm.action { ActivateTab = 2 } },
-	{ key = "4",  mods = "LEADER", action = wezterm.action { ActivateTab = 3 } },
-	{ key = "5",  mods = "LEADER", action = wezterm.action { ActivateTab = 4 } },
-	{ key = "6",  mods = "LEADER", action = wezterm.action { ActivateTab = 5 } },
-	{ key = "7",  mods = "LEADER", action = wezterm.action { ActivateTab = 6 } },
-	{ key = "8",  mods = "LEADER", action = wezterm.action { ActivateTab = 7 } },
-	{ key = "9",  mods = "LEADER", action = wezterm.action { ActivateTab = 8 } },
-	{ key = "&",  mods = "LEADER", action = wezterm.action { CloseCurrentTab = { confirm = true } } },
-	{ key = "x",  mods = "LEADER", action = wezterm.action { CloseCurrentPane = { confirm = true } } },
+	{ key = "f",  mods = "CMD|CTRL", action = "ToggleFullScreen" },
+	{ key = "t",  mods = "CMD|CTRL", action = wezterm.action_callback(ToggleTheme) },
+	{ key = "\"", mods = "LEADER",   action = wezterm.action { SplitVertical = { domain = "CurrentPaneDomain" } } },
+	{ key = "%",  mods = "LEADER",   action = wezterm.action { SplitHorizontal = { domain = "CurrentPaneDomain" } } },
+	{ key = "z",  mods = "LEADER",   action = "TogglePaneZoomState" },
+	{ key = "c",  mods = "LEADER",   action = wezterm.action { SpawnTab = "CurrentPaneDomain" } },
+	{ key = "o",  mods = "LEADER",   action = wezterm.action { ActivatePaneDirection = "Next" } },
+	{ key = "h",  mods = "LEADER",   action = wezterm.action { ActivatePaneDirection = "Left" } },
+	{ key = "j",  mods = "LEADER",   action = wezterm.action { ActivatePaneDirection = "Down" } },
+	{ key = "k",  mods = "LEADER",   action = wezterm.action { ActivatePaneDirection = "Up" } },
+	{ key = "l",  mods = "LEADER",   action = wezterm.action { ActivatePaneDirection = "Right" } },
+	{ key = "H",  mods = "LEADER",   action = wezterm.action { AdjustPaneSize = { "Left", 5 } } },
+	{ key = "J",  mods = "LEADER",   action = wezterm.action { AdjustPaneSize = { "Down", 5 } } },
+	{ key = "K",  mods = "LEADER",   action = wezterm.action { AdjustPaneSize = { "Up", 5 } } },
+	{ key = "L",  mods = "LEADER",   action = wezterm.action { AdjustPaneSize = { "Right", 5 } } },
+	{ key = 'p',  mods = "LEADER",   action = wezterm.action { ActivateTabRelative = -1 } },
+	{ key = 'n',  mods = "LEADER",   action = wezterm.action { ActivateTabRelative = 1 } },
+	{ key = "1",  mods = "LEADER",   action = wezterm.action { ActivateTab = 0 } },
+	{ key = "2",  mods = "LEADER",   action = wezterm.action { ActivateTab = 1 } },
+	{ key = "3",  mods = "LEADER",   action = wezterm.action { ActivateTab = 2 } },
+	{ key = "4",  mods = "LEADER",   action = wezterm.action { ActivateTab = 3 } },
+	{ key = "5",  mods = "LEADER",   action = wezterm.action { ActivateTab = 4 } },
+	{ key = "6",  mods = "LEADER",   action = wezterm.action { ActivateTab = 5 } },
+	{ key = "7",  mods = "LEADER",   action = wezterm.action { ActivateTab = 6 } },
+	{ key = "8",  mods = "LEADER",   action = wezterm.action { ActivateTab = 7 } },
+	{ key = "9",  mods = "LEADER",   action = wezterm.action { ActivateTab = 8 } },
+	{ key = "&",  mods = "LEADER",   action = wezterm.action { CloseCurrentTab = { confirm = true } } },
+	{ key = "x",  mods = "LEADER",   action = wezterm.action { CloseCurrentPane = { confirm = true } } },
 }
 
 return config
