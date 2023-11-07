@@ -1,9 +1,9 @@
 @echo off
 rem setlocal enabledelayedexpansion
 
-:: Initialize if MODE_VAR not set
-if not defined MODE_VAR (
-    set MODE_VAR=light
+:: Initialize if COLOR_MODE not set
+if not defined COLOR_MODE (
+    set COLOR_MODE=light
 )
 
 :: Branch to appropriate mode based on argument
@@ -12,7 +12,7 @@ if /i "%~1"=="light" (
 ) else if /i "%~1"=="dark" (
     goto dark
 ) else if /i "%~1"=="toggle" (
-    if "%MODE_VAR%"=="light" (
+    if "%COLOR_MODE%"=="light" (
         goto dark
     ) else (
         goto light
@@ -29,8 +29,10 @@ set FZF_DEFAULT_OPTS=--color=fg:-1,bg:-1^
     --color=info:#98c379,prompt:#61afef,pointer:#be5046^
     --color=marker:#e5c07b,spinner:#61afef,header:#61afef
 set BAT_THEME=OneHalfLight
-set MODE_VAR=light
+set COLOR_MODE=light
 clink set color.input sgr 38;5;100 >nul 2>&1
+clink set color.cmd sgr 1;38;5;239 >nul 2>&1
+clink set color.suggestion sgr 38;5;239 >nul 2>&1
 goto end
 
 :dark
@@ -40,10 +42,12 @@ set FZF_DEFAULT_OPTS=--color=fg:-1,bg:-1^
     --color=info:#98c379,prompt:#61afef,pointer:#be5046^
     --color=marker:#e5c07b,spinner:#61afef,header:#61afef
 set BAT_THEME=OneHalfDark
-set MODE_VAR=dark
+set COLOR_MODE=dark
 clink set color.input sgr 38;5;222 >nul 2>&1
+clink set color.cmd sgr 1;38;5;231 >nul 2>&1
+clink set color.suggestion sgr 38;5;231 >nul 2>&1
 goto end
 
 :end
 :: Print current mode
-echo Current mode: %MODE_VAR%
+echo Current mode: %COLOR_MODE%
