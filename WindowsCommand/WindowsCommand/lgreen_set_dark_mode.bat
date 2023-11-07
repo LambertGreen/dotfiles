@@ -30,6 +30,7 @@ set FZF_DEFAULT_OPTS=--color=fg:-1,bg:-1^
     --color=marker:#e5c07b,spinner:#61afef,header:#61afef
 set BAT_THEME=OneHalfLight
 set MODE_VAR=light
+clink set color.input sgr 38;5;100 >nul 2>&1
 goto end
 
 :dark
@@ -40,6 +41,7 @@ set FZF_DEFAULT_OPTS=--color=fg:-1,bg:-1^
     --color=marker:#e5c07b,spinner:#61afef,header:#61afef
 set BAT_THEME=OneHalfDark
 set MODE_VAR=dark
+clink set color.input sgr 38;5;222 >nul 2>&1
 goto end
 
 :end
