@@ -1,5 +1,6 @@
-ll=ls --color -l $*
-lla=ls --color -la $*
+ls=exa --color=always --icons $*
+ll=exa -lh --color=always --icons $*
+lla=exa -lha --color=always --icons $*
 vim=nvim $*
 e=nvim $*
 g=git $*

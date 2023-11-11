@@ -10,5 +10,6 @@ REM SET LUA_PATH=C:\Users\lambert.green\scoop\apps\luarocks\current\lua\?.lua;C:
 REM SET LUA_CPATH=C:\Users\lambert.green\scoop\apps\lua\current;C:/Users/lambert.green/scoop/apps/luarocks/current/rocks/lib/lua/5.4/?.dll
 REM set _ZL_LOG_NAME=C:\Users\lambert.green\z.lua.log
 
+set FZF_DEFAULT_OPTS=--ansi
 "c:\ProgramData\scoop\apps\clink\current\clink_x64.exe" inject  && doskey /macrofile=%userprofile%\WindowsCommand\doskey_macros.txt
 
