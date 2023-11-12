@@ -1,6 +1,7 @@
 ls=exa --color=always --icons $*
 ll=exa -lh --color=always --icons $*
 lla=exa -lha --color=always --icons $*
+cat=bat $*
 vim=nvim $*
 e=nvim $*
 g=git $*
