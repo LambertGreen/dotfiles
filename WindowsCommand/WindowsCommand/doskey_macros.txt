@@ -4,5 +4,6 @@ lla=exa -lha --color=always --icons $*
 cat=bat $*
 vim=nvim $*
 e=nvim $*
+alias=doskey /macros
 g=git $*
 gw=gradlew $*
