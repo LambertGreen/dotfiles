@@ -329,12 +329,14 @@ lgreen_setup_lscolors_theme_one_dark() {
 }
 
 lgreen_show_lscolors_themes() {
+    local LS_COLORS_ORIG=$LS_COLORS
     for theme in $(vivid themes); do
         echo "theme: $theme"
-        LS_COLORS=$(vivid generate "$theme")
+        export LS_COLORS=$(vivid generate "$theme")
         ls
         echo
     done
+    export LS_COLORS=$LS_COLORS_ORIG
 }
 
 lgreen_setup_fzf_theme_dark() {
