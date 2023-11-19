@@ -395,6 +395,15 @@ lgreen_setup_shell_theme_mode_dark() {
     fi
 }
 
+lgreen_setup_shell_theme_mode() {
+    # Default to dark mode
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_light
+    else
+        lgreen_setup_shell_theme_mode_dark
+    fi
+}
+
 lgreen_toggle_shell_theme_mode() {
     if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
         lgreen_setup_shell_theme_mode_dark
@@ -577,9 +586,7 @@ lgreen_source_local_shell
 lgreen_source_work_shell
 lgreen_setup_tmux_all
 
-# TODO Read light/dark mode from the system
-# For now we just default to light mode
-lgreen_setup_shell_theme_mode_light
+lgreen_setup_shell_theme_mode
 
 lgreen_setup_doom_emacs
 
