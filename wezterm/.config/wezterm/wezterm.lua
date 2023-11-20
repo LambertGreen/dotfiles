@@ -1,6 +1,7 @@
 local wezterm = require 'wezterm'
 
 -- Color schemes
+--
 local light_theme = "OneHalfLight"
 local dark_theme = "OneHalfDark"
 
@@ -13,12 +14,14 @@ local function scheme_for_appearance(appearance)
 end
 
 -- Allow working with both the current release and the nightly
+--
 local config = {}
 if wezterm.config_builder then
 	config = wezterm.config_builder()
 end
 
 -- Set font
+--
 if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka Nerd Font'
 elseif wezterm.target_triple:find('apple') then
@@ -30,18 +33,23 @@ end
 config.hide_tab_bar_if_only_one_tab = true
 
 -- Background transparency
+--
 if wezterm.target_triple:find('windows') then
 	config.window_background_opacity = 0.95
 	-- TODO: This option is still pretty new, and hence one should check for
 	-- existence before use
 	-- config.win32_system_backdrop = 'Acrylic'
 elseif wezterm.target_triple:find('apple') then
-	config.window_background_opacity = 0.90
+	config.window_background_opacity = 0.80
 	config.macos_window_background_blur = 20
 	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end
 
-config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
+-- Color Scheme
+--
+-- We are trying defaulting to a dark theme. Uncomment the below to default to system.
+	-- config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
+config.color_scheme = dark_theme -- scheme_for_appearance(wezterm.gui.get_appearance())
 
 local function ToggleTheme(window, _)
 	-- local current_mode = wezterm.get_config().color_scheme
@@ -50,17 +58,14 @@ local function ToggleTheme(window, _)
 
 	if current_mode == light_theme then
 		overrides.color_scheme = dark_theme
-		-- TODO: Trigger dark mode script
-		-- os.execute("/path/to/your/dark_mode_script.sh")
 	else
 		overrides.color_scheme = light_theme
-		--  TODO: Trigger light mode script
-		-- os.execute("/path/to/your/light_mode_script.sh")
 	end
 
 	window:set_config_overrides(overrides)
 	wezterm.log_info("Switched to: " .. overrides.color_scheme)
 end
+
 
 -- Keybindings
 --
