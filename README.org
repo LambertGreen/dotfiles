@@ -901,6 +901,9 @@ The issue does not occur if there is an existing ~.config~ directory
 
 * TODOs [18/23]
 ** Open [0/3]
+*** TODO Consider using =make= or =just= file for machine setup
+This may be the way to address the below TODO items i.e. machine setup and updating.
+*Note* =just= can is cross-platform so it may serve as a good option to handle all platforms.
 *** TODO Add section with steps for setting a new machine [0/2]
 Till recently the steps were pretty straight-forward i.e. just sync repo; install apps with package-manager; run =stow=. However doing a brand-new install is not that straight-forward e.g. bulk installing apps requires some manual work e.g. editing a reference package-manager file from exports; ensuring ~.config~ directory is created first before running =stow=; etc.  Further there is OS specific considerations as well.
 
