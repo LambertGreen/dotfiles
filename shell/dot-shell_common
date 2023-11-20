@@ -69,7 +69,7 @@ lgreen_start_ssh_agent() {
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --eval --nogui --quiet --quick --inherit any id_rsa id_rsa_personal)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
@@ -167,9 +167,6 @@ lgreen_setup_dev_env_node_js() {
 lgreen_setup_dev_env_rust() {
     if [ -f "$HOME/.cargo/env" ]; then
         source "$HOME/.cargo/env"
-    fi
-    if [ -d "$HOME/.cargo/bin" ]; then
-        export PATH="$PATH:$HOME/.cargo/bin"
     fi
 }
 
@@ -332,12 +329,14 @@ lgreen_setup_lscolors_theme_one_dark() {
 }
 
 lgreen_show_lscolors_themes() {
+    local LS_COLORS_ORIG=$LS_COLORS
     for theme in $(vivid themes); do
         echo "theme: $theme"
-        LS_COLORS=$(vivid generate "$theme")
+        export LS_COLORS=$(vivid generate "$theme")
         ls
         echo
     done
+    export LS_COLORS=$LS_COLORS_ORIG
 }
 
 lgreen_setup_fzf_theme_dark() {
@@ -393,6 +392,15 @@ lgreen_setup_shell_theme_mode_dark() {
     if [ -n "$TMUX" ]; then
         # lgreen_source_tmux_theme_dark
         lgreen_setup_tmux_theme_catpuccin_mocha
+    fi
+}
+
+lgreen_setup_shell_theme_mode() {
+    # Default to dark mode
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_light
+    else
+        lgreen_setup_shell_theme_mode_dark
     fi
 }
 
@@ -578,9 +586,7 @@ lgreen_source_local_shell
 lgreen_source_work_shell
 lgreen_setup_tmux_all
 
-# TODO Read light/dark mode from the system
-# For now we just default to light mode
-lgreen_setup_shell_theme_mode_light
+lgreen_setup_shell_theme_mode
 
 lgreen_setup_doom_emacs
 

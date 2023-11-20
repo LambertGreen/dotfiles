@@ -15,6 +15,7 @@ nvim/.config/nvim/spell/
 
 # Powershell
 /WindowsPowerShell/Documents/WindowsPowerShell/Modules/
+/powershell_win/Documents/Powershell/Modules/
 
 # Keypirinha
 /Keypirinha/scoop/apps/keypirinha/current/portable/Profile/User/Keypirinha-Notepad2.ini

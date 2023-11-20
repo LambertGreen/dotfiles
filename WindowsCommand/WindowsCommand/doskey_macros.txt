@@ -1,6 +1,9 @@
-ll=ls --color -l $*
-lla=ls --color -la $*
+ls=exa --color=always --icons $*
+ll=exa -lh --color=always --icons $*
+lla=exa -lha --color=always --icons $*
+cat=bat $*
 vim=nvim $*
 e=nvim $*
+alias=doskey /macros
 g=git $*
 gw=gradlew $*

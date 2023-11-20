@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 lgreen_add_scoop_bins_to_path() {
-    export PATH="$HOME/scoop/shims:$PATH"
+    export PATH="$PATH:$HOME/scoop/shims"
 }
 
 lgreen_add_emacs_local_build_to_path() {
@@ -20,8 +20,7 @@ lgreen_add_dev_utils_to_path() {
 	export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
 }
 
-lgreen_add_scoop_bins_to_path
 lgreen_add_emacs_local_build_to_path
 lgreen_add_git_to_path
+lgreen_add_scoop_bins_to_path
 lgreen_add_dev_utils_to_path
-
