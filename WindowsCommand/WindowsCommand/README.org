@@ -1,0 +1,34 @@
+#+title: WindowsCommand configuration
+
+
+* Introduction
+Configuration for the =CMD.exe= shell.
+
+The =CMD= shell is quite anti-quadated but we still need to use it from time to time. It does load much faster than =Powershell=, and with help of =Clink= and =GNU= tools for =Windows=, it is a more familiar environment to the =POSIX= shells.
+
+* Initialization
+The ~"./dev.cmd"~ is used to startup a better =CMD= environment by doing the following:
+1. Load =clink=
+2. Runs the ~"./dev_profile.cmd"~ file
+3. Runs =doskey= to setup useful aliases defined in ~"./doskey_macros.txt"~
+
+* Clink
+The =clink= settings are defined in ~"~/dev/my/dotfiles/clink"~
+
+* Aliases
+Aliases are set using =doskey= in ~"./doskey_macros.txt"~.
+
+We use aliases to have some consistency across platforms, and to use more modern versions of common tools (e.g. tools implemented in =rust=):
+1. ~ls~ aliases for directory listing (using ~exa~)
+2. ~cat~ (using ~bat~)
+3. ~g~ for ~git~
+
+* Shell Scripts
+Usefull shell scripts start with prefix ~lgreen_~ e.g.:
+1. switching between light/dark mode
+
+
+* TODOs [0/0]
+** TODO Complete light-dark-mode support [0/2]
+*** [ ] Enable getting current ~COLOR-MODE~
+*** [ ] Enable setting the current ~COLOR-MODE~
