@@ -3,7 +3,7 @@ rem setlocal enabledelayedexpansion
 
 :: Initialize if COLOR_MODE not set
 if not defined COLOR_MODE (
-    set COLOR_MODE=light
+    set COLOR_MODE=dark
 )
 
 :: Branch to appropriate mode based on argument
