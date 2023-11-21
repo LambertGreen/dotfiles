@@ -25,10 +25,10 @@ end
 if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka Nerd Font'
 elseif wezterm.target_triple:find('apple') then
-	config.font = wezterm.font 'Iosevka Nerd Font'
+	config.font = wezterm.font 'Iosevka Nerd Font Mono'
 	config.font_size = 13
 else
-	config.font = wezterm.font 'Iosevka Nerd Font'
+	config.font = wezterm.font 'Iosevka Nerd Font Mono'
 end
 config.hide_tab_bar_if_only_one_tab = true
 
