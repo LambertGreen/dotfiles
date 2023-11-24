@@ -25,7 +25,7 @@ end
 if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka Nerd Font'
 elseif wezterm.target_triple:find('apple') then
-	config.font = wezterm.font 'Iosevka Nerd Font Mono'
+	config.font = wezterm.font 'Iosevka NFM'
 	config.font_size = 13
 else
 	config.font = wezterm.font 'Iosevka Nerd Font Mono'
