@@ -23,12 +23,12 @@ end
 -- Set font
 --
 if wezterm.target_triple:find('windows') then
-	config.font = wezterm.font 'Iosevka Nerd Font'
+	config.font = wezterm.font 'Iosevka NFM'
 elseif wezterm.target_triple:find('apple') then
 	config.font = wezterm.font 'Iosevka NFM'
 	config.font_size = 13
 else
-	config.font = wezterm.font 'Iosevka Nerd Font Mono'
+	config.font = wezterm.font 'Iosevka NFM'
 end
 config.hide_tab_bar_if_only_one_tab = true
 
@@ -48,7 +48,7 @@ end
 -- Color Scheme
 --
 -- We are trying defaulting to a dark theme. Uncomment the below to default to system.
-	-- config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
+-- config.color_scheme = scheme_for_appearance(wezterm.gui.get_appearance())
 config.color_scheme = dark_theme -- scheme_for_appearance(wezterm.gui.get_appearance())
 
 local function ToggleTheme(window, _)
