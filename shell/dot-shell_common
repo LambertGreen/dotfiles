@@ -448,15 +448,21 @@ lgreen_setup_aliases() {
         alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=doom-nvim nvim"
     fi
 
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
-        alias ls='gls --color'
-        alias ll='gls -lh --color'
-        alias lla='gls -lha --color'
+    if [ "$(command -v exa)" ]; then
+        alias ls='exa --icons'
+        alias ll='exa -lh --icons'
+        alias lla='exa -lha --icons'
     else
-        alias ls='ls --color'
-        alias ll='ls -lh --color'
-        alias lla='ls -lha --color'
+        if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+        if [ "$UNAME" = "Darwin" ]; then
+            alias ls='gls --color'
+            alias ll='gls -lh --color'
+            alias lla='gls -lha --color'
+        else
+            alias ls='ls --color'
+            alias ll='ls -lh --color'
+            alias lla='ls -lha --color'
+        fi
     fi
 
     # shellcheck disable=SC2139
