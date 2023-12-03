@@ -33,12 +33,16 @@
 	path = alfred-settings
 	url = ../alfred-settings.git
 	branch = main
-[submodule "nvim/.config/nvim"]
-	path = nvim/.config/nvim
+[submodule "nvim/.config/nvim-lgreen"]
+	path = nvim/.config/nvim-lgreen
 	url = ../dot-nvim.git
-[submodule "nvim/.config/doom-nvim"]
-	path = nvim/.config/doom-nvim
+[submodule "nvim/.config/nvim-doom"]
+	path = nvim/.config/nvim-doom
 	url = ../doom-nvim.git
+ 	branch = my-config
+[submodule "nvim/.config/nvim-nyoom"]
+	path = nvim/.config/nvim-nyoom
+	url = https://github.com/nyoom-engineering/nyoom.nvim.git
 [submodule "nvim_win/AppData/Local/nvim"]
 	path = nvim_win/AppData/Local/nvim
 	url = ../dot-nvim.git
