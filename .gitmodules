@@ -42,7 +42,7 @@
  	branch = my-config
 [submodule "nvim/.config/nvim-nyoom"]
 	path = nvim/.config/nvim-nyoom
-	url = https://github.com/nyoom-engineering/nyoom.nvim.git
+	url = ../nyoom.nvim.git
 [submodule "nvim_win/AppData/Local/nvim"]
 	path = nvim_win/AppData/Local/nvim
 	url = ../dot-nvim.git
