@@ -443,9 +443,11 @@ lgreen_setup_aliases() {
         alias cat=bat
     fi
     if [ "$(command -v nvim)" ]; then
-        alias vim=nvim
-        alias vi=nvim
-        alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=doom-nvim nvim"
+        alias vim="NVIM_APPNAME=nvim-lgreen nvim"
+        alias vi="NVIM_APPNAME=nvim-lgreen nvim"
+        alias nvim="NVIM_APPNAME=nvim-lgreen nvim"
+        alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-doom \nvim"
+        alias nvim-nyoom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-nyoom \nvim"
     fi
 
     if [ "$(command -v exa)" ]; then
