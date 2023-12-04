@@ -43,6 +43,9 @@
 [submodule "nvim/.config/nvim-nyoom"]
 	path = nvim/.config/nvim-nyoom
 	url = ../nyoom.nvim.git
+[submodule "nvim_win/AppData/Local/nvim"]
+	path = nvim_win/AppData/Local/nvim
+	url = ../dot-nvim.git
 [submodule "nvim/.config/nvim-lazy"]
 	path = nvim/.config/nvim-lazy
 	url = ../dot-nvim-lazy.git
