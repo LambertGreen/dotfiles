@@ -51,6 +51,20 @@ lgreen_conditionally_start_attach_tmux() {
     fi
 }
 
+lgreen_setup_zoxide_for_zsh() {
+    # shellcheck disable=SC2139
+    if [ "$(command -v zoxide)" ]; then
+        eval "$(zoxide init zsh)"
+    fi
+}
+
+lgreen_setup_zoxide_for_bash() {
+    # shellcheck disable=SC2139
+    if [ "$(command -v zoxide)" ]; then
+        eval "$(zoxide init bash)"
+    fi
+}
+
 lgreen_setup_fzf() {
     # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then
