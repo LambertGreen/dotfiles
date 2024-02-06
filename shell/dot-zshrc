@@ -151,6 +151,9 @@ lgreen_setup_zinit() {
     # Theme: powerlevel10k
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
+
+    # Go back up directories without needing to spam `cd ../../..`
+    zinit light Tarrasch/zsh-bd
 }
 
 lgreen_zsh_show_my_functions() {
