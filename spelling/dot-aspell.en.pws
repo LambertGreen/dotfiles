@@ -1,4 +1,4 @@
-personal_ws-1.1 en 202 
+personal_ws-1.1 en 204 
 APIs
 ARP
 Aetherials
@@ -40,6 +40,7 @@ HTTPS
 Hammerspoon
 Homebrew
 Hyperforce
+Hyunsuk
 IC
 ICs
 IPC
@@ -125,6 +126,7 @@ backend
 blademaster
 boolean
 breakpoint
+callstack
 centric
 commandline
 config
