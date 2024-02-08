@@ -65,6 +65,14 @@ lgreen_setup_zoxide_for_bash() {
     fi
 }
 
+lgreen_setup_fzf_for_bash() {
+    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+}
+
+lgreen_setup_fzf_for_zsh() {
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+}
+
 lgreen_setup_fzf() {
     # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then

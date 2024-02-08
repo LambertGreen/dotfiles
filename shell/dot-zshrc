@@ -208,10 +208,6 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
-lgreen_setup_fzf_bindings() {
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-}
-
 lgreen_setup_fzy_bindings() {
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
@@ -259,7 +255,7 @@ if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_fzy_bindings
 else
-    lgreen_setup_fzf_bindings
+    lgreen_setup_fzf_for_zsh
 fi
 
 lgreen_source_local_zsh
