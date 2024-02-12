@@ -19,6 +19,7 @@ brew "aspell"
 brew "automake"
 brew "bat"
 brew "black", link: false
+brew "btop"
 brew "pcre2"
 brew "glib"
 brew "catch2"
