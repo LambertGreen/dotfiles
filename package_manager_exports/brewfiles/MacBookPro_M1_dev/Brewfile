@@ -190,38 +190,6 @@ cask "visual-studio-code"
 cask "wezterm"
 cask "whatsapp"
 cask "xquartz"
-mas "Flow", id: 1423210932
-mas "GarageBand", id: 682658836
-mas "iMovie", id: 408981434
-mas "Keynote", id: 409183694
 mas "Microsoft Remote Desktop", id: 1295203466
-mas "Numbers", id: 409203825
-mas "Pages", id: 409201541
 mas "The Unarchiver", id: 425424353
 mas "Xcode", id: 497799835
-mas "Yack!", id: 1525166806
-vscode "bodil.file-browser"
-vscode "eamodio.gitlens"
-vscode "googlecloudtools.cloudcode"
-vscode "jacobdufault.fuzzy-search"
-vscode "kahole.magit"
-vscode "ms-azuretools.vscode-docker"
-vscode "ms-vscode-remote.remote-containers"
-vscode "ms-vscode.cmake-tools"
-vscode "ms-vscode.cpptools"
-vscode "ms-vscode.cpptools-extension-pack"
-vscode "ms-vscode.cpptools-themes"
-vscode "redhat.java"
-vscode "tootone.org-mode"
-vscode "twxs.cmake"
-vscode "VisualStudioExptTeam.intellicode-api-usage-examples"
-vscode "VisualStudioExptTeam.vscodeintellicode"
-vscode "vscjava.vscode-gradle"
-vscode "vscjava.vscode-java-debug"
-vscode "vscjava.vscode-java-dependency"
-vscode "vscjava.vscode-java-pack"
-vscode "vscjava.vscode-java-test"
-vscode "vscjava.vscode-maven"
-vscode "vscodevim.vim"
-vscode "VSpaceCode.vspacecode"
-vscode "VSpaceCode.whichkey"
