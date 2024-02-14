@@ -19,6 +19,7 @@ brew "aspell"
 brew "automake"
 brew "bat"
 brew "black", link: false
+brew "gcc"
 brew "btop"
 brew "pcre2"
 brew "glib"
@@ -35,7 +36,6 @@ brew "ctags"
 brew "curl"
 brew "diffutils"
 brew "direnv"
-brew "docker", link: false
 brew "doxygen"
 brew "dust"
 brew "editorconfig"
@@ -46,7 +46,6 @@ brew "fd"
 brew "fennel"
 brew "fortune"
 brew "fzf"
-brew "gcc"
 brew "gdk-pixbuf"
 brew "gflags"
 brew "git"
@@ -132,6 +131,7 @@ brew "speedtest-cli"
 brew "stow"
 brew "subversion"
 brew "sword"
+brew "thrift"
 brew "tldr"
 brew "tmux"
 brew "topgrade"
@@ -186,10 +186,14 @@ cask "stats"
 cask "steam"
 cask "vanilla"
 cask "vimr"
-cask "visual-studio-code"
 cask "wezterm"
 cask "whatsapp"
-cask "xquartz"
-mas "Microsoft Remote Desktop", id: 1295203466
+mas "Flow", id: 1423210932
+mas "GarageBand", id: 682658836
+mas "iMovie", id: 408981434
+mas "Keynote", id: 409183694
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
 mas "The Unarchiver", id: 425424353
 mas "Xcode", id: 497799835
+mas "Yack!", id: 1525166806
