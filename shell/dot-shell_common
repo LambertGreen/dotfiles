@@ -540,6 +540,18 @@ lgreen_setup_doom_emacs() {
     export PATH="$PATH:$EMACSDIR/bin/"
 }
 
+lgreen_setup_docker_for_bash() {
+    if [ -f ~/.docker/init-bash.sh ]; then
+        source ~/.docker/init-bash.sh
+    fi
+}
+
+lgreen_setup_docker_for_zsh() {
+    if [ -f ~/.docker/init-zsh.sh ]; then
+        source ~/.docker/init-zsh.sh
+    fi
+}
+
 # TODO Provide sanitize environment implementations for non-Linux as well
 lgreen_sanitize_environment() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
