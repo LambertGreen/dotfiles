@@ -1,4 +1,5 @@
 tap "adoptopenjdk/openjdk"
+tap "buo/cask-upgrade"
 tap "cartr/qt4"
 tap "d12frosted/emacs-plus"
 tap "equalsraf/neovim-qt"
