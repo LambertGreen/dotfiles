@@ -280,6 +280,16 @@ lgreen_setup_running_inside_emacs() {
     fi
 }
 
+lgreen_setup_running_inside_emacs_eat_for_bash() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/bash"
+}
+
+lgreen_setup_running_inside_emacs_eat_for_zsh() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+}
+
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
         command rg -p "$@" | less -RFX

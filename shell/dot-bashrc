@@ -37,4 +37,5 @@ else
     [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
     lgreen_setup_zoxide
+    lgreen_setup_running_inside_emacs_eat_for_bash
 fi
