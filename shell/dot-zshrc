@@ -152,8 +152,8 @@ lgreen_setup_zinit() {
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
 
-    # Z
-    zinit light agkozak/zsh-z
+    # Go back up directories without needing to spam `cd ../../..`
+    zinit light Tarrasch/zsh-bd
 }
 
 lgreen_zsh_show_my_functions() {
@@ -208,10 +208,6 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
-lgreen_setup_fzf_bindings() {
-    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-}
-
 lgreen_setup_fzy_bindings() {
 
     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
@@ -259,7 +255,7 @@ if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
 if [[ "$UNAME" == *"_NT"* ]]; then
     lgreen_setup_fzy_bindings
 else
-    lgreen_setup_fzf_bindings
+    lgreen_setup_fzf_for_zsh
 fi
 
 lgreen_source_local_zsh
@@ -269,6 +265,8 @@ lgreen_zsh_set_history_options
 lgreen_setup_emacs_vterm
 lgreen_setup_running_inside_emacs_eat_for_zsh
 lgreen_setup_direnv_for_zsh
+lgreen_setup_zoxide_for_zsh
+lgreen_setup_docker_for_zsh
 lgreen_conditionally_stop_profiler
 
 # Remove any duplicates in the path variable

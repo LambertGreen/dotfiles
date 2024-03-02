@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-lgreen_setup_zoxide() {
-    # shellcheck disable=SC2139
-    if [ "$(command -v zoxide)" ]; then
-        eval "$(zoxide init bash)"
-    fi
-}
-
 # If not an interactive shell just return
 # e.g. needed when running scp
 if [ -z "$PS1" ]; then
@@ -34,8 +27,10 @@ else
     # Source common shell script
     # shellcheck source=shell_common
     [ -f ~/.shell_common ] && source ~/.shell_common
-    [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-    lgreen_setup_zoxide
     lgreen_setup_running_inside_emacs_eat_for_bash
+    lgreen_setup_fzf_for_bash
+    lgreen_setup_zoxide_for_bash
+    lgreen_setup_direnv_for_bash
+    lgreen_setup_docker_for_bash
 fi
