@@ -289,6 +289,16 @@ lgreen_setup_running_inside_emacs() {
     fi
 }
 
+lgreen_setup_running_inside_emacs_eat_for_bash() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/bash"
+}
+
+lgreen_setup_running_inside_emacs_eat_for_zsh() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+}
+
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
         command rg -p "$@" | less -RFX
@@ -453,7 +463,7 @@ lgreen_setup_aliases() {
     if [ "$(command -v nvim)" ]; then
         alias vim="NVIM_APPNAME=nvim-lgreen \nvim"
         alias vi="NVIM_APPNAME=nvim-lgreen \nvim"
-        alias nvim="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim="CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ NVIM_APPNAME=nvim-lgreen \nvim"
         alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-doom \nvim"
         alias nvim-nyoom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-nyoom \nvim"
         alias nvim-lazy="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-lazy \nvim"

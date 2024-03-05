@@ -28,6 +28,7 @@ else
     # shellcheck source=shell_common
     [ -f ~/.shell_common ] && source ~/.shell_common
 
+    lgreen_setup_running_inside_emacs_eat_for_bash
     lgreen_setup_fzf_for_bash
     lgreen_setup_zoxide_for_bash
     lgreen_setup_direnv_for_bash
