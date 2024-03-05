@@ -289,6 +289,16 @@ lgreen_setup_running_inside_emacs() {
     fi
 }
 
+lgreen_setup_running_inside_emacs_eat_for_bash() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/bash"
+}
+
+lgreen_setup_running_inside_emacs_eat_for_zsh() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+        source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+}
+
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
         command rg -p "$@" | less -RFX
@@ -453,7 +463,7 @@ lgreen_setup_aliases() {
     if [ "$(command -v nvim)" ]; then
         alias vim="NVIM_APPNAME=nvim-lgreen \nvim"
         alias vi="NVIM_APPNAME=nvim-lgreen \nvim"
-        alias nvim="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim="CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ NVIM_APPNAME=nvim-lgreen \nvim"
         alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-doom \nvim"
         alias nvim-nyoom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-nyoom \nvim"
         alias nvim-lazy="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-lazy \nvim"
@@ -538,6 +548,18 @@ lgreen_setup_doom_emacs() {
     export DOOMDIR="$HOME/.doom.d"
     export EMACSDIR="$HOME/.emacs.doom"
     export PATH="$PATH:$EMACSDIR/bin/"
+}
+
+lgreen_setup_docker_for_bash() {
+    if [ -f ~/.docker/init-bash.sh ]; then
+        source ~/.docker/init-bash.sh
+    fi
+}
+
+lgreen_setup_docker_for_zsh() {
+    if [ -f ~/.docker/init-zsh.sh ]; then
+        source ~/.docker/init-zsh.sh
+    fi
 }
 
 # TODO Provide sanitize environment implementations for non-Linux as well

@@ -263,8 +263,10 @@ lgreen_zsh_init_completions
 lgreen_fixup_zsh_autosuggestion_highlight_style
 lgreen_zsh_set_history_options
 lgreen_setup_emacs_vterm
+lgreen_setup_running_inside_emacs_eat_for_zsh
 lgreen_setup_direnv_for_zsh
 lgreen_setup_zoxide_for_zsh
+lgreen_setup_docker_for_zsh
 lgreen_conditionally_stop_profiler
 
 # Remove any duplicates in the path variable
