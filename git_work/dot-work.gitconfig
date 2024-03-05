@@ -3,7 +3,7 @@
 [user]
   email = lambert.green@salesforce.com
   name = Lambert Green
-  signingkey = 6A9B9C844FA6D26E3C342022B5C6897E3ABE6F33
+  signingkey = 150FD7ADE9091C9E3DDB1C0966C09F6FD3D4A735
 
 [commit]
   gpgsign = true
