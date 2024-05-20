@@ -7,3 +7,4 @@ e=nvim $*
 alias=doskey /macros
 g=git $*
 gw=gradlew $*
+tree=C:\tools\msys64\usr\bin\tree.exe $*

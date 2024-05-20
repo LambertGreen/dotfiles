@@ -117,7 +117,7 @@ color.selection = sgr 38;5;16;48;5;179
 
 # name: Color for suggestion text
 # type: color
-color.suggestion = sgr 38;5;239
+color.suggestion = sgr 38;5;231
 
 # name: Unexpected argument color
 # type: color
@@ -135,7 +135,7 @@ exec.cwd = True
 # type: boolean
 exec.dirs = True
 
-# name: Enable executable matching for 'complete'
+# name: Enable executable completions
 # type: boolean
 exec.enable = True
 

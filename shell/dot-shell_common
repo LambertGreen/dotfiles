@@ -606,6 +606,10 @@ lgreen_show_fortune_quote() {
     fi
 }
 
+lgreen_setup_gpg_tty() {
+    export GPG_TTY=$(tty)
+}
+
 #-------------------
 # Main
 #-------------------
@@ -635,3 +639,4 @@ fi
 
 lgreen_setup_dev_env_all
 lgreen_show_fortune_quote
+lgreen_setup_gpg_tty
