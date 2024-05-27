@@ -1,36 +1,40 @@
-# Build output directories
-**/build/
+# TODO: Why did you create an `fd` ignore file?
+# I could understand if you created one for `rg`,
+# it does not make sense for `fd` right?
 
-# Build output files
-*.pch
-*.o
-*.obj
-*.obj.d
-*.debug
-*.pdb
-*.map
-
-# Libraries and Binaries
-*.exe
-*.dll
-*.so
-*.lib
-*.jar
-*.pyc
-*.msi
-
-# Support directories
-workgroup-support/
-
-# Non text data files
-*.zip
-*.7z
-*.png
-*.xls
-
-# Tableau Non text data files
-*.twbx
-*.tde
-*.tbm
-*.tds
-*.twb
+# # Build output directories
+# **/build/
+# 
+# # Build output files
+# *.pch
+# *.o
+# *.obj
+# *.obj.d
+# *.debug
+# *.pdb
+# *.map
+# 
+# # Libraries and Binaries
+# *.exe
+# *.dll
+# *.so
+# *.lib
+# *.jar
+# *.pyc
+# *.msi
+# 
+# # Support directories
+# workgroup-support/
+# 
+# # Non text data files
+# *.zip
+# *.7z
+# *.png
+# *.xls
+# 
+# # Tableau Non text data files
+# *.twbx
+# *.tde
+# *.tbm
+# *.tds
+# *.twb
