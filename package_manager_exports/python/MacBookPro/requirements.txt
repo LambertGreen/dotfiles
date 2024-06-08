@@ -146,6 +146,6 @@ ruamel.yaml==0.16.12
 sip==6.1.1
 six==1.16.0
 toml==0.10.2
-urllib3==1.26.5
+urllib3==1.26.18
 virtualenv==20.7.2
 virtualenv-clone==0.5.6
