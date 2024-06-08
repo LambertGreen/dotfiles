@@ -8,7 +8,7 @@ distlib==0.3.2
 filelock==3.0.12
 gpg==1.16.0
 greenlet==1.0.0
-idna==2.10
+idna==3.7
 iniconfig==1.1.1
 msgpack==1.0.2
 neovim==0.3.1
