@@ -141,7 +141,7 @@ pyobjc-framework-Vision==7.0.1
 pyobjc-framework-WebKit==7.0.1
 pyparsing==2.4.7
 pytest==6.2.4
-requests==2.25.0
+requests==2.32.2
 ruamel.yaml==0.16.12
 sip==6.1.1
 six==1.16.0
