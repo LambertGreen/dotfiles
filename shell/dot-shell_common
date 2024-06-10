@@ -84,18 +84,19 @@ lgreen_setup_perforce_config() {
     export P4CONFIG=.p4config
 }
 
-# Keychain to start ssh-agent
-lgreen_start_ssh_agent() {
+# Keychain to start ssh-agent and gpg-agent
+lgreen_start_agents() {
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
         if [ "$(command -v keychain)" ]; then
             eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --eval --nogui --quiet --quick id_rsa id_ed25519)"
+            eval "$(keychain --eval --nogui --quiet --quick id_rsa id_ed25519 --agents gpg)"
         fi
     fi
 }
@@ -617,7 +618,7 @@ lgreen_track_shell_sourced_count
 lgreen_source_profile_if_not_sourced
 lgreen_one_time_system_setup_check
 lgreen_source_os_shell
-lgreen_start_ssh_agent
+lgreen_start_agents
 lgreen_setup_running_inside_emacs
 lgreen_setup_aliases
 lgreen_source_local_shell

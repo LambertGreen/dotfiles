@@ -10,6 +10,3 @@
 
 [commit]
   gpgsign = true
-
-[push]
-  gpgsign = if-asked
