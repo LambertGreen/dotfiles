@@ -450,7 +450,6 @@ lgreen_setup_aliases() {
     alias ec=emacsclient
     alias g=git
     alias groot='pushd "$(git rev-parse --show-toplevel)"'
-    alias rg=lgreen_rg_with_pager
     alias gw=./gradlew
     alias tt=lgreen_toggle_shell_theme_mode
     alias man=lgreen_man

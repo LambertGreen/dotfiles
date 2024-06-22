@@ -672,7 +672,7 @@ There are some manual steps that need to be done:
 Custom shell completions for both =Bash= and =ZSH= are located at ~"./shell/.config/bash/completions"~ and ~"./shell/.config/zsh/completions"~ respectively.
 They will get symlinked, when running ~stow shell~.
 
-**  Fix =ZSH= ~fpath~ permissions
+** Fix =ZSH= ~fpath~ permissions
 The ~compaudit~ will complain about permissions, and they can be fixed by running the below:
 #+begin_src sh
 chmod 755 ~/.config/zsh
@@ -681,7 +681,7 @@ chmod 755 ~/.config/zsh/completions
 chmod 644 ~/.config/zsh/completions/*
 #+end_src
 
-**  Update =ZSH= completion cache
+** Update =ZSH= completion cache
 The cache may need to be updated to pickup newly created completions:
 #+begin_src sh
 rm -f ~/.zcompdump
