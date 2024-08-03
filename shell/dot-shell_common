@@ -450,7 +450,6 @@ lgreen_setup_aliases() {
     alias ec=emacsclient
     alias g=git
     alias groot='pushd "$(git rev-parse --show-toplevel)"'
-    alias rg=lgreen_rg_with_pager
     alias gw=./gradlew
     alias tt=lgreen_toggle_shell_theme_mode
     alias man=lgreen_man
@@ -611,33 +610,37 @@ lgreen_setup_gpg_tty() {
     export GPG_TTY=$(tty)
 }
 
+main() {
+    lgreen_track_shell_sourced_count
+    lgreen_source_profile_if_not_sourced
+    lgreen_one_time_system_setup_check
+    lgreen_source_os_shell
+    lgreen_start_agents
+    lgreen_setup_running_inside_emacs
+    lgreen_setup_aliases
+    lgreen_source_local_shell
+    lgreen_source_work_shell
+    lgreen_setup_tmux_all
+
+    lgreen_setup_shell_theme_mode
+
+    lgreen_setup_doom_emacs
+
+    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
+    if [ "$UNAME" = "Linux" ]; then
+	lgreen_setup_fzf
+    elif [ "$UNAME" = "Darwin" ]; then
+	lgreen_setup_fzf
+    elif [[ "$UNAME" == *"_NT"* ]]; then
+	lgreen_setup_dev_env_rust
+    fi
+
+    lgreen_setup_dev_env_all
+    lgreen_show_fortune_quote
+    lgreen_setup_gpg_tty
+}
+
 #-------------------
-# Main
+# Run main
 #-------------------
-lgreen_track_shell_sourced_count
-lgreen_source_profile_if_not_sourced
-lgreen_one_time_system_setup_check
-lgreen_source_os_shell
-lgreen_start_agents
-lgreen_setup_running_inside_emacs
-lgreen_setup_aliases
-lgreen_source_local_shell
-lgreen_source_work_shell
-lgreen_setup_tmux_all
-
-lgreen_setup_shell_theme_mode
-
-lgreen_setup_doom_emacs
-
-if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-if [ "$UNAME" = "Linux" ]; then
-    lgreen_setup_fzf
-elif [ "$UNAME" = "Darwin" ]; then
-    lgreen_setup_fzf
-elif [[ "$UNAME" == *"_NT"* ]]; then
-    lgreen_setup_dev_env_rust
-fi
-
-lgreen_setup_dev_env_all
-lgreen_show_fortune_quote
-lgreen_setup_gpg_tty
+main

@@ -1,26 +1,45 @@
-# ACCOUNT INFORMATION
+# -*- mode: conf; -*-
+
+# * ACCOUNT
+
+# ** Account: gmail (lambert.green@gmail.com)
 IMAPAccount gmail
 Host imap.gmail.com
 User lambert.green@gmail.com
 PassCmd "security find-generic-password -s mbsync-gmail-password -w"
 AuthMechs PLAIN
 SSLType IMAPS
-# On macOS: The below cert files need to be downloaded (e.g. use openssl)
+# NOTE: On macOS: The below cert files need to be downloaded (e.g. use openssl)
 # openssl s_client -connect imap.gmail.com:993 -showcerts
 CertificateFile ~/.certs/gmail.crt
 CertificateFile ~/.certs/google.crt
 CertificateFile ~/.certs/globalsign.crt
 
-# THEN WE SPECIFY THE LOCAL AND REMOTE STORAGE
-# - THE REMOTE STORAGE IS WHERE WE GET THE MAIL FROM (E.G., THE
-#   SPECIFICATION OF AN IMAP ACCOUNT)
-# - THE LOCAL STORAGE IS WHERE WE STORE THE EMAIL ON OUR COMPUTER
+# ** Account: gmail2 (lambda.verda@gmail.com)
+IMAPAccount gmail2
+Host imap.gmail.com
+User lambda.verda@gmail.com
+PassCmd "security find-generic-password -s mbsync-gmail2-password -w"
+AuthMechs PLAIN
+SSLType IMAPS
+# NOTE: On macOS: The below cert files need to be downloaded (e.g. use openssl)
+# openssl s_client -connect imap.gmail.com:993 -showcerts
+CertificateFile ~/.certs/gmail.crt
+CertificateFile ~/.certs/google.crt
+CertificateFile ~/.certs/globalsign.crt
 
-# REMOTE STORAGE (USE THE IMAP ACCOUNT SPECIFIED ABOVE)
+# * STORAGE
+
+# ** Remote store: gmail
 IMAPStore gmail-remote
 Account gmail
 
-# LOCAL STORAGE (CREATE DIRECTORIES with mkdir -p Maildir/gmail)
+# ** Remote store: gmail2
+IMAPStore gmail2-remote
+Account gmail2
+
+# ** Local store: gmail
+# Note: Create directories with: `export Maildir="~/.mail" mkdir -p $Maildir/gmail`
 MaildirStore gmail-local
 Path ~/.mail/gmail/
 Inbox ~/.mail/gmail/inbox
@@ -28,23 +47,18 @@ Inbox ~/.mail/gmail/inbox
 # IMAP subfolders as local subfolders
 SubFolders Verbatim
 
-# CONNECTIONS SPECIFY LINKS BETWEEN REMOTE AND LOCAL FOLDERS
-#
-# CONNECTIONS ARE SPECIFIED USING PATTERNS, WHICH MATCH REMOTE MAIl
-# FOLDERS. SOME COMMONLY USED PATTERS INCLUDE:
-#
-# 1 "*" TO MATCH EVERYTHING
-# 2 "!DIR" TO EXCLUDE "DIR"
-# 3 "DIR" TO MATCH DIR
-#
-# FOR INSTANCE IN THE SPECIFICATION BELOW:
-#
-# gmail-inbox gets the folder INBOX, ARCHIVE, and everything under "ARCHIVE*"
-# gmail-trash gets only the "[Gmail]/Trash" folder and stores it to the local "trash" folder
+# ** Local store: gmail2
+# Note: Create directories with: `export Maildir="~/.mail" mkdir -p $Maildir/gmail2`
+MaildirStore gmail2-local
+Path ~/.mail/gmail2/
+Inbox ~/.mail/gmail2/inbox
+SubFolders Verbatim
 
-# Setting CopyArrivalDate to yes:
-# https://vxlabs.com/2021/03/21/mbsync-copyarrivaldate-yes/
+# * CHANNELS
 
+# ** Channels: gmail
+
+# *** Channel: gmail-inbox
 Channel gmail-inbox
 Far :gmail-remote:
 Near :gmail-local:
@@ -54,6 +68,7 @@ Expunge Both
 SyncState *
 CopyArrivalDate yes
 
+# *** Channel: gmail-all
 Channel gmail-all
 Far :gmail-remote:"[Gmail]/All Mail"
 Near :gmail-local:"All Mail"
@@ -62,6 +77,7 @@ Expunge Both
 SyncState *
 CopyArrivalDate yes
 
+# *** Channel: gmail-drafts
 Channel gmail-drafts
 Far :gmail-remote:"[Gmail]/Drafts"
 Near :gmail-local:"Drafts"
@@ -70,6 +86,7 @@ Expunge Both
 SyncState *
 CopyArrivalDate yes
 
+# *** Channel: gmail-sent
 Channel gmail-sent
 Far :gmail-remote:"[Gmail]/Sent Mail"
 Near :gmail-local:"Sent Mail"
@@ -78,6 +95,7 @@ Expunge Both
 SyncState *
 CopyArrivalDate yes
 
+# *** Channel: gmail-trash
 Channel gmail-trash
 Far :gmail-remote:"[Gmail]/Trash"
 Near :gmail-local:"Trash"
@@ -86,15 +104,83 @@ Expunge Both
 SyncState *
 CopyArrivalDate yes
 
-# GROUPS PUT TOGETHER CHANNELS, SO THAT WE CAN INVOKE
-# MBSYNC ON A GROUP TO SYNC ALL CHANNELS
-#
-# FOR INSTANCE: "mbsync gmail" GETS MAIL FROM
-# "gmail-inbox", "gmail-sent", and "gmail-trash"
-#
+# ** Channels: gmail2
+
+# *** Channel: gmail2-inbox
+Channel gmail2-inbox
+Far :gmail2-remote:
+Near :gmail2-local:
+Patterns "INBOX"
+Create Both
+Expunge Both
+SyncState *
+CopyArrivalDate yes
+
+# *** Channel: gmail2-all
+Channel gmail2-all
+Far :gmail2-remote:"[Gmail]/All Mail"
+Near :gmail2-local:"All Mail"
+Create Both
+Expunge Both
+SyncState *
+CopyArrivalDate yes
+
+# *** Channel: gmail2-drafts
+Channel gmail2-drafts
+Far :gmail2-remote:"[Gmail]/Drafts"
+Near :gmail2-local:"Drafts"
+Create Both
+Expunge Both
+SyncState *
+CopyArrivalDate yes
+
+# *** Channel: gmail2-sent
+Channel gmail2-sent
+Far :gmail2-remote:"[Gmail]/Sent Mail"
+Near :gmail2-local:"Sent Mail"
+Create Both
+Expunge Both
+SyncState *
+CopyArrivalDate yes
+
+# *** Channel: gmail2-trash
+Channel gmail2-trash
+Far :gmail2-remote:"[Gmail]/Trash"
+Near :gmail2-local:"Trash"
+Create Both
+Expunge Both
+SyncState *
+CopyArrivalDate yes
+
+# * GROUPS
+
+# ** Group: gmail
 Group gmail
 Channel gmail-inbox
 Channel gmail-all
 Channel gmail-drafts
 Channel gmail-sent
 Channel gmail-trash
+
+# ** Group: gmail2
+Group gmail2
+Channel gmail2-inbox
+Channel gmail2-all
+Channel gmail2-drafts
+Channel gmail2-sent
+Channel gmail2-trash
+
+# ** Group: all (for syncing both accounts at once)
+Group all
+# *** Group: gmail
+Channel gmail-inbox
+Channel gmail-all
+Channel gmail-drafts
+Channel gmail-sent
+Channel gmail-trash
+# *** Group: gmail2
+Channel gmail2-inbox
+Channel gmail2-all
+Channel gmail2-drafts
+Channel gmail2-sent
+Channel gmail2-trash
