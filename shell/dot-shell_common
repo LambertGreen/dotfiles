@@ -470,10 +470,10 @@ lgreen_setup_aliases() {
         alias nvim-lazy="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-lazy \nvim"
     fi
 
-    if [ "$(command -v exa)" ]; then
-        alias ls='exa --icons'
-        alias ll='exa -lh --icons'
-        alias lla='exa -lha --icons'
+    if [ "$(command -v eza)" ]; then
+        alias ls='eza --icons'
+        alias ll='eza -lh --icons'
+        alias lla='eza -lha --icons'
     else
         if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
         if [ "$UNAME" = "Darwin" ]; then
