@@ -26,7 +26,7 @@ if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka NFM'
 elseif wezterm.target_triple:find('apple') then
 	config.font = wezterm.font 'Iosevka NFM'
-	config.font_size = 13
+	config.font_size = 15
 else
 	config.font = wezterm.font 'Iosevka NFM'
 end
@@ -40,7 +40,7 @@ if wezterm.target_triple:find('windows') then
 	-- existence before use
 	-- config.win32_system_backdrop = 'Acrylic'
 elseif wezterm.target_triple:find('apple') then
-	config.window_background_opacity = 0.80
+	config.window_background_opacity = 0.95
 	config.macos_window_background_blur = 20
 	config.window_decorations = "TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW"
 end

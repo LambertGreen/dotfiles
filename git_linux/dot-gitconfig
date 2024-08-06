@@ -1,14 +1,19 @@
 # -*- mode: gitconfig; -*-
 
 [include]
-    path = ~/.common.gitconfig
+	path = ~/.common.gitconfig
 
 [credential]
-    helper = cache
+	helper = cache
 
 [core]
-    autocrlf = input
+	autocrlf = input
+
 [pull]
 	rebase = false
+
 [init]
 	defaultBranch = main
+
+[gpg]
+	program = /usr/bin/gpg

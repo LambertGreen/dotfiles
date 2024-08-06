@@ -1,14 +1,14 @@
 appdirs==1.4.4
 attrs==21.2.0
 backports.entry-points-selectable==1.1.0
-certifi==2022.12.7
+certifi==2023.7.22
 chardet==4.0.0
 cmake-language-server==0.1.2
 distlib==0.3.2
 filelock==3.0.12
 gpg==1.16.0
 greenlet==1.0.0
-idna==2.10
+idna==3.7
 iniconfig==1.1.1
 msgpack==1.0.2
 neovim==0.3.1
@@ -154,7 +154,7 @@ pyobjc-framework-Vision==7.3
 pyobjc-framework-WebKit==7.3
 pyparsing==2.4.7
 pytest==6.2.4
-requests==2.25.1
+requests==2.31.0
 ruamel.yaml==0.17.9
 ruamel.yaml.clib==0.2.2
 six==1.16.0

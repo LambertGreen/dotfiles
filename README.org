@@ -93,7 +93,7 @@ brew bundle                              # bulk install packages
 brew bundle dump
 #+end_src
 
-*** Install packages using =Nix=/=Home Manager=
+*** Install packages using =Nix= // =Home Manager=
 =Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
 #+begin_src nix
 { pkgs, ... }:
@@ -553,12 +553,12 @@ sudo tlmgr install wrapfig marvosym wasy wasysym
 ****** Add mail app-password to =keychain=
 Acquire a new app-password from your email account e.g. for =gmail= you can find it in account settings of your =google= profile.
 
-******* Add app-password for mbsync from IMAP
+******* Add app-password for mbsync from =IMAP=
 #+begin_src sh
 security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
 #+end_src
 
-******* Add app-password for SMTP server
+******* Add app-password for =SMTP= server
 #+begin_src sh
 security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
 #+end_src
@@ -570,7 +570,7 @@ openssl s_client -connect imap.gmail.com:993 -showcerts
 #+end_src
 
 ***** Linux
-****** TODO Add steps for setting up email on ArchLinux (on WSL)
+****** TODO Add steps for setting up email on =ArchLinux= (on =WSL=)
 **** Setup
 #+begin_src sh
 mbsync -a
@@ -672,7 +672,7 @@ There are some manual steps that need to be done:
 Custom shell completions for both =Bash= and =ZSH= are located at ~"./shell/.config/bash/completions"~ and ~"./shell/.config/zsh/completions"~ respectively.
 They will get symlinked, when running ~stow shell~.
 
-**  Fix =ZSH= ~fpath~ permissions
+** Fix =ZSH= ~fpath~ permissions
 The ~compaudit~ will complain about permissions, and they can be fixed by running the below:
 #+begin_src sh
 chmod 755 ~/.config/zsh
@@ -681,7 +681,7 @@ chmod 755 ~/.config/zsh/completions
 chmod 644 ~/.config/zsh/completions/*
 #+end_src
 
-**  Update =ZSH= completion cache
+** Update =ZSH= completion cache
 The cache may need to be updated to pickup newly created completions:
 #+begin_src sh
 rm -f ~/.zcompdump

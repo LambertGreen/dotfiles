@@ -1,9 +1,12 @@
 # -*- mode: gitconfig; -*-
 
 [user]
-  email = lambert_green@msn.com
+  email = lambert.green@gmail.com
   name = Lambert Green
+  signingkey = C1D12B816253EFFD
 
 [credential "https://github.com"]
     username = lambert_green@msn.com
 
+[commit]
+  gpgsign = true
