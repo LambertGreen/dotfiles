@@ -15,12 +15,20 @@ git submodules update --init --recursive
 #+end_src
 
 * Install apps
-** using =Homebrew=                             :Linux:macOS:
-*** Install =Homebrew=
+One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
+
+*Update (3/30/2022)*:
+I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
+*Update (6/13/2022)*:
+I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
+
+** On =macOS=                                                          :macOS:
+*** using =Homebrew=
+**** Install =Homebrew=
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
-*** Install =Taps=
+**** Install =Taps=
 #+begin_src sh
   brew tap adoptopenjdk/openjdk
   brew tap buo/cask-upgrade
@@ -31,8 +39,8 @@ git submodules update --init --recursive
   brew tap homebrew/cask-versions
   brew tap homebrew/cask-fonts
 #+end_src
-*** Install =Packages=
-**** Common
+**** Install =Packages=
+***** Common
 #+begin_src sh
   brew install \
        awscli \
@@ -109,7 +117,7 @@ git submodules update --init --recursive
        vscode-langservers-extracted \
        wget \
 #+end_src
-**** Home
+***** Home
 #+begin_src sh
   brew install \
        exercism \
@@ -119,15 +127,15 @@ git submodules update --init --recursive
        sword \
        typespeed \
 #+end_src
-**** Work
+***** Work
 #+begin_src sh
   brew install \
        cartr/qt4/pyqt@4 \
        freetds@0.91 \
        rbtools \
 #+end_src
-*** Install =Casks=
-**** Common
+**** Install =Casks=
+***** Common
 #+begin_src sh
   brew install --cask \
        alfred@4 \
@@ -143,7 +151,7 @@ git submodules update --init --recursive
        vanilla \
        wezterm \
 #+end_src
-**** Home
+***** Home
 #+begin_src sh
   brew install --cask \
        amethyst \
@@ -152,7 +160,7 @@ git submodules update --init --recursive
        steam \
        whatsapp \
 #+end_src
-**** Work
+***** Work
 #+begin_src sh
   brew install --cask \
        1password \
@@ -160,13 +168,13 @@ git submodules update --init --recursive
        quip \
        slack \
 #+end_src
-*** Install =Mac App Store= apps
-**** Common
+**** Install =Mac App Store= apps
+***** Common
 #+begin_src sh
   # Install Microsoft Remote Desktop
   mas install 1295203466
 #+end_src
-**** Home
+***** Home
 #+begin_src sh
   # Install GrandPerspective
   mas install 1111570163
@@ -177,8 +185,8 @@ git submodules update --init --recursive
   # Install Giphy Capture
   mas install 668208984
 #+end_src
-*** Validate using =Brewfile=
-**** For new machine
+**** Validate using =Brewfile=
+***** For new machine
 Create a new directory for this machine under ~"./package_manager_exports/brewfiles"~ and create a new dump file:
 #+begin_src sh
   # change directory to the exported brewfiles
@@ -190,7 +198,7 @@ Create a new directory for this machine under ~"./package_manager_exports/brewfi
   # dump brewfile
   brew bundle dump
 #+end_src
-**** For refresh machine
+***** For refresh machine
 Navigate to the existing =brewfile= for this machine under ~"./package_manager_exports/brewfiles"~ and force a new dump and then compare to old using ~git diff~:
 #+begin_src sh
   # change directory to the exported brewfiles
@@ -202,16 +210,78 @@ Navigate to the existing =brewfile= for this machine under ~"./package_manager_e
   # dump brewfile
   brew bundle dump --force
 #+end_src
-** Install package manager
-One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
+** On =Windows=                                                      :Windows:
+*** Using =Scoop=
+**** Install =Scoop=
+#+begin_src ps
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#+end_src
+**** Bulk install using export file
+Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
+#+begin_src ps
+cd ./package_manager_exports/scoop/  # change direcory to the exported scoop files
+# Edit scoop file if needed
+scoop install windows_rig.scoop      # bulk install
+#+end_src
+**** Creating/Updating Scoop export
+#+begin_src ps
+scoop export <filename>
+#+end_src
+*** Using =Chocolatey=
+**** Install =Chocolatey=
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
 
-*Update (3/30/2022)*:
-I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
-*Update (6/13/2022)*:
-I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
+***** Install =Scoop=
+#+begin_src ps
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#+end_src
 
-*** Install =Nix= & =Home Manager=                                :Linux:macOS:
-**** Install =Nix= first
+**** Install packages
+*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
+*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
+#+begin_src ps
+choco install AutoHotKey --install-arguments '/uiAccess=1'
+choco install msys2
+choco install git
+choco install gnuwin32-m4
+#+end_src
+*** Using =Winget=
+**** Install =Winget=
++ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
+*** Using =Pacman= on =Msys2=
+**** Install =Pacman=
+We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
++ We use ~-g~ flag to install globally instead of per user
+#+begin_src sh
+scoop install msys2 -g
+#+end_src
+**** Install Packages
+#+begin_src sh
+  pacman -S \
+         man-db \
+         stow \
+         tmux \
+         zsh \
+         ${MINGW_PACKAGE_PREFIX}-bat \
+         ${MINGW_PACKAGE_PREFIX}-emacs \
+         ${MINGW_PACKAGE_PREFIX}-gnupg \
+         ${MINGW_PACKAGE_PREFIX}-neovim \
+         ${MINGW_PACKAGE_PREFIX}-fd \
+         ${MINGW_PACKAGE_PREFIX}-jq \
+         ${MINGW_PACKAGE_PREFIX}-fastfetch \
+         ${MINGW_PACKAGE_PREFIX}-ripgrep \
+         ${MINGW_PACKAGE_PREFIX}-zoxide \
+         ${MINGW_PACKAGE_PREFIX}-eza \
+         ${MINGW_PACKAGE_PREFIX}-tree-sitter \
+         ${MINGW_PACKAGE_PREFIX}-oh-my-posh
+#+end_src
+
+** On =Linux=                                                          :Linux:
+*** Using =Nix= & =Home Manager=
+**** Install =Nix= & =Home Manager=
+***** Install =Nix= first
 #+begin_src sh
 sh <(curl -L https://nixos.org/nix/install) --daemon
 
@@ -223,43 +293,15 @@ gpg2 --verify ./install-nix-2.3.16.asc
 sh ./install-nix-2.3.16
 #+end_src
 
-***** Uninstalling
+****** Uninstalling
 + https://nixos.org/manual/nix/stable/installation/uninstall.html
 
-**** Install =Home manager=
+***** Install =Home manager=
 #+begin_src sh
 nix-env -iA nixpkgs.home-manager
 #+end_src
 
-*** Install =Scoop= :Windows:
-#+begin_src ps
-Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-#+end_src
-
-*** Install =Chocolatey= :Windows:
-#+begin_src ps
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-#+end_src
-
-*** Install =Winget= :Windows:
-+ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
-
-*** Install =Pacman= :Windows:
-We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-+ We use ~-g~ flag to install globally instead of per user
-#+begin_src sh
-scoop install msys2 -g
-#+end_src
-
-*** Install =Python Index Package manager= :Linux:macOS:Windows:
-It comes with =Python= and can be run using:
-#+begin_src sh
-python3 -m pip <PIP command params>
-#+end_src
-
-** Install packages
-Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a =Brewfile=, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
-*** Install packages using =Nix= // =Home Manager=
+**** Edit ~home.nix~ file
 =Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
 #+begin_src nix
 { pkgs, ... }:
@@ -284,21 +326,21 @@ Initially I listed out the actual commands for installing packages, and then mov
 }
 #+end_src
 
-*** Install packages using =Scoop= :Windows:
-**** Bulk install using export file
-Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
-#+begin_src ps
-cd ./package_manager_exports/scoop/  # change direcory to the exported scoop files
-# Edit scoop file if needed
-scoop install windows_rig.scoop      # bulk install
+**** Run sync command
+#+begin_src sh
+home-manager switch
 #+end_src
 
-**** Creating/Updating Scoop export
-#+begin_src ps
-scoop export <filename>
+*** Using =Python Index Package (PIP)= manager
+**** Install =PIP=
+It comes with =Python= and can be run using:
+#+begin_src sh
+python3 -m pip <PIP command params>
 #+end_src
-
-*** Install packages using =Python PIP= :Linux:macOS:Windows:
+**** Install python apps with =pip=
+#+begin_src sh
+python3 -m pip install ntfy
+#+end_src
 **** Bulk install using export file
 The =python= =pip= export file is called a =requirments= file:
 #+begin_src sh
@@ -309,41 +351,10 @@ python3 -m pip install -r <path-to-requirements.txt>
 python3 -m pip freeze > requirements.txt
 #+end_src
 
-*** Install packages using =Pacman= :Windows:
-#+begin_src sh
-  pacman -S \
-         man-db \
-         stow \
-         tmux \
-         zsh \
-         ${MINGW_PACKAGE_PREFIX}-bat \
-         ${MINGW_PACKAGE_PREFIX}-emacs \
-         ${MINGW_PACKAGE_PREFIX}-gnupg \
-         ${MINGW_PACKAGE_PREFIX}-neovim \
-         ${MINGW_PACKAGE_PREFIX}-fd \
-         ${MINGW_PACKAGE_PREFIX}-jq \
-         ${MINGW_PACKAGE_PREFIX}-fastfetch \
-         ${MINGW_PACKAGE_PREFIX}-ripgrep \
-         ${MINGW_PACKAGE_PREFIX}-zoxide \
-         ${MINGW_PACKAGE_PREFIX}-eza \
-         ${MINGW_PACKAGE_PREFIX}-tree-sitter \
-         ${MINGW_PACKAGE_PREFIX}-oh-my-posh
-#+end_src
-
-*** Install packages using =Chocolatey= :Windows:
-*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
-*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
-#+begin_src ps
-choco install AutoHotKey --install-arguments '/uiAccess=1'
-choco install msys2
-choco install git
-choco install gnuwin32-m4
-#+end_src
-
-** Install from sources :Linux:
+*** Install from sources
 Sometimes we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
 *Update (6/13/2022)*: I should correct that it is not the case that =Homebrew/Linuxbrew= does not run on =CentoOS 7=, but I have run into issues over time, which may be due to some other system causing issues e.g. work related management/security software.
-*** Installing =git=
+**** Installing =git=
 #+BEGIN_SRC sh
 export VER="2.27.0"
 wget https://github.com/git/git/archive/v${VER}.tar.gz
@@ -356,7 +367,7 @@ sudo make
 sudo make install
 #+END_SRC
 
-*** Installing =curl=
+**** Installing =curl=
 #+BEGIN_SRC sh
 export VER="7.67.0"
 wget https://curl.haxx.se/download/curl-${VER}.tar.gz
@@ -367,8 +378,8 @@ make
 sudo make install
 #+END_SRC
 
-*** Installing =Tmux=
-**** Install =Tmux= from =Github=
+**** Installing =Tmux=
+***** Install =Tmux= from =Github=
 #+BEGIN_SRC sh
 git clone https://github.com/tmux/tmux.git
 cd tmux
@@ -377,7 +388,7 @@ sh autogen.sh
 make && sudo make install
 #+END_SRC
 
-**** Install =Tmux= from =Sourceforge=
+***** Install =Tmux= from =Sourceforge=
 #+BEGIN_SRC sh
 # Install libevent
 LIBEVENT_VERSION="2.0.21-stable"
@@ -398,7 +409,7 @@ LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib" ./configure --prefix=/usr/l
 make && sudo make install
 #+END_SRC
 
-*** Installing =ZSH=
+**** Installing =ZSH=
 #+BEGIN_SRC sh
 ZSH_SRC_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
 ZSH_SRC_FILE="zsh.tar.xz"
@@ -412,22 +423,17 @@ tar xJvf "$ZSH_SRC_FILE" --strip-components 1
 make -j && sudo make install
 #+END_SRC
 
-*** Installing =fd= using =Cargo=
+**** Installing =fd= using =Cargo=
 #+BEGIN_SRC sh
 cargo install fd-find
 ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
 
-*** Installing =bat= using =Cargo=
+**** Installing =bat= using =Cargo=
 #+BEGIN_SRC sh
 cargo install bat
 ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
 #+END_SRC
-
-** Install python apps with =pip=
-#+begin_src sh
-python3 -m pip install ntfy
-#+end_src
 
 ** List of used applications
 *** Terminals
