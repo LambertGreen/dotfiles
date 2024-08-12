@@ -145,10 +145,23 @@ python3 -m pip freeze > requirements.txt
 
 *** Install packages using =Pacman= :Windows:
 #+begin_src sh
-pacman -Syu # first update system
-pacman -S base-devel git tmux zsh vim man-pages-posix neofetch fzy
-pacman -S mingw-w64-x86_64-{giflib,gnutls,jbigkit,imagemagick,jansson,lib{jpeg-turbo,png,rsvg,tiff,xml2},toolchain,xpm-nox} # for building Emacs
-pacman -S mingw-w64-x86_64-{aspell, aspell-en, rustup} # for running Emacs
+  pacman -S \
+         man-db \
+         stow \
+         tmux \
+         zsh \
+         ${MINGW_PACKAGE_PREFIX}-bat \
+         ${MINGW_PACKAGE_PREFIX}-emacs \
+         ${MINGW_PACKAGE_PREFIX}-gnupg \
+         ${MINGW_PACKAGE_PREFIX}-neovim \
+         ${MINGW_PACKAGE_PREFIX}-fd \
+         ${MINGW_PACKAGE_PREFIX}-jq \
+         ${MINGW_PACKAGE_PREFIX}-fastfetch \
+         ${MINGW_PACKAGE_PREFIX}-ripgrep \
+         ${MINGW_PACKAGE_PREFIX}-zoxide \
+         ${MINGW_PACKAGE_PREFIX}-eza \
+         ${MINGW_PACKAGE_PREFIX}-tree-sitter \
+         ${MINGW_PACKAGE_PREFIX}-oh-my-posh
 #+end_src
 
 *** Install packages using =Chocolatey= :Windows:
