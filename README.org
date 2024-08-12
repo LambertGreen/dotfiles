@@ -15,12 +15,14 @@ git submodules update --init --recursive
 #+end_src
 
 * Install apps
-One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
+On each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
 
-*Update (3/30/2022)*:
-I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
-*Update (6/13/2022)*:
-I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
++ *Update (3/30/2022)*:
+   I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
++ *Update (6/13/2022)*:
+  I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
++ *Update (8/12/2024)*:
+  Now that I don't use a =CentOS 7= system there is no need for the workarounds of building apps locally nor a need for using =Nix=. Of course =Nix= is useful all on its own, but given I have to use =Scoop= and =Pacman= on Windows, it is simpler to also use =Homebrew= and Linux system package managers.
 
 ** On =macOS=                                                          :macOS:
 *** using =Homebrew=
@@ -89,6 +91,7 @@ I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=
        neovim \
        ninja \
        node \
+       ntfy \
        onefetch \
        openjdk \
        openssl@3 \
@@ -216,6 +219,8 @@ Navigate to the existing =brewfile= for this machine under ~"./package_manager_e
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
+**** TODO Add booststrap commandline
+***** [ ] Add pwsh
 **** Bulk install using export file
 Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
 #+begin_src ps
@@ -232,7 +237,6 @@ scoop export <filename>
 #+begin_src ps
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 #+end_src
-
 ***** Install =Scoop=
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
@@ -350,324 +354,8 @@ python3 -m pip install -r <path-to-requirements.txt>
 #+begin_src sh
 python3 -m pip freeze > requirements.txt
 #+end_src
-
-*** Install from sources
-Sometimes we have to install from sources on systems that have outdated packages and that =Homebrew= does not run on e.g. =CentOS 7=.
-*Update (6/13/2022)*: I should correct that it is not the case that =Homebrew/Linuxbrew= does not run on =CentoOS 7=, but I have run into issues over time, which may be due to some other system causing issues e.g. work related management/security software.
-**** Installing =git=
-#+BEGIN_SRC sh
-export VER="2.27.0"
-wget https://github.com/git/git/archive/v${VER}.tar.gz
-tar -xvf v${VER}.tar.gz
-rm -f v${VER}.tar.gz
-cd git-*
-make configure
-sudo ./configure --prefix=/usr/local
-sudo make
-sudo make install
-#+END_SRC
-
-**** Installing =curl=
-#+BEGIN_SRC sh
-export VER="7.67.0"
-wget https://curl.haxx.se/download/curl-${VER}.tar.gz
-gunzip -c curl-${VER}.tar.gz | tar xvf -
-cd curl-${VER}
-./configure --with-ssl --prefix=/usr/local
-make
-sudo make install
-#+END_SRC
-
-**** Installing =Tmux=
-***** Install =Tmux= from =Github=
-#+BEGIN_SRC sh
-git clone https://github.com/tmux/tmux.git
-cd tmux
-sh autogen.sh
-./configure
-make && sudo make install
-#+END_SRC
-
-***** Install =Tmux= from =Sourceforge=
-#+BEGIN_SRC sh
-# Install libevent
-LIBEVENT_VERSION="2.0.21-stable"
-[ -d ~/packages ] || mkdir ~/packages; pushd ~/packages;
-wget https://github.com/downloads/libevent/libevent/libevent-$LIBEVENT_VERSION.tar.gz
-tar zxvf libevent-$LIBEVENT_VERSION.tar.gz
-cd libevent-$LIBEVENT_VERSION
-./configure --prefix=/usr/local
-make && sudo make install
-
-# Install Tmux
-TMUX_VERSION="3.2"
-[ -d ~/packages ] || mkdir ~/packages; pushd ~/packages;
-wget http://downloads.sourceforge.net/tmux/tmux-$TMUX_VERSION.tar.gz
-tar zxvf tmux-$TMUX_VERSION.tar.gz
-cd tmux-$TMUX_VERSION
-LDFLAGS="-L/usr/local/lib -Wl,-rpath=/usr/local/lib" ./configure --prefix=/usr/local
-make && sudo make install
-#+END_SRC
-
-**** Installing =ZSH=
-#+BEGIN_SRC sh
-ZSH_SRC_LINK="https://sourceforge.net/projects/zsh/files/latest/download"
-ZSH_SRC_FILE="zsh.tar.xz"
-
-TMP_DIR=$(mktemp -d) && cd $TMP_DIR
-curl -Lo "$ZSH_SRC_FILE" "$ZSH_SRC_LINK"
-tar xJvf "$ZSH_SRC_FILE" --strip-components 1
-./configure --prefix="/usr/local" \
-    CPPFLAGS="-I/usr/local/include" \
-    LDFLAGS="-L/usr/local/lib"
-make -j && sudo make install
-#+END_SRC
-
-**** Installing =fd= using =Cargo=
-#+BEGIN_SRC sh
-cargo install fd-find
-ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
-#+END_SRC
-
-**** Installing =bat= using =Cargo=
-#+BEGIN_SRC sh
-cargo install bat
-ln -s ~/.cargo/bin ~/bin # optional if the cargo bin is default in PATH
-#+END_SRC
-
-** List of used applications
-*** Terminals
-**** Common
-+ *Update (6/6/2023)*: I am preferring to use =Wezterm= over =Alacritty=:
-  + =Wezterm= has better font rendering, and config is done via =Lua=
-#+begin_example
-alacritty
-wezterm
-#+end_example
-
-**** Posix
-#+begin_example
-tmux
-#+end_example
-
-**** macOS
-#+begin_example
-iterm2
-#+end_example
-
-**** Windows
-#+begin_example
-WindowsTerminal
-#+end_example
-
-*** Shell
-**** Common
-#+begin_example
-neofetch
-ntfy
-#+end_example
-
-**** Posix
-#+begin_example
-zsh
-vivid
-#+end_example
-
-**** Windows
-#+begin_example
-clink
-Powershell
-#+end_example
-
-*** Editor/File Utilities
-**** Common
-#+begin_example
-emacs
-neovim
-
-ispell
-bat
-dust
-fd
-fzf
-ripgrep
-tree
-#+end_example
-
-**** Windows
-#+begin_example
-gnuwin32-m4
-#+end_example
-
-**** macOS
-#+begin_example
-coreutils
-#+end_example
-
-*** Communications
-**** Common
-#+begin_example
-Slack
-Whatsapp
-#+end_example
-
-**** Posix
-#+begin_example
-isync
-mu
-#+end_example
-
-*** Fonts
-**** Common
-#+begin_example
-Hack
-Iosevka
-#+end_example
-
-*** System Utilities
-**** Common
-#+begin_example
-curl
-openssh
-topgrade
-#+end_example
-
-**** Posix
-#+begin_example
-htop
-pstree
-stow
-tldr
-keychain
-#+end_example
-
-**** Windows
-#+begin_example
-ack
-aria2
-findutils
-wget
-sudo
-
-7zip
-everything
-processhacker
-rapidee
-sysinternals
-windirstat
-#+end_example
-
-*** User Utilities
-**** Common
-#+begin_example
-openssh
-#+end_example
-
-**** Posix
-#+begin_example
-isync
-mu
-stow
-sword
-#+end_example
-
-*** Desktop Utilities
-**** Common
-#+begin_example
-divvy
-nomachine
-#+end_example
-
-**** macOS
-#+begin_example
-d12frosted/emacs-plus
-daviderestivo/emacs-head
-amethyst                     # unused - replaced by Hammerspoon
-caffeine                     # unused - replaced by Hammerspoon
-keycastr                     # unused - replaced by Hammerspoon
-appcleaner
-alfred
-cursorcerer
-lincastor                    # TODO Replace Lincastor with Hammerspoon
-hammerspoon
-shortcutdetective
-basictex
-karabiner-elements
-#+end_example
-
-**** Linux
-#+begin_example
-albert
-#+end_example
-
-**** Windows
-#+begin_example
-autohotkey
-carnac
-keypirinha
-powertoys
-mousejiggler
-sumatrapdf
-vlc
-wox
-#+end_example
-
-*** Development Utilities
-**** Common
-#+begin_example
-automake
-clang-format
-cmake
-direnv
-docker
-editorconfig
-freetds@0.91
-git
-gradle
-jenv
-jq
-ninja
-node
-openjdk
-perl
-pyenv
-pyenv-virtualenv
-python
-qt4
-pyqt4
-rbenv
-rbtools
-ruby
-ruby-build
-universal-ctags
-unixodbc
-#+end_example
-
-**** Posix
-#+begin_example
-gcc
-gdb
-llvm
-#+end_example
-
-**** macOS
-#+begin_example
-ptrace
-xcode
-#+end_example
-
-**** Linux
-#+begin_example
-fswatch
-strace
-#+end_example
-
-**** Windows
-#+begin_example
-vcredist2015
-windbg
-#+end_example
-
+*** TODO Add =apt= command-line for =Ubuntu=
+*** TODO Add =linuxbrew= command-line
 * Install app specific plugin managers
 ** Install =Tmux Plugin Manager= :automated:
 The =Tmux= configuration file checks for the existence of the local directory, and if not present it runs the below command:
