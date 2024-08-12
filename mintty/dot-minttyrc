@@ -1,7 +1,7 @@
-ThemeFile=dracula
+ThemeFile=flat-ui
 Transparency=low
 Font=Iosevka NF
-FontHeight=13
+FontHeight=11
 FontSmoothing=full
 BoldAsFont=yes
 BoldAsColour=no
