@@ -28,7 +28,7 @@ I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
 
-*** Install =Nix=/=Home Manager= :Linux:macOS:
+*** Install =Nix= & =Home Manager=                              :Linux:macOS:
 **** Install =Nix= first
 #+begin_src sh
 sh <(curl -L https://nixos.org/nix/install) --daemon
@@ -64,8 +64,9 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 *** Install =Pacman= :Windows:
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
++ We use ~-g~ flag to install globally instead of per user
 #+begin_src sh
-scoop install msys2
+scoop install msys2 -g
 #+end_src
 
 *** Install =Python Index Package manager= :Linux:macOS:Windows:
