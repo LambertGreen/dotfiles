@@ -210,12 +210,7 @@ I have now starting using =Nix= and =Home Manager= as it enabled me to install =
 *Update (6/13/2022)*:
 I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
 
-*** Install =Homebrew=                                          :Linux:macOS:
-#+begin_src sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#+end_src
-
-*** Install =Nix= & =Home Manager=                              :Linux:macOS:
+*** Install =Nix= & =Home Manager=                                :Linux:macOS:
 **** Install =Nix= first
 #+begin_src sh
 sh <(curl -L https://nixos.org/nix/install) --daemon
@@ -264,23 +259,6 @@ python3 -m pip <PIP command params>
 
 ** Install packages
 Initially I listed out the actual commands for installing packages, and then moved to providing commands for generating an import file e.g. a =Brewfile=, but since one may need to use more than one package manager, I feel just listing the applications I want installed is sufficient, and in addition to that I am now checking in (in this very dotfiles repo) the export files from the package managers in use for quick importing.
-*** Install packages using =Homebrew= :Linux:macOS:
-**** Bulk install using =Brewfile=
-Navigate to the ~brewfiles~ folder for the particular machine where the ~Brewfile~ export was generated, and run the import command e.g.:
-#+begin_src sh
-cd ./package_manager_exports/brewfiles/  # change directory to the exported brewfiles
-cd MacbookAir                            # change directory for the relevant machine
-# Edit Brewfile if needed to comment out uneeded packages
-brew bundle                              # bulk install packages
-#+end_src
-
-***** Checked in =Brewfile='s
-- [[file:Brewfiles/][Macbook Air]]
-**** Creating/Updating =Brewfile=
-#+begin_src sh
-brew bundle dump
-#+end_src
-
 *** Install packages using =Nix= // =Home Manager=
 =Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
 #+begin_src nix
