@@ -15,6 +15,193 @@ git submodules update --init --recursive
 #+end_src
 
 * Install apps
+** using =Homebrew=                             :Linux:macOS:
+*** Install =Homebrew=
+#+begin_src sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#+end_src
+*** Install =Taps=
+#+begin_src sh
+  brew tap adoptopenjdk/openjdk
+  brew tap buo/cask-upgrade
+  brew tap cartr/qt4
+  brew tap d12frosted/emacs-plus
+  brew tap homebrew/bundle
+  brew tap homebrew/cask
+  brew tap homebrew/cask-versions
+  brew tap homebrew/cask-fonts
+#+end_src
+*** Install =Packages=
+**** Common
+#+begin_src sh
+  brew install \
+       awscli \
+       bash-language-server \
+       bat \
+       black \
+       catch2 \
+       ccls \
+       clang-format \
+       cliclick \
+       cloc \
+       cmake \
+       cmake-docs \
+       coreutils \
+       cowsay \
+       curl \
+       d12frosted/emacs-plus/emacs-plus@31 \
+       direnv \
+       doxygen \
+       dust \
+       editorconfig \
+       enchant \
+       expat \
+       eza \
+       fd \
+       fortune \
+       gcc \
+       git \
+       git-delta \
+       gnu-sed \
+       gnu-typist \
+       gnupg \
+       gnuplot \
+       gradle \
+       graphviz \
+       htop \
+       hyperfine \
+       imagemagick \
+       jenv \
+       jq \
+       keychain \
+       mailutils \
+       markdown \
+       mas \
+       mermaid-cli \
+       neovim \
+       ninja \
+       node \
+       onefetch \
+       openjdk \
+       openssl@3 \
+       p7zip \
+       pcre2 \
+       poppler \
+       postgresql \
+       pstree \
+       pyenv \
+       pyenv-virtualenv \
+       python \
+       rbenv \
+       ripgrep \
+       ruby \
+       scc \
+       shellcheck \
+       shfmt \
+       sip \
+       stow \
+       tldr \
+       tmux \
+       topgrade \
+       trash \
+       unixodbc \
+       vivid \
+       vscode-langservers-extracted \
+       wget \
+#+end_src
+**** Home
+#+begin_src sh
+  brew install \
+       exercism \
+       llvm \
+       mono \
+       speedtest-cli \
+       sword \
+       typespeed \
+#+end_src
+**** Work
+#+begin_src sh
+  brew install \
+       cartr/qt4/pyqt@4 \
+       freetds@0.91 \
+       rbtools \
+#+end_src
+*** Install =Casks=
+**** Common
+#+begin_src sh
+  brew install --cask \
+       alfred@4 \
+       appcleaner \
+       cursorcerer \
+       contexts \
+       caffeine \
+       divvy \
+       font-iosevka-nerd-font \
+       hammerspoon \
+       mos \
+       stats \
+       vanilla \
+       wezterm \
+#+end_src
+**** Home
+#+begin_src sh
+  brew install --cask \
+       amethyst \
+       gimp \
+       karabiner-elements \
+       steam \
+       whatsapp \
+#+end_src
+**** Work
+#+begin_src sh
+  brew install --cask \
+       1password \
+       p4 \
+       quip \
+       slack \
+#+end_src
+*** Install =Mac App Store= apps
+**** Common
+#+begin_src sh
+  # Install Microsoft Remote Desktop
+  mas install 1295203466
+#+end_src
+**** Home
+#+begin_src sh
+  # Install GrandPerspective
+  mas install 1111570163
+  # Install Kindle
+  mas install 405399194
+  # Intall feedly
+  mas install  865500966
+  # Install Giphy Capture
+  mas install 668208984
+#+end_src
+*** Validate using =Brewfile=
+**** For new machine
+Create a new directory for this machine under ~"./package_manager_exports/brewfiles"~ and create a new dump file:
+#+begin_src sh
+  # change directory to the exported brewfiles
+  cd ./package_manager_exports/brewfiles/
+
+  # change directory for the relevant machine
+  mkdir <MachineType> && cd <MachineType>
+
+  # dump brewfile
+  brew bundle dump
+#+end_src
+**** For refresh machine
+Navigate to the existing =brewfile= for this machine under ~"./package_manager_exports/brewfiles"~ and force a new dump and then compare to old using ~git diff~:
+#+begin_src sh
+  # change directory to the exported brewfiles
+  cd ./package_manager_exports/brewfiles/
+
+  # change directory for the relevant machine
+  cd <MachineType>
+
+  # dump brewfile
+  brew bundle dump --force
+#+end_src
 ** Install package manager
 One each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
 
@@ -23,7 +210,7 @@ I have now starting using =Nix= and =Home Manager= as it enabled me to install =
 *Update (6/13/2022)*:
 I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
 
-*** Install =Homebrew= :Linux:macOS:
+*** Install =Homebrew=                                          :Linux:macOS:
 #+begin_src sh
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 #+end_src
@@ -946,6 +1133,12 @@ CLOSED: [2023-02-02 Thu 13:05]
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description
 + Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
+
+*** TODO Add app for doing presentations
+**** Requirements [/]
+***** [ ] Show mouse cursor
+***** [ ] Zoom in/out
+
 ** Completed [8/8]
 *** By OS Platform [0/0]
 **** Windows [4/4]
