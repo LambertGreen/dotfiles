@@ -219,41 +219,93 @@ Navigate to the existing =brewfile= for this machine under ~"./package_manager_e
 #+begin_src ps
 Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
 #+end_src
-**** TODO Add booststrap commandline
-***** [ ] Add pwsh
-**** Bulk install using export file
+**** Add =Buckets=
+#+begin_src ps
+  scoop bucket add extras
+  scoop bucket add nerd-fonts
+  scoop bucket add java
+#+end_src
+**** Install =main= packages
+***** Common
+#+begin_src ps
+  scoop install `
+      ack `
+      bat `
+      cacert `
+      clink `
+      cmake `
+      coreutils `
+      curl `
+      dark `
+      dust `
+      fd `
+      findutils `
+      fzf `
+      gawk `
+      git `
+      grep `
+      lessmsi `
+      neovim `
+      nodejs-lts `
+      pwsh `
+      python `
+      ripgrep `
+      sed `
+      sudo `
+      tldr `
+      touch `
+      wget `
+#+end_src
+**** Install =extras=
+***** Common
+#+begin_src ps
+  scoop install `
+      carnac `
+      dbeaver `
+      emacs `
+      everything `
+      jd-gui `
+      keypirinha `
+      rapidee `
+      switcheroo `
+      vcredist2022 `
+      vscode `
+      wezterm `
+      windirstat `
+#+end_src
+***** Home
+#+begin_src ps
+  scoop install `
+      irfanview `
+      processhacker `
+      switcheroo `
+      winrar `
+#+end_src
+***** Work
+#+begin_src ps
+  scoop install `
+    sysinternals `
+#+end_src
+**** Install =fonts=
+#+begin_src ps
+  scoop install `
+      iosevka-nf-mono `
+      iosevka-nf-propo `
+      iosevka-nf `
+#+end_src
+**** Validate using =export= file
+***** Bulk install using export file
 Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
 #+begin_src ps
-cd ./package_manager_exports/scoop/  # change direcory to the exported scoop files
-# Edit scoop file if needed
-scoop install windows_rig.scoop      # bulk install
+  # change directory to the exported scoop files
+  cd ./package_manager_exports/scoop/
+  # Edit scoop file if needed
+  scoop install windows_rig.scoop
 #+end_src
-**** Creating/Updating Scoop export
+***** Creating/Updating Scoop export
 #+begin_src ps
 scoop export <filename>
 #+end_src
-*** Using =Chocolatey=
-**** Install =Chocolatey=
-#+begin_src ps
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-#+end_src
-***** Install =Scoop=
-#+begin_src ps
-Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-#+end_src
-
-**** Install packages
-*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
-*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
-#+begin_src ps
-choco install AutoHotKey --install-arguments '/uiAccess=1'
-choco install msys2
-choco install git
-choco install gnuwin32-m4
-#+end_src
-*** Using =Winget=
-**** Install =Winget=
-+ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
 *** Using =Pacman= on =Msys2=
 **** Install =Pacman=
 We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
@@ -282,6 +334,20 @@ scoop install msys2 -g
          ${MINGW_PACKAGE_PREFIX}-oh-my-posh
 #+end_src
 
+*** Using =Chocolatey=
+**** Install =Chocolatey=
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
+**** Install packages
+*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
+*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
+#+begin_src ps
+choco install AutoHotKey --install-arguments '/uiAccess=1'
+#+end_src
+*** Using =Winget=
+**** Install =Winget=
++ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
 ** On =Linux=                                                          :Linux:
 *** Using =Nix= & =Home Manager=
 **** Install =Nix= & =Home Manager=
