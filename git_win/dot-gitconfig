@@ -23,4 +23,4 @@
 	postBuffer = 524288000
 
 [gpg]
-	program = C:\\tools\\msys64\\usr\\bin\\gpg.exe
+	program = gpg.exe
