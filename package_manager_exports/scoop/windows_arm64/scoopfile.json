@@ -4,9 +4,9 @@
             "Name": "main",
             "Source": "https://github.com/ScoopInstaller/Main",
             "Updated": {
-                "value": "\/Date(1723523288000)\/",
+                "value": "\/Date(1723609722000)\/",
                 "DisplayHint": 2,
-                "DateTime": "Monday, August 12, 2024 9:28:08 PM"
+                "DateTime": "Tuesday, August 13, 2024 9:28:42 PM"
             },
             "Manifests": 1337
         },
@@ -14,9 +14,9 @@
             "Name": "extras",
             "Source": "https://github.com/ScoopInstaller/Extras",
             "Updated": {
-                "value": "\/Date(1723523411000)\/",
+                "value": "\/Date(1723595739000)\/",
                 "DisplayHint": 2,
-                "DateTime": "Monday, August 12, 2024 9:30:11 PM"
+                "DateTime": "Tuesday, August 13, 2024 5:35:39 PM"
             },
             "Manifests": 2054
         },
@@ -46,8 +46,8 @@
             "Info": "64bit",
             "Source": "main",
             "Name": "7zip",
-            "Version": "24.07",
-            "Updated": "\/Date(1719884595899)\/"
+            "Version": "24.08",
+            "Updated": "\/Date(1723616102274)\/"
         },
         {
             "Info": "64bit",
@@ -95,8 +95,8 @@
             "Info": "64bit",
             "Source": "main",
             "Name": "clink",
-            "Version": "1.6.20",
-            "Updated": "\/Date(1723529285230)\/"
+            "Version": "1.6.21",
+            "Updated": "\/Date(1723616105918)\/"
         },
         {
             "Info": "Install failed",
@@ -361,8 +361,8 @@
             "Info": "64bit",
             "Source": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/oh-my-posh.json",
             "Name": "oh-my-posh",
-            "Version": "23.6.2",
-            "Updated": "\/Date(1723454172472)\/"
+            "Version": "23.6.3",
+            "Updated": "\/Date(1723616117780)\/"
         },
         {
             "Info": "64bit",
@@ -417,8 +417,8 @@
             "Info": "64bit",
             "Source": "main",
             "Name": "sqlite",
-            "Version": "3.46.0",
-            "Updated": "\/Date(1719884874026)\/"
+            "Version": "3.46.1",
+            "Updated": "\/Date(1723616120812)\/"
         },
         {
             "Info": "64bit",
