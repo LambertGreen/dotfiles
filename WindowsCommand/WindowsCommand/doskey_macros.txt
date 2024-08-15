@@ -1,6 +1,3 @@
-:: -*- mode: bat  -*-
-:: DOSKEY Macros Configuration
-
 ls=eza --color=always --icons $*
 ll=eza -lh --color=always --icons $*
 lla=eza -lha --color=always --icons $*
