@@ -24,6 +24,7 @@ end
 --
 if wezterm.target_triple:find('windows') then
 	config.font = wezterm.font 'Iosevka NFM'
+	config.font_size = 13
 elseif wezterm.target_triple:find('apple') then
 	config.font = wezterm.font 'Iosevka NFM'
 	config.font_size = 15
@@ -72,6 +73,10 @@ end
 config.enable_csi_u_key_encoding = true
 config.leader = { key = 'a', mods = "ALT", timeout_milliseconds = 2000 }
 config.keys = {
+   -- Use super key based copy/paste
+   { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
+   { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
+
    -- Enter copy mode with Leader+]
    { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
 
