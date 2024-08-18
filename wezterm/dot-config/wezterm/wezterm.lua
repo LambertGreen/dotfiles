@@ -48,7 +48,8 @@ end
 -- Color Scheme
 --
 -- We are trying defaulting to a dark theme. Uncomment the below to default to system.
--- config.color_scheme = scheme_for_appearance(wezterm.gui.get_config.color_scheme = dark_theme -- scheme_for_appearance(wezterm.gui.get_appearance())
+-- config.color_scheme = scheme_for_appearance(wezterm.gui.get_config.color_scheme = dark_theme --
+-- scheme_for_appearance(wezterm.gui.get_appearance())
 
 local function ToggleTheme(window, _)
   -- local current_mode = wezterm.get_config().color_scheme
