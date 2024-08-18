@@ -111,6 +111,7 @@ On each OS platform there are multiple options for package management. On Linux 
        shfmt \
        sip \
        stow \
+       stylua \
        tldr \
        tmux \
        topgrade \
