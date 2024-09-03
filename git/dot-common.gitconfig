@@ -32,5 +32,5 @@
     path = ~/.my.gitconfig
 
 # Work dev folder
-[includeIf "gitdir:**/dev/work/**"]
+[includeIf "gitdir:**/dev/work*/**"]
     path = ~/.work.gitconfig
