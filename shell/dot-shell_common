@@ -96,7 +96,8 @@ lgreen_start_agents() {
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --eval --nogui --quiet --quick id_rsa id_ed25519 --agents gpg)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
         fi
     fi
 }

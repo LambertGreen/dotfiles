@@ -1,0 +1,529 @@
+{
+    "buckets": [
+        {
+            "Name": "main",
+            "Source": "https://github.com/ScoopInstaller/Main",
+            "Updated": {
+                "value": "\/Date(1723609722000)\/",
+                "DisplayHint": 2,
+                "DateTime": "Tuesday, August 13, 2024 9:28:42 PM"
+            },
+            "Manifests": 1337
+        },
+        {
+            "Name": "extras",
+            "Source": "https://github.com/ScoopInstaller/Extras",
+            "Updated": {
+                "value": "\/Date(1723595739000)\/",
+                "DisplayHint": 2,
+                "DateTime": "Tuesday, August 13, 2024 5:35:39 PM"
+            },
+            "Manifests": 2054
+        },
+        {
+            "Name": "nerd-fonts",
+            "Source": "https://github.com/matthewjberger/scoop-nerd-fonts",
+            "Updated": {
+                "value": "\/Date(1723324800000)\/",
+                "DisplayHint": 2,
+                "DateTime": "Saturday, August 10, 2024 2:20:00 PM"
+            },
+            "Manifests": 336
+        },
+        {
+            "Name": "java",
+            "Source": "https://github.com/ScoopInstaller/Java",
+            "Updated": {
+                "value": "\/Date(1723349985000)\/",
+                "DisplayHint": 2,
+                "DateTime": "Saturday, August 10, 2024 9:19:45 PM"
+            },
+            "Manifests": 280
+        }
+    ],
+    "apps": [
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "7zip",
+            "Version": "24.08",
+            "Updated": "\/Date(1723616102274)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "ack",
+            "Version": "3.7.0",
+            "Updated": "\/Date(1723528817980)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "aria2",
+            "Version": "1.37.0-1",
+            "Updated": "\/Date(1723528820155)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "aspell",
+            "Version": "0.60.8.1-2",
+            "Updated": "\/Date(1719884605906)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "bat",
+            "Version": "0.24.0",
+            "Updated": "\/Date(1698301266865)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "cacert",
+            "Version": "2024-07-02",
+            "Updated": "\/Date(1723529281491)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "carnac",
+            "Version": "2.3.13",
+            "Updated": "\/Date(1636871312867)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "clink",
+            "Version": "1.6.21",
+            "Updated": "\/Date(1723616105918)\/"
+        },
+        {
+            "Info": "Install failed",
+            "Source": null,
+            "Name": "cloc",
+            "Version": null,
+            "Updated": "\/Date(1695503354050)\/"
+        },
+        {
+            "Info": "",
+            "Source": "main",
+            "Name": "cmake",
+            "Version": "3.30.2",
+            "Updated": "\/Date(1723454130647)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "coreutils",
+            "Version": "5.97.3",
+            "Updated": "\/Date(1693626700340)\/"
+        },
+        {
+            "Info": "",
+            "Source": "main",
+            "Name": "curl",
+            "Version": "8.9.1_1",
+            "Updated": "\/Date(1723529290663)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "dark",
+            "Version": "3.14",
+            "Updated": "\/Date(1719884629634)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "dbeaver",
+            "Version": "24.1.4",
+            "Updated": "\/Date(1723454145460)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "diffutils",
+            "Version": "3.7",
+            "Updated": "\/Date(1638688790859)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "dust",
+            "Version": "1.1.1",
+            "Updated": "\/Date(1723454146480)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "editorconfig",
+            "Version": "0.12.1",
+            "Updated": "\/Date(1686018045493)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "emacs",
+            "Version": "29.4",
+            "Updated": "\/Date(1723525117492)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "everything",
+            "Version": "1.4.1.1026",
+            "Updated": "\/Date(1723454148483)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "everything-cli",
+            "Version": "1.1.0.27",
+            "Updated": "\/Date(1719884666365)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "eza",
+            "Version": "0.19.0",
+            "Updated": "\/Date(1723454149961)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "fastfetch",
+            "Version": "2.21.1",
+            "Updated": "\/Date(1723327668950)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "fd",
+            "Version": "10.1.0",
+            "Updated": "\/Date(1719884668463)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "findutils",
+            "Version": "4.4.2",
+            "Updated": "\/Date(1723529301863)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "fzf",
+            "Version": "0.54.3",
+            "Updated": "\/Date(1723454151335)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "gawk",
+            "Version": "5.3.0-2",
+            "Updated": "\/Date(1723529305232)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "gdrive",
+            "Version": "3.9.1",
+            "Updated": "\/Date(1723186395542)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "git",
+            "Version": "2.46.0",
+            "Updated": "\/Date(1723529329927)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "grep",
+            "Version": "3.11",
+            "Updated": "\/Date(1723529331196)\/"
+        },
+        {
+            "Info": "Install failed",
+            "Source": null,
+            "Name": "gsudo",
+            "Version": null,
+            "Updated": "\/Date(1698390636844)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "innounp",
+            "Version": "0.50",
+            "Updated": "\/Date(1647842407748)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "nerd-fonts",
+            "Name": "iosevka-nf",
+            "Version": "3.2.1",
+            "Updated": "\/Date(1723530334962)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "nerd-fonts",
+            "Name": "iosevka-nf-mono",
+            "Version": "3.2.1",
+            "Updated": "\/Date(1719884709448)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "nerd-fonts",
+            "Name": "iosevka-nf-propo",
+            "Version": "3.2.1",
+            "Updated": "\/Date(1723184324865)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "irfanview",
+            "Version": "4.67",
+            "Updated": "\/Date(1719884714942)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "jd-gui",
+            "Version": "1.6.6",
+            "Updated": "\/Date(1698823509909)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "jq",
+            "Version": "1.7.1",
+            "Updated": "\/Date(1723526856113)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "just",
+            "Version": "1.34.0",
+            "Updated": "\/Date(1723454152206)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "keypirinha",
+            "Version": "2.26",
+            "Updated": "\/Date(1636433741085)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "lazygit",
+            "Version": "0.43.1",
+            "Updated": "\/Date(1723454153603)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "lessmsi",
+            "Version": "2.1.1",
+            "Updated": "\/Date(1723454154547)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "lua",
+            "Version": "5.4.7-2",
+            "Updated": "\/Date(1723454158296)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "luarocks",
+            "Version": "3.11.1",
+            "Updated": "\/Date(1719884724887)\/"
+        },
+        {
+            "Info": "Install failed",
+            "Source": null,
+            "Name": "msys2",
+            "Version": null,
+            "Updated": "\/Date(1723529331261)\/"
+        },
+        {
+            "Info": "",
+            "Source": "main",
+            "Name": "nodejs",
+            "Version": "22.6.0",
+            "Updated": "\/Date(1723454165210)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "https://github.com/JanDeDobbeleer/oh-my-posh/releases/latest/download/oh-my-posh.json",
+            "Name": "oh-my-posh",
+            "Version": "23.6.3",
+            "Updated": "\/Date(1723616117780)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "java",
+            "Name": "oraclejdk",
+            "Version": "22.0.2",
+            "Updated": "\/Date(1723454196890)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "perl",
+            "Version": "5.38.2.2",
+            "Updated": "\/Date(1723528816254)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "processhacker",
+            "Version": "2.39",
+            "Updated": "\/Date(1638662692309)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "python",
+            "Version": "3.12.5",
+            "Updated": "\/Date(1723454234818)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "rapidee",
+            "Version": "9.2.937",
+            "Updated": "\/Date(1638650323205)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "ripgrep",
+            "Version": "14.1.0",
+            "Updated": "\/Date(1706344992128)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "rustup",
+            "Version": "1.27.1",
+            "Updated": "\/Date(1719884872393)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "sqlite",
+            "Version": "3.46.1",
+            "Updated": "\/Date(1723616120812)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "switcheroo",
+            "Version": "0.10.0-beta.1",
+            "Updated": "\/Date(1641276086833)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "tldr",
+            "Version": "0.6.1",
+            "Updated": "\/Date(1685164798284)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "tree-sitter",
+            "Version": "0.22.6",
+            "Updated": "\/Date(1719884877461)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "vcredist2022",
+            "Version": "14.40.33810.0",
+            "Updated": "\/Date(1719885625112)\/"
+        },
+        {
+            "Info": "",
+            "Source": "extras",
+            "Name": "vscode",
+            "Version": "1.92.1",
+            "Updated": "\/Date(1723454256864)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "wezterm",
+            "Version": "20240203-110809-5046fc22",
+            "Updated": "\/Date(1719885637695)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "windirstat",
+            "Version": "1.1.2",
+            "Updated": "\/Date(1670042098347)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "extras",
+            "Name": "winrar",
+            "Version": "7.01",
+            "Updated": "\/Date(1719885643440)\/"
+        },
+        {
+            "Info": "",
+            "Source": "main",
+            "Name": "zig",
+            "Version": "0.13.0",
+            "Updated": "\/Date(1719885673264)\/"
+        },
+        {
+            "Info": "",
+            "Source": "main",
+            "Name": "zoxide",
+            "Version": "0.9.4",
+            "Updated": "\/Date(1722907038481)\/"
+        },
+        {
+            "Info": "64bit",
+            "Source": "main",
+            "Name": "zstd",
+            "Version": "1.5.6",
+            "Updated": "\/Date(1719885675030)\/"
+        },
+        {
+            "Info": "Global install, 64bit",
+            "Source": "main",
+            "Name": "clink",
+            "Version": "1.5.15",
+            "Updated": "\/Date(1700551610885)\/"
+        },
+        {
+            "Info": "Global install, 64bit",
+            "Source": "nerd-fonts",
+            "Name": "iosevka-nf",
+            "Version": "3.0.2",
+            "Updated": "\/Date(1692749593947)\/"
+        },
+        {
+            "Info": "Global install, 64bit",
+            "Source": "main",
+            "Name": "msys2",
+            "Version": "2024-07-27",
+            "Updated": "\/Date(1723442001044)\/"
+        },
+        {
+            "Info": "Global install, 64bit",
+            "Source": "main",
+            "Name": "openssh",
+            "Version": "9.4.0.0p1",
+            "Updated": "\/Date(1698369269379)\/"
+        }
+    ]
+}

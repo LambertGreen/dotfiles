@@ -116,13 +116,15 @@ lgreen_setup_zinit() {
     # Some info on zinit's parameters
     # - lucid: hides output from the loading of the plugin
 
+    # TODO Not sure if this is still the case
     # FZF does not work on MSYS2 so use FZY instead
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        zinit light aperezdc/zsh-fzy
-    else
-        zinit ice from"gh-r" as"program"
-        zinit light junegunn/fzf
+    # if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+    # if [[ "$UNAME" == *"_NT"* ]]; then
+    #     zinit light aperezdc/zsh-fzy
+    # else
+	# TODO We already install fzf as part of the package manager
+        # zinit ice from"gh-r" as"program"
+        # zinit light junegunn/fzf
 
         # zsh-fzf-history-search
         zinit ice lucid wait'0'
@@ -130,7 +132,7 @@ lgreen_setup_zinit() {
 
         # fzf-tab
         zinit light Aloxaf/fzf-tab
-    fi
+    # fi
 
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
@@ -208,16 +210,17 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
-lgreen_setup_fzy_bindings() {
+# TODO I think we can use fzf now
+# lgreen_setup_fzy_bindings() {
 
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
-        bindkey '\ec' fzy-cd-widget
-        bindkey '^T'  fzy-file-widget
-        bindkey '^R'  fzy-history-widget
-        bindkey '^P'  fzy-proc-widget
-    fi
-}
+#     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+#     if [[ "$UNAME" == *"_NT"* ]]; then
+#         bindkey '\ec' fzy-cd-widget
+#         bindkey '^T'  fzy-file-widget
+#         bindkey '^R'  fzy-history-widget
+#         bindkey '^P'  fzy-proc-widget
+#     fi
+# }
 
 lgreen_zsh_set_history_options() {
    setopt HIST_IGNORE_SPACE
@@ -251,12 +254,13 @@ lgreen_setup_custom_completions
 lgreen_setup_common_shell
 lgreen_init_p10k
 
-if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-if [[ "$UNAME" == *"_NT"* ]]; then
-    lgreen_setup_fzy_bindings
-else
+# TODO I think fzf is now supported on msys2
+# if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
+# if [[ "$UNAME" == *"_NT"* ]]; then
+#     lgreen_setup_fzy_bindings
+# else
     lgreen_setup_fzf_for_zsh
-fi
+# fi
 
 lgreen_source_local_zsh
 lgreen_zsh_init_completions

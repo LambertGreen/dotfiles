@@ -1,10 +1,10 @@
-ls=exa --color=always --icons $*
-ll=exa -lh --color=always --icons $*
-lla=exa -lha --color=always --icons $*
+ls=eza --color=always --icons $*
+ll=eza -lh --color=always --icons $*
+lla=eza -lha --color=always --icons $*
 cat=bat $*
 vim=nvim $*
 e=nvim $*
 alias=doskey /macros
 g=git $*
 gw=gradlew $*
-tree=C:\tools\msys64\usr\bin\tree.exe $*
+tree=tree.exe $*

@@ -24,3 +24,5 @@ Keypirinha.history
 # macOS
 .DS_Store
 /.idea/
+/tmux/dot-tmux/plugins/
+/spelling/dot-config/enchant/*.exc

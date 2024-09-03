@@ -24,6 +24,7 @@ brew "awscli"
 brew "node"
 brew "bash-language-server"
 brew "bat"
+brew "python@3.12"
 brew "black", link: false
 brew "gcc"
 brew "btop"
@@ -47,9 +48,9 @@ brew "doxygen"
 brew "dust"
 brew "editorconfig"
 brew "enchant"
-brew "exa"
 brew "exercism"
 brew "expat"
+brew "eza"
 brew "fd"
 brew "fennel"
 brew "fortune"
@@ -70,6 +71,7 @@ brew "gnuplot"
 brew "go"
 brew "pkg-config"
 brew "gobject-introspection"
+brew "openjdk"
 brew "gradle"
 brew "librsvg"
 brew "graphviz"
@@ -210,6 +212,7 @@ mas "Flow", id: 1423210932
 mas "GarageBand", id: 682658836
 mas "iMovie", id: 408981434
 mas "Keynote", id: 409183694
+mas "Microsoft Remote Desktop", id: 1295203466
 mas "Numbers", id: 409203825
 mas "Pages", id: 409201541
 mas "The Unarchiver", id: 425424353

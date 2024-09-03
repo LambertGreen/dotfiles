@@ -11,9 +11,12 @@ function set_dark_mode()
     print("Set LS_COLORS for dark mode!")
 end
 
-local aliases = clink.get_aliases()
-aliases["light"] = "clink.light"
-aliases["dark"] = "clink.dark"
+-- TODO Double check latest version of Clink to see if there is
+-- some support for aliases or not.
+--
+-- local aliases = clink.get_aliases()
+-- aliases["light"] = "clink.light"
+-- aliases["dark"] = "clink.dark"
 
 
 function clink.onfiltermatches(matches)
