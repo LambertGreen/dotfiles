@@ -537,24 +537,52 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
 ** Symlink dotfiles using =Gnu Stow= :Linux:macOS:Windows:
 *** Stow =Posix= configs
 #+begin_src sh
-stow shell git git_my git_work tmux vim nvim emacs spelling
+  stow \
+      emacs \
+      git \
+      git_my \
+      git_work \
+      nvim \
+      shell \
+      spelling \
+      tmux \
+      vim \
+      wezterm
 #+end_src
-*Note*: =stow= on =msys2= does not actually create symlinks, and instead does a copy.
 
 *** Stow =macOS= config
 #+begin_src sh
-stow shell_osx git_osx alacritty_osx hammerspoon
+    stow \
+        alacritty_osx \
+        git_osx \
+        hammerspoon \
+        shell_osx
 #+end_src
 
 *** Stow =Linux= config
 #+begin_src sh
-stow shell_linux git_linux alacritty_linux
+    stow \
+        alacritty_linux \
+        git_linux \
+        shell_linux
 #+end_src
 
 *** Stow =Windows= config
 + Run =mingw= as Administrator
 #+begin_src sh
-stow WindowsPowerShell WindowsTerminal Keypirinha autohotkey clink emacs git git_my git_work git_win nvim_win tmux win_wsl
+    stow \
+        Keypirinha \
+        WindowsPowerShell \
+        WindowsTerminal \
+        autohotkey \
+        clink \
+        emacs \
+        git \
+        git_my \
+        git_win \
+        git_work \
+        nvim_win \
+        tmux win_wsl
 #+end_src
 
 * Special app configurations
