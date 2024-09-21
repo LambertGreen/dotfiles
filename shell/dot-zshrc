@@ -156,6 +156,9 @@ lgreen_setup_zinit() {
 
     # Go back up directories without needing to spam `cd ../../..`
     zinit light Tarrasch/zsh-bd
+
+    # Set terminal title based on current directory, shell command, etc.
+    zinit light trystan2k/zsh-tab-title
 }
 
 lgreen_zsh_show_my_functions() {
@@ -226,6 +229,12 @@ lgreen_zsh_set_history_options() {
    setopt HIST_IGNORE_SPACE
    setopt HIST_IGNORE_DUPS
 }
+
+lgreen_zsh_set_title_suffix() {
+    ZSH_TAB_TITLE_ADDITIONAL_TERMS='wezterm'
+    ZSH_TAB_TITLE_SUFFIX=' - Terminal'
+}
+
 #-------------------
 # Main
 #-------------------
@@ -266,6 +275,7 @@ lgreen_source_local_zsh
 lgreen_zsh_init_completions
 lgreen_fixup_zsh_autosuggestion_highlight_style
 lgreen_zsh_set_history_options
+lgreen_zsh_set_title_suffix
 lgreen_setup_emacs_vterm
 lgreen_setup_running_inside_emacs_eat_for_zsh
 lgreen_setup_direnv_for_zsh
