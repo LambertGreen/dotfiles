@@ -38,3 +38,4 @@
 
 [gpg]
 	program = /opt/homebrew/bin/gpg
+	use-agent = true
