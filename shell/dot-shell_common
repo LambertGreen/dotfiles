@@ -292,12 +292,12 @@ lgreen_setup_running_inside_emacs() {
 }
 
 lgreen_setup_running_inside_emacs_eat_for_bash() {
-    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/bash"
 }
 
 lgreen_setup_running_inside_emacs_eat_for_zsh() {
-    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 }
 
@@ -634,11 +634,11 @@ main() {
 
     if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
     if [ "$UNAME" = "Linux" ]; then
-	lgreen_setup_fzf
+        lgreen_setup_fzf
     elif [ "$UNAME" = "Darwin" ]; then
-	lgreen_setup_fzf
+        lgreen_setup_fzf
     elif [[ "$UNAME" == *"_NT"* ]]; then
-	lgreen_setup_dev_env_rust
+        lgreen_setup_dev_env_rust
     fi
 
     lgreen_setup_dev_env_all
