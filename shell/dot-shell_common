@@ -301,6 +301,10 @@ lgreen_setup_running_inside_emacs_eat_for_zsh() {
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 }
 
+lgreen_setup_ripgrep() {
+    export RIPGREP_CONFIG_PATH=~/.ripgreprc
+}
+
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
         command rg -p "$@" | less -RFX
@@ -619,6 +623,7 @@ main() {
     lgreen_start_agents
     lgreen_setup_running_inside_emacs
     lgreen_setup_aliases
+    lgreen_setup_ripgrep
     lgreen_source_local_shell
     lgreen_source_work_shell
     lgreen_setup_tmux_all
