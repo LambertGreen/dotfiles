@@ -456,7 +456,20 @@ import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-pa
 * Install app integrations
 Some of these are auto-installed, by apps themselves according to their config, but the below are not.
 ** Editor integrations
-*** =Chemacs 2= :automated:
+*** Install =Neovim= integrations
+**** Install =npm= module
+#+begin_src sh
+npm install -g neovim
+#+end_src
+**** Install =python= module
+#+begin_src sh
+pip install pynvim
+#+end_src
+**** Install =perl= module
+#+begin_src sh
+cpanm Neovim::Ext
+#+end_src
+*** =Chemacs 2=                                                   :automated:
 Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
 The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
 
@@ -731,17 +744,22 @@ brew install markdown
 brew install shfmt shellcheck
 #+end_src
 
-** Web
-*** Install =npm=
-#+begin_src sh
-brew install npm
-#+end_src
-
+** Node-JS
 *** Install packages using =npm=
 #+begin_src sh
-npm install -g node stylelint js-beautify js-tidy
+  npm install -g \
+      typescript \
+      typescript-language-server \
+      stylelint \
+      js-beautify \
+      js-tidy \
+      prettier
 #+end_src
 
+** Ruby
+#+begin_src sh
+gem install solargraph
+#+end_src
 ** Org
 #+begin_src sh
 brew install graphviz gnuplot
