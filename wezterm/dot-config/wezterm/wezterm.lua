@@ -1,7 +1,6 @@
 local wezterm = require('wezterm')
 
 -- Color schemes
---
 local light_theme = 'OneHalfLight'
 local dark_theme = 'OneHalfDark'
 
@@ -14,14 +13,12 @@ local function scheme_for_appearance(appearance)
 end
 
 -- Allow working with both the current release and the nightly
---
 local config = {}
 if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
 -- Set font
---
 if wezterm.target_triple:find('windows') then
   config.font = wezterm.font('Iosevka NFM')
 elseif wezterm.target_triple:find('apple') then
@@ -33,7 +30,6 @@ end
 config.hide_tab_bar_if_only_one_tab = true
 
 -- Background transparency
---
 if wezterm.target_triple:find('windows') then
   config.window_background_opacity = 0.95
 -- TODO: This option is still pretty new, and hence one should check for
@@ -46,13 +42,11 @@ elseif wezterm.target_triple:find('apple') then
 end
 
 -- Color Scheme
---
--- We are trying defaulting to a dark theme. Uncomment the below to default to system.
--- config.color_scheme = scheme_for_appearance(wezterm.gui.get_config.color_scheme = dark_theme --
--- scheme_for_appearance(wezterm.gui.get_appearance())
+local appearance = wezterm.gui.get_appearance()
+config.color_scheme = scheme_for_appearance(appearance)
 
+-- Function to toggle the theme
 local function ToggleTheme(window, _)
-  -- local current_mode = wezterm.get_config().color_scheme
   local current_mode = window:effective_config().color_scheme
   local overrides = window:get_config_overrides() or {}
 
@@ -67,7 +61,6 @@ local function ToggleTheme(window, _)
 end
 
 -- Keybindings
---
 config.enable_csi_u_key_encoding = true
 config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
