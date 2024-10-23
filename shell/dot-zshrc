@@ -238,14 +238,6 @@ lgreen_zsh_set_title_suffix() {
 #-------------------
 # Main
 #-------------------
-# On CentOS 7 we are stuck with an old version of ZSH,
-# so run a new local one if available.
-if [ "$ZSH_VERSION" = "5.0.2" ]; then
-    if [ -f "$HOME/local/bin/zsh" ]; then
-        $HOME/local/bin/zsh
-        return
-    fi
-fi
 
 # Emacs Tramp: needs a simple prompt so just setup common shell
 # and return
