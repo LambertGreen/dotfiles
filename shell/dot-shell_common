@@ -301,9 +301,6 @@ lgreen_setup_running_inside_emacs_eat_for_zsh() {
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 }
 
-lgreen_setup_ripgrep() {
-    export RIPGREP_CONFIG_PATH=~/.ripgreprc
-}
 
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
@@ -616,6 +613,15 @@ lgreen_setup_gpg_tty() {
 }
 
 main() {
+    # Emacs Tramp or non-interactive shell: needs a simple prompt
+    # so just setup common shell and return
+    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
+        lgreen_track_shell_sourced_count
+        lgreen_source_profile_if_not_sourced
+        lgreen_start_agents
+        return
+    fi
+
     lgreen_track_shell_sourced_count
     lgreen_source_profile_if_not_sourced
     lgreen_one_time_system_setup_check
@@ -623,24 +629,13 @@ main() {
     lgreen_start_agents
     lgreen_setup_running_inside_emacs
     lgreen_setup_aliases
-    lgreen_setup_ripgrep
     lgreen_source_local_shell
     lgreen_source_work_shell
     lgreen_setup_tmux_all
-
     lgreen_setup_shell_theme_mode
-
     lgreen_setup_doom_emacs
-
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
-        lgreen_setup_fzf
-    elif [ "$UNAME" = "Darwin" ]; then
-        lgreen_setup_fzf
-    elif [[ "$UNAME" == *"_NT"* ]]; then
-        lgreen_setup_dev_env_rust
-    fi
-
+    lgreen_setup_fzf
+    lgreen_setup_dev_env_rust
     lgreen_setup_dev_env_all
     lgreen_show_fortune_quote
     lgreen_setup_gpg_tty

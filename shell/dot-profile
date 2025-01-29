@@ -37,6 +37,7 @@ lgreen_setup_profile_env() {
     # Set local bins ahead of system PATH
     # FIXME: Setup PATH in each OS specific file
     # export PATH="$HOME/bin:$HOME/.local/bin:/usr/local/bin:/usr/local/sbin:$PATH"
+    export PATH="$PATH:${HOME}/.local/bin"
 
     # Editor
     #
@@ -49,6 +50,7 @@ lgreen_setup_profile_env() {
     # export VISUAL="emacsclient -n -c -a nvim"
 
     export COLORTERM=truecolor
+    export RIPGREP_CONFIG_PATH=~/.ripgreprc
 }
 
 lgreen_source_os_profile() {
