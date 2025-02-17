@@ -475,6 +475,7 @@ lgreen_setup_aliases() {
         alias ls='eza --icons'
         alias ll='eza -lh --icons'
         alias lla='eza -lha --icons'
+        alias llm='eza -lh -s=modified  --icons'
     else
         if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
         if [ "$UNAME" = "Darwin" ]; then
