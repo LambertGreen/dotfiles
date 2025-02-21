@@ -18,15 +18,27 @@ if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
--- Set font
+-- Set font with fallback for symbols
+-- TODO: Use `Aporetic` font for `Windows` and `Linux`
 if wezterm.target_triple:find('windows') then
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Iosevka NFM",
+    "Symbols Nerd Font Mono"
+  })
 elseif wezterm.target_triple:find('apple') then
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Aporetic Sans Mono",
+    "Symbols Nerd Font Mono"
+  })
   config.font_size = 15
 else
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Iosevka NFM",
+    "Symbols Nerd Font Mono"
+  })
 end
+
+-- Tab bar
 config.hide_tab_bar_if_only_one_tab = true
 
 -- Background transparency
