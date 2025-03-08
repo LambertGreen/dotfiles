@@ -211,48 +211,43 @@ lgreen_zsh_set_title_suffix() {
     ZSH_TAB_TITLE_SUFFIX=' - Terminal'
 }
 
-#-------------------
-# Main
-#-------------------
-# On CentOS 7 we are stuck with an old version of ZSH,
-# so run a new local one if available.
-if [ "$ZSH_VERSION" = "5.0.2" ]; then
-    if [ -f "$HOME/local/bin/zsh" ]; then
-        $HOME/local/bin/zsh
+main() {
+    # Emacs Tramp or non-interactive shell: needs a simple prompt
+    # so just setup common shell and return
+    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
+        lgreen_setup_common_shell
+        unsetopt zle && PS1='$ '
+        typeset -U path
         return
     fi
-fi
 
-# Emacs Tramp: needs a simple prompt so just setup common shell
-# and return
-if [ "$TERM" = "dumb" ]; then
+    lgreen_conditionally_start_profiler
+    lgreen_setup_zinit
+    lgreen_setup_p10k
+    lgreen_setup_zsh
+    lgreen_setup_custom_completions
     lgreen_setup_common_shell
-    unsetopt zle && PS1='$ '
-    return
-fi
+    lgreen_init_p10k
+    lgreen_setup_fzf_for_zsh
+    lgreen_source_local_zsh
+    lgreen_zsh_init_completions
+    lgreen_fixup_zsh_autosuggestion_highlight_style
+    lgreen_zsh_set_history_options
+    lgreen_zsh_set_title_suffix
+    lgreen_setup_emacs_vterm
+    lgreen_setup_running_inside_emacs_eat_for_zsh
+    lgreen_setup_direnv_for_zsh
+    lgreen_setup_zoxide_for_zsh
+    lgreen_setup_docker_for_zsh
+    lgreen_conditionally_stop_profiler
 
-lgreen_conditionally_start_profiler
-lgreen_setup_zinit
-lgreen_setup_p10k
-lgreen_setup_zsh
-lgreen_setup_custom_completions
-lgreen_setup_common_shell
-lgreen_init_p10k
-lgreen_setup_fzf_for_zsh
+    # Remove any duplicates in the path variable
+    # Note: it is best to remove the places where duplicates
+    # are being applied, but I like this safety check
+    typeset -U path
+}
 
-lgreen_source_local_zsh
-lgreen_zsh_init_completions
-lgreen_fixup_zsh_autosuggestion_highlight_style
-lgreen_zsh_set_history_options
-lgreen_zsh_set_title_suffix
-lgreen_setup_emacs_vterm
-lgreen_setup_running_inside_emacs_eat_for_zsh
-lgreen_setup_direnv_for_zsh
-lgreen_setup_zoxide_for_zsh
-lgreen_setup_docker_for_zsh
-lgreen_conditionally_stop_profiler
-
-# Remove any duplicates in the path variable
-# Note: it is best to remove the places where duplicates
-# are being applied, but I like this safety check
-typeset -U path
+#-------------------
+# Run main
+#-------------------
+main
