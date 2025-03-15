@@ -96,7 +96,8 @@ lgreen_start_agents() {
         fi
     elif [ "$UNAME" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --eval --nogui --quiet --quick id_rsa id_ed25519 --agents gpg)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
         fi
     fi
 }
@@ -291,14 +292,15 @@ lgreen_setup_running_inside_emacs() {
 }
 
 lgreen_setup_running_inside_emacs_eat_for_bash() {
-    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/bash"
 }
 
 lgreen_setup_running_inside_emacs_eat_for_zsh() {
-    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 }
+
 
 lgreen_rg_with_pager() {
     if [ -t 1 ]; then
@@ -473,6 +475,7 @@ lgreen_setup_aliases() {
         alias ls='eza --icons'
         alias ll='eza -lh --icons'
         alias lla='eza -lha --icons'
+        alias llm='eza -lh -s=modified  --icons'
     else
         if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
         if [ "$UNAME" = "Darwin" ]; then
@@ -611,6 +614,15 @@ lgreen_setup_gpg_tty() {
 }
 
 main() {
+    # Emacs Tramp or non-interactive shell: needs a simple prompt
+    # so just setup common shell and return
+    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
+        lgreen_track_shell_sourced_count
+        lgreen_source_profile_if_not_sourced
+        lgreen_start_agents
+        return
+    fi
+
     lgreen_track_shell_sourced_count
     lgreen_source_profile_if_not_sourced
     lgreen_one_time_system_setup_check
@@ -621,20 +633,10 @@ main() {
     lgreen_source_local_shell
     lgreen_source_work_shell
     lgreen_setup_tmux_all
-
     lgreen_setup_shell_theme_mode
-
     lgreen_setup_doom_emacs
-
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
-	lgreen_setup_fzf
-    elif [ "$UNAME" = "Darwin" ]; then
-	lgreen_setup_fzf
-    elif [[ "$UNAME" == *"_NT"* ]]; then
-	lgreen_setup_dev_env_rust
-    fi
-
+    lgreen_setup_fzf
+    lgreen_setup_dev_env_rust
     lgreen_setup_dev_env_all
     lgreen_show_fortune_quote
     lgreen_setup_gpg_tty

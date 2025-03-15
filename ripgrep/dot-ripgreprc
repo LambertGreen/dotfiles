@@ -1,0 +1,14 @@
+# -*- mode: conf -*-
+#
+# Search hidden files / directories (e.g. dotfiles) by default
+#
+# TODO Use per-project configuration instead of a global change e.g.
+# use `export RIPGREP_CONFIG_PATH=$(pwd)/.ripgreprc` in .envrc file.
+#
+# The below config was put in place due to a project using a hidden
+# directory i.e. `.teamcity` but actually checked in and allowed
+# by .gitignore, but ripgrep still needs the `--hidden` parameter
+# to include this directory in searches.
+
+--glob=!.git/*
+--hidden

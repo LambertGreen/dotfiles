@@ -18,6 +18,7 @@
 	directory = D:/dev/work/tableaubuild/bazel/blitz/repositories/tabcrash
 	directory = %(prefix)///wsl.localhost/Ubuntu-20.04/home/lgreen/dev/work/tabcrash
 	directory = D:/dev/work/monolith
+	directory = C:/Users/lambert.green/dev/work2/monolith
 
 [http]
 	postBuffer = 524288000
