@@ -32,6 +32,10 @@ lgreen_init_p10k() {
     [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
 }
 
+lgreen_init_oh-my-posh() {
+    eval "$(oh-my-posh init zsh --config $HOME/.config/oh-my-posh/zen.toml)"
+}
+
 lgreen_profile_zsh() {
   shell=${1-$SHELL}
   ZPROF=true $shell -i -c exit
@@ -146,7 +150,7 @@ lgreen_setup_zinit() {
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma-continuum/fast-syntax-highlighting
 
-    # Theme: powerlevel10k
+    # # Theme: powerlevel10k/P10k
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
 
