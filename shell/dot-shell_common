@@ -511,6 +511,13 @@ lgreen_setup_aliases() {
     if [[ "$(uname_cached)" == *"_NT"* ]]; then
         alias tmux='script -c "tmux -u" /dev/null'
     fi
+
+    # Alias for IntelliJ using nested quotes for spaces
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea" ]; then
+            alias idea="\"$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea\""
+        fi
+    fi
 }
 
 lgreen_source_local_shell() {
