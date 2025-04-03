@@ -13,6 +13,11 @@ lgreen_conditionally_stop_profiler() {
     fi
 }
 
+lgreen_source_common_shell() {
+    # Source common shell script
+    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
+}
+
 lgreen_setup_p10k() {
     # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
     # Initialization code that may require console input (password prompts, [y/n]
@@ -45,10 +50,7 @@ lgreen_setup_zsh() {
 
     # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
     #
-    # TODO Create a simple uname() function wrapper that hides
-    # the detail of calling uname once and caching it.
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
+    if [ "$(uname_cached)" = "Linux" ]; then
         if [ "$(< /proc/version)" = "*@(Microsoft|WSL)*" ]; then
             unsetopt BG_NICE
         fi
@@ -64,11 +66,6 @@ lgreen_setup_zsh() {
     # Enables doing:  ls $deep_dir/<tab>
     setopt AUTO_CD
     setopt CDABLE_VARS
-}
-
-lgreen_setup_common_shell() {
-    # Source common shell script
-    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
 lgreen_fixup_zsh_autosuggestion_highlight_style() {
@@ -118,8 +115,7 @@ lgreen_setup_zinit() {
 
     # TODO Not sure if this is still the case
     # FZF does not work on MSYS2 so use FZY instead
-    # if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    # if [[ "$UNAME" == *"_NT"* ]]; then
+    # if [[ "$(uname_cached)" == *"_NT"* ]]; then
     #     zinit light aperezdc/zsh-fzy
     # else
 	# TODO We already install fzf as part of the package manager
@@ -215,9 +211,7 @@ lgreen_setup_emacs_vterm() {
 
 # TODO I think we can use fzf now
 # lgreen_setup_fzy_bindings() {
-
-#     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-#     if [[ "$UNAME" == *"_NT"* ]]; then
+#     if [[ "$(uname_cached)" == *"_NT"* ]]; then
 #         bindkey '\ec' fzy-cd-widget
 #         bindkey '^T'  fzy-file-widget
 #         bindkey '^R'  fzy-history-widget
@@ -236,6 +230,8 @@ lgreen_zsh_set_title_suffix() {
 }
 
 main() {
+    lgreen_source_common_shell
+
     # Emacs Tramp or non-interactive shell: needs a simple prompt
     # so just setup common shell and return
     if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then

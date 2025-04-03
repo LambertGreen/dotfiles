@@ -26,6 +26,13 @@ lgreen_greet_user_at_profile_setup_start() {
     fi
 }
 
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+
 lgreen_greet_user_at_profile_setup_end() {
     if [ -t 1 ] && [ -z $LGREEN_NO_GREET ]; then
         echo "Profile setup complete. Happy coding."
@@ -55,17 +62,17 @@ lgreen_setup_profile_env() {
 
 lgreen_source_os_profile() {
     if [ -z $UNAME ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         # shellcheck source=profile_osx
         if [ -f "$HOME/.profile_osx" ]; then
             source "$HOME/.profile_osx"
         fi
-    elif [ "$UNAME" = "Linux" ]; then
+    elif [ "$(uname_cached)" = "Linux" ]; then
         # shellcheck source=profile_linux
         if [ -f "$HOME/.profile_linux" ]; then
             source "$HOME/.profile_linux"
         fi
-    elif [[ "$UNAME" == *"_NT"* ]]; then
+    elif [[ "$(uname_cached)" == *"_NT"* ]]; then
         # shellcheck source=profile_msys2
         if [ -f "$HOME/.profile_msys2" ]; then
             source "$HOME/.profile_msys2"
