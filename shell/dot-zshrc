@@ -114,25 +114,14 @@ lgreen_setup_zinit() {
         OMZ::lib/completion.zsh \
         OMZ::lib/git.zsh
 
-    # Some info on zinit's parameters
-    # - lucid: hides output from the loading of the plugin
+    zinit ice from"gh-r" as"program"
+    zinit light junegunn/fzf
 
-    # TODO Not sure if this is still the case
-    # FZF does not work on MSYS2 so use FZY instead
-    # if [[ "$(uname_cached)" == *"_NT"* ]]; then
-    #     zinit light aperezdc/zsh-fzy
-    # else
-	# TODO We already install fzf as part of the package manager
-        # zinit ice from"gh-r" as"program"
-        # zinit light junegunn/fzf
+    zinit ice lucid wait'0'
+    zinit light joshskidmore/zsh-fzf-history-search
 
-        # zsh-fzf-history-search
-        zinit ice lucid wait'0'
-        zinit light joshskidmore/zsh-fzf-history-search
-
-        # fzf-tab
-        zinit light Aloxaf/fzf-tab
-    # fi
+    # fzf-tab
+    zinit light Aloxaf/fzf-tab
 
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
@@ -212,16 +201,6 @@ lgreen_setup_emacs_vterm() {
         export PROMPT_EOL_MARK=""
     fi
 }
-
-# TODO I think we can use fzf now
-# lgreen_setup_fzy_bindings() {
-#     if [[ "$(uname_cached)" == *"_NT"* ]]; then
-#         bindkey '\ec' fzy-cd-widget
-#         bindkey '^T'  fzy-file-widget
-#         bindkey '^R'  fzy-history-widget
-#         bindkey '^P'  fzy-proc-widget
-#     fi
-# }
 
 lgreen_zsh_set_history_options() {
    setopt HIST_IGNORE_SPACE

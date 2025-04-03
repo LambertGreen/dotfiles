@@ -25,6 +25,7 @@ if wezterm.target_triple:find('windows') then
     "Iosevka NFM",
     "Symbols Nerd Font Mono"
   })
+  config.font_size = 13
 elseif wezterm.target_triple:find('apple') then
   config.font = wezterm.font_with_fallback({
     "Aporetic Sans Mono",
@@ -83,8 +84,12 @@ end
 config.enable_csi_u_key_encoding = true
 config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
-  -- Enter copy mode with Leader+]
-  { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
+   -- Use super key based copy/paste
+   { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
+   { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
+
+   -- Enter copy mode with Leader+]
+   { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
 
   -- Full screen and theme toggle (keeping your existing ones)
   { key = 'f', mods = 'LEADER', action = 'ToggleFullScreen' },
