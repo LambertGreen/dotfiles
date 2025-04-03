@@ -57,6 +57,13 @@ end
 local appearance = wezterm.gui.get_appearance()
 config.color_scheme = scheme_for_appearance(appearance)
 
+-- Set shell environment variable to indicate theme is light/dark
+local theme_mode = appearance:find('Dark') and 'dark' or 'light'
+config.color_scheme = scheme_for_appearance(appearance)
+config.set_environment_variables = {
+  LGREEN_SHELL_THEME_MODE = theme_mode,
+}
+
 -- Function to toggle the theme
 local function ToggleTheme(window, _)
   local current_mode = window:effective_config().color_scheme
