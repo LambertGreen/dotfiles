@@ -5,6 +5,7 @@
     pager = less -+X
     excludesfile = ~/.gitignore
     ingnorecase = false
+	fsmonitor = true
 
 [alias]
     aa = add --all
