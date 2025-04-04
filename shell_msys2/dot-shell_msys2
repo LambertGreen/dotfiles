@@ -5,8 +5,7 @@ lgreen_setup_msys_nativesymlinks() {
 }
 
 lgreen_setup_mintty_256color() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [[ "$UNAME" == *"_NT"* ]]; then
+    if [[ "$(uname_cached)" == *"_NT"* ]]; then
         export TERM=xterm-256color
     fi
 }

@@ -5,6 +5,7 @@
     pager = delta
     excludesfile = ~/.gitignore
     ignorecase = false
+	fsmonitor = true
 
 [alias]
     aa = add --all

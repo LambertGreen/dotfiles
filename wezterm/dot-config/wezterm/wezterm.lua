@@ -22,8 +22,8 @@ end
 -- TODO: Use `Aporetic` font for `Windows` and `Linux`
 if wezterm.target_triple:find('windows') then
   config.font = wezterm.font_with_fallback({
-	"Iosevka NFM",
-	"Symbols Nerd Font Mono"
+    "Iosevka NFM",
+    "Symbols Nerd Font Mono"
   })
   config.font_size = 13
 elseif wezterm.target_triple:find('apple') then
@@ -58,6 +58,13 @@ end
 local appearance = wezterm.gui.get_appearance()
 config.color_scheme = scheme_for_appearance(appearance)
 
+-- Set shell environment variable to indicate theme is light/dark
+local theme_mode = appearance:find('Dark') and 'dark' or 'light'
+config.color_scheme = scheme_for_appearance(appearance)
+config.set_environment_variables = {
+  LGREEN_SHELL_THEME_MODE = theme_mode,
+}
+
 -- Function to toggle the theme
 local function ToggleTheme(window, _)
   local current_mode = window:effective_config().color_scheme
@@ -77,17 +84,12 @@ end
 config.enable_csi_u_key_encoding = true
 config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
-<<<<<<< HEAD
    -- Use super key based copy/paste
    { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
    { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
 
    -- Enter copy mode with Leader+]
    { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
-=======
-  -- Enter copy mode with Leader+]
-  { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
->>>>>>> bbb7e9abdf7e7772cd4e52c3ff61015b4889fc1d
 
   -- Full screen and theme toggle (keeping your existing ones)
   { key = 'f', mods = 'LEADER', action = 'ToggleFullScreen' },
