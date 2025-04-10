@@ -118,6 +118,18 @@ lgreen_setup-package-config() {
     fi
 }
 
+lgreen_setup-increase-ulimit-n() {
+    # Ensure open file limit is at least 65535
+    CURRENT_LIMIT=$(ulimit -n)
+    TARGET_LIMIT=65535
+
+    if [ "$CURRENT_LIMIT" -lt "$TARGET_LIMIT" ]; then
+        echo "Increasing open file limit: $CURRENT_LIMIT -> $TARGET_LIMIT"
+        ulimit -n "$TARGET_LIMIT"
+    fi
+}
+
+lgreen_setup-increase-ulimit-n
 lgreen_setup-sss-preload-when-on-domain
 lgreen_setup-package-config
 lgreen_setup-umask-for-wsl
