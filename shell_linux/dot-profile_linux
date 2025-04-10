@@ -53,6 +53,10 @@ lgreen_setup-homebrew-on-linux() {
         # - Add some HOMEBREW environment variables
         # - Update PATH, MANPATH, INFOPATH to have linuxbrew paths prepended
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+        # Ensure Homebrew's lib is in LD_LIBRARY_PATH without overriding system paths
+        DEFAULT_LD_LIBRARY_PATH="/usr/lib:/usr/lib/x86_64-linux-gnu:/lib:/lib/x86_64-linux-gnu"
+        export LD_LIBRARY_PATH="$DEFAULT_LD_LIBRARY_PATH:/home/linuxbrew/.linuxbrew/lib"
     fi
 }
 
