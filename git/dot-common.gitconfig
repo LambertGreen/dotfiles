@@ -2,9 +2,10 @@
 
 [core]
     editor = vim
-    pager = less -+X
+    pager = delta
     excludesfile = ~/.gitignore
-    ingnorecase = false
+    ignorecase = false
+	fsmonitor = true
 
 [alias]
     aa = add --all

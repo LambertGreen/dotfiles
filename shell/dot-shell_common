@@ -44,6 +44,13 @@ lgreen_one_time_system_setup_mark_good() {
     touch "$HOME/.lgreen_one_time_system_setup"
 }
 
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+
 lgreen_conditionally_start_attach_tmux() {
     if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
         tmux -V
@@ -86,15 +93,14 @@ lgreen_setup_perforce_config() {
 
 # Keychain to start ssh-agent and gpg-agent
 lgreen_start_agents() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
         if [ "$(command -v keychain)" ]; then
             eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
             eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
         fi
-    elif [ "$UNAME" = "Linux" ]; then
+    elif [ "$(uname_cached)" = "Linux" ]; then
         if [ "$(command -v keychain)" ]; then
             eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
             eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
@@ -124,10 +130,9 @@ lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
         export PATH="$PYENV_ROOT/bin:$PATH"
-        if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-        if [ "$UNAME" = "Darwin" ]; then
+        if [ "$(uname_cached)" = "Darwin" ]; then
             eval "$(pyenv init -)"
-        elif [ "$UNAME" = "Linux" ]; then
+        elif [ "$(uname_cached)" = "Linux" ]; then
             eval "$(pyenv init --path)"
         fi
         eval "$(pyenv virtualenv-init -)"
@@ -194,12 +199,11 @@ lgreen_setup_dev_env_go() {
 }
 
 lgreen_setup_dev_env_clang() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         export PATH="/usr/local/opt/llvm/bin:$PATH"
         export Clang_DIR="/usr/local/opt/llvm//lib/cmake/clang"
 
-    elif [ "$UNAME" = "Linux" ]; then
+    elif [ "$(uname_cached)" = "Linux" ]; then
         # Removed clang install on Linux.
         # Anyway this version specific paths don't seem like the right way to do this.
         # UPDATE (1/9/23): Hmm, not quite sure why I put this back... could it be for 'clangd'?
@@ -255,14 +259,13 @@ lgreen_term_title_clear() {
 }
 
 lgreen_source_os_shell() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         # shellcheck source=shell_osx
         [ -f "$HOME/.shell_osx" ] && source "$HOME/.shell_osx"
-    elif [ "$UNAME" = "Linux" ]; then
+    elif [ "$(uname_cached)" = "Linux" ]; then
         # shellcheck source=shell_linux
         [ -f "$HOME/.shell_linux" ] && source "$HOME/.shell_linux"
-    elif [[ "$UNAME" == *"_NT"* ]]; then
+    elif [[ "$(uname_cached)" == *"_NT"* ]]; then
         # shellcheck source=shell_msys2
         [ -f "$HOME/.shell_msys2" ] && source "$HOME/.shell_msys2"
     fi
@@ -320,8 +323,7 @@ lgreen_setup_tmux_theme_switcher() {
 
 lgreen_setup_tmux_theme_catpuccin_latte() {
     local sed_cmd="sed"
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         sed_cmd="gsed"
     fi
     $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
@@ -330,8 +332,7 @@ lgreen_setup_tmux_theme_catpuccin_latte() {
 
 lgreen_setup_tmux_theme_catpuccin_mocha() {
     local sed_cmd="sed"
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         sed_cmd="gsed"
     fi
     $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
@@ -477,8 +478,7 @@ lgreen_setup_aliases() {
         alias lla='eza -lha --icons'
         alias llm='eza -lh -s=modified  --icons'
     else
-        if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-        if [ "$UNAME" = "Darwin" ]; then
+        if [ "$(uname_cached)" = "Darwin" ]; then
             alias ls='gls --color'
             alias ll='gls -lh --color'
             alias lla='gls -lha --color'
@@ -495,8 +495,7 @@ lgreen_setup_aliases() {
     fi
 
     # Set alias to lldb
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Darwin" ]; then
+    if [ "$(uname_cached)" = "Darwin" ]; then
         if [ -f "/usr/local/opt/llvm/bin/lldb" ]; then
             alias lldb=/usr/local/opt/llvm/bin/lldb
         fi
@@ -509,8 +508,15 @@ lgreen_setup_aliases() {
 
     # On MSYS2 we need to help tmux along
     # Needed: to use TMUX in non mintty terminals
-    if [[ "$UNAME" == *"_NT"* ]]; then
+    if [[ "$(uname_cached)" == *"_NT"* ]]; then
         alias tmux='script -c "tmux -u" /dev/null'
+    fi
+
+    # Alias for IntelliJ using nested quotes for spaces
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea" ]; then
+            alias idea="\"$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea\""
+        fi
     fi
 }
 
@@ -567,8 +573,7 @@ lgreen_setup_docker_for_zsh() {
 
 # TODO Provide sanitize environment implementations for non-Linux as well
 lgreen_sanitize_environment() {
-    if [ -z "$UNAME" ]; then export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
+    if [ "$(uname_cached)" = "Linux" ]; then
         export PATH=/usr/bin:/bin
         unset LD_LIBRARY_PATH PKG_CONFIG_PATH
     fi
@@ -613,7 +618,7 @@ lgreen_setup_gpg_tty() {
     export GPG_TTY=$(tty)
 }
 
-main() {
+lgreen_setup_common_shell() {
     # Emacs Tramp or non-interactive shell: needs a simple prompt
     # so just setup common shell and return
     if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
@@ -641,8 +646,3 @@ main() {
     lgreen_show_fortune_quote
     lgreen_setup_gpg_tty
 }
-
-#-------------------
-# Run main
-#-------------------
-main

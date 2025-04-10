@@ -13,6 +13,11 @@ lgreen_conditionally_stop_profiler() {
     fi
 }
 
+lgreen_source_common_shell() {
+    # Source common shell script
+    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
+}
+
 lgreen_setup_p10k() {
     # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
     # Initialization code that may require console input (password prompts, [y/n]
@@ -25,6 +30,10 @@ lgreen_setup_p10k() {
 lgreen_init_p10k() {
     # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
     [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
+}
+
+lgreen_init_oh-my-posh() {
+    eval "$(oh-my-posh init zsh --config $HOME/.config/oh-my-posh/zen.toml)"
 }
 
 lgreen_profile_zsh() {
@@ -45,10 +54,7 @@ lgreen_setup_zsh() {
 
     # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
     #
-    # TODO Create a simple uname() function wrapper that hides
-    # the detail of calling uname once and caching it.
-    if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    if [ "$UNAME" = "Linux" ]; then
+    if [ "$(uname_cached)" = "Linux" ]; then
         if [ "$(< /proc/version)" = "*@(Microsoft|WSL)*" ]; then
             unsetopt BG_NICE
         fi
@@ -64,11 +70,6 @@ lgreen_setup_zsh() {
     # Enables doing:  ls $deep_dir/<tab>
     setopt AUTO_CD
     setopt CDABLE_VARS
-}
-
-lgreen_setup_common_shell() {
-    # Source common shell script
-    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 }
 
 lgreen_fixup_zsh_autosuggestion_highlight_style() {
@@ -113,26 +114,14 @@ lgreen_setup_zinit() {
         OMZ::lib/completion.zsh \
         OMZ::lib/git.zsh
 
-    # Some info on zinit's parameters
-    # - lucid: hides output from the loading of the plugin
+    zinit ice from"gh-r" as"program"
+    zinit light junegunn/fzf
 
-    # TODO Not sure if this is still the case
-    # FZF does not work on MSYS2 so use FZY instead
-    # if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-    # if [[ "$UNAME" == *"_NT"* ]]; then
-    #     zinit light aperezdc/zsh-fzy
-    # else
-	# TODO We already install fzf as part of the package manager
-        # zinit ice from"gh-r" as"program"
-        # zinit light junegunn/fzf
+    zinit ice lucid wait'0'
+    zinit light joshskidmore/zsh-fzf-history-search
 
-        # zsh-fzf-history-search
-        zinit ice lucid wait'0'
-        zinit light joshskidmore/zsh-fzf-history-search
-
-        # fzf-tab
-        zinit light Aloxaf/fzf-tab
-    # fi
+    # fzf-tab
+    zinit light Aloxaf/fzf-tab
 
     # OMZ::Color man-pages
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
@@ -150,7 +139,7 @@ lgreen_setup_zinit() {
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma-continuum/fast-syntax-highlighting
 
-    # Theme: powerlevel10k
+    # # Theme: powerlevel10k/P10k
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
 
@@ -213,18 +202,6 @@ lgreen_setup_emacs_vterm() {
     fi
 }
 
-# TODO I think we can use fzf now
-# lgreen_setup_fzy_bindings() {
-
-#     if [ -z $UNAME ]; then  export UNAME=$(uname -s); fi
-#     if [[ "$UNAME" == *"_NT"* ]]; then
-#         bindkey '\ec' fzy-cd-widget
-#         bindkey '^T'  fzy-file-widget
-#         bindkey '^R'  fzy-history-widget
-#         bindkey '^P'  fzy-proc-widget
-#     fi
-# }
-
 lgreen_zsh_set_history_options() {
    setopt HIST_IGNORE_SPACE
    setopt HIST_IGNORE_DUPS
@@ -236,6 +213,8 @@ lgreen_zsh_set_title_suffix() {
 }
 
 main() {
+    lgreen_source_common_shell
+
     # Emacs Tramp or non-interactive shell: needs a simple prompt
     # so just setup common shell and return
     if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then

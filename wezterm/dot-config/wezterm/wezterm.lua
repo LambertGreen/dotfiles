@@ -18,15 +18,28 @@ if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
--- Set font
+-- Set font with fallback for symbols
+-- TODO: Use `Aporetic` font for `Windows` and `Linux`
 if wezterm.target_triple:find('windows') then
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Iosevka NFM",
+    "Symbols Nerd Font Mono"
+  })
+  config.font_size = 13
 elseif wezterm.target_triple:find('apple') then
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Aporetic Sans Mono",
+    "Symbols Nerd Font Mono"
+  })
   config.font_size = 15
 else
-  config.font = wezterm.font('Iosevka NFM')
+  config.font = wezterm.font_with_fallback({
+    "Iosevka NFM",
+    "Symbols Nerd Font Mono"
+  })
 end
+
+-- Tab bar
 config.hide_tab_bar_if_only_one_tab = true
 
 -- Background transparency
@@ -44,6 +57,13 @@ end
 -- Color Scheme
 local appearance = wezterm.gui.get_appearance()
 config.color_scheme = scheme_for_appearance(appearance)
+
+-- Set shell environment variable to indicate theme is light/dark
+local theme_mode = appearance:find('Dark') and 'dark' or 'light'
+config.color_scheme = scheme_for_appearance(appearance)
+config.set_environment_variables = {
+  LGREEN_SHELL_THEME_MODE = theme_mode,
+}
 
 -- Function to toggle the theme
 local function ToggleTheme(window, _)
@@ -64,8 +84,12 @@ end
 config.enable_csi_u_key_encoding = true
 config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
-  -- Enter copy mode with Leader+]
-  { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
+   -- Use super key based copy/paste
+   { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
+   { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
+
+   -- Enter copy mode with Leader+]
+   { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
 
   -- Full screen and theme toggle (keeping your existing ones)
   { key = 'f', mods = 'LEADER', action = 'ToggleFullScreen' },

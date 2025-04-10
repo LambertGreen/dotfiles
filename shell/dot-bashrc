@@ -1,36 +1,47 @@
 #!/usr/bin/env bash
 
-# If not an interactive shell just return
-# e.g. needed when running scp
-if [ -z "$PS1" ]; then
-    return
-fi
-
-# Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
-if [ "$TERM" = "dumb" ]; then
-    export BASH_NO_EXEC_ZSH=1
-fi
-
-# Don't use ZSH on MSYS2 as it's too slow
-if [[ "$UNAME" == *"_NT"* ]]; then
-    export BASH_NO_EXEC_ZSH=1
-fi
-
-# If zsh is installed then run it instead
-# Note: In general the chsh command can be used to change a user's shell
-# but this does not work for domain users.
-# See: https://serverfault.com/questions/736471/how-do-i-change-my-default-shell-on-a-domain-account
-# To stop the automatic loading of zsh, then define BASH_NO_EXEC_ZSH.
-if [ -z "$BASH_NO_EXEC_ZSH" ] && [ "$(command -v zsh)" ]; then
-    exec zsh
-else
+lgreen_source_common_shell() {
     # Source common shell script
-    # shellcheck source=shell_common
-    [ -f ~/.shell_common ] && source ~/.shell_common
+    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
+}
 
-    lgreen_setup_running_inside_emacs_eat_for_bash
-    lgreen_setup_fzf_for_bash
-    lgreen_setup_zoxide_for_bash
-    lgreen_setup_direnv_for_bash
-    lgreen_setup_docker_for_bash
-fi
+main() {
+    lgreen_source_common_shell
+
+    # If not an interactive shell just return
+    # e.g. needed when running scp
+    if [ -z "$PS1" ]; then
+        return
+    fi
+
+    # Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
+    if [ "$TERM" = "dumb" ]; then
+        export BASH_NO_EXEC_ZSH=1
+    fi
+
+    # Don't use ZSH on MSYS2 as it's too slow
+    if [[ "$(uname_cached)" == *"_NT"* ]]; then
+        export BASH_NO_EXEC_ZSH=1
+    fi
+
+    # If zsh is installed then run it instead
+    # Note: In general the chsh command can be used to change a user's shell
+    # but this does not work for domain users.
+    # See: https://serverfault.com/questions/736471/how-do-i-change-my-default-shell-on-a-domain-account
+    # To stop the automatic loading of zsh, then define BASH_NO_EXEC_ZSH.
+    if [ -z "$BASH_NO_EXEC_ZSH" ] && [ "$(command -v zsh)" ]; then
+        exec zsh
+    else
+        lgreen_setup_common_shell
+        lgreen_setup_running_inside_emacs_eat_for_bash
+        lgreen_setup_fzf_for_bash
+        lgreen_setup_zoxide_for_bash
+        lgreen_setup_direnv_for_bash
+        lgreen_setup_docker_for_bash
+    fi
+ }
+
+#-------------------
+# Run main
+#-------------------
+main

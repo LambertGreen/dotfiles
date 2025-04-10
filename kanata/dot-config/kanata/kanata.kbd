@@ -1,0 +1,42 @@
+;; -*- mode: lisp -*-
+;;
+;; Tap Capslock for Esc, hold for Ctrl
+;; Tap LShift for [, hold for Shift
+;; Tap RShift for ], hold for Shift
+
+(defcfg
+  process-unmapped-keys yes
+)
+
+(defsrc
+  caps
+  lshift
+  rshift
+  spc
+  a s d f g h j k l ; `
+)
+
+(defalias
+  esc_ctrl (tap-hold 200 200 esc lctrl) ;; Esc on tap, Ctrl on hold
+  lbracket_lshift (tap-hold 200 200 [ lshift) ;; [ on tap, Shift on hold
+  rbracket_rshift (tap-hold 200 200 ] rshift) ;; ] on tap, Shift on hold
+  symbols_layer (tap-hold 150 200 spc (layer-toggle symbols)) ;; Space on tap, toggle Symbols layer on hold
+)
+
+(deflayer base
+  @esc_ctrl
+  @lbracket_lshift
+  @rbracket_rshift
+  @symbols_layer
+  _ _ _ _ _ _ _ _ _ _ _  ;; ← 11 total “_” to bring it to 15
+)
+
+(deflayer symbols
+  _ _ _ _                ;; caps, lshift, rshift, spc → unchanged
+  S-1 S-2 S-3 S-4 S-5 S-6 S-7 S-8 S-9 S-0 S-grv  ;; ← matches a s d f g h j k l ; '
+)
+
+
+;; Local Variables:
+;; jinx-local-words: "Capslock Ctrl Esc Kanata LShift RShift deflayer escctrl"
+;; End:
