@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# -*- mode: sh; sh-shell: bash -*-
 
 #############################################################
 # Common profile setup file to be sourced from
@@ -8,6 +9,7 @@
 # from shell rc file e.g Emacs Tramp.
 #############################################################
 
+# * Shell Source Tracking
 lgreen_track_profile_sourced_count() {
     # Add a variable to track that profile has been sourced
     # The ./shell_common file checks for this variable to
@@ -19,13 +21,20 @@ lgreen_track_profile_sourced_count() {
     fi
 }
 
+# * Shell UX
 lgreen_greet_user_at_profile_setup_start() {
     # Only show a greeting if this is an interactive terminal
     if [ -t 1 ] && [ -z $LGREEN_NO_GREET ]; then
         echo "Welcome $(whoami), setting up your profile..."
     fi
 }
+lgreen_greet_user_at_profile_setup_end() {
+    if [ -t 1 ] && [ -z $LGREEN_NO_GREET ]; then
+        echo "Profile setup complete. Happy coding."
+    fi
+}
 
+# * Utility Functions
 uname_cached() {
     if [ -z "${__cached_uname:-}" ]; then
         __cached_uname=$(uname -s 2>/dev/null || echo unknown)
@@ -33,11 +42,6 @@ uname_cached() {
     printf '%s\n' "$__cached_uname"
 }
 
-lgreen_greet_user_at_profile_setup_end() {
-    if [ -t 1 ] && [ -z $LGREEN_NO_GREET ]; then
-        echo "Profile setup complete. Happy coding."
-    fi
-}
 
 lgreen_setup_profile_env() {
     # Set PATH
@@ -60,8 +64,8 @@ lgreen_setup_profile_env() {
     export RIPGREP_CONFIG_PATH=~/.ripgreprc
 }
 
+# * Source env specific scripts
 lgreen_source_os_profile() {
-    if [ -z $UNAME ]; then export UNAME=$(uname -s); fi
     if [ "$(uname_cached)" = "Darwin" ]; then
         # shellcheck source=profile_osx
         if [ -f "$HOME/.profile_osx" ]; then
