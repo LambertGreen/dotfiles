@@ -26,3 +26,4 @@ Keypirinha.history
 /.idea/
 /tmux/dot-tmux/plugins/
 /spelling/dot-config/enchant/*.exc
+/karabiner/dot-config/karabiner/automatic_backups/
