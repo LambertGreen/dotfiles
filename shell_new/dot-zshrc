@@ -1,0 +1,277 @@
+#!/usr/bin/env zsh
+# Interactive shell config
+
+# * Profiler
+lgreen_conditionally_start_profiler() {
+    if [[ "$ZPROF" == true ]]; then
+        zmodload zsh/zprof
+    fi
+}
+lgreen_conditionally_stop_profiler() {
+    if [[ "$ZPROF" == true ]]; then
+        unset ZPROF
+        zprof
+    fi
+}
+lgreen_profile_zsh() {
+    local shell="${1:-$SHELL}"
+    ZPROF=true "$shell" -i -c exit
+}
+
+# * ZSH Core Settings
+lgreen_setup_zsh_settings() {
+# ** Path
+    typeset -U path
+
+# ** Homebrew
+    # Homebrew doctor recommends the below
+    umask 002
+
+# ** History
+    # We want history, yes, but not shared between shell instances
+    unsetopt sharehistory
+
+# ** Change Directory command
+    # Enable variable expansion of vars of directories
+    # Enables doing:  ls $deep_dir/<tab>
+    setopt AUTO_CD
+    setopt CDABLE_VARS
+
+# ** Fixup autosuggest highlighting
+    # The original value is `fg=8` but that color is too light for light themes (e.g. doom-one-light)
+    # Use the command `fast-theme -p` to print out color values
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
+}
+
+# * Completions
+lgreen_setup_custom_completions() {
+    fpath=(~/.config/zsh/completions $fpath)
+}
+lgreen_zsh_init_completions() {
+    autoload -Uz compinit && compinit
+
+    if command -v zinit &>/dev/null; then
+        zinit cdreplay -q
+    fi
+}
+
+# * Plugins
+lgreen_setup_zinit() {
+    if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
+        echo
+        echo "The ZSH plugin manger, Zinit, is not installed."
+        echo "Do you want to install it now? [Y/n] "
+        read REPLY
+        case $REPLY in
+            [Nn]) return;;
+        esac
+
+        print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
+        command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
+        command git clone git@github.com:zdharma-continuum/zinit "$HOME/.zinit/bin" && \
+        print -P "%F{33}▓▒░ %F{34}Installation successful. Restart shell to load plugins.%f" || \
+        print -P "%F{160}▓▒░ The clone has failed.%f"; return
+    fi
+
+    source $HOME/.zinit/bin/zinit.zsh
+    autoload -Uz _zinit
+    (( ${+_comps} )) && _comps[zinit]=_zinit
+}
+lgreen_setup_plugins() {
+    # Ice it up?
+    #unset ZPLUGIN_ICE
+    export ZPLUGIN_ICE=1
+
+# ** Plugin::Direnv
+    zinit ice from"gh-r" as"program" mv"direnv* -> direnv"      \
+        atclone'./direnv hook zsh > zhook.zsh' atpull'%atclone' \
+        pick"direnv" src="zhook.zsh" for direnv/direnv
+    zinit load direnv/direnv
+
+# ** Plugin::Zoxide
+    zinit ice from"gh-r" as"program" pick"zoxide" \
+        atload'eval "$(zoxide init zsh)"'
+    zinit load ajeetdsouza/zoxide
+
+# ** Plugin::Powerlevel10k
+    zinit ice depth=1
+    zinit light romkatv/powerlevel10k
+
+# ** Plugin::fzf
+    zinit ice from"gh-r" as"program"
+    zinit light junegunn/fzf
+
+# ** Plugin::fzf-history-search
+    zinit ice lucid wait'0'
+    zinit light joshskidmore/zsh-fzf-history-search
+
+# ** Plugin::fzf-tab
+    zinit light Aloxaf/fzf-tab
+}
+# * Prompt
+lgreen_setup_p10k() {
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
+}
+lgreen_init_p10k() {
+    # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+    [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
+}
+# * Shell aliases
+lgreen_setup_aliases() {
+    # shellcheck disable=SC2139
+    alias e="$EDITOR"
+    alias ec=emacsclient
+    alias g=git
+    alias groot='pushd "$(git rev-parse --show-toplevel)"'
+    alias gw=./gradlew
+    alias tt=lgreen_toggle_shell_theme_mode
+    alias man=lgreen_man
+    alias locate="locate -i" # case-insensitive as default
+    alias ssh='TERM=xterm-256color ssh'
+    alias fzf="fzf --ansi"
+    alias bazel="./bazel.sh"
+    if [ "$(command -v bat)" ]; then
+        alias cat=bat
+    fi
+    if [ "$(command -v nvim)" ]; then
+        alias vim="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias vi="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim="CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-doom \nvim"
+        alias nvim-nyoom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-nyoom \nvim"
+        alias nvim-lazy="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-lazy \nvim"
+    fi
+
+    if [ "$(command -v eza)" ]; then
+        alias ls='eza --icons'
+        alias ll='eza -lh --icons'
+        alias lla='eza -lha --icons'
+        alias llm='eza -lh -s=modified  --icons'
+    else
+        if [ "$(uname_cached)" = "Darwin" ]; then
+            alias ls='gls --color'
+            alias ll='gls -lh --color'
+            alias lla='gls -lha --color'
+        else
+            alias ls='ls --color'
+            alias ll='ls -lh --color'
+            alias lla='ls -lha --color'
+        fi
+    fi
+
+    # shellcheck disable=SC2139
+    if [ "$(command -v brew)" ]; then
+        alias gdb="$(brew --prefix)/bin/gdb"
+    fi
+
+    # Set alias to lldb
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "/usr/local/opt/llvm/bin/lldb" ]; then
+            alias lldb=/usr/local/opt/llvm/bin/lldb
+        fi
+    else
+        # shellcheck disable=SC2139
+        if [ "$(command -v brew)" ]; then
+            alias lldb="$(brew --prefix)/bin/lldb"
+        fi
+    fi
+
+    # On MSYS2 we need to help tmux along
+    # Needed: to use TMUX in non mintty terminals
+    if [[ "$(uname_cached)" == *"_NT"* ]]; then
+        alias tmux='script -c "tmux -u" /dev/null'
+    fi
+
+    # Alias for IntelliJ using nested quotes for spaces
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea" ]; then
+            alias idea="\"$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea\""
+        fi
+    fi
+}
+
+# * Integrations
+# ** Emacs
+lgreen_setup_running_inside_emacs_eat() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
+        source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+}
+lgreen_setup_running_inside_emacs_vterm() {
+    if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        && [[ -n ${EMACS_VTERM_PATH} ]] \
+        && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh ]]; then
+        source ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh
+
+        find_file() {
+            vterm_cmd find-file "$(realpath "${@:-.}")"
+        }
+
+        message() {
+            vterm_cmd message "%s" "$*"
+        }
+    fi
+
+    # Workaround for % being written always by ZSH in Vterm
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        setopt PROMPT_CR
+        setopt PROMPT_SP
+        export PROMPT_EOL_MARK=""
+    fi
+}
+# * Utillity Functions
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+lgreen_make_clean_zdotdir() {
+  local tmpdir
+  tmpdir=$(mktemp -d)
+  touch "$tmpdir/.zshrc"
+  echo "$tmpdir"
+}
+lgreen_benchmark_zsh() {
+    tmp_zdotdir=$(lgreen_make_clean_zdotdir)
+    hyperfine --warmup 2 \
+    'zsh -i -c exit' \
+    "ZDOTDIR=$tmp_zdotdir zsh -i -c exit"
+}
+lgreen_exec_zsh_no_config() {
+  local tmp_zdotdir=$(lgreen_make_clean_zdotdir)
+  echo "Launching clean Zsh at $tmp_zdotdir"
+  ZDOTDIR="$tmp_zdotdir" zsh -f
+}
+lgreen_show_zsh_completions() {
+  for fn in ${(k)functions}; do
+    [[ $fn == _* ]] && whence -f "$fn" | sed "s|^|$fn |"
+  done
+}
+lgreen_fix_compaudit_insecure_directories() {
+    compaudit
+    echo "Removing group write permissions.."
+    compaudit | xargs chmod g-w
+    echo "Done."
+}
+# * == MAIN ==
+lgreen_conditionally_start_profiler
+lgreen_setup_zsh_settings
+lgreen_setup_zinit
+lgreen_setup_plugins
+lgreen_setup_p10k
+
+lgreen_setup_custom_completions
+lgreen_zsh_init_completions
+
+lgreen_init_p10k
+lgreen_setup_aliases
+
+lgreen_setup_running_inside_emacs_eat
+lgreen_setup_running_inside_emacs_vterm
+
+lgreen_conditionally_stop_profiler
