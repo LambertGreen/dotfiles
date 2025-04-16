@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 lgreen_update_github_remote_url_for_personal_user_account() {
-    # Prerequisate: update `~/.ssh/config` to include section:
+    # Prerequisite: update `~/.ssh/config` to include section:
     # Host github.com-personal
     if [ "$(uname)" = "Darwin" ]; then
         SED="gsed"
@@ -14,7 +14,7 @@ lgreen_update_github_remote_url_for_personal_user_account() {
 }
 
 lgreen_update_github_remote_url_for_work_user_account() {
-    # Prerequisate: update `~/.ssh/config` to include section:
+    # Prerequisite: update `~/.ssh/config` to include section:
     # Host github.com-work
     if [ "$(uname)" = "Darwin" ]; then
         SED=gsed
