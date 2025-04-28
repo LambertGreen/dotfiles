@@ -1,0 +1,50 @@
+#!/usr/bin/env zsh
+# NOTE: Only put login session setup here
+
+# * Utillity Functions
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+
+# * Homebrew
+lgreen_setup_homebrew() {
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+    fi
+}
+
+# * Agents (SSH/GPG)
+lgreen_start_agents() {
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        # Note: on macOS a one-time step needs to be done for keys with a passphrase:
+        # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
+        if [ "$(command -v keychain)" ]; then
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
+        fi
+    elif [ "$(uname_cached)" = "Linux" ]; then
+        if [ "$(command -v keychain)" ]; then
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
+            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
+        fi
+    fi
+}
+
+lgreen_export_gpg_tty() {
+    export GPG_TTY=$(tty)
+}
+
+# * Ripgrep
+lgreen_export_ripgrep_config_path() {
+    export RIPGREP_CONFIG_PATH=~/.ripgreprc
+    export COLORTERM=truecolor
+}
+
+# * == MAIN ==
+lgreen_setup_homebrew
+lgreen_start_agents
+lgreen_export_gpg_tty
+lgreen_export_ripgrep_config_path

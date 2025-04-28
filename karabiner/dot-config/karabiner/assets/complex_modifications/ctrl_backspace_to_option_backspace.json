@@ -1,0 +1,26 @@
+{
+  "title": "Change Ctrl+Backspace to Option+Backspace",
+  "rules": [
+    {
+      "description": "Map Ctrl+Backspace to Option+Backspace (delete previous word)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "delete_or_backspace",
+            "modifiers": {
+              "mandatory": ["control"],
+              "optional": ["any"]
+            }
+          },
+          "to": [
+            {
+              "key_code": "delete_or_backspace",
+              "modifiers": ["option"]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

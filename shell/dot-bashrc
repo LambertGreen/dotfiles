@@ -1,47 +1,94 @@
 #!/usr/bin/env bash
+# -*- mode: sh; sh-shell: bash -*-
 
-lgreen_source_common_shell() {
-    # Source common shell script
-    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
-}
+# * MAIN
 
-main() {
-    lgreen_source_common_shell
+# Source common shell script
+[ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
 
-    # If not an interactive shell just return
-    # e.g. needed when running scp
-    if [ -z "$PS1" ]; then
+# If not an interactive shell just return
+# e.g. needed when running scp
+if [ -z "$PS1" ]; then
+    return
+fi
+
+# Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
+if [ "$TERM" = "dumb" ]; then
+    export BASH_NO_EXEC_ZSH=1
+fi
+
+# Don't use ZSH on MSYS2 as it's too slow
+if [[ "$(uname_cached)" == *"_NT"* ]]; then
+    export BASH_NO_EXEC_ZSH=1
+fi
+
+# If zsh is installed then run it instead
+# Note: In general the chsh command can be used to change a user's shell
+# but this does not work for domain users.
+# See: https://serverfault.com/questions/736471/how-do-i-change-my-default-shell-on-a-domain-account
+# To stop the automatic loading of zsh, then define BASH_NO_EXEC_ZSH.
+if [ -z "$BASH_NO_EXEC_ZSH" ] && [ "$(command -v zsh)" ]; then
+    exec zsh
+else
+    # Emacs Tramp or non-interactive shell: needs a simple prompt
+    # so just setup common shell and return
+    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
+        lgreen_track_shell_sourced_count
+        lgreen_source_profile_if_not_sourced
+        lgreen_start_agents
         return
     fi
 
-    # Don't exec ZSH if this is a dumb shell e.g. Emacs Tramp
-    if [ "$TERM" = "dumb" ]; then
-        export BASH_NO_EXEC_ZSH=1
-    fi
+# ** Shell Source Tracking
+    lgreen_track_shell_sourced_count
+    lgreen_source_profile_if_not_sourced
+    lgreen_one_time_system_setup_check
 
-    # Don't use ZSH on MSYS2 as it's too slow
-    if [[ "$(uname_cached)" == *"_NT"* ]]; then
-        export BASH_NO_EXEC_ZSH=1
-    fi
+# ** Init Shell Tools
+    lgreen_setup_zoxide_for_bash
+    lgreen_setup_fzf
+    lgreen_setup_fzf_for_bash
+    lgreen_setup_ntfy
 
-    # If zsh is installed then run it instead
-    # Note: In general the chsh command can be used to change a user's shell
-    # but this does not work for domain users.
-    # See: https://serverfault.com/questions/736471/how-do-i-change-my-default-shell-on-a-domain-account
-    # To stop the automatic loading of zsh, then define BASH_NO_EXEC_ZSH.
-    if [ -z "$BASH_NO_EXEC_ZSH" ] && [ "$(command -v zsh)" ]; then
-        exec zsh
-    else
-        lgreen_setup_common_shell
-        lgreen_setup_running_inside_emacs_eat_for_bash
-        lgreen_setup_fzf_for_bash
-        lgreen_setup_zoxide_for_bash
-        lgreen_setup_direnv_for_bash
-        lgreen_setup_docker_for_bash
-    fi
- }
+# ** Init Agents
+    lgreen_start_agents
+    lgreen_setup_gpg_tty
 
-#-------------------
-# Run main
-#-------------------
-main
+# ** Init Dev Environmets
+    lgreen_setup_pyenv
+    lgreen_setup_jenv
+    lgreen_setup_rbenv
+    lgreen_setup_direnv_for_bash
+    lgreen_setup_docker_for_bash
+    lgreen_setup_dev_env_rust
+    lgreen_setup_perforce_config
+
+# ** Add to PATH
+    lgreen_setup_non_sys_openssl
+    lgreen_setup_non_sys_sqlite
+    lgreen_setup_dev_env_go
+    lgreen_setup_dev_env_clang
+    lgreen_setup_chromium_depot_tools
+
+# ** Emacs Integration
+    lgreen_setup_running_inside_emacs
+    lgreen_setup_running_inside_emacs_eat_for_bash
+    lgreen_setup_doom_emacs
+
+# ** Tmux Integration
+    lgreen_setup_tmux_all
+
+# ** Shell aliases
+    lgreen_setup_aliases
+
+# ** Color Theme
+    lgreen_setup_shell_theme_mode
+
+# ** Shell UX
+    lgreen_show_fortune_quote
+
+# ** Source env specific scripts
+    lgreen_source_os_shell
+    lgreen_source_local_shell
+    lgreen_source_work_shell
+fi

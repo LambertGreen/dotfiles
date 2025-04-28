@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+# * Utillity Functions
+lgreen_show_fortune_quote() {
+    if [ "$(command -v fortune)" ]; then
+        if [ "$(command -v cowsay)" ]; then
+            if [ -f "$HOME/.config/fortune/quotes" ]; then
+                fortune ~/.config/fortune/quotes | cowsay
+            fi
+        fi
+    fi
+}
+
+# * == MAIN ==
+lgreen_show_fortune_quote
