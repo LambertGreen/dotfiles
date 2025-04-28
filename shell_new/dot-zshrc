@@ -195,6 +195,113 @@ lgreen_setup_aliases() {
     fi
 }
 
+# * Color Theme
+lgreen_setup_tmux_theme_switcher() {
+    if [ -n "$TMUX" ]; then
+        if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+            source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+        fi
+    fi
+}
+lgreen_setup_tmux_theme_catpuccin_latte() {
+    local sed_cmd="sed"
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
+    tmux source-file ~/.tmux.conf
+}
+lgreen_setup_tmux_theme_catpuccin_mocha() {
+    local sed_cmd="sed"
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
+    tmux source-file ~/.tmux.conf
+}
+lgreen_setup_lscolors_theme_one_light() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-light)
+    fi
+}
+lgreen_setup_lscolors_theme_one_dark() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-dark)
+    fi
+}
+lgreen_show_lscolors_themes() {
+    local LS_COLORS_ORIG=$LS_COLORS
+    for theme in $(vivid themes); do
+        echo "theme: $theme"
+        export LS_COLORS=$(vivid generate "$theme")
+        ls
+        echo
+    done
+    export LS_COLORS=$LS_COLORS_ORIG
+}
+lgreen_setup_fzf_theme_dark() {
+    export FZF_DEFAULT_OPTS='--color=dark --color=fg:-1,bg:-1'
+}
+lgreen_setup_fzf_theme_light() {
+    export FZF_DEFAULT_OPTS='--color=light --color=fg:-1,bg:-1'
+}
+lgreen_setup_fzf_theme_one_light() {
+    # This is just my own hack of the OneDark theme i.e.
+    # I replaced the fg and bg colors.
+    export FZF_DEFAULT_OPTS='
+        --color=fg:-1,bg:-1
+        --color=hl:#c678dd,fg+:#4b5263,bg+:#ffffff,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046
+        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+lgreen_setup_fzf_theme_one_dark() {
+    export FZF_DEFAULT_OPTS='
+        --color=fg:-1,bg:-1
+        --color=hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
+        --color=info:#98c379,prompt:#61afef,pointer:#be5046
+        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+lgreen_setup_bat_theme_one_half_light() {
+    export BAT_THEME="OneHalfLight"
+}
+lgreen_setup_bat_theme_one_half_dark() {
+    export BAT_THEME="OneHalfDark"
+}
+lgreen_setup_shell_theme_mode_light() {
+    export LGREEN_SHELL_THEME_MODE="light"
+    lgreen_setup_lscolors_theme_one_light
+    lgreen_setup_fzf_theme_one_light
+    lgreen_setup_bat_theme_one_half_light
+    if [ -n "$TMUX" ]; then
+        # lgreen_source_tmux_theme_light
+        lgreen_setup_tmux_theme_catpuccin_latte
+    fi
+}
+lgreen_setup_shell_theme_mode_dark() {
+    export LGREEN_SHELL_THEME_MODE="dark"
+    lgreen_setup_lscolors_theme_one_dark
+    lgreen_setup_fzf_theme_one_dark
+    lgreen_setup_bat_theme_one_half_dark
+    if [ -n "$TMUX" ]; then
+        # lgreen_source_tmux_theme_dark
+        lgreen_setup_tmux_theme_catpuccin_mocha
+    fi
+}
+lgreen_setup_shell_theme_mode() {
+    # Default to dark mode
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_light
+    else
+        lgreen_setup_shell_theme_mode_dark
+    fi
+}
+lgreen_toggle_shell_theme_mode() {
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_dark
+    else
+        lgreen_setup_shell_theme_mode_light
+    fi
+}
 # * Integrations
 # ** Emacs
 lgreen_setup_running_inside_emacs_eat() {
@@ -221,6 +328,19 @@ lgreen_setup_running_inside_emacs_vterm() {
         setopt PROMPT_CR
         setopt PROMPT_SP
         export PROMPT_EOL_MARK=""
+    fi
+}
+# ** Tmux Integration
+lgreen_ssh_tmux() {
+    ssh -t "$@" "tmux -u attach-session || tmux -u new-session -s Alpha"
+}
+lgreen_local_tmux() {
+    tmux new-session -A -s Alpha
+}
+lgreen_conditionally_start_attach_tmux() {
+    if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
+        tmux -V
+        tmux attach || tmux new -s Alpha
     fi
 }
 # * Utillity Functions
@@ -270,6 +390,9 @@ lgreen_zsh_init_completions
 
 lgreen_init_p10k
 lgreen_setup_aliases
+
+lgreen_setup_shell_theme_mode
+lgreen_setup_tmux_theme_switcher
 
 lgreen_setup_running_inside_emacs_eat
 lgreen_setup_running_inside_emacs_vterm
