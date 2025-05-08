@@ -82,6 +82,22 @@ lgreen_setup_plugins() {
     #unset ZPLUGIN_ICE
     export ZPLUGIN_ICE=1
 
+# ** Plugin::OMZ
+    zinit for \
+        OMZ::lib/history.zsh \
+
+# ** Plugin::completions
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid blockf
+    zinit light zsh-users/zsh-completions
+
+# ** Plugin::autosuggestions
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
+    zinit light zsh-users/zsh-autosuggestions
+
+# ** Plugin::fast-syntax-highlighting
+    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
+    zinit light zdharma-continuum/fast-syntax-highlighting
+
 # ** Plugin::Direnv
     zinit ice from"gh-r" as"program" mv"direnv* -> direnv"      \
         atclone'./direnv hook zsh > zhook.zsh' atpull'%atclone' \
@@ -248,18 +264,10 @@ lgreen_setup_fzf_theme_light() {
 lgreen_setup_fzf_theme_one_light() {
     # This is just my own hack of the OneDark theme i.e.
     # I replaced the fg and bg colors.
-    export FZF_DEFAULT_OPTS='
-        --color=fg:-1,bg:-1
-        --color=hl:#c678dd,fg+:#4b5263,bg+:#ffffff,hl+:#d858fe
-        --color=info:#98c379,prompt:#61afef,pointer:#be5046
-        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+    export FZF_DEFAULT_OPTS='--color=fg:-1,bg:-1 --color=hl:#c678dd,fg+:#4b5263,bg+:#ffffff,hl+:#d858fe --color=info:#98c379,prompt:#61afef,pointer:#be5046 --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
 }
 lgreen_setup_fzf_theme_one_dark() {
-    export FZF_DEFAULT_OPTS='
-        --color=fg:-1,bg:-1
-        --color=hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe
-        --color=info:#98c379,prompt:#61afef,pointer:#be5046
-        --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+    export FZF_DEFAULT_OPTS='--color=fg:-1,bg:-1 --color=hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe --color=info:#98c379,prompt:#61afef,pointer:#be5046 --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
 }
 lgreen_setup_bat_theme_one_half_light() {
     export BAT_THEME="OneHalfLight"
@@ -301,6 +309,29 @@ lgreen_toggle_shell_theme_mode() {
     else
         lgreen_setup_shell_theme_mode_light
     fi
+}
+lgreen_setup_fzf-tab_styles() {
+    # Below config is copied directly from: https://github.com/Aloxaf/fzf-tab
+
+    # disable sort when completing `git checkout`
+    zstyle ':completion:*:git-checkout:*' sort false
+    # set descriptions format to enable group support
+    # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+    zstyle ':completion:*:descriptions' format '[%d]'
+    # set list-colors to enable filename colorizing
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+    # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+    zstyle ':completion:*' menu no
+    # preview directory's content with eza when completing cd
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+    # custom fzf flags
+    # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
+    zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
+    # To make fzf-tab follow FZF_DEFAULT_OPTS.
+    # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+    zstyle ':fzf-tab:*' use-fzf-default-opts yes
+    # switch group using `<` and `>`
+    zstyle ':fzf-tab:*' switch-group '<' '>'
 }
 # * Integrations
 # ** Emacs
@@ -393,6 +424,7 @@ lgreen_setup_aliases
 
 lgreen_setup_shell_theme_mode
 lgreen_setup_tmux_theme_switcher
+lgreen_setup_fzf-tab_styles
 
 lgreen_setup_running_inside_emacs_eat
 lgreen_setup_running_inside_emacs_vterm
