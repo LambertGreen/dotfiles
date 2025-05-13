@@ -1,0 +1,4 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Justfile for common system-level maintenance tasks

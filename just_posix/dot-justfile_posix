@@ -1,0 +1,85 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Justfile for common POSIX system-level maintenance tasks.
+# Shared across macOS, Linux, and WSL (for systems using Homebrew).
+
+# * Homebrew
+# ────────────────────────────────────────────────────────────────
+# @category Homebrew
+
+# 🔎 Preview which formulae and casks are outdated
+brew-check: _brew-check-outdated _brew-check-casks
+
+_brew-check-outdated:
+    @echo "🔎 Checking outdated Homebrew formulae..."
+    brew outdated
+
+_brew-check-casks:
+    @echo
+    @echo "🔎 Checking outdated Homebrew casks..."
+    brew outdated --cask --greedy
+
+# 📦 Fast weekly updates (e.g., every Monday)
+brew-upgrade: _brew-update _brew-upgrade
+
+_brew-update:
+    @echo "📦 Updating Homebrew..."
+    brew update
+
+_brew-upgrade:
+    @echo "📦 Upgrading formulae and casks..."
+    brew upgrade
+    brew upgrade --cask --greedy
+
+# 🧹 Deeper monthly/occasional maintenance
+brew-maintain: _brew-update _brew-upgrade _brew-clean _brew-doctor
+
+_brew-clean:
+    @echo "🧹 Cleaning up Homebrew cache and unused dependencies..."
+    brew cleanup -s
+    brew autoremove
+
+_brew-doctor:
+    @echo "🧹 Running brew doctor..."
+    @sh -c 'brew doctor || echo "⚠️  brew doctor returned warnings (exit code $?). Continuing..."'
+
+# * Zinit
+# ────────────────────────────────────────────────────────────────
+# @category Zinit
+
+# 🧃 Update zinit core and all plugins
+zinit-update:
+    @echo "🧃 Running zinit self-update and plugin updates..."
+    zsh -ic 'zinit self-update && zinit update --all'
+
+# 🧃 Check zinit setup and loaded plugins
+zinit-check:
+    @echo "🧃 Checking zinit availability and plugin status..."
+    zsh -ic 'zinit report || echo "⚠️  Zinit not found or not loaded properly."'
+
+# * Completions
+# ────────────────────────────────────────────────────────────────
+# @category Completions
+
+# 🖥️ Refresh just completions for zsh
+completions-just:
+    @echo "🖥️ Refreshing just completions..."
+    just --completions zsh > ~/.config/zsh/completions/_just
+
+# 🖥️ Refresh wezterm completions for zsh
+completions-wezterm:
+    @echo "🖥️ Refreshing wezterm completions..."
+    wezterm shell-completion --shell zsh > ~/.config/zsh/completions/_wezterm
+
+# 🖥️ Refresh all completions
+completions-update: completions-just completions-wezterm
+
+# * Emacs
+# ────────────────────────────────────────────────────────────────
+# @category Emacs
+
+# 📝 Update Emacs Elpaca packages in batch mode
+emacs-update:
+    @echo "📝 Updating Emacs Elpaca packages..."
+    DOTFILES_EMACS_UPDATE=1 emacs --batch --init-directory=~/.emacs.default/ --load=~/.emacs.default/init.el
