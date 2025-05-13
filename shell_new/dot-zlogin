@@ -12,4 +12,6 @@ lgreen_show_fortune_quote() {
 }
 
 # * == MAIN ==
-lgreen_show_fortune_quote
+if [[ -o interactive ]]; then
+  lgreen_show_fortune_quote
+fi

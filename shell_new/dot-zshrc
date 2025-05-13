@@ -411,22 +411,25 @@ lgreen_fix_compaudit_insecure_directories() {
 }
 # * == MAIN ==
 lgreen_conditionally_start_profiler
-lgreen_setup_zsh_settings
-lgreen_setup_zinit
-lgreen_setup_plugins
-lgreen_setup_p10k
 
-lgreen_setup_custom_completions
-lgreen_zsh_init_completions
+if [[ -o interactive ]]; then
+    lgreen_setup_zsh_settings
+    lgreen_setup_zinit
+    lgreen_setup_plugins
+    lgreen_setup_p10k
 
-lgreen_init_p10k
-lgreen_setup_aliases
+    lgreen_setup_custom_completions
+    lgreen_zsh_init_completions
+    lgreen_init_p10k
+    lgreen_setup_aliases
 
-lgreen_setup_shell_theme_mode
-lgreen_setup_tmux_theme_switcher
-lgreen_setup_fzf-tab_styles
+    lgreen_setup_shell_theme_mode
+    lgreen_setup_tmux_theme_switcher
+    lgreen_setup_fzf-tab_styles
 
-lgreen_setup_running_inside_emacs_eat
-lgreen_setup_running_inside_emacs_vterm
+    lgreen_setup_running_inside_emacs_eat
+    lgreen_setup_running_inside_emacs_vterm
+fi
+
 
 lgreen_conditionally_stop_profiler
