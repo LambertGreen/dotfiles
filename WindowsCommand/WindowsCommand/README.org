@@ -26,7 +26,7 @@ We use aliases to have some consistency across platforms, and to use more modern
 Useful shell scripts start with prefix ~lgreen_~ e.g.:
 1. switching between light/dark mode
 
-* TODOs [0/0]
+* TODOs [0/1]
 ** TODO Complete light-dark-mode support [0/2]
 *** [ ] Enable getting current ~COLOR-MODE~
 *** [ ] Enable setting the current ~COLOR-MODE~
