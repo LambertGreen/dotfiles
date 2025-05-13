@@ -86,7 +86,7 @@ config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
    -- Use super key based copy/paste
    { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
-   { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
+   { key = 'v', mods = 'SUPER', action = wezterm.action.PasteFrom('Clipboard') },
 
    -- Enter copy mode with Leader+]
    { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
