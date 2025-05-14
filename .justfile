@@ -1,5 +1,12 @@
-# Justfile for system-level maintenance tasks
+# Justfile for dotfiles
 
-# Update Emacs Elpaca packages in batch mode
-update-emacs:
-    DOTFILES_EMACS_UPDATE=1 emacs --batch --init-directory=~/.emacs.default/ --load=~/.emacs.default/init.el
+# * Default
+# ────────────────────────────────────────────────────────────────
+# @category General
+
+default:
+    @just --list
+
+# TODO: Add machine setup tasks to this file
+machine-setup:
+    echo "TODO: Add machine setup tasks here..."

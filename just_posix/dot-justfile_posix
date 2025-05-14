@@ -57,24 +57,19 @@ zinit-check:
 # ────────────────────────────────────────────────────────────────
 # @category Completions
 
-# 🖥️ Refresh just completions for zsh
-completions-just:
+# 🖥️ Refresh all completions
+completions-upgrade:
     @echo "🖥️ Refreshing just completions..."
     just --completions zsh > ~/.config/zsh/completions/_just
 
-# 🖥️ Refresh wezterm completions for zsh
-completions-wezterm:
     @echo "🖥️ Refreshing wezterm completions..."
     wezterm shell-completion --shell zsh > ~/.config/zsh/completions/_wezterm
-
-# 🖥️ Refresh all completions
-completions-update: completions-just completions-wezterm
 
 # * Emacs
 # ────────────────────────────────────────────────────────────────
 # @category Emacs
 
 # 📝 Update Emacs Elpaca packages in batch mode
-emacs-update:
+emacs-upgrade:
     @echo "📝 Updating Emacs Elpaca packages..."
     DOTFILES_EMACS_UPDATE=1 emacs --batch --init-directory=~/.emacs.default/ --load=~/.emacs.default/init.el

@@ -40,7 +40,7 @@ os-check:
     softwareupdate -l
 
 # 🛠️ Apply all available macOS software updates
-os-update:
+os-upgrade:
     @echo "🛠️ Installing all available macOS updates (requires sudo)…"
     sudo softwareupdate -ia
 
@@ -61,10 +61,10 @@ xcode-check:
 system-check: brew-check mas-check os-check xcode-check
 
 # 🛠️ **Weekly** fast update (every Monday, for example)
-system-update: brew-upgrade mas-upgrade completions-update
+system-upgrade: brew-upgrade mas-upgrade completions-upgrade
 
 # 🧹 Clean caches (Homebrew) — separated so we can compose
 system-clean: brew-clean
 
 # 🧹🛠️ **Monthly** deep maintenance built from smaller pieces
-system-maintain: system-update system-clean zinit-update emacs-update os-update xcode-check
+system-maintain: system-upgrade system-clean zinit-update emacs-upgrade os-upgrade xcode-check

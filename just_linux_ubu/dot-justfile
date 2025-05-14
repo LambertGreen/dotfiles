@@ -41,7 +41,7 @@ apt-clean:
 system-check: brew-check apt-check
 
 # 🛠️ Fast weekly update
-system-upgrade: apt-upgrade brew-upgrade completions-update
+system-upgrade: apt-upgrade brew-upgrade completions-upgrade
 
 # 🧹 Clean system caches (APT & Homebrew)
 system-clean: apt-clean brew-clean
