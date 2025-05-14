@@ -5,6 +5,8 @@
 import '~/.justfile_common'
 import '~/.justfile_posix'
 
+# * Default
+# ──────────────────────────────────
 default:
     @just --list
 
@@ -27,12 +29,12 @@ mas-upgrade:
 # @category Mac
 
 # 🧭 Check available macOS software updates
-macos-check:
+os-check:
     @echo "🧭 Checking for macOS updates..."
     softwareupdate -l
 
 # 🛠️ Apply all available macOS software updates
-macos-update:
+os-update:
     @echo "🛠️ Installing all available macOS updates (requires sudo)..."
     sudo softwareupdate -ia
 
@@ -50,10 +52,10 @@ xcode-check:
 # @category System
 
 # 🔎 Preview system updates without applying them
-system-check: brew-check mas-check macos-check xcode-check
+system-check: brew-check mas-check os-check xcode-check
 
 # 🛠️ Fast weekly system update (for Mondays)
 system-update: brew-upgrade mas-upgrade completions-update
 
 # 🧹 Monthly system maintenance (includes cleanup, doctor, and app store)
-system-maintain: brew-maintain mas-upgrade zinit-update emacs-update macos-update xcode-check
+system-maintain: brew-maintain mas-upgrade zinit-update emacs-update os-update xcode-check
