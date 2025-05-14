@@ -67,4 +67,4 @@ system-upgrade: brew-upgrade mas-upgrade completions-upgrade
 system-clean: brew-clean
 
 # 🧹🛠️ **Monthly** deep maintenance built from smaller pieces
-system-maintain: system-upgrade system-clean zinit-update emacs-upgrade os-upgrade xcode-check
+system-maintain: system-upgrade system-clean zinit-upgrade emacs-upgrade os-upgrade xcode-check

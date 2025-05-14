@@ -43,15 +43,15 @@ brew-maintain: brew-check brew-upgrade brew-clean brew-doctor
 # ────────────────────────────────────────────────────────────────
 # @category Zinit
 
-# 🧃 Update zinit core and all plugins
-zinit-update:
-    @echo "🧃 Updating zinit core and plugins..."
-    zsh -ic 'zinit self-update && zinit update --all'
-
 # 🧃 Check zinit setup and loaded plugins
 zinit-check:
     @echo "🧃 Checking zinit availability and plugin status..."
     zsh -ic 'zinit report || echo "⚠️  Zinit not found or not loaded properly."'
+
+# 🧃 Update zinit core and all plugins
+zinit-upgrade:
+    @echo "🧃 Updating zinit core and plugins..."
+    zsh -ic 'zinit self-update && zinit update --all'
 
 # * Completions
 # ────────────────────────────────────────────────────────────────
