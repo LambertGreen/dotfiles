@@ -1,0 +1,112 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Justfile for system-level maintenance tasks
+import '~/.justfile_common'
+
+# * Default
+# ────────────────────────────────────────────────────────────────
+default:
+    @just --list
+
+# * Scoop
+# ────────────────────────────────────────────────────────────────
+# @category Scoop
+
+# 🔍 Check for outdated Scoop packages
+scoop-check:
+    @echo "🔄 Updating Scoop buckets (for accurate status)..."
+    scoop update
+    @echo
+    @echo "🔍 Checking for outdated Scoop apps..."
+    scoop status
+
+# 📦 Upgrade all Scoop buckets and apps
+scoop-upgrade:
+    @echo "📦 Updating Scoop buckets..."
+    scoop update
+    @echo "📦 Upgrading installed Scoop apps..."
+    scoop update --all
+
+# ♻️ Reset all Scoop-installed applications (e.g. to fix broken icons)
+scoop-reset:
+    @echo "♻️ Resetting all Scoop apps to repair shortcuts/icons..."
+    scoop reset --all
+
+# 🧹 Cleanup unused Scoop app versions
+scoop-clean:
+    @echo "🧹 Cleaning up unused Scoop versions..."
+    scoop cleanup --all
+
+# TODO: registry updates... where should these go long term?
+scoop-register:
+    reg import "C:\Users\lambert.green\scoop\apps\wezterm\current\install-context.reg"
+
+# * Chocolatey
+# ────────────────────────────────────────────────────────────────
+# @category Choco
+
+# 🔍 Show outdated Chocolatey packages
+choco-check:
+    @echo "🔍 Checking for outdated Chocolatey packages..."
+    choco outdated
+
+# 📦 Upgrade all Chocolatey packages
+choco-upgrade:
+    @echo "📦 Upgrading all Chocolatey packages..."
+    sudo choco upgrade all -y
+
+# * Winget
+# ────────────────────────────────────────────────────────────────
+# @category Winget
+
+# 🔎 Winget upgrades available
+winget-check:
+    @echo "🔍 Checking for Winget package updates..."
+    winget upgrade --include-unknown
+
+# 📦 Upgrade Winget packages (interactive or scripted)
+winget-upgrade:
+    @echo "📦 Upgrading Winget packages..."
+    winget upgrade --all --include-unknown --accept-source-agreements --accept-package-agreements
+
+# * Msys2
+# ────────────────────────────────────────────────────────────────
+# @category Msys2
+
+# 🔍 Preview available MSYS2 upgrades
+msys2-check:
+    @echo "🔍 Checking for MSYS2 package updates..."
+    @/usr/bin/bash.exe -lc 'yes n | pacman -Syu || true'
+
+# ♻️ Upgrade MSYS2 packages (auto-confirm)
+msys2-upgrade:
+    @echo "♻️ Upgrading MSYS2 packages..."
+    @/usr/bin/bash.exe -lc 'pacman -Syu --noconfirm'
+
+# 🧹 Clean up MSYS2 package cache and old versions
+msys2-clean:
+    @echo "🧹 Cleaning MSYS2 cache and stale packages..."
+    @/usr/bin/bash.exe -lc 'pacman -Sc --noconfirm && paccache -rv'
+
+# * OS
+# ────────────────────────────────────────────────────────────────
+# @category OS
+
+# 🧭 Check for pending Windows OS updates (requires PSWindowsUpdate)
+os-check:
+    @echo "🧭 Checking for pending Windows updates (PowerShell)..."
+    @sudo powershell -Command "Get-WindowsUpdate"
+
+# * System
+# ────────────────────────────────────────────────────────────────
+# @category System
+
+# 🔎 Preview system package updates (no changes applied)
+system-check: scoop-check choco-check winget-check msys2-check os-check
+
+# 📦 Apply weekly system upgrades (safe, routine updates)
+system-upgrade: scoop-upgrade choco-upgrade winget-upgrade
+
+# 🧹 Monthly system maintenance (includes upgrade + cleanup + shortcut fix)
+system-maintain: system-upgrade msys2-upgrade scoop-clean scoop-reset
