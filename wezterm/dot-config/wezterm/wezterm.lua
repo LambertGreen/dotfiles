@@ -34,7 +34,7 @@ elseif wezterm.target_triple:find('apple') then
   config.font_size = 13
 else
   config.font = wezterm.font_with_fallback({
-    "Iosevka NFM",
+    "Iosevka Nerd Font",
     "Symbols Nerd Font Mono"
   })
 end
