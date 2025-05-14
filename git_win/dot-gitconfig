@@ -6,6 +6,7 @@
 [core]
 	autocrlf = true
 	sshCommand = C:/Program\\ Files/OpenSSH-Win64/ssh.exe
+	fsmonitor = true
 
 [credential "helperselector"]
 	selected = wincred
@@ -19,9 +20,11 @@
 	directory = %(prefix)///wsl.localhost/Ubuntu-20.04/home/lgreen/dev/work/tabcrash
 	directory = D:/dev/work/monolith
 	directory = C:/Users/lambert.green/dev/work2/monolith
+	directory = d:/dev/work/monolith3
 
 [http]
 	postBuffer = 524288000
+	sslVersion = tlsv1.2
 
 [gpg]
 	program = gpg.exe
