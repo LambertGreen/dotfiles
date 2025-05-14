@@ -8,41 +8,36 @@
 # ────────────────────────────────────────────────────────────────
 # @category Homebrew
 
-# 🔎 Preview which formulae and casks are outdated
-brew-check: _brew-check-outdated _brew-check-casks
-
-_brew-check-outdated:
+# 🔎 Update taps, then preview which formulae and casks are outdated
+brew-check:
+    @echo "🔄 Updating Homebrew metadata..."
+    brew update
+    @echo
     @echo "🔎 Checking outdated Homebrew formulae..."
     brew outdated
-
-_brew-check-casks:
     @echo
     @echo "🔎 Checking outdated Homebrew casks..."
     brew outdated --cask --greedy
 
-# 📦 Fast weekly updates (e.g., every Monday)
-brew-upgrade: _brew-update _brew-upgrade
-
-_brew-update:
-    @echo "📦 Updating Homebrew..."
-    brew update
-
-_brew-upgrade:
+# 📦 Upgrade installed formulae and casks (no implicit brew update)
+brew-upgrade:
     @echo "📦 Upgrading formulae and casks..."
     brew upgrade
     brew upgrade --cask --greedy
 
-# 🧹 Deeper monthly/occasional maintenance
-brew-maintain: _brew-update _brew-upgrade _brew-clean _brew-doctor
-
-_brew-clean:
-    @echo "🧹 Cleaning up Homebrew cache and unused dependencies..."
+# 🧹 Clean cache and remove orphaned dependencies
+brew-clean:
+    @echo "🧹 Cleaning Homebrew cache and unused dependencies..."
     brew cleanup -s
     brew autoremove
 
-_brew-doctor:
-    @echo "🧹 Running brew doctor..."
+# 🧰 Diagnose Homebrew installation
+brew-doctor:
+    @echo "🧰 Running brew doctor..."
     @sh -c 'brew doctor || echo "⚠️  brew doctor returned warnings (exit code $?). Continuing..."'
+
+# 🛠️ Monthly deep maintenance (check → upgrade → clean → doctor)
+brew-maintain: brew-check brew-upgrade brew-clean brew-doctor
 
 # * Zinit
 # ────────────────────────────────────────────────────────────────
@@ -50,7 +45,7 @@ _brew-doctor:
 
 # 🧃 Update zinit core and all plugins
 zinit-update:
-    @echo "🧃 Running zinit self-update and plugin updates..."
+    @echo "🧃 Updating zinit core and plugins..."
     zsh -ic 'zinit self-update && zinit update --all'
 
 # 🧃 Check zinit setup and loaded plugins
