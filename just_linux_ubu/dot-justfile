@@ -47,4 +47,4 @@ system-upgrade: apt-upgrade brew-upgrade completions-upgrade
 system-clean: apt-clean brew-clean
 
 # 🧹🛠️ Monthly deep maintenance (composed of upgrade + clean)
-system-maintain: system-upgrade system-clean zinit-update emacs-update
+system-maintain: system-upgrade system-clean zinit-upgrade emacs-upgrade
