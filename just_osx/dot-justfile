@@ -1,61 +1,70 @@
 #!/usr/bin/env just
 # -*- mode: just -*-
 
-# Justfile for system-level maintenance tasks
+# Justfile for **macOS** system‑level maintenance tasks
+# This assumes Homebrew is installed and that the `mas` utility is available
+# for Mac App Store automation. Import the common helpers shared with the
+# Linux Justfile so we can re‑use generic targets (e.g. brew‑*).
+
 import '~/.justfile_common'
 import '~/.justfile_posix'
 
 # * Default
-# ──────────────────────────────────
+# ────────────────────────────────────────────────────────────────
+# @category General
+
 default:
     @just --list
 
-# * Mac App Store
+# * Mac App Store
 # ────────────────────────────────────────────────────────────────
-# @category Mac-App-Store
+# @category Mac‑App‑Store
 
-# 🔎 Preview which Mac App Store apps are outdated
+# 🔎 Preview which Mac App Store apps are outdated
 mas-check:
-    @echo "🔎 Checking for Mac App Store updates..."
+    @echo "🔎 Checking for Mac App Store updates…"
     mas outdated
 
-# 📦 Upgrade all Mac App Store apps
+# 📦 Upgrade all Mac App Store apps
 mas-upgrade:
-    @echo "📦 Upgrading Mac App Store apps..."
+    @echo "📦 Upgrading Mac App Store apps…"
     mas upgrade
 
 # * macOS System Updates
 # ────────────────────────────────────────────────────────────────
-# @category Mac
+# @category macOS
 
 # 🧭 Check available macOS software updates
 os-check:
-    @echo "🧭 Checking for macOS updates..."
+    @echo "🧭 Checking for macOS updates…"
     softwareupdate -l
 
 # 🛠️ Apply all available macOS software updates
 os-update:
-    @echo "🛠️ Installing all available macOS updates (requires sudo)..."
+    @echo "🛠️ Installing all available macOS updates (requires sudo)…"
     sudo softwareupdate -ia
 
-# 🧰 Check Xcode Command Line Tools
+# 🧰 Verify Xcode Command‑Line Tools presence
 xcode-check:
-    @echo "🧰 Checking for Xcode Command Line Tools..."
-    @sh -c 'if xcode-select -p > /dev/null 2>&1; then \
-      echo "✅ Xcode CLT is installed at: $(xcode-select -p)"; \
+    @echo "🧰 Checking for Xcode Command Line Tools…"
+    @sh -c 'if xcode-select -p >/dev/null 2>&1; then \
+      echo "✅ Xcode CLT installed at: $(xcode-select -p)"; \
     else \
       echo "❌ Xcode CLT not installed. Run: xcode-select --install"; \
     fi'
 
-# * System
+# * System (high‑level convenience targets)
 # ────────────────────────────────────────────────────────────────
 # @category System
 
-# 🔎 Preview system updates without applying them
+# 🔎 Preview everything that could be updated (apps, brew, OS, toolchains)
 system-check: brew-check mas-check os-check xcode-check
 
-# 🛠️ Fast weekly system update (for Mondays)
+# 🛠️ **Weekly** fast update (every Monday, for example)
 system-update: brew-upgrade mas-upgrade completions-update
 
-# 🧹 Monthly system maintenance (includes cleanup, doctor, and app store)
-system-maintain: brew-maintain mas-upgrade zinit-update emacs-update os-update xcode-check
+# 🧹 Clean caches (Homebrew) — separated so we can compose
+system-clean: brew-clean
+
+# 🧹🛠️ **Monthly** deep maintenance built from smaller pieces
+system-maintain: system-update system-clean zinit-update emacs-update os-update xcode-check

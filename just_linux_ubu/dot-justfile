@@ -43,5 +43,8 @@ system-check: brew-check apt-check
 # 🛠️ Fast weekly update
 system-upgrade: apt-upgrade brew-upgrade completions-update
 
-# 🧹 Monthly deep maintenance
-system-maintain: system-upgrade apt-clean brew-clean zinit-update emacs-update
+# 🧹 Clean system caches (APT & Homebrew)
+system-clean: apt-clean brew-clean
+
+# 🧹🛠️ Monthly deep maintenance (composed of upgrade + clean)
+system-maintain: system-upgrade system-clean zinit-update emacs-update
