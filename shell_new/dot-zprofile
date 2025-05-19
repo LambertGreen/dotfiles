@@ -23,14 +23,24 @@ lgreen_start_agents() {
     if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
-        if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
-            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
+        if command -v keychain >/dev/null; then
+            eval "$(keychain \
+                --nogui --quiet --quick --ignore-missing \
+                --eval \
+                id_rsa_personal id_rsa id_ed25519 \
+                --ssh-allow-forwarded \
+                --ssh-allow-gpg
+            )"
         fi
     elif [ "$(uname_cached)" = "Linux" ]; then
-        if [ "$(command -v keychain)" ]; then
-            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any id_rsa_personal id_rsa id_ed25519)"
-            eval "$(keychain --nogui --quiet --quick --ignore-missing --eval --inherit any --agents gpg)"
+        if command -v keychain >/dev/null; then
+            eval "$(keychain \
+                --nogui --quiet --quick --ignore-missing \
+                --eval \
+                id_rsa_personal id_rsa id_ed25519 \
+                --ssh-allow-forwarded \
+                --ssh-allow-gpg
+            )"
         fi
     fi
 }
