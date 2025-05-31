@@ -25,14 +25,17 @@ if wezterm.target_triple:find('windows') then
     "Iosevka NFM",
     "Symbols Nerd Font Mono"
   })
-  config.font_size = 13
+  config.font_size = 10
   config.window_background_opacity = 0.95
   -- Add the default program configuration here
   config.default_prog = {
     'cmd.exe',
-    '/k',
+    '/K',
     '%USERPROFILE%\\WindowsCommand\\dev.cmd'
   }
+  -- Set initial window dimensions
+  config.initial_rows = 35
+  config.initial_cols = 120
 elseif wezterm.target_triple:find('apple') then
   config.font = wezterm.font_with_fallback({
     "Aporetic Sans Mono",

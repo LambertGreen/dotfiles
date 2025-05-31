@@ -2,7 +2,7 @@
 
 goto :main
 
-:setup_color_mode:
+:setup_color_mode
 	if not defined COLOR_MODE (
 		set COLOR_MODE=dark
 	)
