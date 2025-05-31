@@ -26,17 +26,22 @@ if wezterm.target_triple:find('windows') then
     "Symbols Nerd Font Mono"
   })
   config.font_size = 13
+  config.window_background_opacity = 0.95
+  -- Add the default program configuration here
+  config.default_prog = {
+    'cmd.exe',
+    '/k',
+    '%USERPROFILE%\\WindowsCommand\\dev.cmd'
+  }
 elseif wezterm.target_triple:find('apple') then
   config.font = wezterm.font_with_fallback({
     "Aporetic Sans Mono",
     "Symbols Nerd Font Mono"
   })
   config.font_size = 13
-else
-  config.font = wezterm.font_with_fallback({
-    "Iosevka Nerd Font",
-    "Symbols Nerd Font Mono"
-  })
+  config.window_background_opacity = 0.95
+  config.macos_window_background_blur = 20
+  config.window_decorations = 'TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
 end
 
 -- Tab bar

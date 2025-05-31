@@ -190,10 +190,15 @@ match.expand_envvars = True
 # type: boolean
 match.substring = True
 
+# name: Controls spacing before prompt
+# type: enum
+# options: normal,compact,sparse
+prompt.spacing = sparse
+
 # name: Controls when past prompts are collapsed
 # type: enum
 # options: off,always,same_dir
-prompt.transient = off
+prompt.transient = same_dir
 
 # name: Controls VT emulation
 # type: enum
