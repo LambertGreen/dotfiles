@@ -193,7 +193,7 @@ match.substring = True
 # name: Controls spacing before prompt
 # type: enum
 # options: normal,compact,sparse
-prompt.spacing = sparse
+prompt.spacing = compact
 
 # name: Controls when past prompts are collapsed
 # type: enum

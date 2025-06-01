@@ -52,11 +52,18 @@ goto :main
 :setup_lua
 	set LUA_PATH=%userprofile%\scoop\apps\luarocks\current\lua\?.lua;%userprofile%\scoop\apps\luarocks\current\lua\?\init.lua;%userprofile%\scoop\apps\luarocks\current\?.lua;%userprofile%\scoop\apps\luarocks\current\?\init.lua;%userprofile%\scoop\apps\luarocks\current\..\share\lua\5.4\?.lua;%userprofile%\scoop\apps\luarocks\current\..\share\lua\5.4\?\init.lua;.\?.lua;.\?\init.lua;C:/Users/lambert.green/scoop/apps/luarocks/current/rocks/share/lua/5.4/?.lua;C:/Users/lambert.green/scoop/apps/luarocks/current/rocks/share/lua/5.4/?/init.lua
 	set LUA_CPATH=%userprofile%\scoop\apps\lua\current;%userprofile%/scoop/apps/luarocks/current/rocks/lib/lua/5.4/?.dll
-    set _ZL_LOG_NAME=%userprofile%\z.lua.log
 	goto :eof
+
+:setup_zoxide
+    REM Configure zoxide for better Windows CMD experience
+    set _ZO_ECHO=1
+    set _ZO_RESOLVE_SYMLINKS=1
+    goto :eof
 
 :main
     call :setup_color_mode
     call :setup_fzf
     call :setup_bat
     call :setup_clink_color
+    call :setup_lua
+    call :setup_zoxide
