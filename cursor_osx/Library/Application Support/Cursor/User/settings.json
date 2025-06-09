@@ -51,5 +51,7 @@
     "codeGenie.advanced.chat.enabled": true,
     "codeGenie.settings.enabled": true,
     "git.openRepositoryInParentFolders": "always",
-    "editor.fontFamily": "'Aporetic Sans Mono', 'Symbols Nerd Font Mono'"
+    "cursor.experimentalClaudeCode.enabled": false,
+    "cursor.featureFlags.experimentalClaudeCode": false,
+    "editor.fontFamily": "'Aporetic Sans Mono', 'Symbols Nerd Font Mono'",
 }
