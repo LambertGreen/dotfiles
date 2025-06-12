@@ -5,8 +5,8 @@
 # This file assumes the use of APT (e.g. Ubuntu, Debian)
 # Other distros should use their respective package manager
 
-import '~/.justfile_common'
-import '~/.justfile_posix'
+import 'justfile_common'
+import 'justfile_posix'
 
 # * Default
 # ──────────────────────────────────

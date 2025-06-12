@@ -2,7 +2,7 @@
 # -*- mode: just -*-
 
 # Justfile for **Windows** system‑level maintenance tasks
-import '~/.justfile_common'
+import 'justfile_common'
 
 # * Default
 # ────────────────────────────────────────────────────────────────

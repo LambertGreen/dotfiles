@@ -6,8 +6,8 @@
 # for Mac App Store automation. Import the common helpers shared with the
 # Linux Justfile so we can re‑use generic targets (e.g. brew‑*).
 
-import '~/.justfile_common'
-import '~/.justfile_posix'
+import 'justfile_common'
+import 'justfile_posix'
 
 # * Default
 # ────────────────────────────────────────────────────────────────
