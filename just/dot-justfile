@@ -1,0 +1,14 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# * Default
+# ────────────────────────────────────────────────────────────────
+# @category General
+
+default:
+    @just --list
+
+# 🔧 System maintenance tasks and scripts
+goto-sys-maintenance:
+    @echo "Navigating to system maintenance directory..."
+    @cd ~/.sys_maintenance && exec $SHELL
