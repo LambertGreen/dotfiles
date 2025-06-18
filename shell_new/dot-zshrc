@@ -404,9 +404,41 @@ lgreen_show_zsh_completions() {
   done
 }
 lgreen_fix_compaudit_insecure_directories() {
-    compaudit
-    echo "Removing group write permissions.."
-    compaudit | xargs chmod g-w
+    echo "Checking for insecure directories..."
+
+    # Check what compaudit finds
+    local compaudit_dirs=$(compaudit)
+
+    if [[ -n "$compaudit_dirs" ]]; then
+        echo "Found insecure directories from compaudit:"
+        echo "$compaudit_dirs"
+        echo "$compaudit_dirs" | xargs chmod g-w,o-w
+    else
+        echo "No directories found by compaudit"
+    fi
+
+    # Common problematic directories
+    local common_dirs=(
+        "$HOME/.zinit"
+        "$HOME/.cache"
+        "/usr/local/share/zsh"
+        "/opt/homebrew/share/zsh"  # macOS Homebrew
+    )
+
+    echo "Checking common problematic directories..."
+    for dir in "${common_dirs[@]}"; do
+        if [[ -d "$dir" ]]; then
+            echo "Fixing permissions for: $dir"
+            find "$dir" -type d -perm -g+w -exec chmod g-w {} \; 2>/dev/null
+            find "$dir" -type d -perm -o+w -exec chmod o-w {} \; 2>/dev/null
+        fi
+    done
+
+    # Rebuild completion cache
+    echo "Rebuilding completion cache..."
+    rm -f ~/.zcompdump*
+    autoload -U compinit && compinit
+
     echo "Done."
 }
 # * == MAIN ==
