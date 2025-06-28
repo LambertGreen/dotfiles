@@ -465,3 +465,5 @@ fi
 
 
 lgreen_conditionally_stop_profiler
+
+source /Users/lambert.green/.config/broot/launcher/bash/br
