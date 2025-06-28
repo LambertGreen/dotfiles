@@ -3,7 +3,7 @@ FROM archlinux/archlinux:base-devel
 # Install packages for dotfiles validation
 RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
   pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh stow zsh tmux neovim emacs fd ripgrep python3 python-pip
+    sudo git openssh stow zsh tmux neovim emacs fd ripgrep python3 python-pip just
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -19,7 +19,7 @@ RUN sed -i /etc/sudoers -re 's/^#includedir.*/## **Removed the include directive
 # Set user's password to 'user'
 RUN echo 'user:user' | chpasswd
 USER user
-ENV HOME /home/user
+ENV HOME=/home/user
 
 # Download public key for github.com
 RUN mkdir -p -m 0700 ~/.ssh && \
@@ -29,16 +29,17 @@ RUN mkdir -p -m 0700 ~/.ssh && \
     sudo chown -v user ~/.ssh/*
 
 # Clone the dotfiles repo and also pull down sub-modules
-RUN --mount=type=ssh,uid=100 git clone git@github.com:LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
+ARG GITHUB_TOKEN
+RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
     git submodule update --init --recursive
 
 # Remove users existing Bash scripts (otherwise stow will not work for the Bash scripts).
 RUN rm ~/.bash*
 
-# Use stow to link in the dotfiles
-RUN cd ~/dev/my/dotfiles && \
-    stow shell shell_linux git git_my git_work git_linux tmux vim nvim emacs
+# Use justfile to stow Linux dotfiles (with our new configs/ structure)
+RUN cd ~/dev/my/dotfiles/configs && \
+    just stow-linux
 
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
 WORKDIR /home/user/dev/my/dotfiles
