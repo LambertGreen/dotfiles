@@ -60,7 +60,7 @@ lgreen_setup_zinit() {
     if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
         echo
         echo "The ZSH plugin manger, Zinit, is not installed."
-        echo "Do you want to install it now? [Y/n] "
+        echo "Do you want to install it now? [Y/n] (auto-installs in 10s)"
         
         # Use timeout for unattended installation, default to Y after 10 seconds
         if read -t 10 REPLY; then
@@ -73,9 +73,28 @@ lgreen_setup_zinit() {
 
         print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
         command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-        command git clone https://github.com/zdharma-continuum/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful. Restart shell to load plugins.%f" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f"; return
+        if command git clone https://github.com/zdharma-continuum/zinit "$HOME/.zinit/bin"; then
+            print -P "%F{33}▓▒░ %F{34}Installation successful.%f"
+            echo
+            echo "Restart shell to load plugins? [Y/n] (auto-restarts in 5s)"
+            
+            # Use timeout for unattended shell restart, default to Y after 5 seconds
+            if read -t 5 REPLY; then
+                case $REPLY in
+                    [Nn]) 
+                        echo "Skipping shell restart. Run 'exec zsh' manually to load plugins."
+                        return;;
+                esac
+            else
+                echo "Y (timeout)"
+            fi
+            
+            echo "Restarting shell..."
+            exec zsh
+        else
+            print -P "%F{160}▓▒░ The clone has failed.%f"
+            return
+        fi
     fi
 
     source $HOME/.zinit/bin/zinit.zsh
