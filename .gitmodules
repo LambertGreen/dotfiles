@@ -8,7 +8,7 @@
 	branch = main
 [submodule "emacs/dot-emacs.d"]
 	path = configs/emacs/dot-emacs.d
-	url = git@github.com:plexus/chemacs2.git
+	url = https://github.com/plexus/chemacs2.git
 [submodule "emacs/dot-emacs.default"]
 	path = configs/emacs/dot-emacs.default
 	url = ../dot-emacs-default.git
