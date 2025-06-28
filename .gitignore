@@ -12,6 +12,7 @@ nvim/.config/nvim/spell/
 
 # Tmux
 /tmux/.tmux/plugins/
+/configs/tmux/dot-tmux/plugins/
 
 # Powershell
 /WindowsPowerShell/Documents/WindowsPowerShell/Modules/

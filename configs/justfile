@@ -35,7 +35,6 @@ _stow-common:
 _stow-posix:
     stow finicky
     stow nix
-    stow xdg
 
 # 🍎 Stow macOS packages
 stow-osx: _stow-common _stow-posix
@@ -66,6 +65,8 @@ stow-linux: _stow-common _stow-posix
     stow tmux
     stow nvim
     stow XWindows
+    stow xdg-autostart
+    stow xdg-desktop
 
 # 🏔️ MSYS2 packages (POSIX tools for Windows)
 _stow-msys2:
@@ -115,6 +116,8 @@ unstow-osx:
 # 🗑️ Unstow Linux packages
 unstow-linux:
     stow -D XWindows
+    stow -D xdg-autostart
+    stow -D xdg-desktop
     just _unstow-common
     just _unstow-posix
 
@@ -160,7 +163,6 @@ _unstow-common:
 _unstow-posix:
     stow -D finicky
     stow -D nix
-    stow -D xdg
 
 # 🏔️ Unstow MSYS2 packages
 _unstow-msys2:
