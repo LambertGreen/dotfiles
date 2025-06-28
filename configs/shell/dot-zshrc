@@ -61,14 +61,19 @@ lgreen_setup_zinit() {
         echo
         echo "The ZSH plugin manger, Zinit, is not installed."
         echo "Do you want to install it now? [Y/n] "
-        read REPLY
-        case $REPLY in
-            [Nn]) return;;
-        esac
+        
+        # Use timeout for unattended installation, default to Y after 10 seconds
+        if read -t 10 REPLY; then
+            case $REPLY in
+                [Nn]) return;;
+            esac
+        else
+            echo "Y (timeout)"
+        fi
 
         print -P "%F{33}▓▒░ %F{220}Installing DHARMA Initiative Plugin Manager (zdharma/zinit)…%f"
         command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-        command git clone git@github.com:zdharma-continuum/zinit "$HOME/.zinit/bin" && \
+        command git clone https://github.com/zdharma-continuum/zinit "$HOME/.zinit/bin" && \
         print -P "%F{33}▓▒░ %F{34}Installation successful. Restart shell to load plugins.%f" || \
         print -P "%F{160}▓▒░ The clone has failed.%f"; return
     fi
@@ -466,4 +471,3 @@ fi
 
 lgreen_conditionally_stop_profiler
 
-source /Users/lambert.green/.config/broot/launcher/bash/br
