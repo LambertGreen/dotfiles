@@ -19,10 +19,15 @@ test-apps:
     select-window -t 0 \; \
     attach-session -t dotfiles-test
 
-# 🐳 Build Docker test image
+# 🐳 Build Docker test image (with layer caching)
 docker-build:
     @echo "Building Docker image for dotfiles testing..."
-    docker build --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t dotfiles-test .
+    docker build --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} --build-arg CACHE_BUST=$(date +%s) -t dotfiles-test .
+
+# 🐳 Build Docker test image (force rebuild all layers)
+docker-build-fresh:
+    @echo "Building Docker image from scratch..."
+    docker build --no-cache --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t dotfiles-test .
 
 # 🐳 Run Docker container for testing
 docker-run:

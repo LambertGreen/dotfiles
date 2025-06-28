@@ -29,16 +29,14 @@ RUN mkdir -p -m 0700 ~/.ssh && \
     sudo chown -v user ~/.ssh/*
 
 # Clone the dotfiles repo and also pull down sub-modules
+# This layer will be rebuilt when code changes
 ARG GITHUB_TOKEN
+ARG CACHE_BUST=1
 RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
-    git submodule update --init --recursive
-
-# Remove users existing Bash scripts (otherwise stow will not work for the Bash scripts).
-RUN rm ~/.bash*
-
-# Use justfile to stow Linux dotfiles (with our new configs/ structure)
-RUN cd ~/dev/my/dotfiles/configs && \
+    git submodule update --init --recursive && \
+    rm ~/.bash* && \
+    cd ~/dev/my/dotfiles/configs && \
     just stow-linux
 
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
