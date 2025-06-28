@@ -1,51 +1,51 @@
 [submodule "autohotkey/dot-autohotkey"]
-	path = autohotkey/dot-autohotkey
+	path = configs/autohotkey/dot-autohotkey
 	url = ../dot-autohotkey.git
 	branch = main
 [submodule "hammerspoon/dot-hammerspoon"]
-	path = hammerspoon/dot-hammerspoon
+	path = configs/hammerspoon/dot-hammerspoon
 	url = ../dot-hammerspoon
 	branch = main
 [submodule "emacs/dot-emacs.d"]
-	path = emacs/dot-emacs.d
+	path = configs/emacs/dot-emacs.d
 	url = git@github.com:plexus/chemacs2.git
 [submodule "emacs/dot-emacs.default"]
-	path = emacs/dot-emacs.default
+	path = configs/emacs/dot-emacs.default
 	url = ../dot-emacs-default.git
 	branch = main
 [submodule "emacs/dot-doom.d"]
-	path = emacs/dot-doom.d
+	path = configs/emacs/dot-doom.d
 	url = ../dot-emacs-doom.git
 	branch = master
 [submodule "emacs/dot-spacemacs.d"]
-	path = emacs/dot-spacemacs.d
+	path = configs/emacs/dot-spacemacs.d
 	url = ../dot-spacemacs.git
 	branch = master
 [submodule "emacs/dot-emacs.doom"]
-	path = emacs/dot-emacs.doom
+	path = configs/emacs/dot-emacs.doom
 	url = ../doomemacs.git
 	branch = master
 [submodule "emacs/dot-emacs.spacemacs"]
-	path = emacs/dot-emacs.spacemacs
+	path = configs/emacs/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
 	branch = develop
 [submodule "alfred-settings"]
-	path = alfred-settings
+	path = configs/alfred-settings
 	url = ../alfred-settings.git
 	branch = main
 [submodule "nvim/.config/nvim-lgreen"]
-	path = nvim/dot-config/nvim-lgreen
+	path = configs/nvim/dot-config/nvim-lgreen
 	url = ../dot-nvim.git
 [submodule "nvim/.config/nvim-doom"]
-	path = nvim/dot-config/nvim-doom
+	path = configs/nvim/dot-config/nvim-doom
 	url = ../doom-nvim.git
  	branch = my-config
 [submodule "nvim/.config/nvim-nyoom"]
-	path = nvim/dot-config/nvim-nyoom
+	path = configs/nvim/dot-config/nvim-nyoom
 	url = ../nyoom.nvim.git
 [submodule "nvim_win/AppData/Local/nvim"]
-	path = nvim_win/AppData/Local/nvim
+	path = configs/nvim_win/AppData/Local/nvim
 	url = ../dot-nvim.git
 [submodule "nvim/.config/nvim-lazy"]
-	path = nvim/dot-config/nvim-lazy
+	path = configs/nvim/dot-config/nvim-lazy
 	url = ../dot-nvim-lazy.git
