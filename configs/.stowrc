@@ -1,2 +1,3 @@
 -t ~
 --dot
+--ignore='\.DS_Store'
