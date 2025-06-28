@@ -1,37 +1,46 @@
 #!/usr/bin/env zsh
+# Interactive shell config
 
 # * Profiler
 lgreen_conditionally_start_profiler() {
-    if [ "$ZPROF" = true ]; then
+    if [[ "$ZPROF" == true ]]; then
         zmodload zsh/zprof
     fi
 }
 lgreen_conditionally_stop_profiler() {
-    if [ "$ZPROF" = true ]; then
+    if [[ "$ZPROF" == true ]]; then
         unset ZPROF
         zprof
     fi
 }
 lgreen_profile_zsh() {
-  shell=${1-$SHELL}
-  ZPROF=true $shell -i -c exit
+    local shell="${1:-$SHELL}"
+    ZPROF=true "$shell" -i -c exit
 }
 
-# * Prompts
-lgreen_setup_p10k() {
-    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-    # Initialization code that may require console input (password prompts, [y/n]
-    # confirmations, etc.) must go above this block; everything else may go below.
-    if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]; then
-        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-    fi
-}
-lgreen_init_p10k() {
-    # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-    [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
-}
-lgreen_init_oh_my_posh() {
-    eval "$(oh-my-posh init zsh --config $HOME/.config/oh-my-posh/zen.toml)"
+# * ZSH Core Settings
+lgreen_setup_zsh_settings() {
+# ** Path
+    typeset -U path
+
+# ** Homebrew
+    # Homebrew doctor recommends the below
+    umask 002
+
+# ** History
+    # We want history, yes, but not shared between shell instances
+    unsetopt sharehistory
+
+# ** Change Directory command
+    # Enable variable expansion of vars of directories
+    # Enables doing:  ls $deep_dir/<tab>
+    setopt AUTO_CD
+    setopt CDABLE_VARS
+
+# ** Fixup autosuggest highlighting
+    # The original value is `fg=8` but that color is too light for light themes (e.g. doom-one-light)
+    # Use the command `fast-theme -p` to print out color values
+    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
 }
 
 # * Completions
@@ -39,65 +48,15 @@ lgreen_setup_custom_completions() {
     fpath=(~/.config/zsh/completions $fpath)
 }
 lgreen_zsh_init_completions() {
-    if type brew &>/dev/null; then
-        FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
-    fi
-
-    # Initialize completions
     autoload -Uz compinit && compinit
 
-    if [ "$(command -v zinit)" ]; then
+    if command -v zinit &>/dev/null; then
         zinit cdreplay -q
     fi
 }
 
-# * ZSH Settings
-lgreen_setup_zsh() {
-    # Set zle to use Emacs keybinds
-    bindkey -e
-
-    # Homebrew doctor recommends the below
-    umask 002
-
-    # Workaround for WSL issue:https://github.com/microsoft/WSL/issues/1887
-    #
-    if [ "$(uname_cached)" = "Linux" ]; then
-        if [ "$(< /proc/version)" = "*@(Microsoft|WSL)*" ]; then
-            unsetopt BG_NICE
-        fi
-    else
-        true
-    fi
-
-    # We want history, yes, but not shared between shell instances
-    unsetopt incappendhistory
-    unsetopt sharehistory
-
-    # Enable variable expansion of vars of directories
-    # Enables doing:  ls $deep_dir/<tab>
-    setopt AUTO_CD
-    setopt CDABLE_VARS
-}
-lgreen_fixup_zsh_autosuggestion_highlight_style() {
-    # The original value is `fg=8` but that color is too light for light themes (e.g. doom-one-light)
-    # Use the command `fast-theme -p` to print out color values
-    export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=242"
-}
-lgreen_zsh_set_history_options() {
-   setopt HIST_IGNORE_SPACE
-   setopt HIST_IGNORE_DUPS
-}
-lgreen_zsh_set_title_suffix() {
-    ZSH_TAB_TITLE_ADDITIONAL_TERMS='wezterm'
-    ZSH_TAB_TITLE_SUFFIX=' - Terminal'
-}
-
 # * Plugins
 lgreen_setup_zinit() {
-#--------------------------------------------
-# Zinit:
-# https://github.com/zdharma/zinit
-#--------------------------------------------
     if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
         echo
         echo "The ZSH plugin manger, Zinit, is not installed."
@@ -113,181 +72,398 @@ lgreen_setup_zinit() {
         print -P "%F{33}▓▒░ %F{34}Installation successful. Restart shell to load plugins.%f" || \
         print -P "%F{160}▓▒░ The clone has failed.%f"; return
     fi
-    source $HOME/.zinit/bin/zinit.zsh
 
+    source $HOME/.zinit/bin/zinit.zsh
     autoload -Uz _zinit
     (( ${+_comps} )) && _comps[zinit]=_zinit
-
+}
+lgreen_setup_plugins() {
     # Ice it up?
     #unset ZPLUGIN_ICE
     export ZPLUGIN_ICE=1
 
+# ** Plugin::OMZ
     zinit for \
         OMZ::lib/history.zsh \
-        OMZ::lib/functions.zsh \
-        OMZ::lib/misc.zsh \
-        OMZ::lib/completion.zsh \
-        OMZ::lib/git.zsh
 
-    # ** Plugin::fzf
-    zinit ice from"gh-r" as"program"
-    zinit light junegunn/fzf
-
-    # ** Plugin::fzf-history-search
-    zinit ice lucid wait'0'
-    zinit light joshskidmore/zsh-fzf-history-search
-
-    # ** Plugin::fzf-tab
-    zinit light Aloxaf/fzf-tab
-
-    # ** Plugin::colored-man-pages
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid
-    zinit snippet OMZ::plugins/colored-man-pages/colored-man-pages.plugin.zsh
-
-    # ** Plugin::completions
+# ** Plugin::completions
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid blockf
     zinit light zsh-users/zsh-completions
 
-    # ** Plugin::autosuggestions
+# ** Plugin::autosuggestions
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
     zinit light zsh-users/zsh-autosuggestions
 
-    # ** Plugin::fast-syntax-highlighting
+# ** Plugin::fast-syntax-highlighting
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma-continuum/fast-syntax-highlighting
 
-    # ** Plugin::powerlevel10k
+# ** Plugin::Direnv
+    zinit ice from"gh-r" as"program" mv"direnv* -> direnv"      \
+        atclone'./direnv hook zsh > zhook.zsh' atpull'%atclone' \
+        pick"direnv" src="zhook.zsh" for direnv/direnv
+    zinit load direnv/direnv
+
+# ** Plugin::Zoxide
+    zinit ice from"gh-r" as"program" pick"zoxide" \
+        atload'eval "$(zoxide init zsh)"'
+    zinit load ajeetdsouza/zoxide
+
+# ** Plugin::Powerlevel10k
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
 
-    # ** Plugin::bd
-    # Go back up directories without needing to spam `cd ../../..`
-    zinit light Tarrasch/zsh-bd
+# ** Plugin::fzf
+    zinit ice from"gh-r" as"program"
+    zinit light junegunn/fzf
 
-    # ** Plugin::tab-title
-    # Set terminal title based on current directory, shell command, etc.
-    zinit light trystan2k/zsh-tab-title
+# ** Plugin::fzf-history-search
+    zinit ice lucid wait'0'
+    zinit light joshskidmore/zsh-fzf-history-search
+
+# ** Plugin::fzf-tab
+    zinit light Aloxaf/fzf-tab
 }
-
-# * Utility Functions
-lgreen_zsh_show_my_functions() {
-    print -l ${(k)functions} | fzf -q "^lgreen"
+# * Prompt
+lgreen_setup_p10k() {
+    # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+    # Initialization code that may require console input (password prompts, [y/n]
+    # confirmations, etc.) must go above this block; everything else may go below.
+    if [ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]; then
+        source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+    fi
 }
-lgreen_fix_compaudit_insecure_directories() {
-    compaudit
-    echo "Removing group write permissions.."
-    compaudit | xargs chmod g-w
-    echo "Done."
+lgreen_init_p10k() {
+    # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+    [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
 }
-
-# * Source env specific scripts
-lgreen_source_local_zsh() {
-    # Source local config file if is present
-    [ -f "$HOME/.zshrc_local" ] && source $HOME/.zshrc_local
-}
-
-
-# * ==MAIN==
-main() {
-    # Source common shell script
-    [ -f "$HOME/.shell_common" ] && source $HOME/.shell_common
-
-    # Emacs Tramp or non-interactive shell: needs a simple prompt
-    # so just setup common shell and return
-    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
-        lgreen_track_shell_sourced_count
-        lgreen_source_profile_if_not_sourced
-        lgreen_start_agents
-        unsetopt zle && PS1='$ '
-        typeset -U path
-        return
+# * Shell aliases
+lgreen_setup_aliases() {
+    # shellcheck disable=SC2139
+    alias e="$EDITOR"
+    alias ec=emacsclient
+    alias g=git
+    alias groot='pushd "$(git rev-parse --show-toplevel)"'
+    alias gw=./gradlew
+    alias tt=lgreen_toggle_shell_theme_mode
+    alias man=lgreen_man
+    alias locate="locate -i" # case-insensitive as default
+    alias ssh='TERM=xterm-256color ssh'
+    alias fzf="fzf --ansi"
+    alias bazel="./bazel.sh"
+    if [ "$(command -v bat)" ]; then
+        alias cat=bat
+    fi
+    if [ "$(command -v nvim)" ]; then
+        alias vim="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias vi="NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim="CC=/opt/homebrew/opt/llvm/bin/clang CXX=/opt/homebrew/opt/llvm/bin/clang++ NVIM_APPNAME=nvim-lgreen \nvim"
+        alias nvim-doom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-doom \nvim"
+        alias nvim-nyoom="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-nyoom \nvim"
+        alias nvim-lazy="CC=/opt/homebrew/bin/gcc-13 NVIM_APPNAME=nvim-lazy \nvim"
     fi
 
-# ** Profiler - start if configured
-    lgreen_conditionally_start_profiler
+    if [ "$(command -v eza)" ]; then
+        alias ls='eza --icons'
+        alias ll='eza -lh --icons'
+        alias lla='eza -lha --icons'
+        alias llm='eza -lh -s=modified  --icons'
+    else
+        if [ "$(uname_cached)" = "Darwin" ]; then
+            alias ls='gls --color'
+            alias ll='gls -lh --color'
+            alias lla='gls -lha --color'
+        else
+            alias ls='ls --color'
+            alias ll='ls -lh --color'
+            alias lla='ls -lha --color'
+        fi
+    fi
 
-# ** Setup
-    lgreen_setup_zinit
-    lgreen_setup_p10k
-    lgreen_setup_zsh
-    lgreen_setup_custom_completions
+    # shellcheck disable=SC2139
+    if [ "$(command -v brew)" ]; then
+        alias gdb="$(brew --prefix)/bin/gdb"
+    fi
 
-# ** Shell Source Tracking
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_one_time_system_setup_check
+    # Set alias to lldb
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "/usr/local/opt/llvm/bin/lldb" ]; then
+            alias lldb=/usr/local/opt/llvm/bin/lldb
+        fi
+    else
+        # shellcheck disable=SC2139
+        if [ "$(command -v brew)" ]; then
+            alias lldb="$(brew --prefix)/bin/lldb"
+        fi
+    fi
 
-# ** Init Shell Tools
-    lgreen_setup_zoxide_for_zsh
-    lgreen_setup_fzf
-    lgreen_setup_fzf_for_zsh
-    lgreen_setup_ntfy
+    # On MSYS2 we need to help tmux along
+    # Needed: to use TMUX in non mintty terminals
+    if [[ "$(uname_cached)" == *"_NT"* ]]; then
+        alias tmux='script -c "tmux -u" /dev/null'
+    fi
 
-# ** Init Agents
-    lgreen_start_agents
-    lgreen_setup_gpg_tty
-
-# ** Init Dev Environmets
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-    lgreen_setup_direnv_for_zsh
-    lgreen_setup_docker_for_zsh
-    lgreen_setup_dev_env_rust
-    lgreen_setup_perforce_config
-
-# ** Add to PATH
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-    lgreen_setup_dev_env_go
-    lgreen_setup_dev_env_clang
-    lgreen_setup_chromium_depot_tools
-
-# ** Emacs Integration
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_running_inside_emacs_eat_for_zsh
-    lgreen_setup_emacs_vterm
-    lgreen_setup_doom_emacs
-
-# ** Tmux Integration
-    lgreen_setup_tmux_all
-
-# ** Shell aliases
-    lgreen_setup_aliases
-
-# ** Color Theme
-    lgreen_setup_shell_theme_mode
-
-# ** Shell UX
-    lgreen_show_fortune_quote
-
-# ** Source env specific scripts
-    lgreen_source_os_shell
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-    lgreen_source_local_zsh
-
-# ** Init Prompt
-    lgreen_init_p10k
-
-# ** Init Completions
-    lgreen_zsh_init_completions
-
-# ** Apply Settings
-    lgreen_zsh_set_history_options
-    lgreen_zsh_set_title_suffix
-    lgreen_fixup_zsh_autosuggestion_highlight_style
-
-# ** Profiler - stop if running
-    lgreen_conditionally_stop_profiler
-
-    # Remove any duplicates in the path variable
-    # Note: it is best to remove the places where duplicates
-    # are being applied, but I like this safety check
-    typeset -U path
+    # Alias for IntelliJ using nested quotes for spaces
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        if [ -f "$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea" ]; then
+            alias idea="\"$HOME/Applications/Intellij IDEA Ultimate.app/Contents/MacOS/idea\""
+        fi
+    fi
 }
 
-#-------------------
-# Run main
-#-------------------
-main
+# * Color Theme
+lgreen_setup_tmux_theme_switcher() {
+    if [ -n "$TMUX" ]; then
+        if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
+            source "$HOME/.tmux/scripts/theme_light_dark_switcher.sh"
+        fi
+    fi
+}
+lgreen_setup_tmux_theme_catpuccin_latte() {
+    local sed_cmd="sed"
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
+    tmux source-file ~/.tmux.conf
+}
+lgreen_setup_tmux_theme_catpuccin_mocha() {
+    local sed_cmd="sed"
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        sed_cmd="gsed"
+    fi
+    $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
+    tmux source-file ~/.tmux.conf
+}
+lgreen_setup_lscolors_theme_one_light() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-light)
+    fi
+}
+lgreen_setup_lscolors_theme_one_dark() {
+    if [ "$(command -v vivid)" ]; then
+        export LS_COLORS=$(vivid generate one-dark)
+    fi
+}
+lgreen_show_lscolors_themes() {
+    local LS_COLORS_ORIG=$LS_COLORS
+    for theme in $(vivid themes); do
+        echo "theme: $theme"
+        export LS_COLORS=$(vivid generate "$theme")
+        ls
+        echo
+    done
+    export LS_COLORS=$LS_COLORS_ORIG
+}
+lgreen_setup_fzf_theme_dark() {
+    export FZF_DEFAULT_OPTS='--color=dark --color=fg:-1,bg:-1'
+}
+lgreen_setup_fzf_theme_light() {
+    export FZF_DEFAULT_OPTS='--color=light --color=fg:-1,bg:-1'
+}
+lgreen_setup_fzf_theme_one_light() {
+    # This is just my own hack of the OneDark theme i.e.
+    # I replaced the fg and bg colors.
+    export FZF_DEFAULT_OPTS='--color=fg:-1,bg:-1 --color=hl:#c678dd,fg+:#4b5263,bg+:#ffffff,hl+:#d858fe --color=info:#98c379,prompt:#61afef,pointer:#be5046 --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+lgreen_setup_fzf_theme_one_dark() {
+    export FZF_DEFAULT_OPTS='--color=fg:-1,bg:-1 --color=hl:#c678dd,fg+:#ffffff,bg+:#4b5263,hl+:#d858fe --color=info:#98c379,prompt:#61afef,pointer:#be5046 --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
+}
+lgreen_setup_bat_theme_one_half_light() {
+    export BAT_THEME="OneHalfLight"
+}
+lgreen_setup_bat_theme_one_half_dark() {
+    export BAT_THEME="OneHalfDark"
+}
+lgreen_setup_shell_theme_mode_light() {
+    export LGREEN_SHELL_THEME_MODE="light"
+    lgreen_setup_lscolors_theme_one_light
+    lgreen_setup_fzf_theme_one_light
+    lgreen_setup_bat_theme_one_half_light
+    if [ -n "$TMUX" ]; then
+        # lgreen_source_tmux_theme_light
+        lgreen_setup_tmux_theme_catpuccin_latte
+    fi
+}
+lgreen_setup_shell_theme_mode_dark() {
+    export LGREEN_SHELL_THEME_MODE="dark"
+    lgreen_setup_lscolors_theme_one_dark
+    lgreen_setup_fzf_theme_one_dark
+    lgreen_setup_bat_theme_one_half_dark
+    if [ -n "$TMUX" ]; then
+        # lgreen_source_tmux_theme_dark
+        lgreen_setup_tmux_theme_catpuccin_mocha
+    fi
+}
+lgreen_setup_shell_theme_mode() {
+    # Default to dark mode
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_light
+    else
+        lgreen_setup_shell_theme_mode_dark
+    fi
+}
+lgreen_toggle_shell_theme_mode() {
+    if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
+        lgreen_setup_shell_theme_mode_dark
+    else
+        lgreen_setup_shell_theme_mode_light
+    fi
+}
+lgreen_setup_fzf-tab_styles() {
+    # Below config is copied directly from: https://github.com/Aloxaf/fzf-tab
+
+    # disable sort when completing `git checkout`
+    zstyle ':completion:*:git-checkout:*' sort false
+    # set descriptions format to enable group support
+    # NOTE: don't use escape sequences (like '%F{red}%d%f') here, fzf-tab will ignore them
+    zstyle ':completion:*:descriptions' format '[%d]'
+    # set list-colors to enable filename colorizing
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+    # force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
+    zstyle ':completion:*' menu no
+    # preview directory's content with eza when completing cd
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+    # custom fzf flags
+    # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
+    zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
+    # To make fzf-tab follow FZF_DEFAULT_OPTS.
+    # NOTE: This may lead to unexpected behavior since some flags break this plugin. See Aloxaf/fzf-tab#455.
+    zstyle ':fzf-tab:*' use-fzf-default-opts yes
+    # switch group using `<` and `>`
+    zstyle ':fzf-tab:*' switch-group '<' '>'
+}
+# * Integrations
+# ** Emacs
+lgreen_setup_running_inside_emacs_eat() {
+    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
+        source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+}
+lgreen_setup_running_inside_emacs_vterm() {
+    if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        && [[ -n ${EMACS_VTERM_PATH} ]] \
+        && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh ]]; then
+        source ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh
+
+        find_file() {
+            vterm_cmd find-file "$(realpath "${@:-.}")"
+        }
+
+        message() {
+            vterm_cmd message "%s" "$*"
+        }
+    fi
+
+    # Workaround for % being written always by ZSH in Vterm
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        setopt PROMPT_CR
+        setopt PROMPT_SP
+        export PROMPT_EOL_MARK=""
+    fi
+}
+# ** Tmux Integration
+lgreen_ssh_tmux() {
+    ssh -t "$@" "tmux -u attach-session || tmux -u new-session -s Alpha"
+}
+lgreen_local_tmux() {
+    tmux new-session -A -s Alpha
+}
+lgreen_conditionally_start_attach_tmux() {
+    if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
+        tmux -V
+        tmux attach || tmux new -s Alpha
+    fi
+}
+# * Utillity Functions
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+lgreen_make_clean_zdotdir() {
+  local tmpdir
+  tmpdir=$(mktemp -d)
+  touch "$tmpdir/.zshrc"
+  echo "$tmpdir"
+}
+lgreen_benchmark_zsh() {
+    tmp_zdotdir=$(lgreen_make_clean_zdotdir)
+    hyperfine --warmup 2 \
+    'zsh -i -c exit' \
+    "ZDOTDIR=$tmp_zdotdir zsh -i -c exit"
+}
+lgreen_exec_zsh_no_config() {
+  local tmp_zdotdir=$(lgreen_make_clean_zdotdir)
+  echo "Launching clean Zsh at $tmp_zdotdir"
+  ZDOTDIR="$tmp_zdotdir" zsh -f
+}
+lgreen_show_zsh_completions() {
+  for fn in ${(k)functions}; do
+    [[ $fn == _* ]] && whence -f "$fn" | sed "s|^|$fn |"
+  done
+}
+lgreen_fix_compaudit_insecure_directories() {
+    echo "Checking for insecure directories..."
+
+    # Check what compaudit finds
+    local compaudit_dirs=$(compaudit)
+
+    if [[ -n "$compaudit_dirs" ]]; then
+        echo "Found insecure directories from compaudit:"
+        echo "$compaudit_dirs"
+        echo "$compaudit_dirs" | xargs chmod g-w,o-w
+    else
+        echo "No directories found by compaudit"
+    fi
+
+    # Common problematic directories
+    local common_dirs=(
+        "$HOME/.zinit"
+        "$HOME/.cache"
+        "/usr/local/share/zsh"
+        "/opt/homebrew/share/zsh"  # macOS Homebrew
+    )
+
+    echo "Checking common problematic directories..."
+    for dir in "${common_dirs[@]}"; do
+        if [[ -d "$dir" ]]; then
+            echo "Fixing permissions for: $dir"
+            find "$dir" -type d -perm -g+w -exec chmod g-w {} \; 2>/dev/null
+            find "$dir" -type d -perm -o+w -exec chmod o-w {} \; 2>/dev/null
+        fi
+    done
+
+    # Rebuild completion cache
+    echo "Rebuilding completion cache..."
+    rm -f ~/.zcompdump*
+    autoload -U compinit && compinit
+
+    echo "Done."
+}
+# * == MAIN ==
+lgreen_conditionally_start_profiler
+
+if [[ -o interactive ]]; then
+    lgreen_setup_zsh_settings
+    lgreen_setup_zinit
+    lgreen_setup_plugins
+    lgreen_setup_p10k
+
+    lgreen_setup_custom_completions
+    lgreen_zsh_init_completions
+    lgreen_init_p10k
+    lgreen_setup_aliases
+
+    lgreen_setup_shell_theme_mode
+    lgreen_setup_tmux_theme_switcher
+    lgreen_setup_fzf-tab_styles
+
+    lgreen_setup_running_inside_emacs_eat
+    lgreen_setup_running_inside_emacs_vterm
+fi
+
+
+lgreen_conditionally_stop_profiler
+
+source /Users/lambert.green/.config/broot/launcher/bash/br

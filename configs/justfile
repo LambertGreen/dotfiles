@@ -40,7 +40,7 @@ _stow-posix:
 stow-osx: _stow-common _stow-posix
     stow git git_my git_osx git_work
     stow gnupg_osx
-    stow shell_new shell_osx
+    stow shell shell_osx  # TODO: Integrate shell_osx into new shell config
     stow sys_maintenance sys_maintenance_osx
     stow tmux
     stow nvim
@@ -60,7 +60,7 @@ stow-osx: _stow-common _stow-posix
 stow-linux: _stow-common _stow-posix
     stow git git_my git_linux git_work
     stow gnupg_linux
-    stow shell_new shell_linux
+    stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
     stow sys_maintenance sys_maintenance_linux_ubu
     stow tmux
     stow nvim
@@ -71,7 +71,7 @@ stow-linux: _stow-common _stow-posix
 # 🏔️ MSYS2 packages (POSIX tools for Windows)
 _stow-msys2:
     stow mintty
-    stow shell_new shell_msys2
+    stow shell shell_msys2  # TODO: Integrate shell_msys2 into new shell config
     stow tmux tmux_msys2
 
 # 🪟 Stow Windows packages
@@ -167,7 +167,7 @@ _unstow-posix:
 # 🏔️ Unstow MSYS2 packages
 _unstow-msys2:
     stow -D mintty
-    stow -D shell_new
+    stow -D shell
     stow -D shell_msys2
     stow -D tmux
     stow -D tmux_msys2
