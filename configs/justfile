@@ -72,7 +72,9 @@ stow-ubuntu: _stow-common _stow-posix
 stow-arch: _stow-common _stow-posix
     stow git git_my git_linux
     stow gnupg_linux
-    stow --override='.*' shell shell_linux  # TODO: Integrate shell_linux into new shell config
+    # Remove existing shell configs that would conflict
+    -rm -f ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile 2>/dev/null
+    stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
     stow package_management package_management_arch
     stow tmux
     stow nvim
