@@ -142,7 +142,7 @@ install-from-requirements file:
 export-requirements:
     python -m pip freeze > requirements.txt
 
-# 🧪 Install packages for testing environment (minimal)
-install-test: install-system-core setup-dev-dirs
+# 🧪 Install packages for testing environment
+install-test: install-system-tools setup-dev-environment
     @echo "✅ Arch test environment ready!"
     @echo "This target is optimized for container testing"

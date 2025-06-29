@@ -37,8 +37,8 @@ install-ruby-dev:
 # 📂 Setup common development directories
 setup-dev-dirs:
     @echo "Setting up development directories..."
-    mkdir -p ~/dev/my
-    mkdir -p ~/.local/bin
+    mkdir -p ~/dev/{my,work,learning,tools}
+    mkdir -p ~/.local/{bin,share}
     mkdir -p ~/.config
 
 # 🔍 Verify development tools installation

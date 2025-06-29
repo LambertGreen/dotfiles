@@ -30,13 +30,18 @@ RUN mkdir -p -m 0700 ~/.ssh && \
     sudo chmod 0600 ~/.ssh/* && \
     sudo chown -v user ~/.ssh/*
 
-# Clone the dotfiles repo and also pull down sub-modules
-# This layer will be rebuilt when code changes
+# Clone the dotfiles repo and sync submodules (stable layer - cached unless submodules change)
 ARG GITHUB_TOKEN
-ARG CACHE_BUST=1
-RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
+RUN git clone https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
-    git submodule update --init --recursive && \
+    git submodule update --init --recursive
+
+# Switch to specific branch and run tests (this layer rebuilds when code changes)
+ARG CACHE_BUST=1
+RUN cd ~/dev/my/dotfiles && \
+    git fetch origin && \
+    git checkout feature/reorganize-stow-configs && \
+    git pull origin feature/reorganize-stow-configs && \
     cd ~/dev/my/dotfiles/configs && \
     just stow-arch && \
     cd ~/.package_management/install && \
