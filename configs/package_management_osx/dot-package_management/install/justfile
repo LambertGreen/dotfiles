@@ -99,7 +99,6 @@ install-common: add-taps
         stylua \
         tldr \
         tmux \
-        topgrade \
         trash \
         unixodbc \
         vivid \

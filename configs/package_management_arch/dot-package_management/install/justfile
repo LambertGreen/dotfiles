@@ -46,7 +46,6 @@ install-system-tools: install-system-core
         eza \
         dust \
         just \
-        topgrade \
         direnv \
         zoxide \
         fzf

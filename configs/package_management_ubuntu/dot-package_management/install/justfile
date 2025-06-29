@@ -62,7 +62,6 @@ install-homebrew-packages: install-homebrew
         eza \
         dust \
         just \
-        topgrade \
         direnv \
         zoxide
 

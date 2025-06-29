@@ -26,7 +26,6 @@ _stow-common:
     stow lldb
     stow ripgrep
     stow spelling
-    stow topgrade
     stow vim
     stow wezterm
     stow --ignore='dot-emacs\.doom' emacs
@@ -172,7 +171,6 @@ _unstow-common:
     stow -D lldb
     stow -D ripgrep
     stow -D spelling
-    stow -D topgrade
     stow -D vim
     stow -D wezterm
     stow -D emacs
