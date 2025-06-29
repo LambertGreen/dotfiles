@@ -41,7 +41,7 @@ stow-osx: _stow-common _stow-posix
     stow git git_my git_osx git_work
     stow gnupg_osx
     stow shell shell_osx  # TODO: Integrate shell_osx into new shell config
-    stow sys_maintenance sys_maintenance_osx
+    stow package_management package_management_osx
     stow tmux
     stow nvim
     stow alfred-settings
@@ -61,7 +61,7 @@ stow-linux: _stow-common _stow-posix
     stow git git_my git_linux git_work
     stow gnupg_linux
     stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
-    stow sys_maintenance sys_maintenance_linux_ubu
+    stow package_management package_management_ubuntu
     stow tmux
     stow nvim
     stow XWindows
@@ -78,7 +78,7 @@ _stow-msys2:
 stow-win: _stow-common _stow-msys2
     stow git git_my git_win git_work
     stow gnupg_win
-    stow sys_maintenance sys_maintenance_win
+    stow package_management package_management_win
     stow nvim_win
     stow alacritty_win
     stow autohotkey
