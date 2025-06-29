@@ -1,0 +1,171 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Package installation for Windows
+# Run once during initial machine setup
+
+default:
+    @just --list
+
+# 🪣 Install Scoop (primary package manager for Windows)
+install-scoop:
+    @echo "Installing Scoop package manager..."
+    powershell -Command "Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')"
+
+# 🗂️ Add Scoop buckets
+add-scoop-buckets: install-scoop
+    scoop bucket add extras
+    scoop bucket add nerd-fonts  
+    scoop bucket add java
+
+# 📦 Install Scoop main packages (common)
+install-scoop-main: add-scoop-buckets
+    scoop install `
+        ack `
+        bat `
+        cacert `
+        clink `
+        cmake `
+        coreutils `
+        curl `
+        dark `
+        dust `
+        fd `
+        findutils `
+        fzf `
+        gawk `
+        git `
+        grep `
+        lessmsi `
+        neovim `
+        nodejs-lts `
+        pwsh `
+        python `
+        ripgrep `
+        sed `
+        sudo `
+        tldr `
+        touch `
+        wget
+
+# 🔧 Install Scoop extras (common GUI tools)
+install-scoop-extras: add-scoop-buckets
+    scoop install `
+        carnac `
+        dbeaver `
+        emacs `
+        everything `
+        jd-gui `
+        keypirinha `
+        rapidee `
+        switcheroo `
+        vcredist2022 `
+        vscode `
+        wezterm `
+        windirstat
+
+# 🏠 Install Scoop extras (home)
+install-scoop-home: add-scoop-buckets
+    scoop install `
+        irfanview `
+        processhacker `
+        winrar
+
+# 💼 Install Scoop extras (work)
+install-scoop-work: add-scoop-buckets
+    scoop install `
+        sysinternals
+
+# 🔤 Install fonts
+install-fonts: add-scoop-buckets
+    scoop install `
+        iosevka-nf-mono `
+        iosevka-nf-propo `
+        iosevka-nf
+
+# 🏔️ Install MSYS2 (POSIX environment for Windows)
+install-msys2: install-scoop
+    @echo "Installing MSYS2..."
+    scoop install msys2 -g
+
+# 📦 Install MSYS2 packages
+install-msys2-packages: install-msys2
+    @echo "Installing MSYS2 packages..."
+    @echo "Note: Run this in an MSYS2 terminal"
+    pacman -S --noconfirm \
+        man-db \
+        stow \
+        tmux \
+        zsh \
+        $${MINGW_PACKAGE_PREFIX}-bat \
+        $${MINGW_PACKAGE_PREFIX}-emacs \
+        $${MINGW_PACKAGE_PREFIX}-gnupg \
+        $${MINGW_PACKAGE_PREFIX}-neovim \
+        $${MINGW_PACKAGE_PREFIX}-fd \
+        $${MINGW_PACKAGE_PREFIX}-jq \
+        $${MINGW_PACKAGE_PREFIX}-fastfetch \
+        $${MINGW_PACKAGE_PREFIX}-ripgrep \
+        $${MINGW_PACKAGE_PREFIX}-zoxide \
+        $${MINGW_PACKAGE_PREFIX}-eza \
+        $${MINGW_PACKAGE_PREFIX}-tree-sitter \
+        $${MINGW_PACKAGE_PREFIX}-oh-my-posh
+
+# 🍫 Install Chocolatey (alternative package manager)
+install-chocolatey:
+    @echo "Installing Chocolatey..."
+    powershell -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+
+# 🔧 Install Chocolatey packages
+install-choco-packages: install-chocolatey
+    choco install AutoHotKey --install-arguments '/uiAccess=1'
+
+# 📦 Install Winget (modern Windows package manager)
+install-winget:
+    @echo "Install Winget either via Windows Store or from:"
+    @echo "https://github.com/microsoft/winget-cli"
+
+# 🐍 Install Python global packages
+install-python-globals: install-scoop-main
+    python -m pip install --upgrade pip
+    python -m pip install black pyflakes isort pytest nose pipenv pynvim
+
+# 📦 Install Node.js global packages
+install-node-globals: install-scoop-main
+    npm install -g `
+        typescript `
+        typescript-language-server `
+        stylelint `
+        js-beautify `
+        js-tidy `
+        prettier `
+        neovim
+
+# 🎮 Install Keypirinha PackageControl
+install-keypirinha-packagecontrol: install-scoop-extras
+    @echo "To install Keypirinha PackageControl:"
+    @echo "1. Open Keypirinha Console (F2)"
+    @echo "2. Run this command:"
+    @echo "import keypirinha as kp,keypirinha_net as kpn,os;p=\"PackageControl.keypirinha-package\";d=kpn.build_urllib_opener().open(\"https://github.com/ueffel/Keypirinha-PackageControl/releases/download/1.0.4/\"+p);pb=d.read();d.close();f=open(os.path.join(kp.installed_package_dir(),p),\"wb\");f.write(pb);f.close()"
+
+# 🚀 Full installation (common setup)
+install-all: install-scoop-main install-scoop-extras install-fonts install-msys2 install-msys2-packages install-python-globals install-node-globals
+    @echo "✅ Full Windows installation complete!"
+    @echo "Note: Chocolatey and Winget are available but not installed by default"
+
+# 🏠 Home setup
+install-home-setup: install-all install-scoop-home
+    @echo "✅ Home Windows setup complete!"
+
+# 💼 Work setup  
+install-work-setup: install-all install-scoop-work install-choco-packages
+    @echo "✅ Work Windows setup complete!"
+
+# 📥 Install from Scoop export file
+install-from-export file:
+    @echo "Installing from Scoop export file: {{file}}"
+    scoop install {{file}}
+
+# 📤 Export current Scoop installation
+export-scoop filename:
+    @echo "Exporting Scoop packages to: {{filename}}"
+    scoop export {{filename}}

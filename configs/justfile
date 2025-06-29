@@ -56,8 +56,8 @@ stow-osx: _stow-common _stow-posix
     stow Xresources_osx
     stow yabai
 
-# 🐧 Stow Linux packages  
-stow-linux: _stow-common _stow-posix
+# 🐧 Stow Ubuntu/Debian packages
+stow-ubuntu: _stow-common _stow-posix
     stow git git_my git_linux git_work
     stow gnupg_linux
     stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
@@ -67,6 +67,16 @@ stow-linux: _stow-common _stow-posix
     stow XWindows
     stow xdg-autostart
     stow xdg-desktop
+
+# 🏔️ Stow Arch Linux packages
+stow-arch: _stow-common _stow-posix
+    stow git git_my git_linux
+    stow gnupg_linux
+    stow --override='.*' shell shell_linux  # TODO: Integrate shell_linux into new shell config
+    stow package_management package_management_arch
+    stow tmux
+    stow nvim
+    stow XWindows
 
 # 🏔️ MSYS2 packages (POSIX tools for Windows)
 _stow-msys2:
@@ -113,11 +123,17 @@ unstow-osx:
     just _unstow-common
     just _unstow-posix
 
-# 🗑️ Unstow Linux packages
-unstow-linux:
+# 🗑️ Unstow Ubuntu/Debian packages
+unstow-ubuntu:
     stow -D XWindows
     stow -D xdg-autostart
     stow -D xdg-desktop
+    just _unstow-common
+    just _unstow-posix
+
+# 🗑️ Unstow Arch Linux packages
+unstow-arch:
+    stow -D XWindows
     just _unstow-common
     just _unstow-posix
 

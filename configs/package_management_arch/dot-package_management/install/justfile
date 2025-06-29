@@ -1,0 +1,147 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Package installation for Arch Linux
+# Run once during initial machine setup
+# Uses pacman (official) + AUR helper + pip/npm/gem for dev tools
+
+import 'justfile_dev_common'
+
+default:
+    @just --list
+
+# 📦 Update system packages (always run first)
+update-system:
+    sudo pacman -Syu --noconfirm
+
+# 🔧 Install essential system packages (Priority 1 - Core)
+install-system-core: update-system
+    sudo pacman -S --noconfirm \
+        base-devel \
+        curl \
+        wget \
+        git \
+        stow \
+        zsh \
+        tmux \
+        python \
+        python-pip \
+        nodejs \
+        npm \
+        ruby \
+        openssh \
+        gnupg
+
+# 🛠️ Install system tools (Priority 2 - Common CLI tools)
+install-system-tools: install-system-core
+    sudo pacman -S --noconfirm \
+        neovim \
+        htop \
+        tree \
+        unzip \
+        jq \
+        ripgrep \
+        fd \
+        bat \
+        eza \
+        dust \
+        just \
+        topgrade \
+        direnv \
+        zoxide \
+        fzf
+
+# 📦 Install AUR helper (yay)
+install-aur-helper: install-system-core
+    @echo "Installing yay (AUR helper)..."
+    @if ! command -v yay >/dev/null 2>&1; then \
+        cd /tmp; \
+        git clone https://aur.archlinux.org/yay.git; \
+        cd yay; \
+        makepkg -si --noconfirm; \
+        cd ..; \
+        rm -rf yay; \
+    else \
+        echo "yay already installed"; \
+    fi
+
+# 🔧 Install AUR packages (modern tools not in official repos)
+install-aur-packages: install-aur-helper
+    yay -S --noconfirm \
+        emacs-plus \
+        visual-studio-code-bin
+
+# 🔧 Install additional development tools
+install-additional-dev: install-system-tools
+    sudo pacman -S --noconfirm \
+        gcc \
+        clang \
+        cmake \
+        ninja \
+        gdb \
+        lldb \
+        rust \
+        go
+
+# 📧 Install email tools
+install-email-tools: install-system-core
+    sudo pacman -S --noconfirm \
+        isync \
+        mu \
+        msmtp
+
+# 🎨 Install GUI tools (if needed)
+install-gui-tools: install-system-core
+    sudo pacman -S --noconfirm \
+        emacs \
+        firefox \
+        code
+
+# 🔤 Install fonts
+install-fonts: install-system-core
+    sudo pacman -S --noconfirm \
+        ttf-iosevka-nerd \
+        ttf-fira-code \
+        noto-fonts \
+        noto-fonts-emoji
+
+
+# 🚀 Essential setup (core + tools + development)
+install-essential: install-system-tools setup-dev-environment
+    @echo "✅ Essential Arch setup complete!"
+
+# 🏠 Home setup (essential + GUI + fonts + AUR)
+install-home: install-essential install-gui-tools install-fonts install-aur-packages install-email-tools
+    @echo "✅ Arch home setup complete!"
+
+# 💼 Development setup (essential + additional dev tools)
+install-development: install-essential install-additional-dev
+    @echo "✅ Arch development setup complete!"
+
+# 🧪 Experimental setup (with AUR packages)
+install-experimental: install-essential install-aur-packages
+    @echo "✅ Arch experimental setup complete!"
+
+# 🔍 Verify installation
+verify-installation:
+    @echo "Verifying Arch installation..."
+    @command -v git >/dev/null && echo "✅ git" || echo "❌ git"
+    @command -v stow >/dev/null && echo "✅ stow" || echo "❌ stow"
+    @command -v tmux >/dev/null && echo "✅ tmux" || echo "❌ tmux"
+    @command -v nvim >/dev/null && echo "✅ neovim" || echo "❌ neovim"
+    @command -v zsh >/dev/null && echo "✅ zsh" || echo "❌ zsh"
+    @command -v yay >/dev/null && echo "✅ yay (AUR)" || echo "❌ yay (AUR)"
+    @just verify-dev-tools
+
+# 📥 Install from requirements file
+install-from-requirements file:
+    python -m pip install -r {{file}}
+
+# 📤 Export current pip packages
+export-requirements:
+    python -m pip freeze > requirements.txt
+
+# 🧪 Install packages for testing environment
+install-test: install-system-tools setup-dev-environment
+    @echo "✅ Arch test environment ready!"
+    @echo "This target is optimized for container testing"

@@ -1,0 +1,207 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Package installation for macOS
+# Run once during initial machine setup
+
+default:
+    @just --list
+
+# 🍺 Install Homebrew (prerequisite for everything else)
+install-homebrew:
+    @if ! command -v brew >/dev/null 2>&1; then \
+        echo "Installing Homebrew..."; \
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; \
+    else \
+        echo "Homebrew already installed"; \
+    fi
+
+# 🔗 Add required Homebrew taps
+add-taps: install-homebrew
+    brew tap adoptopenjdk/openjdk
+    brew tap buo/cask-upgrade
+    brew tap cartr/qt4
+    brew tap d12frosted/emacs-plus
+    brew tap homebrew/bundle
+    brew tap homebrew/cask
+    brew tap homebrew/cask-versions
+    brew tap homebrew/cask-fonts
+
+# 📦 Install common packages (essential tools)
+install-common: add-taps
+    brew install \
+        awscli \
+        bash-language-server \
+        bat \
+        black \
+        catch2 \
+        ccls \
+        clang-format \
+        cliclick \
+        cloc \
+        cmake \
+        cmake-docs \
+        coreutils \
+        cowsay \
+        curl \
+        d12frosted/emacs-plus/emacs-plus@31 \
+        direnv \
+        doxygen \
+        dust \
+        editorconfig \
+        enchant \
+        expat \
+        eza \
+        fd \
+        fortune \
+        gcc \
+        git \
+        git-delta \
+        gnu-sed \
+        gnu-typist \
+        gnupg \
+        gnuplot \
+        gradle \
+        graphviz \
+        htop \
+        hyperfine \
+        imagemagick \
+        jenv \
+        jq \
+        keychain \
+        mailutils \
+        markdown \
+        mas \
+        mermaid-cli \
+        neovim \
+        ninja \
+        node \
+        ntfy \
+        onefetch \
+        openjdk \
+        openssl@3 \
+        p7zip \
+        pcre2 \
+        poppler \
+        postgresql \
+        pstree \
+        pyenv \
+        pyenv-virtualenv \
+        python \
+        rbenv \
+        ripgrep \
+        ruby \
+        scc \
+        shellcheck \
+        shfmt \
+        sip \
+        stow \
+        stylua \
+        tldr \
+        tmux \
+        topgrade \
+        trash \
+        unixodbc \
+        vivid \
+        vscode-langservers-extracted \
+        wget
+
+# 🏠 Install home packages (personal use)
+install-home: add-taps
+    brew install \
+        exercism \
+        llvm \
+        mono \
+        speedtest-cli \
+        sword \
+        typespeed
+
+# 💼 Install work packages (work environment)
+install-work: add-taps  
+    brew install \
+        cartr/qt4/pyqt@4 \
+        freetds@0.91 \
+        rbtools
+
+# 📱 Install common casks (GUI applications)
+install-casks-common: add-taps
+    brew install --cask \
+        alfred@4 \
+        appcleaner \
+        cursorcerer \
+        contexts \
+        caffeine \
+        divvy \
+        font-iosevka-nerd-font \
+        hammerspoon \
+        mos \
+        stats \
+        vanilla \
+        wezterm
+
+# 🏠 Install home casks (personal GUI apps)
+install-casks-home: add-taps
+    brew install --cask \
+        amethyst \
+        gimp \
+        karabiner-elements \
+        steam \
+        whatsapp
+
+# 💼 Install work casks (work GUI apps)
+install-casks-work: add-taps
+    brew install --cask \
+        1password \
+        p4 \
+        quip \
+        slack
+
+# 🍎 Install Mac App Store apps (common)
+install-mas-common: install-common
+    @echo "Installing Mac App Store apps (common)..."
+    # Microsoft Remote Desktop
+    mas install 1295203466
+
+# 🏠 Install Mac App Store apps (home)
+install-mas-home: install-common
+    @echo "Installing Mac App Store apps (home)..."
+    # GrandPerspective
+    mas install 1111570163
+    # Kindle
+    mas install 405399194
+    # feedly
+    mas install 865500966
+    # Giphy Capture
+    mas install 668208984
+
+# 🐍 Install Python global packages
+install-python-globals: install-common
+    python3 -m pip install --upgrade pip
+    python3 -m pip install black pyflakes isort pytest nose pipenv pynvim
+
+# 📦 Install Node.js global packages  
+install-node-globals: install-common
+    npm install -g \
+        typescript \
+        typescript-language-server \
+        stylelint \
+        js-beautify \
+        js-tidy \
+        prettier \
+        neovim
+
+# 💎 Install Ruby gems
+install-ruby-globals: install-common
+    gem install solargraph
+
+# 🚀 Full installation (everything)
+install-all: install-common install-casks-common install-mas-common install-python-globals install-node-globals install-ruby-globals
+    @echo "✅ Full macOS installation complete!"
+
+# 🏠 Home setup (common + home packages)
+install-home-setup: install-common install-home install-casks-common install-casks-home install-mas-common install-mas-home install-python-globals install-node-globals install-ruby-globals
+    @echo "✅ Home macOS setup complete!"
+
+# 💼 Work setup (common + work packages) 
+install-work-setup: install-common install-work install-casks-common install-casks-work install-mas-common install-python-globals install-node-globals install-ruby-globals
+    @echo "✅ Work macOS setup complete!"

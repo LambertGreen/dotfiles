@@ -1,0 +1,59 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Maintenance tasks for Arch Linux
+# Regular package updates and system maintenance
+
+default:
+    @just --list
+
+# 📦 Update all official packages
+update-pacman:
+    sudo pacman -Syu --noconfirm
+
+# 📦 Update AUR packages (if yay is installed)
+update-aur:
+    @if command -v yay >/dev/null 2>&1; then \
+        yay -Sua --noconfirm; \
+    else \
+        echo "yay not installed - skipping AUR updates"; \
+    fi
+
+# 📦 Update all packages (official + AUR)
+update-all: update-pacman update-aur
+
+# 🧹 Clean package cache
+clean-cache:
+    sudo pacman -Sc --noconfirm
+    @if command -v yay >/dev/null 2>&1; then \
+        yay -Sc --noconfirm; \
+    fi
+
+# 🗑️ Remove orphaned packages
+remove-orphans:
+    @echo "Removing orphaned packages..."
+    @orphans=$$(pacman -Qtdq); \
+    if [ -n "$$orphans" ]; then \
+        sudo pacman -Rns $$orphans --noconfirm; \
+        echo "Removed orphaned packages: $$orphans"; \
+    else \
+        echo "No orphaned packages found"; \
+    fi
+
+# 🔍 List explicitly installed packages
+list-explicit:
+    pacman -Qe
+
+# 🔍 Show package statistics
+show-stats:
+    @echo "Package statistics:"
+    @echo "Total packages: $$(pacman -Q | wc -l)"
+    @echo "Explicitly installed: $$(pacman -Qe | wc -l)"
+    @echo "Dependencies: $$(pacman -Qd | wc -l)"
+    @if command -v yay >/dev/null 2>&1; then \
+        echo "AUR packages: $$(pacman -Qm | wc -l)"; \
+    fi
+
+# 🔧 Full maintenance (update + clean + remove orphans)
+full-maintenance: update-all clean-cache remove-orphans
+    @echo "✅ Full Arch maintenance complete!"

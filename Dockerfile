@@ -1,9 +1,9 @@
 FROM archlinux/archlinux:base-devel
 
-# Install packages for dotfiles validation
+# Install minimal packages for dotfiles testing + realistic system defaults
 RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
   pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh stow zsh tmux neovim emacs fd ripgrep python3 python-pip just
+    sudo git openssh stow just bash zsh
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -35,9 +35,10 @@ ARG CACHE_BUST=1
 RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
     git submodule update --init --recursive && \
-    rm ~/.bash* && \
     cd ~/dev/my/dotfiles/configs && \
-    just stow-linux
+    just stow-arch && \
+    cd ~/.package_management/install && \
+    just install-test
 
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
 WORKDIR /home/user/dev/my/dotfiles

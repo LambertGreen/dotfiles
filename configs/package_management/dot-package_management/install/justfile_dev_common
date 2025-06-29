@@ -1,0 +1,63 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Common development tools installation
+# Shared across all platforms - import this into platform-specific justfiles
+
+# 🐍 Install Python development packages (universal)
+install-python-dev:
+    @echo "Installing Python development packages..."
+    python3 -m pip install --upgrade pip
+    python3 -m pip install \
+        black \
+        pyflakes \
+        isort \
+        pytest \
+        nose \
+        pipenv \
+        pynvim
+
+# 📦 Install Node.js development packages (universal)
+install-node-dev:
+    @echo "Installing Node.js development packages..."
+    npm install -g \
+        neovim \
+        typescript \
+        typescript-language-server \
+        stylelint \
+        js-beautify \
+        js-tidy \
+        prettier
+
+# 💎 Install Ruby development packages (universal)
+install-ruby-dev:
+    @echo "Installing Ruby development packages..."
+    gem install solargraph
+
+# 📂 Setup common development directories
+setup-dev-dirs:
+    @echo "Setting up development directories..."
+    mkdir -p ~/dev/{my,work,learning,tools}
+    mkdir -p ~/.local/{bin,share}
+    mkdir -p ~/.config
+
+# 🔍 Verify development tools installation
+verify-dev-tools:
+    @echo "Verifying development tools..."
+    @command -v python3 >/dev/null && echo "✅ python3" || echo "❌ python3"
+    @command -v pip3 >/dev/null && echo "✅ pip3" || echo "❌ pip3"
+    @command -v node >/dev/null && echo "✅ node" || echo "❌ node"
+    @command -v npm >/dev/null && echo "✅ npm" || echo "❌ npm"
+    @command -v ruby >/dev/null && echo "✅ ruby" || echo "❌ ruby"
+    @command -v gem >/dev/null && echo "✅ gem" || echo "❌ gem"
+
+# 🚀 Complete development environment setup
+setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev
+    @echo "✅ Common development environment setup complete!"
+
+# TODO: SSH key management
+# Need to handle work/personal key separation:
+# - Different keys for different contexts
+# - Key naming conventions (id_ed25519_work, id_ed25519_personal)
+# - SSH config management
+# - Integration with git config per repo/directory
