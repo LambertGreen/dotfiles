@@ -3,7 +3,9 @@ FROM archlinux/archlinux:base-devel
 # Install minimal packages for dotfiles testing + realistic system defaults
 RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
   pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh stow just bash zsh
+    sudo git openssh stow just bash zsh && \
+  pacman -Scc --noconfirm && \
+  rm -rf /var/cache/pacman/pkg/* /tmp/*
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 

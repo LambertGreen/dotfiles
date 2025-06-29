@@ -31,6 +31,8 @@ install-system-core: update-system
         ruby \
         openssh \
         gnupg
+    sudo pacman -Scc --noconfirm
+    sudo rm -rf /var/cache/pacman/pkg/* /tmp/*
 
 # 🛠️ Install system tools (Priority 2 - Common CLI tools)
 install-system-tools: install-system-core
@@ -140,7 +142,7 @@ install-from-requirements file:
 export-requirements:
     python -m pip freeze > requirements.txt
 
-# 🧪 Install packages for testing environment
-install-test: install-system-tools setup-dev-environment
+# 🧪 Install packages for testing environment (minimal)
+install-test: install-system-core setup-dev-dirs
     @echo "✅ Arch test environment ready!"
     @echo "This target is optimized for container testing"
