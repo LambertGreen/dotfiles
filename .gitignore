@@ -28,3 +28,5 @@ Keypirinha.history
 /tmux/dot-tmux/plugins/
 /spelling/dot-config/enchant/*.exc
 /karabiner/dot-config/karabiner/automatic_backups/
+.env
+docker-build.log
