@@ -15,8 +15,9 @@ update-python-dev:
         echo "❌ Requirements file not found. Reinstall with 'just install-python-dev'."; \
         exit 1; \
     fi
-    {{home_directory()}}/.local/share/python-dev-tools-venv/bin/pip install --upgrade pip
-    {{home_directory()}}/.local/share/python-dev-tools-venv/bin/pip install --upgrade -r {{home_directory()}}/.local/share/python-dev-tools-venv/requirements.txt
+    @cd {{home_directory()}}/.local/share/python-dev-tools-venv && \
+        ./bin/pip install --upgrade pip && \
+        ./bin/pip install --upgrade -r requirements.txt
     @echo "✅ Python dev tools updated"
 
 # 🔄 Update Node.js development packages

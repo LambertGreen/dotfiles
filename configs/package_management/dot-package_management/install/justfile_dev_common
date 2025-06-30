@@ -19,8 +19,9 @@ pipenv
 pynvim
 EOF
     @echo "Installing Python development packages..."
-    {{home_directory()}}/.local/share/python-dev-tools-venv/bin/pip install --upgrade pip
-    {{home_directory()}}/.local/share/python-dev-tools-venv/bin/pip install -r {{home_directory()}}/.local/share/python-dev-tools-venv/requirements.txt
+    @cd {{home_directory()}}/.local/share/python-dev-tools-venv && \
+        ./bin/pip install --upgrade pip && \
+        ./bin/pip install -r requirements.txt
     @echo "✅ Dev tools installed in ~/.local/share/python-dev-tools-venv"
     @echo "💡 Add ~/.local/share/python-dev-tools-venv/bin to your PATH or configure your IDE to use this venv"
 
