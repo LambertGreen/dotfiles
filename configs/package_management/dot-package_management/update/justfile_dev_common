@@ -33,8 +33,7 @@ update-node-dev:
 # 🔄 Update Rust development packages  
 update-rust-dev:
     @echo "Updating Rust development tools..."
-    @echo "Updating rustup toolchain..."
-    rustup update
+    @echo "Note: Rust toolchain updates handled by system package manager"
     @if [ ! -f ~/.local/share/rust-dev-tools/cargo-tools.txt ]; then \
         echo "❌ Cargo tools list not found. Reinstall with 'just install-rust-dev'."; \
         exit 1; \
