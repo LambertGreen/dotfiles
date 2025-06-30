@@ -1,2 +1,7 @@
-# Don't include the .git folder
+# Don't include the .git folder and other unnecessary files
 .git
+.github
+.runtime
+*.log
+.env
+README*.md

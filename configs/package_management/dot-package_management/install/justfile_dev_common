@@ -114,8 +114,10 @@ show-dev-config:
     @test -d ~/.cargo/bin && ls ~/.cargo/bin/ | grep -E "(rust-analyzer|cargo-watch|clippy)" || echo "   (cargo tools not installed yet - run 'just install-rust-dev')"
 
 # 🚀 Complete development environment setup
-setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev install-rust-dev
+# TODO: Re-enable install-rust-dev after optimizing for Docker builds (20-30min compilation time)
+setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev
     @echo "✅ Common development environment setup complete!"
+    @echo "⚠️  Rust dev tools skipped (install manually with 'just install-rust-dev' if needed)"
     @echo ""
     @just show-dev-config
 

@@ -29,4 +29,7 @@ Keypirinha.history
 /spelling/dot-config/enchant/*.exc
 /karabiner/dot-config/karabiner/automatic_backups/
 .env
-docker-build.log
+
+# Runtime and build artifacts
+.runtime/
+*.log
