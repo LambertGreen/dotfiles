@@ -15,7 +15,7 @@ update-python-dev:
         echo "❌ Requirements file not found. Reinstall with 'just install-python-dev'."; \
         exit 1; \
     fi
-    @cd {{home_directory()}}/.local/share/python-dev-tools-venv && \
+    @cd ~/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
         ./bin/pip install --upgrade -r requirements.txt
     @echo "✅ Python dev tools updated"

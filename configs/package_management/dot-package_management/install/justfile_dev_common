@@ -7,9 +7,9 @@
 # 🐍 Install Python development packages (universal)
 install-python-dev:
     @echo "Creating Python development tools virtual environment..."
-    python3 -m venv ~/.local/share/python-dev-tools-venv
+    @python3 -m venv ~/.local/share/python-dev-tools-venv
     @echo "Creating Python dev tools requirements file..."
-    cat > ~/.local/share/python-dev-tools-venv/requirements.txt << 'EOF'
+    @cat > ~/.local/share/python-dev-tools-venv/requirements.txt << 'EOF'
 black
 pyflakes
 isort
@@ -19,7 +19,7 @@ pipenv
 pynvim
 EOF
     @echo "Installing Python development packages..."
-    @cd {{home_directory()}}/.local/share/python-dev-tools-venv && \
+    @cd ~/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
         ./bin/pip install -r requirements.txt
     @echo "✅ Dev tools installed in ~/.local/share/python-dev-tools-venv"
