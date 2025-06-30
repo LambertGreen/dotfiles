@@ -7,11 +7,11 @@
 # 🐍 Install Python development packages (universal)
 install-python-dev:
     @echo "Creating Python development tools virtual environment..."
-    @python3 -m venv {{env_var('HOME')}}/.local/share/python-dev-tools-venv
+    @python3 -m venv ~/.local/share/python-dev-tools-venv
     @echo "Creating Python dev tools requirements file..."
-    @echo -e "black\npyflakes\nisort\npytest\nnose\npipenv\npynvim" > {{env_var('HOME')}}/.local/share/python-dev-tools-venv/requirements.txt
+    @echo -e "black\npyflakes\nisort\npytest\nnose\npipenv\npynvim" > ~/.local/share/python-dev-tools-venv/requirements.txt
     @echo "Installing Python development packages..."
-    @cd {{env_var('HOME')}}/.local/share/python-dev-tools-venv && \
+    @cd ~/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
         ./bin/pip install -r requirements.txt
     @echo "✅ Dev tools installed in ~/.local/share/python-dev-tools-venv"
@@ -46,13 +46,8 @@ install-ruby-dev:
 install-rust-dev:
     @echo "Installing Rust development packages..."
     @echo "Creating Rust dev tools directory and requirements file..."
-    mkdir -p ~/.local/share/rust-dev-tools
-    cat > ~/.local/share/rust-dev-tools/cargo-tools.txt << 'EOF'
-cargo-watch
-cargo-edit
-cargo-tree
-cargo-outdated
-EOF
+    @mkdir -p ~/.local/share/rust-dev-tools
+    @echo -e "cargo-watch\ncargo-edit\ncargo-tree\ncargo-outdated" > ~/.local/share/rust-dev-tools/cargo-tools.txt
     @echo "Adding rustfmt and clippy components..."
     rustup component add rustfmt clippy
     @echo "Installing essential cargo tools..."

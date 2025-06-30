@@ -7,15 +7,15 @@
 # 🔄 Update Python development packages
 update-python-dev:
     @echo "Updating Python development tools virtual environment..."
-    @if [ ! -d {{env_var('HOME')}}/.local/share/python-dev-tools-venv ]; then \
+    @if [ ! -d ~/.local/share/python-dev-tools-venv ]; then \
         echo "❌ Python dev tools venv not found. Run 'just install-python-dev' first."; \
         exit 1; \
     fi
-    @if [ ! -f {{env_var('HOME')}}/.local/share/python-dev-tools-venv/requirements.txt ]; then \
+    @if [ ! -f ~/.local/share/python-dev-tools-venv/requirements.txt ]; then \
         echo "❌ Requirements file not found. Reinstall with 'just install-python-dev'."; \
         exit 1; \
     fi
-    @cd {{env_var('HOME')}}/.local/share/python-dev-tools-venv && \
+    @cd ~/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
         ./bin/pip install --upgrade -r requirements.txt
     @echo "✅ Python dev tools updated"
