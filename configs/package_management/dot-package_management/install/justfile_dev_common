@@ -38,9 +38,13 @@ install-node-dev:
     @echo "💡 Add ~/.local/share/nodejs-dev-tools/node_modules/.bin to your PATH or configure your IDE"
 
 # 💎 Install Ruby development packages (universal)
+# TODO: Fix Ruby ERB dependency issue in containerized environments
+# FIXME: gem install solargraph fails with "cannot load such file -- erb"
 install-ruby-dev:
     @echo "Installing Ruby development packages..."
-    gem install solargraph
+    @echo "⚠️  Ruby dev tools installation temporarily disabled due to ERB dependency issue"
+    @echo "    Run 'gem install solargraph' manually after fixing Ruby environment"
+    # gem install solargraph
 
 # 📂 Setup common development directories
 setup-dev-dirs:

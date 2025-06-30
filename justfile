@@ -22,12 +22,12 @@ test-apps:
 # 🐳 Build Docker test image (with layer caching)
 docker-build:
     @echo "Building Docker image for dotfiles testing..."
-    docker build --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} --build-arg CACHE_BUST=$(date +%s) -t dotfiles-test .
+    source .env && docker build --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} --build-arg CACHE_BUST=$(date +%s) -t dotfiles-test . 2>&1 | tee docker-build.log
 
 # 🐳 Build Docker test image (force rebuild all layers)
 docker-build-fresh:
     @echo "Building Docker image from scratch..."
-    docker build --no-cache --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t dotfiles-test .
+    source .env && docker build --no-cache --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} -t dotfiles-test . 2>&1 | tee docker-build.log
 
 # 🐳 Run Docker container for testing
 docker-run:
