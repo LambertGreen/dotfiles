@@ -48,9 +48,8 @@ install-rust-dev:
     @echo "Creating Rust dev tools directory and requirements file..."
     @mkdir -p ~/.local/share/rust-dev-tools
     @echo -e "cargo-watch\ncargo-edit\ncargo-tree\ncargo-outdated" > ~/.local/share/rust-dev-tools/cargo-tools.txt
-    @echo "Adding rustfmt and clippy components..."
-    rustup component add rustfmt clippy
     @echo "Installing essential cargo tools..."
+    @echo "Note: rustfmt and rust-analyzer should be installed via system package manager"
     cargo install \
         cargo-watch \
         cargo-edit \
