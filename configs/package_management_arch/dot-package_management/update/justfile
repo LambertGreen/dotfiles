@@ -4,6 +4,8 @@
 # Maintenance tasks for Arch Linux
 # Regular package updates and system maintenance
 
+import 'justfile_dev_common'
+
 default:
     @just --list
 

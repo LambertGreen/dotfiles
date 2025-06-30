@@ -1,0 +1,54 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Common development tools update recipes
+# Shared across all platforms - import this into platform-specific update justfiles
+
+# 🔄 Update Python development packages
+update-python-dev:
+    @echo "Updating Python development tools virtual environment..."
+    @if [ ! -d ~/.local/share/python-dev-tools-venv ]; then \
+        echo "❌ Python dev tools venv not found. Run 'just install-python-dev' first."; \
+        exit 1; \
+    fi
+    @if [ ! -f ~/.local/share/python-dev-tools-venv/requirements.txt ]; then \
+        echo "❌ Requirements file not found. Reinstall with 'just install-python-dev'."; \
+        exit 1; \
+    fi
+    ~/.local/share/python-dev-tools-venv/bin/pip install --upgrade pip
+    ~/.local/share/python-dev-tools-venv/bin/pip install --upgrade -r ~/.local/share/python-dev-tools-venv/requirements.txt
+    @echo "✅ Python dev tools updated"
+
+# 🔄 Update Node.js development packages
+update-node-dev:
+    @echo "Updating Node.js development tools..."
+    @if [ ! -d ~/.local/share/nodejs-dev-tools ]; then \
+        echo "❌ Node.js dev tools directory not found. Run 'just install-node-dev' first."; \
+        exit 1; \
+    fi
+    cd ~/.local/share/nodejs-dev-tools && npm update
+    @echo "✅ Node.js dev tools updated"
+
+# 🔄 Update Rust development packages  
+update-rust-dev:
+    @echo "Updating Rust development tools..."
+    @echo "Updating rustup toolchain..."
+    rustup update
+    @if [ ! -f ~/.local/share/rust-dev-tools/cargo-tools.txt ]; then \
+        echo "❌ Cargo tools list not found. Reinstall with 'just install-rust-dev'."; \
+        exit 1; \
+    fi
+    @echo "Updating cargo tools..."
+    @while read -r tool; do \
+        if command -v "$$tool" >/dev/null 2>&1; then \
+            echo "Updating $$tool..."; \
+            cargo install "$$tool"; \
+        fi; \
+    done < ~/.local/share/rust-dev-tools/cargo-tools.txt
+    @echo "✅ Rust dev tools updated"
+
+# 🔄 Update all development tools
+update-dev-tools: update-python-dev update-node-dev update-rust-dev
+    @echo "✅ All development tools updated!"
+    @echo ""
+    @echo "🔍 Run 'just verify-dev-tools' to verify installations"

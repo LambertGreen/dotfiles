@@ -8,6 +8,7 @@
 
 import 'justfile_common'
 import 'justfile_posix'
+import 'justfile_dev_common'
 
 # * Default
 # ────────────────────────────────────────────────────────────────
