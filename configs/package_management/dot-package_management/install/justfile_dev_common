@@ -9,15 +9,7 @@ install-python-dev:
     @echo "Creating Python development tools virtual environment..."
     @python3 -m venv {{env_var('HOME')}}/.local/share/python-dev-tools-venv
     @echo "Creating Python dev tools requirements file..."
-    @cat > {{env_var('HOME')}}/.local/share/python-dev-tools-venv/requirements.txt << 'EOF'
-black
-pyflakes
-isort
-pytest
-nose
-pipenv
-pynvim
-EOF
+    @echo -e "black\npyflakes\nisort\npytest\nnose\npipenv\npynvim" > {{env_var('HOME')}}/.local/share/python-dev-tools-venv/requirements.txt
     @echo "Installing Python development packages..."
     @cd {{env_var('HOME')}}/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
