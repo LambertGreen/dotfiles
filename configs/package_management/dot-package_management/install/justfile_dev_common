@@ -6,9 +6,11 @@
 
 # 🐍 Install Python development packages (universal)
 install-python-dev:
+    @echo "Creating Python development tools virtual environment..."
+    python3 -m venv ~/.local/share/dev-tools-venv
     @echo "Installing Python development packages..."
-    python3 -m pip install --upgrade pip
-    python3 -m pip install \
+    ~/.local/share/dev-tools-venv/bin/pip install --upgrade pip
+    ~/.local/share/dev-tools-venv/bin/pip install \
         black \
         pyflakes \
         isort \
@@ -16,6 +18,8 @@ install-python-dev:
         nose \
         pipenv \
         pynvim
+    @echo "✅ Dev tools installed in ~/.local/share/dev-tools-venv"
+    @echo "💡 Add ~/.local/share/dev-tools-venv/bin to your PATH or configure your IDE to use this venv"
 
 # 📦 Install Node.js development packages (universal)
 install-node-dev:
@@ -50,10 +54,30 @@ verify-dev-tools:
     @command -v npm >/dev/null && echo "✅ npm" || echo "❌ npm"
     @command -v ruby >/dev/null && echo "✅ ruby" || echo "❌ ruby"
     @command -v gem >/dev/null && echo "✅ gem" || echo "❌ gem"
+    @echo "Verifying Python dev tools venv..."
+    @test -f ~/.local/share/dev-tools-venv/bin/python && echo "✅ dev-tools-venv" || echo "❌ dev-tools-venv"
+    @test -f ~/.local/share/dev-tools-venv/bin/black && echo "✅ black (venv)" || echo "❌ black (venv)"
+    @test -f ~/.local/share/dev-tools-venv/bin/pynvim && echo "✅ pynvim (venv)" || echo "❌ pynvim (venv)"
+
+# 💡 Show IDE configuration help
+show-python-dev-config:
+    @echo "🐍 Python Dev Tools Configuration:"
+    @echo "   Virtual Environment: ~/.local/share/dev-tools-venv"
+    @echo "   Python Executable:  ~/.local/share/dev-tools-venv/bin/python"
+    @echo ""
+    @echo "🔧 IDE Configuration:"
+    @echo "   Neovim: Set 'g:python3_host_prog' to '~/.local/share/dev-tools-venv/bin/python'"
+    @echo "   Emacs:  Configure python interpreter path in your config"
+    @echo "   VS Code: Set 'python.defaultInterpreterPath' to the venv python"
+    @echo ""
+    @echo "🚀 Available tools in venv:"
+    @test -d ~/.local/share/dev-tools-venv/bin && ls ~/.local/share/dev-tools-venv/bin/ | grep -E "(black|pyflakes|isort|pytest|pynvim)" || echo "   (venv not created yet - run 'just install-python-dev')"
 
 # 🚀 Complete development environment setup
 setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev
     @echo "✅ Common development environment setup complete!"
+    @echo ""
+    @just show-python-dev-config
 
 # TODO: SSH key management
 # Need to handle work/personal key separation:
