@@ -49,19 +49,17 @@ install-ruby-dev:
 # 🦀 Install Rust development packages (universal)
 install-rust-dev:
     @echo "Installing Rust development packages..."
+    @echo "Adding rustfmt and clippy components..."
+    rustup component add rustfmt clippy
+    @echo "Installing essential cargo tools..."
     cargo install \
-        rust-analyzer \
-        rustfmt \
-        clippy \
         cargo-watch \
         cargo-edit \
         cargo-tree \
-        cargo-outdated \
-        ripgrep \
-        fd-find \
-        bat
-    @echo "✅ Rust dev tools installed via cargo"
+        cargo-outdated
+    @echo "✅ Rust dev tools installed"
     @echo "💡 Ensure ~/.cargo/bin is in your PATH for rust tools"
+    @echo "💡 rust-analyzer should be installed via system package manager"
 
 # 📂 Setup common development directories
 setup-dev-dirs:

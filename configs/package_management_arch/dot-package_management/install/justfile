@@ -31,6 +31,7 @@ install-system-core: update-system
         ruby \
         rust \
         cargo \
+        rust-analyzer \
         openssh \
         gnupg
     sudo pacman -Scc --noconfirm

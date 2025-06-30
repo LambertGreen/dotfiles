@@ -32,7 +32,7 @@ RUN mkdir -p -m 0700 ~/.ssh && \
 
 # Clone the dotfiles repo and sync submodules (stable layer - cached unless submodules change)
 ARG GITHUB_TOKEN
-RUN git clone https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
+RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
     cd ~/dev/my/dotfiles && \
     git submodule update --init --recursive
 

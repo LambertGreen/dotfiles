@@ -92,6 +92,7 @@ install-common: add-taps
         ripgrep \
         ruby \
         rust \
+        rust-analyzer \
         scc \
         shellcheck \
         shfmt \
