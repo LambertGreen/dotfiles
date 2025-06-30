@@ -146,6 +146,7 @@ export-requirements:
     python -m pip freeze > requirements.txt
 
 # 🧪 Install packages for testing environment
-install-test: install-system-tools setup-dev-environment
+install-test: install-system-tools
     @echo "✅ Arch test environment ready!"
     @echo "This target is optimized for container testing"
+    @echo "⚠️  Dev tools installation temporarily disabled due to just syntax issues"
