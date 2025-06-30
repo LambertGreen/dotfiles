@@ -29,6 +29,8 @@ install-system-core: update-system
         nodejs \
         npm \
         ruby \
+        rust \
+        cargo \
         openssh \
         gnupg
     sudo pacman -Scc --noconfirm

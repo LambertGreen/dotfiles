@@ -42,6 +42,7 @@ install-scoop-main: add-scoop-buckets
         pwsh `
         python `
         ripgrep `
+        rustup `
         sed `
         sudo `
         tldr `

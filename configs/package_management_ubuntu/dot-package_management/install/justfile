@@ -30,6 +30,8 @@ install-system-core: update-system
         npm \
         ruby \
         ruby-dev \
+        rustc \
+        cargo \
         gpg \
         ca-certificates
 

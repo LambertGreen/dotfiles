@@ -46,6 +46,23 @@ install-ruby-dev:
     @echo "    Run 'gem install solargraph' manually after fixing Ruby environment"
     # gem install solargraph
 
+# 🦀 Install Rust development packages (universal)
+install-rust-dev:
+    @echo "Installing Rust development packages..."
+    cargo install \
+        rust-analyzer \
+        rustfmt \
+        clippy \
+        cargo-watch \
+        cargo-edit \
+        cargo-tree \
+        cargo-outdated \
+        ripgrep \
+        fd-find \
+        bat
+    @echo "✅ Rust dev tools installed via cargo"
+    @echo "💡 Ensure ~/.cargo/bin is in your PATH for rust tools"
+
 # 📂 Setup common development directories
 setup-dev-dirs:
     @echo "Setting up development directories..."
@@ -69,6 +86,10 @@ verify-dev-tools:
     @echo "Verifying Node.js dev tools..."
     @test -f ~/.local/share/nodejs-dev-tools/node_modules/.bin/prettier && echo "✅ prettier (local)" || echo "❌ prettier (local)"
     @test -f ~/.local/share/nodejs-dev-tools/node_modules/.bin/typescript && echo "✅ typescript (local)" || echo "❌ typescript (local)"
+    @echo "Verifying Rust dev tools..."
+    @command -v cargo >/dev/null && echo "✅ cargo" || echo "❌ cargo"
+    @test -f ~/.cargo/bin/rust-analyzer && echo "✅ rust-analyzer" || echo "❌ rust-analyzer"
+    @test -f ~/.cargo/bin/cargo-watch && echo "✅ cargo-watch" || echo "❌ cargo-watch"
 
 # 💡 Show IDE configuration help
 show-dev-config:
@@ -80,6 +101,10 @@ show-dev-config:
     @echo "   Local Directory: ~/.local/share/nodejs-dev-tools"
     @echo "   Binaries Path:   ~/.local/share/nodejs-dev-tools/node_modules/.bin"
     @echo ""
+    @echo "🦀 Rust Dev Tools Configuration:"
+    @echo "   Cargo Home: ~/.cargo"
+    @echo "   Binaries Path: ~/.cargo/bin"
+    @echo ""
     @echo "🔧 IDE Configuration:"
     @echo "   Neovim: Set 'g:python3_host_prog' to '~/.local/share/python-dev-tools-venv/bin/python'"
     @echo "   Emacs:  Configure python interpreter path in your config"
@@ -89,9 +114,11 @@ show-dev-config:
     @test -d ~/.local/share/python-dev-tools-venv/bin && ls ~/.local/share/python-dev-tools-venv/bin/ | grep -E "(black|pyflakes|isort|pytest|pynvim)" || echo "   (venv not created yet - run 'just install-python-dev')"
     @echo "🚀 Available Node.js tools:"
     @test -d ~/.local/share/nodejs-dev-tools/node_modules/.bin && ls ~/.local/share/nodejs-dev-tools/node_modules/.bin/ | grep -E "(prettier|typescript|stylelint)" || echo "   (local install not created yet - run 'just install-node-dev')"
+    @echo "🚀 Available Rust tools:"
+    @test -d ~/.cargo/bin && ls ~/.cargo/bin/ | grep -E "(rust-analyzer|cargo-watch|clippy)" || echo "   (cargo tools not installed yet - run 'just install-rust-dev')"
 
 # 🚀 Complete development environment setup
-setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev
+setup-dev-environment: setup-dev-dirs install-python-dev install-node-dev install-ruby-dev install-rust-dev
     @echo "✅ Common development environment setup complete!"
     @echo ""
     @just show-dev-config

@@ -91,6 +91,7 @@ install-common: add-taps
         rbenv \
         ripgrep \
         ruby \
+        rust \
         scc \
         shellcheck \
         shfmt \
