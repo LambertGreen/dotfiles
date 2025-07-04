@@ -1,0 +1,50 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Justfile for Linux system-level maintenance tasks
+# This file assumes the use of APT (e.g. Ubuntu, Debian)
+# Other distros should use their respective package manager
+
+import 'justfile_common'
+import 'justfile_posix'
+
+# * Default
+# ──────────────────────────────────
+default:
+    @just --list
+
+# * APT
+# ──────────────────────────────────
+# @category Apt
+
+# 🔎 Check for APT package updates
+apt-check:
+    @echo "🔎 Checking for APT updates..."
+    sudo apt update --quiet
+
+# 📦 Upgrade APT packages
+apt-upgrade:
+    @echo "📦 Upgrading APT packages..."
+    sudo apt upgrade -y
+
+# 🛂 Clean up APT cache and obsolete packages
+apt-clean:
+    @echo "🛂 Cleaning APT cache..."
+    sudo apt autoremove -y
+    sudo apt clean
+
+# * System
+# ──────────────────────────────────
+# @category System
+
+# 🔎 Preview system updates
+system-check: brew-check apt-check
+
+# 🛠️ Fast weekly update
+system-upgrade: apt-upgrade brew-upgrade completions-upgrade
+
+# 🧹 Clean system caches (APT & Homebrew)
+system-clean: apt-clean brew-clean
+
+# 🧹🛠️ Monthly deep maintenance (composed of upgrade + clean)
+system-maintain: system-upgrade system-clean zinit-upgrade emacs-upgrade

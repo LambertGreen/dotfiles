@@ -5,6 +5,9 @@
   name = Lambert Green
   signingkey = 150FD7ADE9091C9E3DDB1C0966C09F6FD3D4A735
 
+[url "git@gitlab.tableausoftware.com:"]
+	insteadof = https://gitlab.tableausoftware.com/
+
 [commit]
   gpgsign = true
 

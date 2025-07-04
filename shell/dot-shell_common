@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
+# -*- mode: sh; sh-shell: bash -*-
 
+#############################################################
+# Common shell setup file to be sourced from
+# shell rc (run commands) files e.g. bashrc/zshrc files.
+#############################################################
 # shellcheck disable=SC1090
 # shellcheck disable=SC1091
 # shellcheck disable=SC2155
 # shellcheck disable=SC2154
 
-#############################################################
-# Common shell setup file to be sourced from
-# both bash and zsh profile.
-#############################################################
-
+# * Shell Source Tracking
 lgreen_track_shell_sourced_count() {
     # Add a variable to track how many times the shell
     # setup has been invoked
@@ -19,8 +20,6 @@ lgreen_track_shell_sourced_count() {
         ((LGREEN_SHELL_SOURCED_COUNT++))
     fi
 }
-
-# Source profile if it has not been sourced yet
 lgreen_source_profile_if_not_sourced() {
     if ! [ "$LGREEN_PROFILE_SOURCED_COUNT" ]; then
         echo "WARNING: Profile has not been sourced, so sourcing it now..."
@@ -28,6 +27,7 @@ lgreen_source_profile_if_not_sourced() {
     fi
 }
 
+# * Shell Setup Tracking
 lgreen_one_time_system_setup_check() {
     if [ ! -f "$HOME/.lgreen_one_time_system_setup" ]; then
         echo "**** WARNING *****"
@@ -39,11 +39,11 @@ lgreen_one_time_system_setup_check() {
         # sudo /usr/bin/tic -x "$HOME/.tmux-256color"
     fi
 }
-
 lgreen_one_time_system_setup_mark_good() {
     touch "$HOME/.lgreen_one_time_system_setup"
 }
 
+# * Utility Functions
 uname_cached() {
     if [ -z "${__cached_uname:-}" ]; then
         __cached_uname=$(uname -s 2>/dev/null || echo unknown)
@@ -51,20 +51,14 @@ uname_cached() {
     printf '%s\n' "$__cached_uname"
 }
 
-lgreen_conditionally_start_attach_tmux() {
-    if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
-        tmux -V
-        tmux attach || tmux new -s Alpha
-    fi
-}
-
+# * Init Shell Tools
+# ** Init::Tool::Zoxide
 lgreen_setup_zoxide_for_zsh() {
     # shellcheck disable=SC2139
     if [ "$(command -v zoxide)" ]; then
         eval "$(zoxide init zsh)"
     fi
 }
-
 lgreen_setup_zoxide_for_bash() {
     # shellcheck disable=SC2139
     if [ "$(command -v zoxide)" ]; then
@@ -72,14 +66,13 @@ lgreen_setup_zoxide_for_bash() {
     fi
 }
 
+# ** Init::Tool::FZF
 lgreen_setup_fzf_for_bash() {
     [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 }
-
 lgreen_setup_fzf_for_zsh() {
     [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 }
-
 lgreen_setup_fzf() {
     # Setup FZF to use fd
     if [ "$(command -v fd)" ]; then
@@ -87,11 +80,21 @@ lgreen_setup_fzf() {
     fi
 }
 
+# ** Init::Ntfy
+lgreen_setup_ntfy() {
+    if [ "$(command -v ntfy)" ]; then
+        eval "$(ntfy shell-integration -L600)"
+    fi
+}
+
+# ** Dev::VCS::Perforce
 lgreen_setup_perforce_config() {
     export P4CONFIG=.p4config
 }
 
-# Keychain to start ssh-agent and gpg-agent
+# * Init Agents
+# ** Init::Keychain
+# Keychain to start SSH-Agent and GPG-Agent
 lgreen_start_agents() {
     if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
@@ -107,25 +110,23 @@ lgreen_start_agents() {
         fi
     fi
 }
-
-lgreen_setup_ntfy() {
-    if [ "$(command -v ntfy)" ]; then
-        eval "$(ntfy shell-integration -L600)"
-    fi
+lgreen_setup_gpg_tty() {
+    export GPG_TTY=$(tty)
 }
 
+# * Init Dev Environmets
+# ** Init::Direnv
 lgreen_setup_direnv_for_bash() {
     if [ "$(command -v direnv)" ]; then
         eval "$(direnv hook bash)"
     fi
 }
-
 lgreen_setup_direnv_for_zsh() {
     if [ "$(command -v direnv)" ]; then
         eval "$(direnv hook zsh)"
     fi
 }
-
+# ** Init::Pyenv
 lgreen_setup_pyenv() {
     if [ "$(command -v pyenv)" ]; then
         export PYENV_ROOT="$HOME/.pyenv"
@@ -138,14 +139,14 @@ lgreen_setup_pyenv() {
         eval "$(pyenv virtualenv-init -)"
     fi
 }
-
+# ** Init::Jenv
 lgreen_setup_jenv() {
     if [ "$(command -v jenv)" ]; then
         eval "$(jenv init -)"
         export JAVA_HOME="$HOME/.jenv/versions/$(jenv version-name)"
     fi
 }
-
+# ** Init::Rbenv
 lgreen_setup_rbenv() {
     if [ "$(command -v rbenv)" ]; then
         # Below instruction is from output of doing `brew install rbenv`
@@ -154,21 +155,7 @@ lgreen_setup_rbenv() {
         export PATH="$PATH:$HOME/.rbenv/shims"
     fi
 }
-
-lgreen_setup_non_sys_openssl() {
-    if [ "$(command -v brew)" ]; then
-        OPENSSL_PATH=$(brew --prefix openssl@1.1)
-        export PATH="${OPENSSL_PATH}/bin:$PATH"
-    fi
-}
-
-lgreen_setup_non_sys_sqlite() {
-    if [ "$(command -v brew)" ]; then
-        SQLITE_PATH=$(brew --prefix sqlite)
-        export PATH="${SQLITE_PATH}/bin:$PATH"
-    fi
-}
-
+# ** Init::Node
 lgreen_setup_dev_env_node_js() {
     if [ "$(command -v nvm)" ]; then
         export NVM_DIR="$HOME/.nvm"
@@ -183,13 +170,40 @@ lgreen_setup_dev_env_node_js() {
 
     fi
 }
-
+# ** Init::Rust
 lgreen_setup_dev_env_rust() {
     if [ -f "$HOME/.cargo/env" ]; then
         source "$HOME/.cargo/env"
     fi
 }
+# ** Init::Docker
+lgreen_setup_docker_for_bash() {
+    if [ -f ~/.docker/init-bash.sh ]; then
+        source ~/.docker/init-bash.sh
+    fi
+}
+lgreen_setup_docker_for_zsh() {
+    if [ -f ~/.docker/init-zsh.sh ]; then
+        source ~/.docker/init-zsh.sh
+    fi
+}
 
+# * Add to PATH
+# ** AddPath::OpenSLL
+lgreen_setup_non_sys_openssl() {
+    if [ "$(command -v brew)" ]; then
+        OPENSSL_PATH=$(brew --prefix openssl@1.1)
+        export PATH="${OPENSSL_PATH}/bin:$PATH"
+    fi
+}
+# ** AddPath::Sqlite
+lgreen_setup_non_sys_sqlite() {
+    if [ "$(command -v brew)" ]; then
+        SQLITE_PATH=$(brew --prefix sqlite)
+        export PATH="${SQLITE_PATH}/bin:$PATH"
+    fi
+}
+# ** AddPath::Go
 lgreen_setup_dev_env_go() {
     export GOPATH="${HOME}/.go"
     export GOROOT="$(brew --prefix golang)/libexec"
@@ -197,7 +211,7 @@ lgreen_setup_dev_env_go() {
     test -d "${GOPATH}" || mkdir "${GOPATH}"
     test -d "${GOPATH}/src/github.com" || mkdir -p "${GOPATH}/src/github.com"
 }
-
+# ** AddPath::Clang
 lgreen_setup_dev_env_clang() {
     if [ "$(uname_cached)" = "Darwin" ]; then
         export PATH="/usr/local/opt/llvm/bin:$PATH"
@@ -212,11 +226,15 @@ lgreen_setup_dev_env_clang() {
         export LD_LIBRARY_PATH=/home/linuxbrew/.linuxbrew/Cellar/llvm@14/14.0.6/lib:$LD_LIBRARY_PATH
     fi
 }
+# ** AddPath::Chromium
+lgreen_setup_chromium_depot_tools() {
+    export PATH="$HOME/dev/pub/depot_tools/:$PATH"
+}
 
+# * Utility Functions
 lgreen_time_shell() {
     for _ in $(seq 1 10); do time "$@" -i -c exit; done
 }
-
 lgreen_color_test() {
     echo Terminal Colors:
 
@@ -253,11 +271,45 @@ lgreen_color_test() {
     printf "\n";
 }'
 }
-
 lgreen_term_title_clear() {
     printf "\033]0;\007"
 }
+lgreen_p4_client() {
+    p4 set -q P4CLIENT | cut -c10-
+}
+lgreen_p4_user() {
+    p4 set -q P4USER | cut -c8-
+}
+lgreen_p4_last_change() {
+    p4 changes -u "${lgreen_p4_user}" -c "${lgreen_p4_client}" -m 1 -L | cut -d\  -f2
+}
+lgreen_rg_with_pager() {
+    if [ -t 1 ]; then
+        command rg -p "$@" | less -RFX
+    else
+        command rg "$@"
+    fi
+}
+lgreen_man() {
+    env \
+        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
+        LESS_TERMCAP_md=$(printf "\e[1;31m") \
+        LESS_TERMCAP_me=$(printf "\e[0m") \
+        LESS_TERMCAP_se=$(printf "\e[0m") \
+        LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
+        LESS_TERMCAP_ue=$(printf "\e[0m") \
+        LESS_TERMCAP_us=$(printf "\e[1;32m") \
+        man "$@"
+}
+# TODO Provide sanitize environment implementations for non-Linux as well
+lgreen_sanitize_environment() {
+    if [ "$(uname_cached)" = "Linux" ]; then
+        export PATH=/usr/bin:/bin
+        unset LD_LIBRARY_PATH PKG_CONFIG_PATH
+    fi
+}
 
+# * Source env specific scripts
 lgreen_source_os_shell() {
     if [ "$(uname_cached)" = "Darwin" ]; then
         # shellcheck source=shell_osx
@@ -270,19 +322,18 @@ lgreen_source_os_shell() {
         [ -f "$HOME/.shell_msys2" ] && source "$HOME/.shell_msys2"
     fi
 }
-
-lgreen_p4_client() {
-    p4 set -q P4CLIENT | cut -c10-
+lgreen_source_local_shell() {
+    if [ -f "$HOME/.shell_local" ]; then
+        source "$HOME/.shell_local"
+    fi
+}
+lgreen_source_work_shell() {
+    if [ -f "$HOME/dev/work/setup/setup.sh" ]; then
+        source "$HOME/dev/work/setup/setup.sh"
+    fi
 }
 
-lgreen_p4_user() {
-    p4 set -q P4USER | cut -c8-
-}
-
-lgreen_p4_last_change() {
-    p4 changes -u "${lgreen_p4_user}" -c "${lgreen_p4_client}" -m 1 -L | cut -d\  -f2
-}
-
+# * Emacs Integration
 # If we are running in Emacs then set it as the editor so that any sub-process e.g. git/perforce
 # will use the current Emacs instance.
 # TODO We also need to set a simpler shell environment if we are inside Emacs and not inside VTerm
@@ -293,26 +344,43 @@ lgreen_setup_running_inside_emacs() {
         export GIT_EDITOR=$EDITOR
     fi
 }
-
 lgreen_setup_running_inside_emacs_eat_for_bash() {
     [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/bash"
 }
-
 lgreen_setup_running_inside_emacs_eat_for_zsh() {
     [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
 }
+lgreen_setup_emacs_vterm() {
+    if [[ "$INSIDE_EMACS" = 'vterm' ]] \
+        && [[ -n ${EMACS_VTERM_PATH} ]] \
+        && [[ -f ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh ]]; then
+        source ${EMACS_VTERM_PATH}/etc/emacs-vterm-bash.sh
 
+        find_file() {
+            vterm_cmd find-file "$(realpath "${@:-.}")"
+        }
 
-lgreen_rg_with_pager() {
-    if [ -t 1 ]; then
-        command rg -p "$@" | less -RFX
-    else
-        command rg "$@"
+        message() {
+            vterm_cmd message "%s" "$*"
+        }
+    fi
+
+    # Workaround for % being written always by ZSH in Vterm
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        setopt PROMPT_CR
+        setopt PROMPT_SP
+        export PROMPT_EOL_MARK=""
     fi
 }
+lgreen_setup_doom_emacs() {
+    export DOOMDIR="$HOME/.doom.d"
+    export EMACSDIR="$HOME/.emacs.doom"
+    export PATH="$PATH:$EMACSDIR/bin/"
+}
 
+# * Color Theme
 lgreen_setup_tmux_theme_switcher() {
     if [ -n "$TMUX" ]; then
         if [ -f "$HOME/.tmux/scripts/theme_light_dark_switcher.sh" ]; then
@@ -320,7 +388,6 @@ lgreen_setup_tmux_theme_switcher() {
         fi
     fi
 }
-
 lgreen_setup_tmux_theme_catpuccin_latte() {
     local sed_cmd="sed"
     if [ "$(uname_cached)" = "Darwin" ]; then
@@ -329,7 +396,6 @@ lgreen_setup_tmux_theme_catpuccin_latte() {
     $sed_cmd -i 's/mocha/latte/g' ~/.tmux.local.conf
     tmux source-file ~/.tmux.conf
 }
-
 lgreen_setup_tmux_theme_catpuccin_mocha() {
     local sed_cmd="sed"
     if [ "$(uname_cached)" = "Darwin" ]; then
@@ -338,19 +404,16 @@ lgreen_setup_tmux_theme_catpuccin_mocha() {
     $sed_cmd -i 's/latte/mocha/g' ~/.tmux.local.conf
     tmux source-file ~/.tmux.conf
 }
-
 lgreen_setup_lscolors_theme_one_light() {
     if [ "$(command -v vivid)" ]; then
         export LS_COLORS=$(vivid generate one-light)
     fi
 }
-
 lgreen_setup_lscolors_theme_one_dark() {
     if [ "$(command -v vivid)" ]; then
         export LS_COLORS=$(vivid generate one-dark)
     fi
 }
-
 lgreen_show_lscolors_themes() {
     local LS_COLORS_ORIG=$LS_COLORS
     for theme in $(vivid themes); do
@@ -361,15 +424,12 @@ lgreen_show_lscolors_themes() {
     done
     export LS_COLORS=$LS_COLORS_ORIG
 }
-
 lgreen_setup_fzf_theme_dark() {
     export FZF_DEFAULT_OPTS='--color=dark --color=fg:-1,bg:-1'
 }
-
 lgreen_setup_fzf_theme_light() {
     export FZF_DEFAULT_OPTS='--color=light --color=fg:-1,bg:-1'
 }
-
 lgreen_setup_fzf_theme_one_light() {
     # This is just my own hack of the OneDark theme i.e.
     # I replaced the fg and bg colors.
@@ -379,7 +439,6 @@ lgreen_setup_fzf_theme_one_light() {
         --color=info:#98c379,prompt:#61afef,pointer:#be5046
         --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
 }
-
 lgreen_setup_fzf_theme_one_dark() {
     export FZF_DEFAULT_OPTS='
         --color=fg:-1,bg:-1
@@ -387,15 +446,12 @@ lgreen_setup_fzf_theme_one_dark() {
         --color=info:#98c379,prompt:#61afef,pointer:#be5046
         --color=marker:#e5c07b,spinner:#61afef,header:#61afef '
 }
-
 lgreen_setup_bat_theme_one_half_light() {
     export BAT_THEME="OneHalfLight"
 }
-
 lgreen_setup_bat_theme_one_half_dark() {
     export BAT_THEME="OneHalfDark"
 }
-
 lgreen_setup_shell_theme_mode_light() {
     export LGREEN_SHELL_THEME_MODE="light"
     lgreen_setup_lscolors_theme_one_light
@@ -406,7 +462,6 @@ lgreen_setup_shell_theme_mode_light() {
         lgreen_setup_tmux_theme_catpuccin_latte
     fi
 }
-
 lgreen_setup_shell_theme_mode_dark() {
     export LGREEN_SHELL_THEME_MODE="dark"
     lgreen_setup_lscolors_theme_one_dark
@@ -417,7 +472,6 @@ lgreen_setup_shell_theme_mode_dark() {
         lgreen_setup_tmux_theme_catpuccin_mocha
     fi
 }
-
 lgreen_setup_shell_theme_mode() {
     # Default to dark mode
     if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
@@ -426,7 +480,6 @@ lgreen_setup_shell_theme_mode() {
         lgreen_setup_shell_theme_mode_dark
     fi
 }
-
 lgreen_toggle_shell_theme_mode() {
     if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
         lgreen_setup_shell_theme_mode_dark
@@ -435,18 +488,7 @@ lgreen_toggle_shell_theme_mode() {
     fi
 }
 
-lgreen_man() {
-    env \
-        LESS_TERMCAP_mb=$(printf "\e[1;31m") \
-        LESS_TERMCAP_md=$(printf "\e[1;31m") \
-        LESS_TERMCAP_me=$(printf "\e[0m") \
-        LESS_TERMCAP_se=$(printf "\e[0m") \
-        LESS_TERMCAP_so=$(printf "\e[1;44;33m") \
-        LESS_TERMCAP_ue=$(printf "\e[0m") \
-        LESS_TERMCAP_us=$(printf "\e[1;32m") \
-        man "$@"
-}
-
+# * Shell aliases
 lgreen_setup_aliases() {
     # shellcheck disable=SC2139
     alias e="$EDITOR"
@@ -520,26 +562,28 @@ lgreen_setup_aliases() {
     fi
 }
 
-lgreen_source_local_shell() {
-    if [ -f "$HOME/.shell_local" ]; then
-        source "$HOME/.shell_local"
-    fi
-}
-
-lgreen_source_work_shell() {
-    if [ -f "$HOME/dev/work/setup/setup.sh" ]; then
-        source "$HOME/dev/work/setup/setup.sh"
-    fi
-}
-
+# * Tmux Integration
 lgreen_ssh_tmux() {
     ssh -t "$@" "tmux -u attach-session || tmux -u new-session -s Alpha"
 }
-
 lgreen_local_tmux() {
     tmux new-session -A -s Alpha
 }
+lgreen_setup_tmux_all() {
+    # TODO: Consider removing this as it is problematic:
+    # Tmux is often writing output to the screen.
+    # We should be using Emacs more anyway.
+    # lgreen_conditionally_start_attach_tmux
+    lgreen_setup_tmux_theme_switcher
+}
+lgreen_conditionally_start_attach_tmux() {
+    if [ -n "$SSH_TTY" ] && [ -z "$TMUX" ] && [ -z "$INSIDE_EMACS" ]; then
+        tmux -V
+        tmux attach || tmux new -s Alpha
+    fi
+}
 
+# * Shell UX
 lgreen_greet_user_at_shell_setup_end() {
     # Only show a greeting if this is an interactive terminal
     if [ -t 1 ] && [ -z "$LGREEN_NO_GREET" ] && [ "$LGREEN_SHELL_SOURCED_COUNT" -eq 1 ]; then
@@ -548,62 +592,6 @@ lgreen_greet_user_at_shell_setup_end() {
         fi
     fi
 }
-
-lgreen_setup_chromium_depot_tools() {
-    export PATH="$HOME/dev/pub/depot_tools/:$PATH"
-}
-
-lgreen_setup_doom_emacs() {
-    export DOOMDIR="$HOME/.doom.d"
-    export EMACSDIR="$HOME/.emacs.doom"
-    export PATH="$PATH:$EMACSDIR/bin/"
-}
-
-lgreen_setup_docker_for_bash() {
-    if [ -f ~/.docker/init-bash.sh ]; then
-        source ~/.docker/init-bash.sh
-    fi
-}
-
-lgreen_setup_docker_for_zsh() {
-    if [ -f ~/.docker/init-zsh.sh ]; then
-        source ~/.docker/init-zsh.sh
-    fi
-}
-
-# TODO Provide sanitize environment implementations for non-Linux as well
-lgreen_sanitize_environment() {
-    if [ "$(uname_cached)" = "Linux" ]; then
-        export PATH=/usr/bin:/bin
-        unset LD_LIBRARY_PATH PKG_CONFIG_PATH
-    fi
-}
-
-lgreen_setup_dev_env_all() {
-    # lgreen_setup_direnv_for_zsh
-    lgreen_setup_pyenv
-    lgreen_setup_jenv
-    lgreen_setup_rbenv
-
-    lgreen_setup_dev_env_rust
-    lgreen_setup_dev_env_clang
-
-    lgreen_setup_perforce_config
-
-    lgreen_setup_non_sys_openssl
-    lgreen_setup_non_sys_sqlite
-
-    lgreen_setup_ntfy
-}
-
-lgreen_setup_tmux_all() {
-    # TODO: Consider removing this as it is problematic:
-    # Tmux is often writing output to the screen.
-    # We should be using Emacs more anyway.
-    # lgreen_conditionally_start_attach_tmux
-    lgreen_setup_tmux_theme_switcher
-}
-
 lgreen_show_fortune_quote() {
     if [ "$(command -v fortune)" ]; then
         if [ "$(command -v cowsay)" ]; then
@@ -612,37 +600,4 @@ lgreen_show_fortune_quote() {
             fi
         fi
     fi
-}
-
-lgreen_setup_gpg_tty() {
-    export GPG_TTY=$(tty)
-}
-
-lgreen_setup_common_shell() {
-    # Emacs Tramp or non-interactive shell: needs a simple prompt
-    # so just setup common shell and return
-    if [ "$TERM" = "dumb" ] || [ ! -t 1 ]; then
-        lgreen_track_shell_sourced_count
-        lgreen_source_profile_if_not_sourced
-        lgreen_start_agents
-        return
-    fi
-
-    lgreen_track_shell_sourced_count
-    lgreen_source_profile_if_not_sourced
-    lgreen_one_time_system_setup_check
-    lgreen_source_os_shell
-    lgreen_start_agents
-    lgreen_setup_running_inside_emacs
-    lgreen_setup_aliases
-    lgreen_source_local_shell
-    lgreen_source_work_shell
-    lgreen_setup_tmux_all
-    lgreen_setup_shell_theme_mode
-    lgreen_setup_doom_emacs
-    lgreen_setup_fzf
-    lgreen_setup_dev_env_rust
-    lgreen_setup_dev_env_all
-    lgreen_show_fortune_quote
-    lgreen_setup_gpg_tty
 }

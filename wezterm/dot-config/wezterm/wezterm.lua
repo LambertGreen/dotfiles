@@ -25,18 +25,26 @@ if wezterm.target_triple:find('windows') then
     "Iosevka NFM",
     "Symbols Nerd Font Mono"
   })
-  config.font_size = 13
+  config.font_size = 10
+  config.window_background_opacity = 0.95
+  -- Add the default program configuration here
+  config.default_prog = {
+    'cmd.exe',
+    '/K',
+    '%USERPROFILE%\\WindowsCommand\\dev.cmd'
+  }
+  -- Set initial window dimensions
+  config.initial_rows = 35
+  config.initial_cols = 120
 elseif wezterm.target_triple:find('apple') then
   config.font = wezterm.font_with_fallback({
     "Aporetic Sans Mono",
     "Symbols Nerd Font Mono"
   })
-  config.font_size = 15
-else
-  config.font = wezterm.font_with_fallback({
-    "Iosevka NFM",
-    "Symbols Nerd Font Mono"
-  })
+  config.font_size = 13
+  config.window_background_opacity = 0.95
+  config.macos_window_background_blur = 20
+  config.window_decorations = 'TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
 end
 
 -- Tab bar
@@ -86,7 +94,7 @@ config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 2000 }
 config.keys = {
    -- Use super key based copy/paste
    { key = 'c', mods = 'SUPER', action = wezterm.action.CopyTo('Clipboard') },
-   { key = 'v', mods = 'CTRL', action = wezterm.action.PasteFrom('Clipboard') },
+   { key = 'v', mods = 'SUPER', action = wezterm.action.PasteFrom('Clipboard') },
 
    -- Enter copy mode with Leader+]
    { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# -*- mode: sh; sh-shell: bash -*-
 
 # shellcheck source=profile
 [ -f ~/.profile ] && source ~/.profile

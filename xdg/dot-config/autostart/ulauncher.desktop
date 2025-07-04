@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Ulauncher
+Exec=ulauncher
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Comment=Start Ulauncher on login
