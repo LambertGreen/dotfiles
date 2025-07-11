@@ -445,6 +445,7 @@ lgreen_fix_compaudit_insecure_directories() {
     local common_dirs=(
         "$HOME/.zinit"
         "$HOME/.cache"
+        "$HOME/.config/zsh"
         "/usr/local/share/zsh"
         "/opt/homebrew/share/zsh"  # macOS Homebrew
     )
