@@ -1,7 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
-* TODOs [18/23]
-** Open [0/3]
+* TODOs
+** Open [0/5]
 *** TODO Consider using =make= or =just= file for machine setup
 This may be the way to address the below TODO items i.e. machine setup and updating.
 *Note* =just= can is cross-platform so it may serve as a good option to handle all platforms.
@@ -35,11 +35,11 @@ CLOSED: [2023-02-02 Thu 13:05]
 + Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
 
 *** TODO Add app for doing presentations
-**** Requirements [/]
+**** Requirements [0/2]
 ***** [ ] Show mouse cursor
 ***** [ ] Zoom in/out
 
-** Completed [8/8]
+** Completed [10/10]
 *** By OS Platform [0/0]
 **** Windows [4/4]
 ***** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=
