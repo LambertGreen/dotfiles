@@ -1,0 +1,31 @@
+# Bootstrap commands for first-time setup
+
+# Show bootstrap options
+default:
+    @echo "🚀 Bootstrap - First-time setup"
+    @echo ""
+    @echo "Stow package_management for your platform:"
+    @echo "  just stow-pm-osx       - macOS"
+    @echo "  just stow-pm-arch      - Arch Linux"
+    @echo "  just stow-pm-ubuntu    - Ubuntu/Debian"
+    @echo "  just stow-pm-win       - Windows"
+    @echo ""
+    @echo "After running your platform command, you can use:"
+    @echo "  just install"
+    @echo "  just update"
+
+# Stow package_management for macOS
+stow-pm-osx:
+    cd ../configs && stow package_management package_management_osx
+
+# Stow package_management for Arch Linux
+stow-pm-arch:
+    cd ../configs && stow package_management package_management_arch
+
+# Stow package_management for Ubuntu/Debian
+stow-pm-ubuntu:
+    cd ../configs && stow package_management package_management_ubuntu
+
+# Stow package_management for Windows
+stow-pm-win:
+    cd ../configs && stow package_management package_management_win

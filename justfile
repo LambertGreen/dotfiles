@@ -1,47 +1,56 @@
-# Dotfiles Management System - Main Interface
+# Dotfiles Management System
 set dotenv-load := true
 
-# Import contexts
-import 'just/platforms.just'
-import 'just/install.just'
-import 'just/dev.just'
-
-# Show main menu with clear contexts
-[private]
+# Show available contexts
 default:
     @echo "🏠 Dotfiles Management System"
     @echo ""
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "CONTEXTS:"
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "Available contexts:"
+    @echo "  bootstrap - First-time setup (stow package_management)"
+    @echo "  install   - Install packages (requires bootstrap first)"
+    @echo "  update    - Update system packages"
+    @echo "  stow      - Manage configuration symlinks"
+    @echo "  dev       - Development tools and testing"
     @echo ""
-    @echo "📦 install    - Install components on current system"
-    @echo "              │ cli      - Command line tools (git, vim, tmux)"
-    @echo "              │ dev      - Development tools (languages, editors)"
-    @echo "              │ gui      - GUI applications (platform-specific)"
-    @echo "              └ show     - Show what's included in each category"
-    @echo ""
-    @echo "🛠️  dev       - Development workflow & testing"
-    @echo "              │ test     - Test in Docker (arch, ubuntu)"
-    @echo "              │ update   - Update submodules"
-    @echo "              └ validate - Run all checks"
-    @echo ""
-    @echo "🔗 stow      - Symlink management (in configs/)"
-    @echo ""
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "QUICK START:"
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo ""
-    @echo "  just install show        - See what's available"
-    @echo "  just install cli arch    - Install CLI tools for Arch"
-    @echo "  just dev test ubuntu     - Test Ubuntu in Docker"
+    @echo "Usage:"
+    @echo "  just <context>         - Enter context"
 
-# Context shortcuts
-install +args='': 
-    @just install-{{args}}
+# Navigate to install context (requires package_management to be stowed)
+install:
+    @echo "📦 Entering install context..."
+    @echo "Type 'just' to see available commands, 'exit' to return"
+    @echo ""
+    @cd ~/.package_management/install && $SHELL
 
-dev +args='':
-    @just dev-{{args}}
+# Navigate to update context (requires package_management to be stowed)
+update:
+    @echo "🔄 Entering update context..."
+    @echo "Type 'just' to see available commands, 'exit' to return"
+    @echo ""
+    @cd ~/.package_management/update && $SHELL
 
-stow *args:
-    cd configs && just {{args}}
+# Navigate to stow context
+stow:
+    @echo "🔗 Entering stow context..."
+    @echo "Type 'just' to see available commands, 'exit' to return"
+    @echo ""
+    @cd configs && $SHELL
+
+# Navigate to dev context
+dev:
+    @echo "🛠️ Entering dev context..."
+    @echo "Type 'just -f dev.just' to see available commands, 'exit' to return"
+    @echo ""
+    @cd just && $SHELL
+
+# Bootstrap context - First-time setup
+bootstrap:
+    @echo "🚀 Bootstrap Context"
+    @echo "Type 'just' to see available commands, 'exit' to return"
+    @echo ""
+    @cd bootstrap && $SHELL
+
+# Help aliases
+help: default
+h: default
+usage: default

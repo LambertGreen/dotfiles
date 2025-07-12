@@ -7,7 +7,8 @@
       "Bash(mv:*)",
       "Bash(for platform in ubuntu win posix)",
       "Bash(do mkdir -p configs/package_management_$platform/dot-package_management/{install,update})",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(find:*)"
     ],
     "deny": []
   }
