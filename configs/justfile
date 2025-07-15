@@ -6,230 +6,35 @@
 # - _stow-posix-xdg: XDG config packages (stow -t ~/.config --dot)
 # - _stow-windows-appdata: Windows packages (stow -t ~/AppData/Local --dot)
 # This requires restructuring package directories to match target paths.
+
 # Platform-specific dotfiles stowing
 # Each platform has its own justfile with level-based organization
 
-default:
-    @echo "🔗 Dotfiles Stowing by Platform"
+_default:
+    @echo "🔗 Dotfiles Stowing"
     @echo ""
-    @echo "Platform-specific commands:"
-    @echo "  just arch     - Arch Linux stowing (justfile_arch)"
-    @echo "  just ubuntu   - Ubuntu Linux stowing (justfile_ubuntu)"
-    @echo "  just osx      - macOS stowing (legacy recipes below)"
-    @echo "  just win      - Windows stowing (legacy recipes below)"
-    @echo ""
-    @echo "Legacy platform recipes (to be moved to platform files):"
     @just --list
 
 # =============================================================================
 # PLATFORM DELEGATION
 # =============================================================================
 
-# Arch Linux stowing (delegates to justfile_arch)
-arch:
-    @echo "🏛️ Entering Arch Linux stowing context..."
-    @echo "Available: stow-basic, stow-typical, stow-max, unstow-all, list-packages"
-    @echo ""
-    @just -f justfile_arch
+# 🏛️ Arch Linux stowing
+arch *args:
+    @echo "🏛️ Arch Linux stowing..."
+    @just -f justfile_arch {{ args }}
 
-# Ubuntu Linux stowing (delegates to justfile_ubuntu)
-ubuntu:
-    @echo "🐧 Entering Ubuntu Linux stowing context..."
-    @echo "Available: stow-basic, stow-typical, stow-max, unstow-all, list-packages"
-    @echo ""
-    @just -f justfile_ubuntu
+# 🐧 Ubuntu Linux stowing
+ubuntu *args:
+    @echo "🐧 Ubuntu Linux stowing..."
+    @just -f justfile_ubuntu {{ args }}
 
-# =============================================================================
-# LEGACY PLATFORM RECIPES (to be moved to platform files)
-# =============================================================================
+# 🍎 macOS stowing
+osx *args:
+    @echo "🍎 macOS stowing..."
+    @just -f justfile_osx {{ args }}
 
-# 🌍 Common packages (work on all platforms)
-_stow-common:
-    stow ctags
-    stow email
-    stow fd
-    stow flake8
-    stow fortune
-    stow gdb
-    stow htop
-    stow idea
-    stow just
-    stow lldb
-    stow ripgrep
-    stow spelling
-    stow vim
-    stow wezterm
-    stow --ignore='dot-emacs\.doom' emacs
-
-# 🍎🐧 POSIX packages (macOS and Linux)
-_stow-posix:
-    stow finicky
-    stow nix
-
-# 🍎 Stow macOS packages
-stow-osx: _stow-common _stow-posix
-    stow git git_my git_osx git_work
-    stow gnupg_osx
-    stow shell shell_osx  # TODO: Integrate shell_osx into new shell config
-    stow package_management package_management_osx
-    stow tmux
-    stow nvim
-    stow alfred-settings
-    stow alacritty_osx
-    stow cursor_osx
-    stow hammerspoon
-    stow karabiner
-    stow osx
-    stow raycast_osx
-    stow skhd
-    stow vscode_osx
-    stow Xresources_osx
-    stow yabai
-
-# 🐧 Stow Ubuntu/Debian packages
-stow-ubuntu: _stow-common _stow-posix
-    stow git git_my git_linux git_work
-    stow gnupg_linux
-    stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
-    stow package_management package_management_ubuntu
-    stow tmux
-    stow nvim
-    stow XWindows
-    stow xdg-autostart
-    stow xdg-desktop
-
-# 🏔️ Stow Arch Linux packages
-stow-arch: _stow-common _stow-posix
-    stow git git_my git_linux
-    stow gnupg_linux
-    # Remove existing shell configs that would conflict
-    -rm -f ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile 2>/dev/null
-    stow shell shell_linux  # TODO: Integrate shell_linux into new shell config
-    stow package_management package_management_arch
-    stow tmux
-    stow nvim
-    stow XWindows
-
-# 🏔️ MSYS2 packages (POSIX tools for Windows)
-_stow-msys2:
-    stow mintty
-    stow shell shell_msys2  # TODO: Integrate shell_msys2 into new shell config
-    stow tmux tmux_msys2
-
-# 🪟 Stow Windows packages
-stow-win: _stow-common _stow-msys2
-    stow git git_my git_win git_work
-    stow gnupg_win
-    stow package_management package_management_win
-    stow nvim_win
-    stow alacritty_win
-    stow autohotkey
-    stow clink
-    stow cursor_win
-    stow emacs_win_wsl
-    stow Keypirinha
-    stow keypirinha_choco
-    stow powershell_win
-    stow vscode_win
-    stow vsvim
-    stow win_wsl
-    stow WindowsCommand
-    stow WindowsPowerShell
-
-# * Unstowing Commands
-# ────────────────────────────────────────────────────────────────
-
-# 🗑️ Unstow macOS packages
-unstow-osx:
-    stow -D alfred-settings
-    stow -D alacritty_osx
-    stow -D cursor_osx
-    stow -D hammerspoon
-    stow -D karabiner
-    stow -D osx
-    stow -D raycast_osx
-    stow -D skhd
-    stow -D vscode_osx
-    stow -D Xresources_osx
-    stow -D yabai
-    just _unstow-common
-    just _unstow-posix
-
-# 🗑️ Unstow Ubuntu/Debian packages
-unstow-ubuntu:
-    stow -D XWindows
-    stow -D xdg-autostart
-    stow -D xdg-desktop
-    just _unstow-common
-    just _unstow-posix
-
-# 🗑️ Unstow Arch Linux packages
-unstow-arch:
-    stow -D XWindows
-    just _unstow-common
-    just _unstow-posix
-
-# 🗑️ Unstow Windows packages
-unstow-win:
-    stow -D nvim_win
-    stow -D alacritty_win
-    stow -D autohotkey
-    stow -D clink
-    stow -D cursor_win
-    stow -D emacs_win_wsl
-    stow -D Keypirinha
-    stow -D keypirinha_choco
-    stow -D powershell_win
-    stow -D vscode_win
-    stow -D vsvim
-    stow -D win_wsl
-    stow -D WindowsCommand
-    stow -D WindowsPowerShell
-    just _unstow-msys2
-    just _unstow-common
-
-# 🌍 Unstow common packages
-_unstow-common:
-    stow -D ctags
-    stow -D email
-    stow -D fd
-    stow -D flake8
-    stow -D fortune
-    stow -D gdb
-    stow -D htop
-    stow -D idea
-    stow -D just
-    stow -D lldb
-    stow -D ripgrep
-    stow -D spelling
-    stow -D vim
-    stow -D wezterm
-    stow -D emacs
-
-# 🍎🐧 Unstow POSIX packages
-_unstow-posix:
-    stow -D finicky
-    stow -D nix
-
-# 🏔️ Unstow MSYS2 packages
-_unstow-msys2:
-    stow -D mintty
-    stow -D shell
-    stow -D shell_msys2
-    stow -D tmux
-    stow -D tmux_msys2
-
-# 🔄 Platform-specific git packages (for partial testing)
-_unstow-platform-git:
-    stow -D git
-    stow -D git_my
-    stow -D git_work
-
-_stow-platform-git-osx: _unstow-platform-git
-    stow git git_my git_osx git_work
-
-_stow-platform-git-linux: _unstow-platform-git
-    stow git git_my git_linux git_work
-
-_stow-platform-git-win: _unstow-platform-git
-    stow git git_my git_win git_work
+# 🪟 Windows stowing
+win *args:
+    @echo "🪟 Windows stowing..."
+    @just -f justfile_win {{ args }}

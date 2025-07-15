@@ -1,82 +1,84 @@
 #!/usr/bin/env just
 # -*- mode: just -*-
 
-# Arch Linux dotfiles stowing by level
+# macOS dotfiles stowing by level
 # Levels: basic (shell), typical (terminal apps), max (GUI apps)
 
 import 'justfile_common'
 
 # =============================================================================
-# ARCH-SPECIFIC PACKAGE LISTS
+# MACOS-SPECIFIC PACKAGE LISTS
 # =============================================================================
 
-# Basic Arch packages
-arch_basic_packages := "package_management_arch package_management_posix git_linux shell_linux"
+# Basic macOS packages
+osx_basic_packages := "package_management_osx package_management_posix git_osx git_work shell_osx gnupg_osx"
 
-# Typical Arch packages
-arch_typical_packages := "gnupg_linux"
+# Typical macOS packages (terminal apps)
+osx_typical_packages := "alacritty_osx cursor_osx"
 
-# Max Arch packages (none currently - inherits from common)
-arch_max_packages := ""
+# Max macOS packages (GUI apps)
+osx_max_packages := "alfred-settings hammerspoon karabiner osx raycast_osx skhd vscode_osx Xresources_osx yabai"
 
 _default:
-    @just -f justfile_arch --list
+    @just -f justfile_osx --list
 
 # =============================================================================
 # BASIC LEVEL - Shell environment essentials
 # =============================================================================
 
-# 🔰 Stow basic Arch configs (shell environment essentials)
+# 🔰 Stow basic macOS configs (shell environment essentials)
 stow-basic:
-    @echo "🔗 Stowing basic Arch configs (shell environment)..."
+    @echo "🔗 Stowing basic macOS configs (shell environment)..."
     just -f justfile_common _remove-conflicting-shell-configs
     just -f justfile_common _stow-basic-common
-    stow {{arch_basic_packages}}
+    stow {{osx_basic_packages}}
 
 # =============================================================================
 # TYPICAL LEVEL - Basic + terminal applications
 # =============================================================================
 
-# 🔶 Stow typical Arch configs (basic + terminal applications)
+# 🔶 Stow typical macOS configs (basic + terminal applications)
 stow-typical: stow-basic
-    @echo "🔗 Stowing typical Arch configs (+ terminal apps)..."
+    @echo "🔗 Stowing typical macOS configs (+ terminal apps)..."
     just -f justfile_common _stow-typical-common
-    stow {{arch_typical_packages}}
+    stow {{osx_typical_packages}}
 
 # =============================================================================
 # MAX LEVEL - Typical + GUI applications
 # =============================================================================
 
-# 🔸 Stow max Arch configs (typical + GUI applications)
+# 🔸 Stow max macOS configs (typical + GUI applications)
 stow-max: stow-typical
-    @echo "🔗 Stowing max Arch configs (+ GUI apps)..."
+    @echo "🔗 Stowing max macOS configs (+ GUI apps)..."
     just -f justfile_common _stow-max-common
+    stow {{osx_max_packages}}
 
 # =============================================================================
 # MANAGEMENT COMMANDS
 # =============================================================================
 
-# 🗑️ Remove all stowed Arch configs
+# 🗑️ Remove all stowed macOS configs
 unstow-all:
-    @echo "🗑️ Unstowing all Arch configs..."
-    @_unstow-arch-all
+    @echo "🗑️ Unstowing all macOS configs..."
+    @_unstow-osx-all
 
-_unstow-arch-all:
+_unstow-osx-all:
     # Use common unstow functions
     just -f justfile_common _unstow-max-common
     just -f justfile_common _unstow-typical-common
     just -f justfile_common _unstow-basic-common
-    # Arch-specific packages
-    - stow -D {{arch_basic_packages}}
-    - stow -D {{arch_typical_packages}}
+    # macOS-specific packages
+    - stow -D {{osx_basic_packages}}
+    - stow -D {{osx_typical_packages}}
+    - stow -D {{osx_max_packages}}
 
 # 📦 Show what packages are included at each level
 list-packages:
-    @echo "📦 Arch Linux Package Organization:"
+    @echo "📦 macOS Package Organization:"
     @echo ""
     just -f justfile_common _list-common-packages
     @echo ""
-    @echo "🏠 ARCH-SPECIFIC ADDITIONS:"
-    @echo "  Basic: {{arch_basic_packages}}"
-    @echo "  Typical: {{arch_typical_packages}}"
-    @echo "  Max: {{arch_max_packages}}"
+    @echo "🏠 MACOS-SPECIFIC ADDITIONS:"
+    @echo "  Basic: {{osx_basic_packages}}"
+    @echo "  Typical: {{osx_typical_packages}}"
+    @echo "  Max: {{osx_max_packages}}"

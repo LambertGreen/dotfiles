@@ -19,21 +19,14 @@ ubuntu_typical_packages := "gnupg_linux"
 # Max Ubuntu packages
 ubuntu_max_packages := "xdg-autostart xdg-desktop"
 
-default:
-    @echo "🐧 Ubuntu Linux Stowing Recipes"
-    @echo ""
-    @echo "Levels:"
-    @echo "  just stow-basic    - Shell environment essentials"
-    @echo "  just stow-typical  - Basic + terminal applications" 
-    @echo "  just stow-max      - Typical + GUI applications"
-    @echo ""
-    @echo "Management:"
-    @echo "  just unstow-all    - Remove all stowed configs"
-    @echo "  just list-packages - Show what gets stowed at each level"
+_default:
+    @just -f justfile_ubuntu --list
 
 # =============================================================================
 # BASIC LEVEL - Shell environment essentials
 # =============================================================================
+
+# 🔰 Stow basic Ubuntu configs (shell environment essentials)
 stow-basic:
     @echo "🔗 Stowing basic Ubuntu configs (shell environment)..."
     just -f justfile_common _remove-conflicting-shell-configs
@@ -41,8 +34,10 @@ stow-basic:
     stow {{ubuntu_basic_packages}}
 
 # =============================================================================
-# TYPICAL LEVEL - Basic + terminal applications  
+# TYPICAL LEVEL - Basic + terminal applications
 # =============================================================================
+
+# 🔶 Stow typical Ubuntu configs (basic + terminal applications)
 stow-typical: stow-basic
     @echo "🔗 Stowing typical Ubuntu configs (+ terminal apps)..."
     just -f justfile_common _stow-typical-common
@@ -51,6 +46,8 @@ stow-typical: stow-basic
 # =============================================================================
 # MAX LEVEL - Typical + GUI applications
 # =============================================================================
+
+# 🔸 Stow max Ubuntu configs (typical + GUI applications)
 stow-max: stow-typical
     @echo "🔗 Stowing max Ubuntu configs (+ GUI apps)..."
     just -f justfile_common _stow-max-common
@@ -60,7 +57,7 @@ stow-max: stow-typical
 # MANAGEMENT COMMANDS
 # =============================================================================
 
-# Remove all stowed configs
+# 🗑️ Remove all stowed Ubuntu configs
 unstow-all:
     @echo "🗑️ Unstowing all Ubuntu configs..."
     @_unstow-ubuntu-all
@@ -75,7 +72,7 @@ _unstow-ubuntu-all:
     - stow -D {{ubuntu_typical_packages}}
     - stow -D {{ubuntu_max_packages}}
 
-# Show what packages are included at each level
+# 📦 Show what packages are included at each level
 list-packages:
     @echo "📦 Ubuntu Linux Package Organization:"
     @echo ""
