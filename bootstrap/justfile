@@ -4,28 +4,68 @@
 default:
     @echo "🚀 Bootstrap - First-time setup"
     @echo ""
-    @echo "Stow package_management for your platform:"
-    @echo "  just stow-pm-osx       - macOS"
-    @echo "  just stow-pm-arch      - Arch Linux"
-    @echo "  just stow-pm-ubuntu    - Ubuntu/Debian"
-    @echo "  just stow-pm-win       - Windows"
+    @echo "Ubuntu bootstrap recipes (scaling levels):"
+    @echo "  just bootstrap-basic-ubuntu    - Essential tools (stow 2.4.1+)"
+    @echo "  just bootstrap-typical-ubuntu  - Basic + Homebrew (recommended)"
+    @echo "  just bootstrap-max-ubuntu      - Typical + Nix (heavy, for older distros)"
     @echo ""
-    @echo "After running your platform command, you can use:"
-    @echo "  just install"
-    @echo "  just update"
+    @echo "Arch bootstrap recipes:"
+    @echo "  just bootstrap-basic-arch      - Essential tools (yay AUR helper)"
+    @echo "  just bootstrap-typical-arch    - Basic + Homebrew"
+    @echo "  just bootstrap-max-arch        - Typical + Nix"
+    @echo ""
+    @echo "Individual bootstrap scripts:"
+    @echo "  ./install-stow-ubuntu.sh     - Install stow 2.4.1+ on Ubuntu"
+    @echo "  ./install-homebrew-linux.sh  - Install Homebrew on Linux"
+    @echo "  ./install-nix.sh             - Install Nix package manager"
+    @echo "  ./install-yay-arch.sh        - Install yay AUR helper on Arch"
 
-# Stow package_management for macOS
-stow-pm-osx:
-    cd ../configs && stow package_management package_management_osx
+# Ubuntu Bootstrap Recipes (Scaling Levels)
 
-# Stow package_management for Arch Linux
-stow-pm-arch:
-    cd ../configs && stow package_management package_management_arch
+# Essential tools only - minimal bootstrap for Ubuntu
+bootstrap-basic-ubuntu:
+    @echo "🐧 Ubuntu Basic Bootstrap - Essential tools only"
+    ./install-stow-ubuntu.sh
+    @echo "✅ Basic bootstrap complete! System has essential tools"
 
-# Stow package_management for Ubuntu/Debian
-stow-pm-ubuntu:
-    cd ../configs && stow package_management package_management_ubuntu
+# Recommended setup - basic + common package managers
+bootstrap-typical-ubuntu:
+    @echo "🐧 Ubuntu Typical Bootstrap - Essential + Homebrew"
+    ./install-stow-ubuntu.sh
+    ./install-homebrew-linux.sh
+    @echo "✅ Typical bootstrap complete! System ready for standard workflows"
 
-# Stow package_management for Windows
-stow-pm-win:
-    cd ../configs && stow package_management package_management_win
+# Everything including heavy tools - for older distros or power users
+bootstrap-max-ubuntu:
+    @echo "🐧 Ubuntu Max Bootstrap - Essential + Homebrew + Nix"
+    ./install-stow-ubuntu.sh
+    ./install-homebrew-linux.sh
+    ./install-nix.sh
+    @echo "✅ Max bootstrap complete! All package managers available"
+
+# Arch Bootstrap Recipes (Scaling Levels)
+
+# Essential tools only - minimal bootstrap for Arch
+bootstrap-basic-arch:
+    @echo "🏛️ Arch Basic Bootstrap - Essential tools"
+    ./install-yay-arch.sh
+    @echo "✅ Basic bootstrap complete! AUR access available"
+
+# Recommended setup - basic + common package managers
+bootstrap-typical-arch:
+    @echo "🏛️ Arch Typical Bootstrap - Essential + Homebrew"
+    ./install-yay-arch.sh
+    ./install-homebrew-linux.sh
+    @echo "✅ Typical bootstrap complete! System ready for standard workflows"
+
+# Everything including heavy tools
+bootstrap-max-arch:
+    @echo "🏛️ Arch Max Bootstrap - Essential + Homebrew + Nix"
+    ./install-yay-arch.sh
+    ./install-homebrew-linux.sh
+    ./install-nix.sh
+    @echo "✅ Max bootstrap complete! All package managers available"
+
+# Legacy aliases for backward compatibility
+setup-ubuntu: bootstrap-typical-ubuntu
+setup-arch: bootstrap-typical-arch

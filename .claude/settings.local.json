@@ -8,7 +8,9 @@
       "Bash(for platform in ubuntu win posix)",
       "Bash(do mkdir -p configs/package_management_$platform/dot-package_management/{install,update})",
       "Bash(done)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(timeout 300 just test-update:*)"
     ],
     "deny": []
   }

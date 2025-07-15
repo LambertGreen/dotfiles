@@ -1,16 +1,47 @@
 #!/usr/bin/env just
 # -*- mode: just -*-
 
-# Minimal dotfiles stowing by platform
-# 
 # TODO: Refactor to use explicit stow targets for better organization:
 # - _stow-common-home: Home directory packages (stow -t ~ --dot)
-# - _stow-posix-xdg: XDG config packages (stow -t ~/.config --dot) 
+# - _stow-posix-xdg: XDG config packages (stow -t ~/.config --dot)
 # - _stow-windows-appdata: Windows packages (stow -t ~/AppData/Local --dot)
 # This requires restructuring package directories to match target paths.
+# Platform-specific dotfiles stowing
+# Each platform has its own justfile with level-based organization
 
 default:
+    @echo "🔗 Dotfiles Stowing by Platform"
+    @echo ""
+    @echo "Platform-specific commands:"
+    @echo "  just arch     - Arch Linux stowing (justfile_arch)"
+    @echo "  just ubuntu   - Ubuntu Linux stowing (justfile_ubuntu)"
+    @echo "  just osx      - macOS stowing (legacy recipes below)"
+    @echo "  just win      - Windows stowing (legacy recipes below)"
+    @echo ""
+    @echo "Legacy platform recipes (to be moved to platform files):"
     @just --list
+
+# =============================================================================
+# PLATFORM DELEGATION
+# =============================================================================
+
+# Arch Linux stowing (delegates to justfile_arch)
+arch:
+    @echo "🏛️ Entering Arch Linux stowing context..."
+    @echo "Available: stow-basic, stow-typical, stow-max, unstow-all, list-packages"
+    @echo ""
+    @just -f justfile_arch
+
+# Ubuntu Linux stowing (delegates to justfile_ubuntu)
+ubuntu:
+    @echo "🐧 Entering Ubuntu Linux stowing context..."
+    @echo "Available: stow-basic, stow-typical, stow-max, unstow-all, list-packages"
+    @echo ""
+    @just -f justfile_ubuntu
+
+# =============================================================================
+# LEGACY PLATFORM RECIPES (to be moved to platform files)
+# =============================================================================
 
 # 🌍 Common packages (work on all platforms)
 _stow-common:
@@ -197,7 +228,7 @@ _unstow-platform-git:
 _stow-platform-git-osx: _unstow-platform-git
     stow git git_my git_osx git_work
 
-_stow-platform-git-linux: _unstow-platform-git  
+_stow-platform-git-linux: _unstow-platform-git
     stow git git_my git_linux git_work
 
 _stow-platform-git-win: _unstow-platform-git

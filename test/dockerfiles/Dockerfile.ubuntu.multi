@@ -1,0 +1,164 @@
+# Multi-stage Dockerfile for Ubuntu dotfiles testing
+# Usage:
+#   docker build --target base -t dotfiles-ubuntu-base .
+#   docker build --target bootstrap-basic -t dotfiles-ubuntu-bootstrap-basic .
+#   docker build --target stow-basic -t dotfiles-ubuntu-stow-basic .
+#   docker build --target install-basic -t dotfiles-ubuntu-install-basic .
+#   docker build --target update-basic -t dotfiles-ubuntu-update-basic .
+
+# =============================================================================
+# BASE STAGE - Common system setup for all Ubuntu tests
+# =============================================================================
+FROM ubuntu:22.04 AS base
+
+# Install minimal packages for dotfiles testing + realistic system defaults
+RUN apt-get update --quiet && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+      sudo git openssh-client wget curl ca-certificates build-essential \
+      bash zsh && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy and run bootstrap install scripts
+COPY --chown=root:root bootstrap/install-stow-ubuntu.sh /tmp/install-stow-ubuntu.sh
+COPY --chown=root:root bootstrap/install-just-ubuntu.sh /tmp/install-just-ubuntu.sh
+RUN chmod +x /tmp/install-stow-ubuntu.sh /tmp/install-just-ubuntu.sh && \
+    /tmp/install-stow-ubuntu.sh && \
+    /tmp/install-just-ubuntu.sh && \
+    rm -f /tmp/install-stow-ubuntu.sh /tmp/install-just-ubuntu.sh
+
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Create a test user
+RUN useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
+    usermod -aG sudo user && \
+    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo 'user:user' | chpasswd
+
+USER user
+ENV HOME=/home/user
+
+# Create directory structure
+RUN mkdir -p ~/dev/my/dotfiles
+
+# =============================================================================
+# BOOTSTRAP STAGES - Tool installation by level
+# =============================================================================
+FROM base AS bootstrap-basic
+
+COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
+WORKDIR /home/user/dev/my/dotfiles/bootstrap
+
+RUN echo "🚀 Running basic bootstrap..." && \
+    just bootstrap-basic-ubuntu
+
+# Validate bootstrap - basic only needs apt (already installed)
+RUN echo "🔍 Validating basic bootstrap..." && \
+    command -v apt && \
+    echo "✅ Basic bootstrap validation complete"
+
+CMD ["/bin/bash"]
+
+FROM base AS bootstrap-typical
+
+COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
+WORKDIR /home/user/dev/my/dotfiles/bootstrap
+
+RUN echo "🚀 Running typical bootstrap..." && \
+    just bootstrap-typical-ubuntu
+
+# Validate bootstrap
+RUN echo "🔍 Validating typical bootstrap..." && \
+    command -v apt && \
+    command -v brew && \
+    echo "✅ Typical bootstrap validation complete"
+
+CMD ["/bin/bash"]
+
+FROM base AS bootstrap-max
+
+COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
+WORKDIR /home/user/dev/my/dotfiles/bootstrap
+
+RUN echo "🚀 Running max bootstrap..." && \
+    just bootstrap-max-ubuntu
+
+# Validate bootstrap
+RUN echo "🔍 Validating max bootstrap..." && \
+    command -v apt && \
+    command -v brew && \
+    command -v nix && \
+    echo "✅ Max bootstrap validation complete"
+
+CMD ["/bin/bash"]
+
+# =============================================================================
+# STOW STAGES - Config deployment by level
+# =============================================================================
+FROM bootstrap-basic AS stow-basic
+
+# Add all configs for stowing
+COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
+COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+
+# Run stow via platform-specific justfile
+WORKDIR /home/user/dev/my/dotfiles/configs
+RUN echo "🔗 Running basic stow..." && \
+    just -f justfile_ubuntu stow-basic
+
+CMD ["/bin/bash"]
+
+FROM bootstrap-typical AS stow-typical
+
+# Add all configs for stowing
+COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
+COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+
+# Run stow via platform-specific justfile
+WORKDIR /home/user/dev/my/dotfiles/configs
+RUN echo "🔗 Running typical stow..." && \
+    just -f justfile_ubuntu stow-typical
+
+CMD ["/bin/bash"]
+
+# =============================================================================
+# INSTALL STAGES - Package installation by level
+# =============================================================================
+FROM stow-basic AS install-basic
+
+# Run install via package management justfile (from stowed location)
+RUN echo "📦 Running basic install..." && \
+    cd ~/.package_management/install && \
+    just install-basic
+
+CMD ["/bin/bash"]
+
+FROM stow-typical AS install-typical
+
+# Run install via package management justfile (from stowed location)
+RUN echo "📦 Running typical install..." && \
+    cd ~/.package_management/install && \
+    just install-typical
+
+CMD ["/bin/bash"]
+
+# =============================================================================
+# UPDATE STAGES - Complete workflow (bootstrap + stow + install + update)
+# =============================================================================
+FROM install-basic AS update-basic
+
+# Run update via package management justfile (from stowed location)
+RUN echo "🔄 Running basic update..." && \
+    cd ~/.package_management/update && \
+    just update-basic
+
+CMD ["/bin/bash"]
+
+FROM install-typical AS update-typical
+
+# Run update via package management justfile (from stowed location)
+RUN echo "🔄 Running typical update..." && \
+    cd ~/.package_management/update && \
+    just update-typical
+
+CMD ["/bin/bash"]

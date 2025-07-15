@@ -49,3 +49,25 @@ system-clean: apt-clean brew-clean
 
 # 🧹🛠️ Monthly deep maintenance (composed of upgrade + clean)
 system-maintain: system-upgrade system-clean zinit-upgrade emacs-upgrade
+
+# =============================================================================
+# LEVEL-BASED UPDATE RECIPES (matches bootstrap levels - which package managers are available)
+# =============================================================================
+
+# Basic level - system package manager only (matches bootstrap-basic)
+update-basic: apt-upgrade
+    @echo "✅ Basic Ubuntu updates complete (apt packages only)!"
+
+# Typical level - system + Homebrew (matches bootstrap-typical)
+update-typical: apt-upgrade brew-upgrade
+    @echo "✅ Typical Ubuntu updates complete (apt + homebrew packages)!"
+
+# Max level - all package managers including Nix (matches bootstrap-max)
+update-max: apt-upgrade brew-upgrade
+    @echo "🔄 Updating Nix packages..."
+    @if command -v nix >/dev/null 2>&1; then \
+        nix-channel --update && nix-env -u; \
+        echo "✅ Max Ubuntu updates complete (apt + homebrew + Nix)!"; \
+    else \
+        echo "✅ Max Ubuntu updates complete (apt + homebrew, Nix not installed)!"; \
+    fi

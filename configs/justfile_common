@@ -1,0 +1,99 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Common stowing recipes shared across platforms
+# This file contains common functionality used by platform-specific justfiles
+
+# =============================================================================
+# COMMON HELPER FUNCTIONS
+# =============================================================================
+
+# Remove existing shell configs that would conflict with stow
+_remove-conflicting-shell-configs:
+    @echo "🧹 Removing conflicting shell configs..."
+    -rm -f ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile 2>/dev/null
+
+# Stow basic packages common to all platforms
+_stow-basic-common:
+    stow package_management
+    stow git
+    stow git_my
+    stow shell
+    stow tmux
+    stow just
+
+# Stow typical packages common to all platforms  
+_stow-typical-common:
+    stow ctags
+    stow email
+    stow fd
+    stow flake8
+    stow fortune
+    stow gdb
+    stow htop
+    stow lldb
+    stow ripgrep
+    stow spelling
+    stow vim
+    stow --ignore='dot-emacs\.doom' emacs
+    stow nvim
+    stow finicky
+    stow nix
+
+# Stow max packages common to all platforms
+_stow-max-common:
+    stow wezterm
+    stow idea
+    stow XWindows
+
+# Unstow typical packages common to all platforms
+_unstow-typical-common:
+    -stow -D ctags
+    -stow -D email
+    -stow -D fd
+    -stow -D flake8
+    -stow -D fortune
+    -stow -D gdb
+    -stow -D htop
+    -stow -D lldb
+    -stow -D ripgrep
+    -stow -D spelling
+    -stow -D vim
+    -stow -D emacs
+    -stow -D nvim
+    -stow -D finicky
+    -stow -D nix
+
+# Unstow max packages common to all platforms
+_unstow-max-common:
+    -stow -D wezterm
+    -stow -D idea
+    -stow -D XWindows
+
+# Unstow basic packages common to all platforms
+_unstow-basic-common:
+    -stow -D package_management
+    -stow -D git
+    -stow -D git_my
+    -stow -D shell
+    -stow -D tmux
+    -stow -D just
+
+# =============================================================================
+# COMMON PACKAGE LISTS (for documentation)
+# =============================================================================
+
+# Show common packages at each level
+_list-common-packages:
+    @echo "📦 Common Package Organization:"
+    @echo ""
+    @echo "🔰 BASIC (shell environment):"
+    @echo "  - package_management, git, git_my, shell, tmux, just"
+    @echo ""
+    @echo "🔶 TYPICAL (basic + terminal apps):"
+    @echo "  - ctags, email, fd, flake8, fortune"
+    @echo "  - gdb, htop, lldb, ripgrep, spelling"
+    @echo "  - vim, emacs, nvim, finicky, nix"
+    @echo ""
+    @echo "🔸 MAX (typical + GUI apps):"
+    @echo "  - wezterm, idea, XWindows"

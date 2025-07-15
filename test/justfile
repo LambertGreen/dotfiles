@@ -1,0 +1,182 @@
+# Testing workflows for dotfiles
+
+# Default test platform and level
+test_platform := env_var_or_default("DOTFILES_TEST_PLATFORM", "arch")
+test_level := env_var_or_default("DOTFILES_TEST_LEVEL", "basic")
+
+# Available Docker platforms and levels
+docker_platforms := "arch ubuntu"
+docker_levels := "basic typical"
+
+# Show test help
+default:
+    @echo "🧪 Dotfiles Testing"
+    @echo ""
+    @echo "Test stages (each builds on previous):"
+    @echo "  1. Bootstrap - Install essential tools (stow, package managers)"
+    @echo "  2. Stow      - Deploy configs to proper locations"
+    @echo "  3. Install   - Install packages using stowed configs"
+    @echo "  4. Update    - Update packages and system"
+    @echo "  5. Run       - Interactive shell to test environment"
+    @echo ""
+    @echo "Stage-specific tests:"
+    @echo "  just test-bootstrap [level] [platform] - Test bootstrap stage only"
+    @echo "  just test-stow [level] [platform]      - Test through stow stage"
+    @echo "  just test-install [level] [platform]   - Test through install stage"
+    @echo "  just test-update [level] [platform]    - Test through update stage"
+    @echo "  just test-run [level] [platform]       - Run interactive shell"
+    @echo ""
+    @echo "Batch tests:"
+    @echo "  just test-level [level]                 - Test level across platforms"
+    @echo "  just test-platform [platform]          - Test platform across levels"
+    @echo "  just test-all                          - Test all combinations"
+    @echo ""
+    @echo "Examples:"
+    @echo "  just test-update basic arch            - Build and test basic Arch (complete)"
+    @echo "  just test-run basic arch               - Interactive shell after update"
+    @echo ""
+    @echo "Available:"
+    @echo "  Platforms: {{docker_platforms}}"
+    @echo "  Levels: {{docker_levels}}"
+    @echo "  Defaults: {{test_level}} {{test_platform}}"
+
+# Test through install stage (complete workflow)
+@test-install level=test_level platform=test_platform:
+    echo "🐳 Testing {{level}} {{platform}} install stage with Docker..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-install-{{level}}-{{platform}}-output.log"
+    just test-install-local {{level}} {{platform}} 2>&1 | tee test-install-{{level}}-{{platform}}-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ {{level}} {{platform}} install test PASSED"; \
+    else \
+        echo "❌ {{level}} {{platform}} install test FAILED"; \
+        echo "📄 Check test-install-{{level}}-{{platform}}-output.log for details"; \
+    fi
+
+# Test through stow stage only
+@test-stow level=test_level platform=test_platform:
+    echo "🐳 Testing {{level}} {{platform}} stow stage with Docker..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-stow-{{level}}-{{platform}}-output.log"
+    just test-stow-local {{level}} {{platform}} 2>&1 | tee test-stow-{{level}}-{{platform}}-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ {{level}} {{platform}} stow test PASSED"; \
+    else \
+        echo "❌ {{level}} {{platform}} stow test FAILED"; \
+        echo "📄 Check test-stow-{{level}}-{{platform}}-output.log for details"; \
+    fi
+
+# Test through update stage (complete workflow)
+@test-update level=test_level platform=test_platform:
+    echo "🐳 Testing {{level}} {{platform}} update stage with Docker..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-update-{{level}}-{{platform}}-output.log"
+    just test-update-local {{level}} {{platform}} 2>&1 | tee test-update-{{level}}-{{platform}}-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ {{level}} {{platform}} update test PASSED"; \
+    else \
+        echo "❌ {{level}} {{platform}} update test FAILED"; \
+        echo "📄 Check test-update-{{level}}-{{platform}}-output.log for details"; \
+    fi
+
+# Run interactive shell after update stage
+test-run level=test_level platform=test_platform:
+    @echo "🐳 Running {{level}} {{platform}} interactive shell..."
+    @echo "Building image to update stage first..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    @echo "🚀 Starting interactive shell (type 'exit' to return)..."
+    docker run -it --rm dotfiles-test-{{level}}-{{platform}}
+
+# Backward compatibility alias (now uses complete workflow)
+test level=test_level platform=test_platform: (test-update level platform)
+
+# Helper: Test through install stage (complete workflow)
+test-install-local level platform:
+    @echo "🔨 Building Docker image for {{level}} {{platform}} install stage..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target install-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    @echo "🚀 Running test container..."
+    docker run --rm dotfiles-test-{{level}}-{{platform}}
+
+# Helper: Test through stow stage only
+test-stow-local level platform:
+    @echo "🔨 Building Docker image for {{level}} {{platform}} stow stage..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target stow-{{level}} -t dotfiles-stow-{{level}}-{{platform}} .
+    @echo "🚀 Running test container..."
+    docker run --rm dotfiles-stow-{{level}}-{{platform}}
+
+# Helper: Test through update stage (complete workflow)
+test-update-local level platform:
+    @echo "🔨 Building Docker image for {{level}} {{platform}} update stage..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    @echo "🚀 Running test container..."
+    docker run --rm dotfiles-test-{{level}}-{{platform}}
+
+# Test bootstrap only (no package installation)
+test-bootstrap level platform:
+    @echo "🔨 Building bootstrap-only Docker image for {{level}} {{platform}}..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target bootstrap-{{level}} -t dotfiles-bootstrap-{{level}}-{{platform}} .
+    @echo "🚀 Running bootstrap test container..."
+    docker run --rm dotfiles-bootstrap-{{level}}-{{platform}}
+
+# Test with GitHub (full integration test)
+test-remote platform:
+    @echo "🔨 Building Docker image for {{platform}} (GitHub integration)..."
+    docker build \
+        -f dockerfiles/Dockerfile.{{platform}} \
+        -t dotfiles-test-{{platform}} .
+    @echo "🚀 Running integration test container..."
+    docker run --rm dotfiles-test-{{platform}}
+
+# Test specific level across all platforms
+@test-level level:
+    echo "🧪 Testing {{level}} across all platforms: {{docker_platforms}}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-level-{{level}}-output.log"
+    -just test-update {{level}} arch 2>&1 | tee -a test-level-{{level}}-output.log
+    -just test-update {{level}} ubuntu 2>&1 | tee -a test-level-{{level}}-output.log
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🏁 {{level}} level tests completed"
+    echo "📄 Full log available in test-level-{{level}}-output.log"
+
+# Test specific platform across all levels
+@test-platform platform:
+    echo "🧪 Testing {{platform}} across all levels: {{docker_levels}}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-platform-{{platform}}-output.log"
+    -just test-update basic {{platform}} 2>&1 | tee -a test-platform-{{platform}}-output.log
+    -just test-update typical {{platform}} 2>&1 | tee -a test-platform-{{platform}}-output.log
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🏁 {{platform}} platform tests completed"
+    echo "📄 Full log available in test-platform-{{platform}}-output.log"
+
+# Test all combinations
+@test-all:
+    echo "🧪 Testing all combinations"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-all-output.log"
+    -just test-update basic arch 2>&1 | tee -a test-all-output.log
+    -just test-update basic ubuntu 2>&1 | tee -a test-all-output.log
+    -just test-update typical arch 2>&1 | tee -a test-all-output.log
+    -just test-update typical ubuntu 2>&1 | tee -a test-all-output.log
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🏁 All combination tests completed"
+    echo "📄 Full log available in test-all-output.log"
+
+# Show git status
+@status:
+    echo "📊 Repository Status"
+    echo "━━━━━━━━━━━━━━━━━━━━"
+    cd .. && git status --short
+    echo ""
+    echo "📦 Submodules:"
+    cd .. && git submodule status
+
+# Update submodules
+update:
+    cd .. && git submodule update --init --recursive
+
+# Validate everything
+@validate:
+    echo "🔍 Running validations..."
+    just test-all
+    echo "✅ All validations passed"

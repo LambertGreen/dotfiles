@@ -1,0 +1,76 @@
+#!/usr/bin/env just
+# -*- mode: just -*-
+
+# Arch Linux dotfiles stowing by level
+# Levels: basic (shell), typical (terminal apps), max (GUI apps)
+
+import 'justfile_common'
+
+default:
+    @echo "🏛️ Arch Linux Stowing Recipes"
+    @echo ""
+    @echo "Levels:"
+    @echo "  just stow-basic    - Shell environment essentials"
+    @echo "  just stow-typical  - Basic + terminal applications" 
+    @echo "  just stow-max      - Typical + GUI applications"
+    @echo ""
+    @echo "Management:"
+    @echo "  just unstow-all    - Remove all stowed configs"
+    @echo "  just list-packages - Show what gets stowed at each level"
+
+# =============================================================================
+# BASIC LEVEL - Shell environment essentials
+# =============================================================================
+stow-basic:
+    @echo "🔗 Stowing basic Arch configs (shell environment)..."
+    just -f justfile_common _remove-conflicting-shell-configs
+    just -f justfile_common _stow-basic-common
+    stow package_management_arch
+    stow package_management_posix
+    stow git_linux
+    stow shell_linux
+
+# =============================================================================
+# TYPICAL LEVEL - Basic + terminal applications  
+# =============================================================================
+stow-typical: stow-basic
+    @echo "🔗 Stowing typical Arch configs (+ terminal apps)..."
+    just -f justfile_common _stow-typical-common
+    stow gnupg_linux
+
+# =============================================================================
+# MAX LEVEL - Typical + GUI applications
+# =============================================================================
+stow-max: stow-typical
+    @echo "🔗 Stowing max Arch configs (+ GUI apps)..."
+    just -f justfile_common _stow-max-common
+
+# =============================================================================
+# MANAGEMENT COMMANDS
+# =============================================================================
+
+# Remove all stowed configs
+unstow-all:
+    @echo "🗑️ Unstowing all Arch configs..."
+    @_unstow-arch-all
+
+_unstow-arch-all:
+    # Use common unstow functions
+    just -f justfile_common _unstow-max-common
+    just -f justfile_common _unstow-typical-common
+    just -f justfile_common _unstow-basic-common
+    # Arch-specific packages
+    -stow -D package_management_arch
+    -stow -D package_management_posix
+    -stow -D git_linux
+    -stow -D shell_linux
+    -stow -D gnupg_linux
+
+# Show what packages are included at each level
+list-packages:
+    @echo "📦 Arch Linux Package Organization:"
+    @echo ""
+    just -f justfile_common _list-common-packages
+    @echo ""
+    @echo "🏠 ARCH-SPECIFIC ADDITIONS:"
+    @echo "  - package_management_arch, package_management_posix, git_linux, shell_linux, gnupg_linux"

@@ -55,25 +55,16 @@ install-system-tools: install-system-core
         zoxide \
         fzf
 
-# 📦 Install AUR helper (yay)
-install-aur-helper: install-system-core
-    @echo "Installing yay (AUR helper)..."
-    @if ! command -v yay >/dev/null 2>&1; then \
-        cd /tmp; \
-        git clone https://aur.archlinux.org/yay.git; \
-        cd yay; \
-        makepkg -si --noconfirm; \
-        cd ..; \
-        rm -rf yay; \
+# 🔧 Install AUR packages (if yay is available)
+install-aur-packages:
+    @if command -v yay >/dev/null 2>&1; then \
+        echo "📦 Installing AUR packages..."; \
+        yay -S --noconfirm \
+            emacs-plus \
+            visual-studio-code-bin; \
     else \
-        echo "yay already installed"; \
+        echo "⚠️  AUR helper (yay) not available - install with bootstrap-typical or bootstrap-max"; \
     fi
-
-# 🔧 Install AUR packages (modern tools not in official repos)
-install-aur-packages: install-aur-helper
-    yay -S --noconfirm \
-        emacs-plus \
-        visual-studio-code-bin
 
 # 🔧 Install additional development tools
 install-additional-dev: install-system-tools
@@ -110,21 +101,21 @@ install-fonts: install-system-core
         noto-fonts-emoji
 
 
-# 🚀 Essential setup (core + tools + development)
-install-essential: install-system-tools setup-dev-environment
-    @echo "✅ Essential Arch setup complete!"
+# =============================================================================
+# LEVEL-BASED INSTALLATION (matches bootstrap levels)
+# =============================================================================
 
-# 🏠 Home setup (essential + GUI + fonts + AUR)
-install-home: install-essential install-gui-tools install-fonts install-aur-packages install-email-tools
-    @echo "✅ Arch home setup complete!"
+# 🔰 Basic level - system packages only (requires bootstrap-basic)
+install-basic: install-system-tools setup-dev-environment
+    @echo "✅ Basic Arch install complete (pacman packages only)!"
 
-# 💼 Development setup (essential + additional dev tools)
-install-development: install-essential install-additional-dev
-    @echo "✅ Arch development setup complete!"
+# 🔶 Typical level - system + AUR packages (requires bootstrap-typical with yay)
+install-typical: install-basic install-aur-packages install-gui-tools install-fonts install-email-tools
+    @echo "✅ Typical Arch install complete (pacman + AUR packages)!"
 
-# 🧪 Experimental setup (with AUR packages)
-install-experimental: install-essential install-aur-packages
-    @echo "✅ Arch experimental setup complete!"
+# 🔸 Max level - all package managers + dev tools (requires bootstrap-max)
+install-max: install-typical install-additional-dev
+    @echo "✅ Max Arch install complete (pacman + AUR + all dev tools)!"
 
 # 🔍 Verify installation
 verify-installation:

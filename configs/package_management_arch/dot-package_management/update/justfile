@@ -59,3 +59,25 @@ show-stats:
 # 🔧 Full maintenance (update + clean + remove orphans)
 full-maintenance: update-all clean-cache remove-orphans
     @echo "✅ Full Arch maintenance complete!"
+
+# =============================================================================
+# LEVEL-BASED UPDATE RECIPES (matches bootstrap levels - which package managers are available)
+# =============================================================================
+
+# Basic level - system package manager only (matches bootstrap-basic)
+update-basic: update-pacman
+    @echo "✅ Basic Arch updates complete (system packages only)!"
+
+# Typical level - system + AUR helper (matches bootstrap-typical)
+update-typical: update-pacman update-aur
+    @echo "✅ Typical Arch updates complete (system + AUR packages)!"
+
+# Max level - all package managers including Nix (matches bootstrap-max)
+update-max: update-pacman update-aur
+    @echo "🔄 Updating Nix packages..."
+    @if command -v nix >/dev/null 2>&1; then \
+        nix-channel --update && nix-env -u; \
+        echo "✅ Max Arch updates complete (system + AUR + Nix)!"; \
+    else \
+        echo "✅ Max Arch updates complete (system + AUR, Nix not installed)!"; \
+    fi

@@ -24,17 +24,30 @@ USER user
 ENV HOME=/home/user
 
 # Create directory structure
-RUN mkdir -p ~/dev/my
+RUN mkdir -p ~/dev/my/dotfiles
 
-# Copy the local dotfiles repository (excluding .git to keep it lightweight)
+# Bootstrap phase - install required tools (cacheable, independent)
+COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
+WORKDIR /home/user/dev/my/dotfiles/bootstrap
+RUN echo "🚀 Running bootstrap phase..." && \
+    just bootstrap-basic-arch
+
+# Package installation phase - run standard workflows  
+COPY --chown=user:user configs/package_management/ /home/user/dev/my/dotfiles/configs/package_management/
+COPY --chown=user:user configs/package_management_arch/ /home/user/dev/my/dotfiles/configs/package_management_arch/
+WORKDIR /home/user/dev/my/dotfiles/configs/package_management_arch/dot-package_management/install
+RUN echo "📦 Running package installation phase..." && \
+    just install-test
+
+# Copy the rest of the dotfiles (this layer will be invalidated on most changes, but expensive work is cached)
 COPY --chown=user:user . /home/user/dev/my/dotfiles
 
-# Set up the environment and run tests
-WORKDIR /home/user/dev/my/dotfiles
-RUN cd configs && \
-    just stow-arch && \
+# Validate the setup worked
+RUN echo "🧪 Validating setup..." && \
+    test -d ~/.package_management && \
     cd ~/.package_management/install && \
-    just install-test
+    just --list > /dev/null && \
+    echo "✅ Dotfiles test completed successfully"
 
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
 CMD ["/bin/bash"]

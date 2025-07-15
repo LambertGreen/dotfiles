@@ -10,7 +10,7 @@ default:
     @echo "  install   - Install packages (requires bootstrap first)"
     @echo "  update    - Update system packages"
     @echo "  stow      - Manage configuration symlinks"
-    @echo "  dev       - Development tools and testing"
+    @echo "  test      - Test dotfiles in Docker containers"
     @echo ""
     @echo "Usage:"
     @echo "  just <context>         - Enter context"
@@ -36,12 +36,12 @@ stow:
     @echo ""
     @cd configs && $SHELL
 
-# Navigate to dev context
-dev:
-    @echo "🛠️ Entering dev context..."
-    @echo "Type 'just -f dev.just' to see available commands, 'exit' to return"
+# Navigate to test context
+test:
+    @echo "🧪 Entering test context..."
+    @echo "Type 'just' to see available commands, 'exit' to return"
     @echo ""
-    @cd just && $SHELL
+    @cd test && $SHELL
 
 # Bootstrap context - First-time setup
 bootstrap:

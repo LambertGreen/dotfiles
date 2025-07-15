@@ -8,12 +8,10 @@
 install-python-dev:
     @echo "Creating Python development tools virtual environment..."
     @python3 -m venv ~/.local/share/python-dev-tools-venv
-    @echo "Creating Python dev tools requirements file..."
-    @echo -e "black\npyflakes\nisort\npytest\nnose\npipenv\npynvim" > ~/.local/share/python-dev-tools-venv/requirements.txt
     @echo "Installing Python development packages..."
     @cd ~/.local/share/python-dev-tools-venv && \
         ./bin/pip install --upgrade pip && \
-        ./bin/pip install -r requirements.txt
+        ./bin/pip install black pyflakes isort pytest nose pipenv pynvim
     @echo "✅ Dev tools installed in ~/.local/share/python-dev-tools-venv"
     @echo "💡 Add ~/.local/share/python-dev-tools-venv/bin to your PATH or configure your IDE to use this venv"
 
