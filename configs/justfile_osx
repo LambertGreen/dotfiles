@@ -57,21 +57,6 @@ stow-max: stow-typical
 # MANAGEMENT COMMANDS
 # =============================================================================
 
-# 🗑️ Remove all stowed macOS configs
-unstow-all:
-    @echo "🗑️ Unstowing all macOS configs..."
-    @_unstow-osx-all
-
-_unstow-osx-all:
-    # Use common unstow functions
-    just -f justfile_common _unstow-max-common
-    just -f justfile_common _unstow-typical-common
-    just -f justfile_common _unstow-basic-common
-    # macOS-specific packages
-    - stow -D {{osx_basic_packages}}
-    - stow -D {{osx_typical_packages}}
-    - stow -D {{osx_max_packages}}
-
 # 📦 Show what packages are included at each level
 list-packages:
     @echo "📦 macOS Package Organization:"

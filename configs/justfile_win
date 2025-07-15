@@ -23,7 +23,7 @@ _default:
     @just -f justfile_win --list
 
 # =============================================================================
-# 🔰 BASIC LEVEL - Shell environment essentials + MSYS2
+# BASIC LEVEL - Shell environment essentials + MSYS2
 # =============================================================================
 
 # 🔰 Stow basic Windows configs (shell environment + MSYS2)
@@ -34,7 +34,7 @@ stow-basic:
     stow {{win_basic_packages}}
 
 # =============================================================================
-# 🔶 TYPICAL LEVEL - Basic + terminal applications
+# TYPICAL LEVEL - Basic + terminal applications
 # =============================================================================
 
 # 🔶 Stow typical Windows configs (basic + terminal applications)
@@ -44,7 +44,7 @@ stow-typical: stow-basic
     stow {{win_typical_packages}}
 
 # =============================================================================
-# 🔸 MAX LEVEL - Typical + GUI applications
+# MAX LEVEL - Typical + GUI applications
 # =============================================================================
 
 # 🔸 Stow max Windows configs (typical + GUI applications)
@@ -56,21 +56,6 @@ stow-max: stow-typical
 # =============================================================================
 # MANAGEMENT COMMANDS
 # =============================================================================
-
-# 🗑️ Remove all stowed Windows configs
-unstow-all:
-    @echo "🗑️ Unstowing all Windows configs..."
-    @_unstow-win-all
-
-_unstow-win-all:
-    # Use common unstow functions
-    just -f justfile_common _unstow-max-common
-    just -f justfile_common _unstow-typical-common
-    just -f justfile_common _unstow-basic-common
-    # Windows-specific packages
-    - stow -D {{win_basic_packages}}
-    - stow -D {{win_typical_packages}}
-    - stow -D {{win_max_packages}}
 
 # 📦 Show what packages are included at each level
 list-packages:

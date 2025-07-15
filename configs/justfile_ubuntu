@@ -57,21 +57,6 @@ stow-max: stow-typical
 # MANAGEMENT COMMANDS
 # =============================================================================
 
-# 🗑️ Remove all stowed Ubuntu configs
-unstow-all:
-    @echo "🗑️ Unstowing all Ubuntu configs..."
-    @_unstow-ubuntu-all
-
-_unstow-ubuntu-all:
-    # Use common unstow functions
-    just -f justfile_common _unstow-max-common
-    just -f justfile_common _unstow-typical-common
-    just -f justfile_common _unstow-basic-common
-    # Ubuntu-specific packages
-    - stow -D {{ubuntu_basic_packages}}
-    - stow -D {{ubuntu_typical_packages}}
-    - stow -D {{ubuntu_max_packages}}
-
 # 📦 Show what packages are included at each level
 list-packages:
     @echo "📦 Ubuntu Linux Package Organization:"

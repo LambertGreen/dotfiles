@@ -56,20 +56,6 @@ stow-max: stow-typical
 # MANAGEMENT COMMANDS
 # =============================================================================
 
-# 🗑️ Remove all stowed Arch configs
-unstow-all:
-    @echo "🗑️ Unstowing all Arch configs..."
-    @_unstow-arch-all
-
-_unstow-arch-all:
-    # Use common unstow functions
-    just -f justfile_common _unstow-max-common
-    just -f justfile_common _unstow-typical-common
-    just -f justfile_common _unstow-basic-common
-    # Arch-specific packages
-    - stow -D {{arch_basic_packages}}
-    - stow -D {{arch_typical_packages}}
-
 # 📦 Show what packages are included at each level
 list-packages:
     @echo "📦 Arch Linux Package Organization:"

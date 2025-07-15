@@ -39,18 +39,6 @@ _stow-typical-common:
 _stow-max-common:
     stow {{max_packages}}
 
-# Unstow basic packages common to all platforms
-_unstow-basic-common:
-    - stow -D {{basic_packages}}
-
-# Unstow typical packages common to all platforms
-_unstow-typical-common:
-    - stow -D {{typical_packages}}
-    - stow -D emacs
-
-# Unstow max packages common to all platforms
-_unstow-max-common:
-    - stow -D {{max_packages}}
 
 # =============================================================================
 # COMMON PACKAGE LISTS (for documentation)
