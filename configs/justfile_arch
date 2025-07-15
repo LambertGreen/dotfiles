@@ -6,6 +6,19 @@
 
 import 'justfile_common'
 
+# =============================================================================
+# ARCH-SPECIFIC PACKAGE LISTS
+# =============================================================================
+
+# Basic Arch packages
+arch_basic_packages := "package_management_arch package_management_posix git_linux shell_linux"
+
+# Typical Arch packages
+arch_typical_packages := "gnupg_linux"
+
+# Max Arch packages (none currently - inherits from common)
+arch_max_packages := ""
+
 default:
     @echo "🏛️ Arch Linux Stowing Recipes"
     @echo ""
@@ -25,10 +38,7 @@ stow-basic:
     @echo "🔗 Stowing basic Arch configs (shell environment)..."
     just -f justfile_common _remove-conflicting-shell-configs
     just -f justfile_common _stow-basic-common
-    stow package_management_arch
-    stow package_management_posix
-    stow git_linux
-    stow shell_linux
+    stow {{arch_basic_packages}}
 
 # =============================================================================
 # TYPICAL LEVEL - Basic + terminal applications  
@@ -36,7 +46,7 @@ stow-basic:
 stow-typical: stow-basic
     @echo "🔗 Stowing typical Arch configs (+ terminal apps)..."
     just -f justfile_common _stow-typical-common
-    stow gnupg_linux
+    stow {{arch_typical_packages}}
 
 # =============================================================================
 # MAX LEVEL - Typical + GUI applications
@@ -60,11 +70,8 @@ _unstow-arch-all:
     just -f justfile_common _unstow-typical-common
     just -f justfile_common _unstow-basic-common
     # Arch-specific packages
-    -stow -D package_management_arch
-    -stow -D package_management_posix
-    -stow -D git_linux
-    -stow -D shell_linux
-    -stow -D gnupg_linux
+    - stow -D {{arch_basic_packages}}
+    - stow -D {{arch_typical_packages}}
 
 # Show what packages are included at each level
 list-packages:
@@ -73,4 +80,6 @@ list-packages:
     just -f justfile_common _list-common-packages
     @echo ""
     @echo "🏠 ARCH-SPECIFIC ADDITIONS:"
-    @echo "  - package_management_arch, package_management_posix, git_linux, shell_linux, gnupg_linux"
+    @echo "  Basic: {{arch_basic_packages}}"
+    @echo "  Typical: {{arch_typical_packages}}"
+    @echo "  Max: {{arch_max_packages}}"

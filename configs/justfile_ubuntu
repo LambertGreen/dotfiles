@@ -6,6 +6,19 @@
 
 import 'justfile_common'
 
+# =============================================================================
+# UBUNTU-SPECIFIC PACKAGE LISTS
+# =============================================================================
+
+# Basic Ubuntu packages
+ubuntu_basic_packages := "package_management_ubuntu package_management_posix git_linux shell_linux"
+
+# Typical Ubuntu packages
+ubuntu_typical_packages := "gnupg_linux"
+
+# Max Ubuntu packages
+ubuntu_max_packages := "xdg-autostart xdg-desktop"
+
 default:
     @echo "🐧 Ubuntu Linux Stowing Recipes"
     @echo ""
@@ -25,10 +38,7 @@ stow-basic:
     @echo "🔗 Stowing basic Ubuntu configs (shell environment)..."
     just -f justfile_common _remove-conflicting-shell-configs
     just -f justfile_common _stow-basic-common
-    stow package_management_ubuntu
-    stow package_management_posix
-    stow git_linux
-    stow shell_linux
+    stow {{ubuntu_basic_packages}}
 
 # =============================================================================
 # TYPICAL LEVEL - Basic + terminal applications  
@@ -36,7 +46,7 @@ stow-basic:
 stow-typical: stow-basic
     @echo "🔗 Stowing typical Ubuntu configs (+ terminal apps)..."
     just -f justfile_common _stow-typical-common
-    stow gnupg_linux
+    stow {{ubuntu_typical_packages}}
 
 # =============================================================================
 # MAX LEVEL - Typical + GUI applications
@@ -44,8 +54,7 @@ stow-typical: stow-basic
 stow-max: stow-typical
     @echo "🔗 Stowing max Ubuntu configs (+ GUI apps)..."
     just -f justfile_common _stow-max-common
-    stow xdg-autostart
-    stow xdg-desktop
+    stow {{ubuntu_max_packages}}
 
 # =============================================================================
 # MANAGEMENT COMMANDS
@@ -62,13 +71,9 @@ _unstow-ubuntu-all:
     just -f justfile_common _unstow-typical-common
     just -f justfile_common _unstow-basic-common
     # Ubuntu-specific packages
-    -stow -D package_management_ubuntu
-    -stow -D package_management_posix
-    -stow -D git_linux
-    -stow -D shell_linux
-    -stow -D gnupg_linux
-    -stow -D xdg-autostart
-    -stow -D xdg-desktop
+    - stow -D {{ubuntu_basic_packages}}
+    - stow -D {{ubuntu_typical_packages}}
+    - stow -D {{ubuntu_max_packages}}
 
 # Show what packages are included at each level
 list-packages:
@@ -77,5 +82,6 @@ list-packages:
     just -f justfile_common _list-common-packages
     @echo ""
     @echo "🏠 UBUNTU-SPECIFIC ADDITIONS:"
-    @echo "  - package_management_ubuntu, package_management_posix, git_linux, shell_linux, gnupg_linux"
-    @echo "  - xdg-autostart, xdg-desktop"
+    @echo "  Basic: {{ubuntu_basic_packages}}"
+    @echo "  Typical: {{ubuntu_typical_packages}}"
+    @echo "  Max: {{ubuntu_max_packages}}"
