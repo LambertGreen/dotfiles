@@ -47,6 +47,14 @@ lgreen_setup_homebrew() {
     fi
 }
 
+# * GCC
+lgreen_setup_gcc() {
+    if command -v brew >/dev/null 2>&1; then
+        export CC=$(brew --prefix)/bin/gcc
+        export CXX=$(brew --prefix)/bin/g++
+    fi
+}
+
 # * Agents (SSH/GPG)
 lgreen_start_agents() {
     if [ "$(uname_cached)" = "Darwin" ]; then
@@ -86,6 +94,7 @@ lgreen_export_ripgrep_config_path() {
 
 # * == MAIN ==
 lgreen_setup_homebrew
+lgreen_setup_gcc
 lgreen_start_agents
 lgreen_export_gpg_tty
 lgreen_export_ripgrep_config_path
