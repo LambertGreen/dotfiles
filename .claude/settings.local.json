@@ -10,7 +10,12 @@
       "Bash(done)",
       "Bash(find:*)",
       "Bash(grep:*)",
-      "Bash(timeout 300 just test-update:*)"
+      "Bash(timeout 300 just test-update:*)",
+      "Bash(timeout:*)",
+      "Bash(bash:*)",
+      "Bash(just health-check-log:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

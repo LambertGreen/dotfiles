@@ -57,6 +57,50 @@ stow-max: stow-typical
 # MANAGEMENT COMMANDS
 # =============================================================================
 
+# 🔍 Dry run basic stowing (show what would be done)
+stow-basic-dry:
+    @echo "🔍 Dry run: basic macOS configs..."
+    @echo "🧹 Would remove conflicting shell configs: ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile"
+    stow -n {{basic_packages}} {{osx_basic_packages}}
+
+# 🔍 Dry run typical stowing (show what would be done)
+stow-typical-dry:
+    @echo "🔍 Dry run: typical macOS configs..."
+    @echo "🧹 Would remove conflicting shell configs: ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile"
+    stow -n {{basic_packages}} {{typical_packages}} {{osx_basic_packages}} {{osx_typical_packages}}
+    @echo "🧹 Would stow emacs with --ignore='dot-emacs\.doom'"
+
+# 🔍 Dry run max stowing (show what would be done)
+stow-max-dry:
+    @echo "🔍 Dry run: max macOS configs..."
+    @echo "🧹 Would remove conflicting shell configs: ~/.bashrc ~/.bash_profile ~/.zshrc ~/.zprofile ~/.profile"
+    stow -n {{basic_packages}} {{typical_packages}} {{max_packages}} {{osx_basic_packages}} {{osx_typical_packages}} {{osx_max_packages}}
+    @echo "🧹 Would stow emacs with --ignore='dot-emacs\.doom'"
+
+# 🔄 Force restow basic configs (unstow then stow)
+stow-basic-force:
+    @echo "🔄 Force restowing basic macOS configs..."
+    just -f justfile_common _remove-conflicting-shell-configs
+    stow -R {{basic_packages}} {{osx_basic_packages}}
+
+# 🔄 Force restow typical configs (unstow then stow)
+stow-typical-force:
+    @echo "🔄 Force restowing typical macOS configs..."
+    just -f justfile_common _remove-conflicting-shell-configs
+    stow -R {{basic_packages}} {{typical_packages}} {{osx_basic_packages}} {{osx_typical_packages}}
+    stow -R --ignore='dot-emacs\.doom' emacs
+
+# 🔄 Force restow max configs (unstow then stow)
+stow-max-force:
+    @echo "🔄 Force restowing max macOS configs..."
+    just -f justfile_common _remove-conflicting-shell-configs
+    stow -R {{basic_packages}} {{typical_packages}} {{max_packages}} {{osx_basic_packages}} {{osx_typical_packages}} {{osx_max_packages}}
+    stow -R --ignore='dot-emacs\.doom' emacs
+
+# =============================================================================
+# MANAGEMENT COMMANDS
+# =============================================================================
+
 # 📦 Show what packages are included at each level
 list-packages:
     @echo "📦 macOS Package Organization:"

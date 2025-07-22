@@ -32,4 +32,5 @@ Keypirinha.history
 
 # Runtime and build artifacts
 .runtime/
+.runtime_testing/
 *.log

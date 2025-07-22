@@ -12,6 +12,12 @@ default:
     @echo "  stow      - Manage configuration symlinks"
     @echo "  test      - Test dotfiles in Docker containers"
     @echo ""
+    @echo "Available commands:"
+    @echo "  health-check              - Validate dotfiles configuration state"
+    @echo "  health-check-log          - Run health check with logging"
+    @echo "  cleanup-broken-links      - List broken symlinks (dry run)"
+    @echo "  cleanup-broken-links-remove - Remove broken symlinks"
+    @echo ""
     @echo "Usage:"
     @echo "  just <context>         - Enter context"
 
@@ -49,6 +55,27 @@ bootstrap:
     @echo "Type 'just' to see available commands, 'exit' to return"
     @echo ""
     @cd bootstrap && $SHELL
+
+# Health check - Validate dotfiles configuration state
+health-check:
+    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check"
+
+# Health check with verbose output
+health-check-verbose:
+    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check --verbose"
+
+# Health check with logging
+health-check-log logfile="health-check-$(date +%Y%m%d-%H%M%S).log":
+    @echo "📝 Running health check with logging to: {{logfile}}"
+    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check --log {{logfile}}"
+
+# Clean up broken symlinks (dry run)
+cleanup-broken-links:
+    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
+
+# Clean up broken symlinks (actually remove)
+cleanup-broken-links-remove:
+    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
 # Help aliases
 help: default
