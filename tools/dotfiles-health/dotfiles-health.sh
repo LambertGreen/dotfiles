@@ -29,6 +29,11 @@ TEST_HOME="${TEST_HOME:-$HOME}"
 OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey nvim_win)
 CHECK_DIRS=("$TEST_HOME")
 
+# Add .config directory if it exists
+if [[ -d "$TEST_HOME/.config" ]]; then
+    CHECK_DIRS+=("$TEST_HOME/.config")
+fi
+
 # Add Windows paths if on Windows/MSYS2 or if TEST_PLATFORM is set
 if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "${TEST_PLATFORM:-}" == "windows" ]]; then
     CHECK_DIRS+=("$TEST_HOME/AppData/Local" "$TEST_HOME/AppData/Roaming")
@@ -89,109 +94,83 @@ _find_broken_symlinks() {
 _categorize_symlinks() {
     local dirs=("$@")
 
+    # Temporary arrays to collect all entries (may have duplicates)
+    local new_links_raw=()
+    local old_links_raw=()
+    local broken_links_raw=()
+    local warnings_raw=()
+    local errors_raw=()
+
+    # Find all symlinks in all directories
+    for dir in "${dirs[@]}"; do
+        if [[ ! -d "$dir" ]]; then
+            continue
+        fi
+
+        # Choose search depth based on directory type
+        local find_opts=(-type l -print0)
+        if [[ "$dir" == *".config"* ]] || [[ "$dir" == *"AppData"* ]]; then
+            # Recursive search for config directories
+            find_opts=(-type l -print0)
+        else
+            # Shallow search for home directory
+            find_opts=(-maxdepth 1 -type l -print0)
+        fi
+
+        while IFS= read -r -d '' link; do
+            if [[ -L "$link" ]]; then
+                target=$(readlink "$link" 2>/dev/null || true)
+
+                # Test target existence from the symlink's directory context
+                local link_dir=$(dirname "$link")
+                if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
+                    broken_links_raw+=("$link")
+                    errors_raw+=("Broken symlink: $link")
+                elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]]; then
+                    new_links_raw+=("$link → $target")
+                elif [[ "$target" == *"$DOTFILES_DIR/"* ]]; then
+                    # Check if it's one of the old root-level packages
+                    for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
+                        if [[ "$target" == *"$DOTFILES_DIR/$pkg"* ]]; then
+                            old_links_raw+=("$link → $target")
+                            warnings_raw+=("Legacy symlink detected: $link → $target")
+                            break
+                        fi
+                    done
+                fi
+            fi
+        done < <(find "$dir" "${find_opts[@]}" 2>/dev/null)
+    done
+
+    # Remove duplicates using sort | uniq
     NEW_LINKS=()
     OLD_LINKS=()
     BROKEN_LINKS=()
     WARNINGS=()
     ERRORS=()
 
-    for dir in "${dirs[@]}"; do
-        if [[ ! -d "$dir" ]]; then
-            continue
-        fi
+    if [[ ${#new_links_raw[@]} -gt 0 ]]; then
+        while IFS= read -r line; do NEW_LINKS+=("$line"); done < <(printf '%s\n' "${new_links_raw[@]}" | sort -u)
+    fi
 
-        if [[ "$dir" == *"AppData"* ]]; then
-            _check_symlinks_recursive "$dir"
-        else
-            _check_symlinks_in_dir "$dir"
-        fi
-    done
+    if [[ ${#old_links_raw[@]} -gt 0 ]]; then
+        while IFS= read -r line; do OLD_LINKS+=("$line"); done < <(printf '%s\n' "${old_links_raw[@]}" | sort -u)
+    fi
 
-    # Check .config directory recursively (separate to avoid duplication)
-    if [[ -d "$TEST_HOME/.config" ]]; then
-        while IFS= read -r -d '' link; do
-            if [[ -L "$link" ]]; then
-                target=$(readlink "$link" 2>/dev/null || true)
+    if [[ ${#broken_links_raw[@]} -gt 0 ]]; then
+        while IFS= read -r line; do BROKEN_LINKS+=("$line"); done < <(printf '%s\n' "${broken_links_raw[@]}" | sort -u)
+    fi
 
-                # Test target existence from the symlink's directory context
-                link_dir=$(dirname "$link")
-                if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
-                    BROKEN_LINKS+=("$link")
-                    ERRORS+=("Broken symlink: $link")
-                elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]]; then
-                    NEW_LINKS+=("$link → $target")
-                elif [[ "$target" == *"$DOTFILES_DIR/"* ]]; then
-                    OLD_LINKS+=("$link → $target")
-                    WARNINGS+=("Legacy symlink detected: $link → $target")
-                fi
-            fi
-        done < <(find "$TEST_HOME/.config" -type l -print0 2>/dev/null)
+    if [[ ${#warnings_raw[@]} -gt 0 ]]; then
+        while IFS= read -r line; do WARNINGS+=("$line"); done < <(printf '%s\n' "${warnings_raw[@]}" | sort -u)
+    fi
+
+    if [[ ${#errors_raw[@]} -gt 0 ]]; then
+        while IFS= read -r line; do ERRORS+=("$line"); done < <(printf '%s\n' "${errors_raw[@]}" | sort -u)
     fi
 }
 
-_check_symlinks_in_dir() {
-    local dir="$1"
 
-    if [[ ! -d "$dir" ]]; then
-        return
-    fi
-
-    while IFS= read -r -d '' link; do
-        if [[ -L "$link" ]]; then
-            target=$(readlink "$link" 2>/dev/null || true)
-
-            # Test target existence from the symlink's directory context
-            local link_dir=$(dirname "$link")
-            if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
-                BROKEN_LINKS+=("$link")
-                ERRORS+=("Broken symlink: $link")
-            elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]]; then
-                NEW_LINKS+=("$link → $target")
-            elif [[ "$target" == *"$DOTFILES_DIR/"* ]]; then
-                # Check if it's one of the old root-level packages
-                for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
-                    if [[ "$target" == *"$DOTFILES_DIR/$pkg"* ]]; then
-                        OLD_LINKS+=("$link → $target")
-                        WARNINGS+=("Legacy symlink detected: $link → $target")
-                        break
-                    fi
-                done
-            fi
-        fi
-    done < <(find "$dir" -maxdepth 1 -type l -print0 2>/dev/null)
-}
-
-_check_symlinks_recursive() {
-    local dir="$1"
-
-    if [[ ! -d "$dir" ]]; then
-        return
-    fi
-
-    while IFS= read -r -d '' link; do
-        if [[ -L "$link" ]]; then
-            target=$(readlink "$link" 2>/dev/null || true)
-
-            # Test target existence from the symlink's directory context
-            local link_dir=$(dirname "$link")
-            if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
-                BROKEN_LINKS+=("$link")
-                ERRORS+=("Broken symlink: $link")
-            elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]]; then
-                NEW_LINKS+=("$link → $target")
-            elif [[ "$target" == *"$DOTFILES_DIR/"* ]]; then
-                # Check if it's one of the old root-level packages
-                for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
-                    if [[ "$target" == *"$DOTFILES_DIR/$pkg"* ]]; then
-                        OLD_LINKS+=("$link → $target")
-                        WARNINGS+=("Legacy symlink detected: $link → $target")
-                        break
-                    fi
-                done
-            fi
-        fi
-    done < <(find "$dir" -type l -print0 2>/dev/null)
-}
 
 # =============================================================================
 # HEALTH CHECK FUNCTIONS
@@ -472,17 +451,6 @@ dotfiles_cleanup_broken_links() {
 
     # Use shared detection logic
     _find_broken_symlinks "${CHECK_DIRS[@]}"
-
-    # Also check .config separately
-    local config_dirs=()
-    if [[ -d "$TEST_HOME/.config" ]]; then
-        config_dirs+=("$TEST_HOME/.config")
-    fi
-    if [[ ${#config_dirs[@]} -gt 0 ]]; then
-        local temp_broken=()
-        _find_broken_symlinks "${config_dirs[@]}"
-        FOUND_BROKEN_SYMLINKS+=("${FOUND_BROKEN_SYMLINKS[@]}")
-    fi
 
     if [[ ${#FOUND_BROKEN_SYMLINKS[@]} -eq 0 ]]; then
         echo "✅ No broken symlinks found!"
