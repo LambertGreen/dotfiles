@@ -51,11 +51,19 @@ RUN echo "📦 Running package installation phase..." && \
 # Copy the rest of the dotfiles (this layer will be invalidated on most changes, but expensive work is cached)
 COPY --chown=user:user . /home/user/dev/my/dotfiles
 
+# Run stowing and health check validation
+WORKDIR /home/user/dev/my/dotfiles/configs
+RUN echo "🔗 Running typical stowing..." && \
+    just ubuntu stow-typical
+
 # Validate the setup worked
-RUN echo "🧪 Validating setup..." && \
+WORKDIR /home/user/dev/my/dotfiles
+RUN echo "🧪 Validating setup with health check..." && \
     test -d ~/.package_management && \
     cd ~/.package_management/install && \
     just --list > /dev/null && \
+    echo "📋 Running dotfiles health check..." && \
+    just health-check && \
     echo "✅ Dotfiles test completed successfully"
 
 # Run a bash instance for manual testing: user should validate apps run fine before and after unstowing

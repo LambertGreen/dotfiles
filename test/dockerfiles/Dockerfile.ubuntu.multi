@@ -100,11 +100,23 @@ FROM bootstrap-basic AS stow-basic
 # Add all configs for stowing
 COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
 COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
 
 # Run stow via platform-specific justfile
 WORKDIR /home/user/dev/my/dotfiles/configs
 RUN echo "🔗 Running basic stow..." && \
     just -f justfile_ubuntu stow-basic
+
+# Validate the stow setup worked
+WORKDIR /home/user/dev/my/dotfiles
+RUN echo "🧪 Validating basic stow with health check..." && \
+    test -d ~/.package_management && \
+    cd ~/.package_management/install && \
+    just --list > /dev/null && \
+    echo "📋 Running dotfiles health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Basic stow validation completed successfully"
 
 CMD ["/bin/bash"]
 
@@ -113,11 +125,23 @@ FROM bootstrap-typical AS stow-typical
 # Add all configs for stowing
 COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
 COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
 
 # Run stow via platform-specific justfile
 WORKDIR /home/user/dev/my/dotfiles/configs
 RUN echo "🔗 Running typical stow..." && \
     just -f justfile_ubuntu stow-typical
+
+# Validate the stow setup worked
+WORKDIR /home/user/dev/my/dotfiles
+RUN echo "🧪 Validating typical stow with health check..." && \
+    test -d ~/.package_management && \
+    cd ~/.package_management/install && \
+    just --list > /dev/null && \
+    echo "📋 Running dotfiles health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Typical stow validation completed successfully"
 
 CMD ["/bin/bash"]
 
