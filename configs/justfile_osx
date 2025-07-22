@@ -17,7 +17,7 @@ osx_basic_packages := "package_management_osx package_management_posix git_osx g
 osx_typical_packages := "alacritty_osx cursor_osx"
 
 # Max macOS packages (GUI apps)
-osx_max_packages := "alfred-settings hammerspoon karabiner osx raycast_osx skhd vscode_osx Xresources_osx yabai"
+osx_max_packages := "alfred-settings hammerspoon kanata karabiner osx raycast_osx skhd vscode_osx Xresources_osx yabai"
 
 _default:
     @just -f justfile_osx --list

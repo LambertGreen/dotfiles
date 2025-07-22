@@ -126,9 +126,9 @@ _categorize_symlinks() {
                 if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
                     broken_links_raw+=("$link")
                     errors_raw+=("Broken symlink: $link")
-                elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]]; then
+                elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]] || [[ "$target" == *"dev/my/dotfiles/configs/"* ]]; then
                     new_links_raw+=("$link → $target")
-                elif [[ "$target" == *"$DOTFILES_DIR/"* ]]; then
+                elif [[ "$target" == *"$DOTFILES_DIR/"* ]] || [[ "$target" == *"dev/my/dotfiles/"* ]]; then
                     # Check if it's one of the old root-level packages
                     for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
                         if [[ "$target" == *"$DOTFILES_DIR/$pkg"* ]]; then
