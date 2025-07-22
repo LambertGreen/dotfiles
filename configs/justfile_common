@@ -9,13 +9,13 @@
 # =============================================================================
 
 # Basic packages (shell environment essentials)
-basic_packages := "package_management git git_my shell tmux just"
+basic_packages := "package_management git git_my shell tmux just fortune"
 
 # Typical packages (basic + terminal applications)
-typical_packages := "ctags email fd flake8 fortune gdb htop lldb ripgrep spelling vim nvim finicky nix"
+typical_packages := "ctags email fd flake8 gdb htop lldb ripgrep spelling vim nvim finicky"
 
 # Max packages (typical + GUI applications) 
-max_packages := "wezterm idea XWindows"
+max_packages := "idea XWindows nix"
 
 # =============================================================================
 # COMMON HELPER FUNCTIONS

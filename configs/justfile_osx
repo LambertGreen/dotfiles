@@ -13,11 +13,11 @@ import 'justfile_common'
 # Basic macOS packages
 osx_basic_packages := "package_management_osx package_management_posix git_osx git_work shell_osx gnupg_osx"
 
-# Typical macOS packages (terminal apps)
-osx_typical_packages := "alacritty_osx cursor_osx"
+# Typical macOS packages (terminal apps + productivity tools)
+osx_typical_packages := "cursor_osx alfred-settings hammerspoon wezterm osx"
 
-# Max macOS packages (GUI apps)
-osx_max_packages := "alfred-settings hammerspoon kanata karabiner osx raycast_osx skhd vscode_osx Xresources_osx yabai"
+# Max macOS packages (GUI apps + restricted tools)
+osx_max_packages := "alacritty_osx kanata karabiner raycast_osx skhd vscode_osx Xresources_osx yabai"
 
 _default:
     @just -f justfile_osx --list
