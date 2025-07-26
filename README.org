@@ -9,70 +9,36 @@
 
 Clone to =~/dev/my/dotfiles= (recommended path):
 
-#+begin_src bash :dir ~ :results silent
-# Create directory if it doesn't exist
+#+begin_src bash
 mkdir -p ~/dev/my
-
-# Clone if not already cloned
-if [ ! -d ~/dev/my/dotfiles ]; then
-    git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
-else
-    echo "Repository already exists at ~/dev/my/dotfiles"
-fi
-#+end_src
-
-Navigate to the repository:
-
-#+begin_src bash :dir ~/dev/my/dotfiles :results silent
-cd ~/dev/my/dotfiles
-pwd
+git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
 #+end_src
 
 ** 2. Bootstrap Your System
 
-Bootstrap installs essential tools needed for the dotfiles system.
+From the dotfiles root directory, bootstrap installs essential tools:
 
-Available bootstrap options:
-- =<level>=: =basic=, =typical=, or =max=
-- =<platform>=: =arch=, =ubuntu=, =osx=, =win=, or =msys2=
-
-Example for typical macOS setup:
-
-#+begin_src bash :dir ~/dev/my/dotfiles/bootstrap :results output
-# Check available bootstrap commands
-just --list | grep bootstrap
+#+begin_src bash
+just bootstrap-typical-osx
 #+end_src
 
-Run bootstrap (idempotent - safe to run multiple times):
-
-#+begin_src bash :dir ~/dev/my/dotfiles/bootstrap :results output
-# Example: Bootstrap typical macOS setup
-# just bootstrap-typical-osx
-echo "Run: just bootstrap-typical-osx"
-#+end_src
+Where:
+- Level: =basic=, =typical=, or =max=
+- Platform: =arch=, =ubuntu=, =osx=, =win=, or =msys2=
 
 ** 3. Deploy Configurations
 
 Deploy dotfiles using the stow system:
 
-#+begin_src bash :dir ~/dev/my/dotfiles/configs :results output
-# Check available stow commands for your platform
-just --list | grep stow
-#+end_src
-
-Example for typical macOS setup (idempotent with =-R= flag):
-
-#+begin_src bash :dir ~/dev/my/dotfiles/configs :results output
-# Example: Deploy typical macOS configurations
-# just osx stow-typical
-echo "Run: just osx stow-typical"
+#+begin_src bash
+just osx-stow-typical
 #+end_src
 
 ** 4. Verify Setup
 
 Check that everything is configured correctly:
 
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
+#+begin_src bash
 just health-check
 #+end_src
 
@@ -125,7 +91,7 @@ Everything in Typical plus GUI applications:
 
 The health check tool validates your dotfiles setup:
 
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
+#+begin_src bash
 just health-check
 #+end_src
 
@@ -138,36 +104,23 @@ It reports:
 
 Preview what would be removed:
 
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
+#+begin_src bash
 just cleanup-broken-links
 #+end_src
 
-Actually remove broken links (use with caution):
+Actually remove broken links:
 
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
-# just cleanup-broken-links --remove
-echo "Run with --remove flag to actually delete broken links"
+#+begin_src bash
+just cleanup-broken-links --remove
 #+end_src
 
 * Testing
 
 Test configurations in Docker before applying to your system:
 
-#+begin_src bash :dir ~/dev/my/dotfiles/test :results output
-# List available test commands
-just --list | grep test
-#+end_src
-
-Example tests:
-
-#+begin_src bash :dir ~/dev/my/dotfiles/test :results output
-# Test basic Arch setup
-# just test-stow basic arch
-
-# Test typical Ubuntu setup  
-# just test-stow typical ubuntu
-
-echo "Uncomment commands above to run tests"
+#+begin_src bash
+just test-stow basic arch
+just test-stow typical ubuntu
 #+end_src
 
 * Common Tasks
@@ -178,44 +131,31 @@ After installing new packages, export the list:
 
 *** macOS (Homebrew)
 
-#+begin_src bash :results silent
-# Check if Brewfile exists and back it up
-if [ -f ~/.package_management/install/Brewfile ]; then
-    cp ~/.package_management/install/Brewfile ~/.package_management/install/Brewfile.bak
-fi
-
-# Dump current packages
+#+begin_src bash
 brew bundle dump --force --file=~/.package_management/install/Brewfile
 #+end_src
 
 *** Arch (pacman/yay)
 
-#+begin_src bash :results silent
-# Export official packages
+#+begin_src bash
 pacman -Qqen > ~/.package_management/install/packages-pacman.txt
-
-# Export AUR packages  
 pacman -Qqem > ~/.package_management/install/packages-aur.txt
 #+end_src
 
 ** Restow Configurations
 
-If you've modified configs, restow to update symlinks (idempotent with =-R= flag):
+If you've modified configs, restow to update symlinks:
 
-#+begin_src bash :dir ~/dev/my/dotfiles/configs :results output
-# Example for macOS typical level
-# just osx stow-typical
-echo "Run: just <platform> stow-<level>"
+#+begin_src bash
+just osx-stow-typical
 #+end_src
 
 ** Force Reinstall
 
 If you have conflicts or need a clean reinstall:
 
-#+begin_src bash :dir ~/dev/my/dotfiles/configs :results output
-# Example for macOS typical level with force
-# just osx stow-typical-force
-echo "Run: just <platform> stow-<level>-force"
+#+begin_src bash
+just osx-stow-typical-force
 #+end_src
 
 * Troubleshooting
@@ -225,10 +165,7 @@ echo "Run: just <platform> stow-<level>-force"
 - Package installation may require admin privileges
 
 ** Symlink Conflicts
-- Use health check to identify issues:
-  #+begin_src bash :dir ~/dev/my/dotfiles :results output
-  just health-check 2>&1 | grep -i "broken\|conflict" || echo "No conflicts found"
-  #+end_src
+- Use health check to identify issues
 - Remove conflicting files or use force install
 - Common conflicts: =.bashrc=, =.zshrc= from system defaults
 
@@ -239,19 +176,17 @@ echo "Run: just <platform> stow-<level>-force"
 
 * Project Structure
 
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
-tree -L 2 -d --noreport | head -20
-#+end_src
-
-Key directories:
-- =bootstrap/= - System bootstrap scripts
-- =configs/= - Stow packages organized by tool
-  - =<tool>/= - Cross-platform configs
-  - =<tool>_<os>/= - Platform-specific configs
-- =tools/= - Utility scripts and tools
-  - =dotfiles-health/= - Health check tool
-- =test/= - Docker test infrastructure
-- =just/= - Just configuration
+#+begin_example
+dotfiles/
+├── bootstrap/           # System bootstrap scripts
+├── configs/            # Stow packages organized by tool
+│   ├── <tool>/        # Cross-platform configs
+│   └── <tool>_<os>/   # Platform-specific configs
+├── tools/             # Utility scripts and tools
+│   └── dotfiles-health/  # Health check tool
+├── test/              # Docker test infrastructure
+└── just/              # Just configuration
+#+end_example
 
 * Contributing
 
@@ -262,37 +197,3 @@ Key directories:
 5. Submit PR with description of changes
 
 For more detailed information, see the comprehensive setup guide in [[file:README.old.org][README.old.org]].
-
-* Advanced Usage
-
-** Environment Variables
-
-Control dotfiles behavior with environment variables:
-
-#+begin_src bash :results output
-# Check current dotfiles directory
-echo "DOTFILES_DIR=${DOTFILES_DIR:-~/dev/my/dotfiles}"
-
-# Check home directory used by health check
-echo "DOTFILES_HOME=${DOTFILES_HOME:-$HOME}"
-#+end_src
-
-** Logging
-
-Enable detailed logging for troubleshooting:
-
-#+begin_src bash :dir ~/dev/my/dotfiles :results output
-# Run health check with logging
-# just health-check-log
-echo "Run: just health-check-log to save detailed output"
-#+end_src
-
-** Testing Individual Packages
-
-Test specific package stowing without affecting others:
-
-#+begin_src bash :dir ~/dev/my/dotfiles/configs :results silent
-# Example: Test stowing just git configuration
-# stow -n -v git
-echo "Use stow -n flag for dry run"
-#+end_src

@@ -77,6 +77,81 @@ cleanup-broken-links:
 cleanup-broken-links-remove:
     @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
+# Bootstrap commands (delegated to bootstrap/justfile)
+bootstrap-basic-arch:
+    @cd bootstrap && just bootstrap-basic-arch
+
+bootstrap-typical-arch:
+    @cd bootstrap && just bootstrap-typical-arch
+
+bootstrap-max-arch:
+    @cd bootstrap && just bootstrap-max-arch
+
+bootstrap-basic-ubuntu:
+    @cd bootstrap && just bootstrap-basic-ubuntu
+
+bootstrap-typical-ubuntu:
+    @cd bootstrap && just bootstrap-typical-ubuntu
+
+bootstrap-max-ubuntu:
+    @cd bootstrap && just bootstrap-max-ubuntu
+
+bootstrap-basic-osx:
+    @cd bootstrap && just bootstrap-basic-osx
+
+bootstrap-typical-osx:
+    @cd bootstrap && just bootstrap-typical-osx
+
+bootstrap-max-osx:
+    @cd bootstrap && just bootstrap-max-osx
+
+# Stow commands (delegated to configs/justfile)
+osx-stow-basic:
+    @cd configs && just osx stow-basic
+
+osx-stow-typical:
+    @cd configs && just osx stow-typical
+
+osx-stow-max:
+    @cd configs && just osx stow-max
+
+osx-stow-basic-force:
+    @cd configs && just osx stow-basic-force
+
+osx-stow-typical-force:
+    @cd configs && just osx stow-typical-force
+
+osx-stow-max-force:
+    @cd configs && just osx stow-max-force
+
+arch-stow-basic:
+    @cd configs && just arch stow-basic
+
+arch-stow-typical:
+    @cd configs && just arch stow-typical
+
+arch-stow-max:
+    @cd configs && just arch stow-max
+
+ubuntu-stow-basic:
+    @cd configs && just ubuntu stow-basic
+
+ubuntu-stow-typical:
+    @cd configs && just ubuntu stow-typical
+
+ubuntu-stow-max:
+    @cd configs && just ubuntu stow-max
+
+# Test commands (delegated to test/justfile)
+test-stow level platform:
+    @cd test && just test-stow {{level}} {{platform}}
+
+test-install level platform:
+    @cd test && just test-install {{level}} {{platform}}
+
+test-update level platform:
+    @cd test && just test-update {{level}} {{platform}}
+
 # Help aliases
 help: default
 h: default
