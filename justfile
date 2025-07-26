@@ -1,5 +1,6 @@
 # Dotfiles Management System
 set dotenv-load := true
+set dotenv-filename := ".dotfiles.env"
 
 # Environment variables (must be configured first)
 platform := env_var_or_default("DOTFILES_PLATFORM", "")
@@ -94,59 +95,13 @@ cleanup-broken-links:
 cleanup-broken-links-remove:
     @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
-# Configure dotfiles (interactive setup)
+# Configure dotfiles (delegates to shell script)
 configure:
-    #!/usr/bin/env bash
-    echo "🔧 Dotfiles Configuration"
-    echo ""
-    echo "Available platforms:"
-    echo "  1) osx     - macOS"
-    echo "  2) arch    - Arch Linux"
-    echo "  3) ubuntu  - Ubuntu Linux"
-    echo "  4) msys2   - Windows with MSYS2"
-    echo ""
-    read -p "Select platform (1-4): " platform_choice
-    
-    case $platform_choice in
-        1) PLATFORM="osx" ;;
-        2) PLATFORM="arch" ;;
-        3) PLATFORM="ubuntu" ;;
-        4) PLATFORM="msys2" ;;
-        *) echo "Invalid choice"; exit 1 ;;
-    esac
-    
-    echo ""
-    echo "Available levels:"
-    echo "  1) basic   - Essential shell environment"
-    echo "  2) typical - Basic + development tools"
-    echo "  3) max     - Typical + GUI applications"
-    echo ""
-    read -p "Select level (1-3): " level_choice
-    
-    case $level_choice in
-        1) LEVEL="basic" ;;
-        2) LEVEL="typical" ;;
-        3) LEVEL="max" ;;
-        *) echo "Invalid choice"; exit 1 ;;
-    esac
-    
-    echo ""
-    echo "# Dotfiles Configuration" > .dotfiles.env
-    echo "export DOTFILES_PLATFORM=$PLATFORM" >> .dotfiles.env
-    echo "export DOTFILES_LEVEL=$LEVEL" >> .dotfiles.env
-    
-    echo "✅ Configuration saved to .dotfiles.env"
-    echo ""
-    echo "To use:"
-    echo "  source .dotfiles.env"
-    echo "  just bootstrap"
-    echo "  just stow"
+    @./configure.sh
 
-# Simple commands using environment variables
+# Bootstrap system (delegates to shell script for flexibility)
 bootstrap:
-    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
-    @echo "🚀 Bootstrapping {{platform}} {{level}} system..."
-    @cd bootstrap && just bootstrap-{{level}}-{{platform}}
+    @./bootstrap.sh
 
 stow:
     @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi

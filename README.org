@@ -12,34 +12,57 @@ Clone to =~/dev/my/dotfiles= (recommended path):
 #+begin_src bash
 mkdir -p ~/dev/my
 git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
+cd ~/dev/my/dotfiles
 #+end_src
 
-** 2. Bootstrap Your System
+** 2. Configure Your System
 
-From the dotfiles root directory, bootstrap installs essential tools:
+Interactive configuration (runs before any tools are installed):
 
 #+begin_src bash
-just bootstrap-typical-osx
+./configure.sh
 #+end_src
 
-Where:
-- Level: =basic=, =typical=, or =max=
-- Platform: =arch=, =ubuntu=, =osx=, =win=, or =msys2=
+The script will auto-detect your platform and offer to use it, or you can choose manually:
+- Platform: =arch=, =ubuntu=, =osx=, =msys2=
+- Level: =basic=, =typical=, =max=
 
-** 3. Deploy Configurations
+Configuration is saved to =.dotfiles.env= for future use.
+
+** 3. Bootstrap Your System
+
+Install essential tools and package managers:
+
+#+begin_src bash
+./bootstrap.sh
+#+end_src
+
+This reads your configuration and installs the appropriate tools (including =just=).
+
+** 4. Deploy Configurations
 
 Deploy dotfiles using the stow system:
 
 #+begin_src bash
-just osx-stow-typical
+just stow
 #+end_src
 
-** 4. Verify Setup
+** 5. Verify Setup
 
 Check that everything is configured correctly:
 
 #+begin_src bash
 just health-check
+#+end_src
+
+** Alternative: Use Just Commands (if tools already installed)
+
+If you already have =just= installed, you can use the convenience commands:
+
+#+begin_src bash
+just configure  # Interactive setup
+just bootstrap  # Install tools
+just stow       # Deploy configs
 #+end_src
 
 * Configuration Levels
