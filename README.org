@@ -1,7 +1,26 @@
 #+TITLE: Dotfiles
 #+AUTHOR: Lambert Green
-#+DESCRIPTION: Personal dotfiles repository for cross-platform development environment configuration using GNU Stow
+#+DESCRIPTION: Cross-platform system configuration management and package management system
 #+STARTUP: overview
+
+* Introduction
+
+This is a comprehensive cross-platform system configuration management and package management system. It provides a unified approach to managing dotfiles, system packages, and development environments across macOS, Linux (Arch/Ubuntu), and Windows platforms.
+
+** Key Technologies
+
+- **GNU Stow** - Symlink management for dotfiles deployment
+- **Just** - Command runner for consistent cross-platform operations
+- **Docker** - Automated testing across different platforms and configurations
+- **Environment Variables** - Configuration-driven setup (DOTFILES_PLATFORM, DOTFILES_LEVEL)
+
+** Features
+
+- **Auto-Detection** - Intelligent platform detection with manual override
+- **Tiered Configuration** - Basic (shell), Typical (development), Max (GUI applications)
+- **Work-Friendly** - Separate package levels to handle corporate restrictions
+- **Tested** - Comprehensive Docker test suite validates configurations
+- **Health Monitoring** - Built-in health check system validates symlink integrity
 
 * Quick Start
 
@@ -64,6 +83,30 @@ just configure  # Interactive setup
 just bootstrap  # Install tools
 just stow       # Deploy configs
 #+end_src
+
+* Package Management
+
+After initial setup, the system provides environment-driven package management:
+
+** Package Installation
+
+Install packages using your configured platform and level:
+
+#+begin_src bash
+just install    # Installs packages for your configured platform/level
+#+end_src
+
+This uses your saved configuration (DOTFILES_PLATFORM/DOTFILES_LEVEL) to install the appropriate packages.
+
+** System Updates
+
+Keep your system and packages up to date:
+
+#+begin_src bash
+just update     # Updates packages for your configured platform
+#+end_src
+
+This updates packages using your configured package managers (brew, pacman, apt, etc.).
 
 * Configuration Levels
 

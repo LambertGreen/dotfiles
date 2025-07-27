@@ -21,6 +21,8 @@ default:
         echo "🚀 Quick Commands:"; \
         echo "  just bootstrap         - Bootstrap system"; \
         echo "  just stow              - Deploy configs"; \
+        echo "  just install           - Install packages"; \
+        echo "  just update            - Update packages"; \
         echo "  just health-check      - Validate configuration"; \
         echo ""; \
     fi
@@ -29,8 +31,8 @@ default:
     @echo ""
     @echo "🔧 Available contexts:"
     @echo "  bootstrap-context - First-time setup (stow package_management)"
-    @echo "  install   - Install packages (requires bootstrap first)"
-    @echo "  update    - Update system packages"
+    @echo "  install-context   - Install packages (interactive)"
+    @echo "  update-context    - Update system packages (interactive)"
     @echo "  stow-context - Manage configuration symlinks"
     @echo "  test      - Test dotfiles in Docker containers"
     @echo ""
@@ -39,15 +41,27 @@ default:
     @echo "  cleanup-broken-links      - List broken symlinks (dry run)"
     @echo "  cleanup-broken-links-remove - Remove broken symlinks"
 
-# Navigate to install context (requires package_management to be stowed)
+# Install packages using environment variables
 install:
+    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
+    @echo "📦 Installing {{platform}} {{level}} packages..."
+    @cd ~/.package_management/install && just install-{{level}}
+
+# Navigate to install context (requires package_management to be stowed)
+install-context:
     @echo "📦 Entering install context..."
     @echo "Type 'just' to see available commands, 'exit' to return"
     @echo ""
     @cd ~/.package_management/install && $SHELL
 
-# Navigate to update context (requires package_management to be stowed)
+# Update packages using environment variables
 update:
+    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
+    @echo "🔄 Updating {{platform}} packages..."
+    @cd ~/.package_management/update && just update-{{level}}
+
+# Navigate to update context (requires package_management to be stowed)
+update-context:
     @echo "🔄 Entering update context..."
     @echo "Type 'just' to see available commands, 'exit' to return"
     @echo ""
