@@ -1,40 +1,80 @@
 #!/usr/bin/env just
 # -*- mode: just -*-
 
-# TODO: Refactor to use explicit stow targets for better organization:
-# - _stow-common-home: Home directory packages (stow -t ~ --dot)
-# - _stow-posix-xdg: XDG config packages (stow -t ~/.config --dot)
-# - _stow-windows-appdata: Windows packages (stow -t ~/AppData/Local --dot)
-# This requires restructuring package directories to match target paths.
-
-# Platform-specific dotfiles stowing
-# Each platform has its own justfile with level-based organization
+# Configuration-aware dotfiles stowing using new directory structure
+# Uses .dotfiles.env to determine which configs to stow
 
 _default:
-    @echo "🔗 Dotfiles Stowing"
+    @echo "🔗 Configuration-Aware Stowing"
     @echo ""
     @just --list
 
 # =============================================================================
-# PLATFORM DELEGATION
+# PLATFORM-AWARE STOWING
 # =============================================================================
 
 # 🏛️ Arch Linux stowing
 arch *args:
     @echo "🏛️ Arch Linux stowing..."
-    @just -f justfile_arch {{ args }}
+    @just _stow-platform "arch" "{{ args }}"
 
 # 🐧 Ubuntu Linux stowing
 ubuntu *args:
     @echo "🐧 Ubuntu Linux stowing..."
-    @just -f justfile_ubuntu {{ args }}
+    @just _stow-platform "ubuntu" "{{ args }}"
 
 # 🍎 macOS stowing
 osx *args:
     @echo "🍎 macOS stowing..."
-    @just -f justfile_osx {{ args }}
+    @just _stow-platform "osx" "{{ args }}"
 
 # 🪟 Windows stowing
 win *args:
     @echo "🪟 Windows stowing..."
-    @just -f justfile_win {{ args }}
+    @just _stow-platform "win" "{{ args }}"
+
+# =============================================================================
+# INTERNAL HELPERS
+# =============================================================================
+
+# Internal helper for platform-specific stowing
+[private]
+_stow-platform platform args:
+    @if [ "{{ args }}" = "stow-basic" ]; then \
+        echo "🔗 Stowing basic {{ platform }} configs using new structure..."; \
+        just _stow-configs "{{ platform }}"; \
+    else \
+        echo "❌ Only 'stow-basic' is supported with new structure"; \
+        echo "💡 Use main 'just stow' command for configuration-aware stowing"; \
+        exit 1; \
+    fi
+
+# Internal helper to stow configs based on platform
+[private]
+_stow-configs platform:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo "🔗 Stowing common configs..."
+    cd common && stow *
+    
+    case "{{ platform }}" in
+        "osx")
+            echo "🔗 Stowing macOS-specific configs..."
+            cd ../osx_only && stow *
+            ;;
+        "ubuntu"|"arch")
+            echo "🔗 Stowing Linux-specific configs..."
+            cd ../linux_only && stow *
+            ;;
+        "win")
+            echo "🔗 Stowing Windows-specific configs..."
+            cd ../windows_only && stow *
+            ;;
+        *)
+            echo "❌ Unknown platform: {{ platform }}"
+            exit 1
+            ;;
+    esac
+    
+    echo "✅ Stowing complete for {{ platform }}"

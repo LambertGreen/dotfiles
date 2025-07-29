@@ -12,13 +12,13 @@ This is a comprehensive cross-platform system configuration management and packa
 - **GNU Stow** - Symlink management for dotfiles deployment
 - **Just** - Command runner for consistent cross-platform operations
 - **Docker** - Automated testing across different platforms and configurations
-- **Environment Variables** - Configuration-driven setup (DOTFILES_PLATFORM, DOTFILES_LEVEL)
+- **Environment Variables** - Configuration-driven setup system
 
 ** Features
 
 - **Auto-Detection** - Intelligent platform detection with manual override
-- **Tiered Configuration** - Basic (shell), Typical (development), Max (GUI applications)
-- **Work-Friendly** - Separate package levels to handle corporate restrictions
+- **Flexible Configuration** - Choose CLI tools, development environment, and GUI applications as needed
+- **Work-Friendly** - Granular control to handle corporate restrictions
 - **Tested** - Comprehensive Docker test suite validates configurations
 - **Health Monitoring** - Built-in health check system validates symlink integrity
 
@@ -36,7 +36,7 @@ cd ~/dev/my/dotfiles
 
 ** 2. Configure Your System
 
-Interactive configuration (runs before any tools are installed):
+Interactive configuration:
 
 #+begin_src bash
 ./configure.sh
@@ -44,7 +44,16 @@ Interactive configuration (runs before any tools are installed):
 
 The script will auto-detect your platform and offer to use it, or you can choose manually:
 - Platform: =arch=, =ubuntu=, =osx=, =msys2=
-- Level: =basic=, =typical=, =max=
+- Configuration: Select components that suit your needs
+  - *CLI Editors*: Essential text editors (vim, neovim, emacs)
+  - *CLI Utils*: Command-line utilities and tools
+  - *Development Environment*: Programming languages and development tools
+  - *GUI Applications*: Desktop applications (macOS only)
+
+Examples:
+- Server setup: Enable CLI editors and development tools
+- Developer workstation: Enable all components
+- Minimal system: Enable only what you need
 
 Configuration is saved to =.dotfiles.env= for future use.
 
@@ -71,7 +80,7 @@ just stow
 Check that everything is configured correctly:
 
 #+begin_src bash
-just health-check
+just check-health
 #+end_src
 
 ** Alternative: Use Just Commands (if tools already installed)
@@ -90,13 +99,13 @@ After initial setup, the system provides environment-driven package management:
 
 ** Package Installation
 
-Install packages using your configured platform and level:
+Install packages using your configured platform and categories:
 
 #+begin_src bash
-just install    # Installs packages for your configured platform/level
+just install    # Installs packages for your configured platform/categories
 #+end_src
 
-This uses your saved configuration (DOTFILES_PLATFORM/DOTFILES_LEVEL) to install the appropriate packages.
+This uses your saved configuration (DOTFILES_PLATFORM and category flags) to install the appropriate packages.
 
 ** System Updates
 
@@ -108,50 +117,109 @@ just update     # Updates packages for your configured platform
 
 This updates packages using your configured package managers (brew, pacman, apt, etc.).
 
-* Configuration Levels
+* Configuration System
 
-** Basic
-Essential shell environment and tools:
-- Shell configuration (bash, zsh)
-- Git configuration
-- Tmux configuration
-- Package management setup
-- Just command runner
-- Fortune (command line quotes)
+The configuration system provides transparent, opt-in package management organized by functional categories.
 
-** Typical
-Everything in Basic plus terminal productivity tools:
-- Text editors (Vim, Neovim)
-- Development tools (ctags, ripgrep, fd)
-- Email configuration
-- Terminal utilities (htop, gdb, lldb)
-- Spelling configuration
-- macOS-specific: Finicky (default browser picker)
+** Core Categories
 
-** Max
-Everything in Typical plus GUI applications:
-- JetBrains IDEs configuration
-- macOS-specific: Alfred, Hammerspoon, Karabiner, Raycast
-- Linux-specific: X Windows configuration
-- Advanced package managers (Nix)
+Always enabled for all configurations:
+- *basic-core*: Essential shell tools (vim, git, stow, tmux, just)
+
+** Base Categories
+
+*** CLI_EDITORS
+Primary command-line editors:
+- Neovim with configurations
+- Emacs (platform-specific variants)
+
+*** DEV_ENV
+Core development environment:
+- Python (pyenv, pip packages)
+- Node.js (npm packages)
+- Language servers and development tools
+
+*** CLI_UTILS
+Terminal productivity tools:
+- ripgrep, fd, htop
+- Development utilities (ctags, gdb, lldb)
+- Terminal multiplexers and shell enhancements
+
+*** GUI_APPS
+Desktop applications:
+- IDEs (JetBrains, VS Code)
+- Productivity tools (Alfred, Raycast on macOS)
+- Platform-specific GUI applications
+
+** Advanced Categories (Optional)
+
+*** CLI_EDITORS_ADVANCED
+Additional editors:
+- Helix
+- Vim variants
+- Editor plugins and extensions
+
+*** DEV_ENV_ADVANCED
+Advanced development tools:
+- Additional language support (Rust, Go, Java)
+- Container tools
+- Advanced debugging tools
+
+*** CLI_UTILS_ADVANCED
+Specialized command-line tools:
+- Network utilities
+- System monitoring tools
+- Advanced shell utilities
+
+*** GUI_APPS_ADVANCED
+Specialized desktop applications:
 - Window managers (Yabai, Skhd)
+- Advanced productivity tools
+- Platform-specific utilities
+
+** Configuration Profiles
+
+Pre-defined combinations for common use cases:
+
+*** Minimal
+- basic-core only
+- Fastest setup, essential tools only
+
+*** Developer
+- basic-core + CLI_EDITORS + DEV_ENV
+- Recommended for most development work
+
+*** Workstation
+- Developer + CLI_UTILS
+- Full command-line productivity suite
+
+*** Desktop
+- Workstation + GUI_APPS
+- Complete desktop environment
+
+*** Power-user
+- Desktop + all advanced categories
+- Everything available
 
 * Platform-Specific Notes
 
 ** macOS
-- Uses Homebrew as primary package manager
-- GUI apps available at typical and max levels
-- Karabiner/Kanata for keyboard customization (max level only due to work restrictions)
+- Uses Homebrew as primary package manager (brew/cask)
+- GUI apps available in GUI_APPS categories
+- Emacs via homebrew tap (emacs-plus@31)
+- Platform-specific configs: git_osx, shell_osx, gnupg_osx
 
 ** Linux (Arch/Ubuntu)
-- Arch uses yay for AUR packages
-- Ubuntu uses apt as primary, Homebrew as secondary
-- Both support Nix at max level
+- Arch: pacman (core) + AUR via yay helper
+- Ubuntu: apt (core) + Homebrew Linux (additional packages)
+- Emacs via AUR (emacs-plus) on Arch, apt on Ubuntu
+- Platform-specific configs: git_linux, shell_linux, gnupg_linux
 
 ** Windows
-- Uses Scoop as primary package manager
-- MSYS2 for Unix-like environment
+- Scoop as primary package manager
+- MSYS2 for Unix-like environment and additional packages
 - Limited GUI application support
+- Platform-specific configs: git_win, shell_msys2, gnupg_win
 
 * Health Check
 
@@ -185,27 +253,39 @@ just cleanup-broken-links --remove
 Test configurations in Docker before applying to your system:
 
 #+begin_src bash
-just test-stow basic arch
-just test-stow typical ubuntu
+# Enter test environment to explore all testing options
+just test
+
+# AUTOMATED tests (can be run in CI/scripts):
+cd test && just test-stow basic arch      # Test through stow stage
+cd test && just test-install basic arch   # Test through install stage  
+cd test && just test-update basic arch    # Test complete workflow
+
+# INTERACTIVE tests (require human interaction - DO NOT USE IN SCRIPTS):
+cd test && just test-run basic arch       # Drops into interactive shell for manual testing
 #+end_src
+
+The tests validate the complete workflow: configure → bootstrap → stow → install → update.
 
 * Common Tasks
 
 ** Update Package Lists
 
-After installing new packages, export the list:
+The configuration system manages packages via TOML files in `tools/package-management/package-definitions/`. To add new packages:
 
-*** macOS (Homebrew)
+1. Identify the appropriate category (cli-editors, cli-utils, dev-env, gui-apps)
+2. Edit the appropriate TOML file
+3. Add your package to the correct priority (p1 or p2) and package manager section
 
-#+begin_src bash
-brew bundle dump --force --file=~/.package_management/install/Brewfile
-#+end_src
-
-*** Arch (pacman/yay)
-
-#+begin_src bash
-pacman -Qqen > ~/.package_management/install/packages-pacman.txt
-pacman -Qqem > ~/.package_management/install/packages-aur.txt
+Example:
+#+begin_src toml
+# In cli-utils.toml
+[osx.p1.brew]
+packages = [
+    "fd",
+    "ripgrep",
+    "your-new-package"  # Add here
+]
 #+end_src
 
 ** Restow Configurations
@@ -213,15 +293,15 @@ pacman -Qqem > ~/.package_management/install/packages-aur.txt
 If you've modified configs, restow to update symlinks:
 
 #+begin_src bash
-just osx-stow-typical
+just stow    # Uses your configured platform automatically
 #+end_src
 
-** Force Reinstall
+** Show Current Configuration
 
-If you have conflicts or need a clean reinstall:
+View your current configuration settings:
 
 #+begin_src bash
-just osx-stow-typical-force
+just show-config
 #+end_src
 
 * Troubleshooting
@@ -236,9 +316,9 @@ just osx-stow-typical-force
 - Common conflicts: =.bashrc=, =.zshrc= from system defaults
 
 ** Work Machine Restrictions
-- Use =basic= or =typical= levels on work machines
-- =max= level includes tools that may require admin access
-- Karabiner/Kanata are specifically in max level due to restrictions
+- Configure only the components you need on work machines
+- GUI applications may require admin access on some systems
+- Advanced window managers and system tools are in advanced categories for optional installation
 
 * Project Structure
 
@@ -249,17 +329,20 @@ dotfiles/
 │   ├── <tool>/        # Cross-platform configs
 │   └── <tool>_<os>/   # Platform-specific configs
 ├── tools/             # Utility scripts and tools
-│   └── dotfiles-health/  # Health check tool
+│   ├── dotfiles-health/   # Health check tool
+│   └── package-management/ # Configuration-based package management system
 ├── test/              # Docker test infrastructure
-└── just/              # Just configuration
+├── configure.sh       # Interactive configuration
+├── bootstrap.sh       # System bootstrap (works with both systems)
+└── justfile           # Environment-driven commands
 #+end_example
 
 * Contributing
 
-1. Make changes in appropriate config directory
-2. Test using Docker test infrastructure
-3. Run health check to verify changes
-4. Update package lists if needed
+1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
+2. Test using Docker test infrastructure: `cd test && just test-stow basic arch`
+3. Run health check to verify changes: `just check-health`
+4. Update package definitions in `tools/package-management/package-definitions/` if adding new packages
 5. Submit PR with description of changes
 
 For more detailed information, see the comprehensive setup guide in [[file:README.old.org][README.old.org]].

@@ -1,0 +1,104 @@
+# CLI Utilities Package Definitions
+# Structured package definitions with cross-platform mappings and health checks
+
+[metadata]
+category = "cli-utils"
+description = "Essential command-line utilities for improved productivity"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# PACKAGE DEFINITIONS
+# =============================================================================
+
+[packages.ripgrep]
+description = "Fast line-oriented search tool (grep replacement)"
+health_check = "rg --version"
+executable = "rg"
+
+[packages.ripgrep.install]
+arch_pacman = "ripgrep"
+ubuntu_apt = "ripgrep" 
+osx_brew = "ripgrep"
+
+[packages.fd]
+description = "Fast and user-friendly alternative to find"
+health_check = "fd --version"
+executable = "fd"
+
+[packages.fd.install]
+arch_pacman = "fd"
+ubuntu_apt = "fd-find"  # Note: Ubuntu has different package name
+osx_brew = "fd"
+
+[packages.bat]
+description = "Cat clone with syntax highlighting and git integration"
+health_check = "bat --version"
+executable = "bat"
+
+[packages.bat.install]
+arch_pacman = "bat"
+ubuntu_apt = "bat"
+osx_brew = "bat"
+
+[packages.jq]
+description = "Lightweight and flexible command-line JSON processor"
+health_check = "jq --version"
+executable = "jq"
+
+[packages.jq.install]
+arch_pacman = "jq"
+ubuntu_apt = "jq"
+osx_brew = "jq"
+
+[packages.htop]
+description = "Interactive process viewer (top replacement)"
+health_check = "htop --version"
+executable = "htop"
+
+[packages.htop.install]
+arch_pacman = "htop"
+ubuntu_apt = "htop"
+osx_brew = "htop"
+
+[packages.tree]
+description = "Recursive directory listing in tree format"
+health_check = "tree --version"
+executable = "tree"
+
+[packages.tree.install]
+arch_pacman = "tree"
+ubuntu_apt = "tree"
+osx_brew = "tree"
+
+[packages.unzip]
+description = "Archive extraction utility"
+health_check = "unzip -v | head -1"
+executable = "unzip"
+
+[packages.unzip.install]
+arch_pacman = "unzip"
+ubuntu_apt = "unzip"
+# Note: unzip usually comes with macOS, but can be installed via brew if needed
+osx_brew = "unzip"
+
+# =============================================================================
+# OSX-SPECIFIC ADDITIONAL PACKAGES
+# =============================================================================
+
+[packages.eza]
+description = "Modern ls replacement with better defaults"
+health_check = "eza --version"
+executable = "eza"
+platforms = ["osx"]  # OSX-specific for now
+
+[packages.eza.install]
+osx_brew = "eza"
+
+[packages.dust]
+description = "More intuitive version of du (disk usage analyzer)"
+health_check = "dust --version" 
+executable = "dust"
+platforms = ["osx"]  # OSX-specific for now
+
+[packages.dust.install]
+osx_brew = "dust"

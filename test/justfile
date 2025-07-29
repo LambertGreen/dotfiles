@@ -20,6 +20,7 @@ default:
     @echo "  5. Run       - Interactive shell to test environment"
     @echo ""
     @echo "Stage-specific tests:"
+    @echo "  just test-configure [level] [platform] - Test configure stage only"
     @echo "  just test-bootstrap [level] [platform] - Test bootstrap stage only"
     @echo "  just test-stow [level] [platform]      - Test through stow stage"
     @echo "  just test-install [level] [platform]   - Test through install stage"
@@ -31,9 +32,19 @@ default:
     @echo "  just test-platform [platform]          - Test platform across levels"
     @echo "  just test-all                          - Test all combinations"
     @echo ""
-    @echo "Examples:"
-    @echo "  just test-update basic arch            - Build and test basic Arch (complete)"
-    @echo "  just test-run basic arch               - Interactive shell after update"
+    @echo "Configuration Tests (Recommended):"
+    @echo "  just test-minimal-arch             - Fast Arch validation"
+    @echo "  just test-developer-ubuntu         - Ubuntu developer environment"
+    @echo "  just test-all-configurations       - Test configuration system across platforms"
+    @echo ""
+    @echo "Log Management:"
+    @echo "  just show-last-log                 - Show most recent test output"
+    @echo "  just list-logs                     - List all available logs"
+    @echo "  just show-log <filename>           - Show specific log file"
+    @echo ""
+    @echo "Legacy Tests:"
+    @echo "  just test-update basic arch        - Build and test basic Arch (complete)"
+    @echo "  just test-run basic arch           - Interactive shell after update"
     @echo ""
     @echo "Available:"
     @echo "  Platforms: {{docker_platforms}}"
@@ -111,6 +122,13 @@ test-update-local level platform:
     @echo "🚀 Running test container..."
     docker run --rm dotfiles-test-{{level}}-{{platform}}
 
+# Test configure only (configuration generation)
+test-configure level platform:
+    @echo "🔧 Building configure-only Docker image for {{level}} {{platform}}..."
+    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target configure -t dotfiles-configure-{{level}}-{{platform}} .
+    @echo "🚀 Running configure test container..."
+    docker run --rm dotfiles-configure-{{level}}-{{platform}}
+
 # Test bootstrap only (no package installation)
 test-bootstrap level platform:
     @echo "🔨 Building bootstrap-only Docker image for {{level}} {{platform}}..."
@@ -171,6 +189,24 @@ test-remote platform:
     echo "📦 Submodules:"
     cd .. && git submodule status
 
+# Show the most recent test log
+@show-last-log:
+    echo "📄 Most recent test log:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ls -t *-output.log 2>/dev/null | head -1 | xargs -I {} sh -c 'echo "📝 File: {}" && echo "" && tail -50 {}'
+
+# Show all available test logs
+@list-logs:
+    echo "📄 Available test logs:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━"
+    ls -lt *-output.log 2>/dev/null || echo "No log files found"
+
+# Show specific log file (usage: just show-log filename)
+@show-log file:
+    echo "📄 Showing log: {{file}}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    tail -100 {{file}}
+
 # Update submodules
 update:
     cd .. && git submodule update --init --recursive
@@ -180,3 +216,64 @@ update:
     echo "🔍 Running validations..."
     just test-all
     echo "✅ All validations passed"
+
+# =====================================
+# Configuration Testing
+# =====================================
+
+# Test minimal configuration on Arch Linux
+@test-minimal-arch:
+    echo "🧪 Testing minimal configuration on Arch Linux..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-minimal-arch-output.log"
+    docker build -f dockerfiles/Dockerfile.arch.multi --target update-basic .. 2>&1 | tee test-minimal-arch-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ Minimal Arch test PASSED"; \
+    else \
+        echo "❌ Minimal Arch test FAILED"; \
+        echo "📄 Check test-minimal-arch-output.log for details"; \
+        exit 1; \
+    fi
+
+# Removed platform-specific test recipes - use existing level/platform structure instead
+
+# Test developer configuration on Ubuntu
+@test-developer-ubuntu:
+    echo "🧪 Testing developer configuration on Ubuntu..."
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-developer-ubuntu-output.log"
+    docker build -f dockerfiles/Dockerfile.ubuntu.multi --target update-basic .. 2>&1 | tee test-developer-ubuntu-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ Developer Ubuntu test PASSED"; \
+    else \
+        echo "❌ Developer Ubuntu test FAILED"; \
+        echo "📄 Check test-developer-ubuntu-output.log for details"; \
+        exit 1; \
+    fi
+
+# Test configuration system across platforms
+@test-all-configurations:
+    echo "🧪 Testing configuration system across platforms"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "📝 Logging to test-all-configurations-output.log"
+    -just test-minimal-arch 2>&1 | tee -a test-all-configurations-output.log
+    -just test-developer-ubuntu 2>&1 | tee -a test-all-configurations-output.log
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🏁 Configuration tests completed"
+    echo "📄 Full log available in test-all-configurations-output.log"
+
+# Interactive shell for debugging (minimal Arch)
+@test-shell-arch:
+    echo "🐚 Interactive shell - Arch minimal configuration"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🔧 Building container and dropping into shell..."
+    docker build -f dockerfiles/Dockerfile.arch.multi --target install-basic .. && \
+    docker run -it $$(docker build -q -f dockerfiles/Dockerfile.arch.multi --target install-basic ..) /bin/bash
+
+# Interactive shell for debugging (developer Ubuntu)  
+@test-shell-ubuntu:
+    echo "🐚 Interactive shell - Ubuntu developer configuration"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "🔧 Building container and dropping into shell..."
+    docker build -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic .. && \
+    docker run -it $$(docker build -q -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic ..) /bin/bash

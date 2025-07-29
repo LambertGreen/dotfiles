@@ -1,9 +1,0 @@
-#!/usr/bin/env just
-# -*- mode: just -*-
-
-# Justfile for common system-level maintenance tasks
-
-# 🎨 Update powerlevel10k configuration
-update-p10k-config:
-    @echo "Updating powerlevel10k configuration..."
-    p10k configure

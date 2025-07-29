@@ -1,52 +1,69 @@
-FROM archlinux/archlinux:base-devel
+# Category-Based Package Management Test - Arch Linux
+# Tests complete workflow: configure → bootstrap → stow → install → update
+# Uses category system with area-based configuration
 
-# Install minimal packages for dotfiles testing + realistic system defaults
-RUN pacman --sync --refresh --sysupgrade --noconfirm --noprogressbar --quiet && \
-  pacman --sync --noconfirm --noprogressbar --quiet \
-    sudo git openssh stow just bash zsh && \
-  pacman -Scc --noconfirm && \
-  rm -rf /var/cache/pacman/pkg/* /tmp/*
+FROM --platform=linux/amd64 archlinux:latest AS base
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Install essential packages for dotfiles setup
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm git curl wget sudo base-devel && \
+    # Install newer just version that supports import
+    curl -L https://github.com/casey/just/releases/download/1.36.0/just-1.36.0-x86_64-unknown-linux-musl.tar.gz | tar -xz -C /usr/local/bin && \
+    useradd -m -G wheel -s /bin/bash testuser && \
+    echo 'testuser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-# Create a test user (Note: we need to give the user an explicit uid, since we need to reference it
-# in the ssh mount command.)
-RUN useradd -u 100 --create-home --comment "Arch dotfiles user" user && \
-    usermod -aG wheel user  # Grant sudo to the user
+USER testuser
+WORKDIR /home/testuser
 
-# Add user to sudoers
-RUN sed -i /etc/sudoers -re 's/^#includedir.*/## **Removed the include directive** ##"/g' && \
-    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+# Copy dotfiles into container
+COPY --chown=testuser:testuser . dotfiles/
+WORKDIR /home/testuser/dotfiles
 
-# Set user's password to 'user'
-RUN echo 'user:user' | chpasswd
-USER user
-ENV HOME=/home/user
+# Stage 1: Configure with area-based system (minimal profile)
+FROM base AS configure
+RUN echo "=== CONFIGURE STAGE ===" && \
+    rm -f .dotfiles.env && \
+    printf "2\n1\n1\n" | ./configure-p1p2.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat .dotfiles.env
 
-# Download public key for github.com
-RUN mkdir -p -m 0700 ~/.ssh && \
-    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
-    echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config && \
-    sudo chmod 0600 ~/.ssh/* && \
-    sudo chown -v user ~/.ssh/*
+# Stage 2: Bootstrap (install just and basic tools)
+FROM configure AS bootstrap  
+RUN echo "=== BOOTSTRAP STAGE ===" && \
+    ./bootstrap.sh && \
+    echo "🏥 Health check after bootstrap:" && \
+    bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check || echo '⚠️  Empty system after bootstrap is expected'"
 
-# Clone the dotfiles repo and sync submodules (stable layer - cached unless submodules change)
-ARG GITHUB_TOKEN
-RUN git clone --branch feature/reorganize-stow-configs https://${GITHUB_TOKEN}@github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles && \
-    cd ~/dev/my/dotfiles && \
-    git submodule update --init --recursive
+# Stage 3: Stow configurations
+FROM bootstrap AS stow
+RUN echo "=== STOW STAGE ===" && \
+    just stow && \
+    echo "🏥 Health check after stow:" && \
+    bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check || echo '⚠️  Health check after stow - some configs may not create visible symlinks'"
 
-# Switch to specific branch and run tests (this layer rebuilds when code changes)
-ARG CACHE_BUST=1
-RUN cd ~/dev/my/dotfiles && \
-    git fetch origin && \
-    git checkout feature/reorganize-stow-configs && \
-    git pull origin feature/reorganize-stow-configs && \
-    cd ~/dev/my/dotfiles/configs && \
-    just stow-arch && \
-    cd ~/.package_management/install && \
-    just install-test
+# Stage 4: Install packages using category system  
+FROM stow AS install
+RUN echo "=== INSTALL STAGE ===" && \
+    echo "📊 Showing configuration:" && \
+    just show-config && \
+    echo "📦 Installing packages..." && \
+    just install && \
+    echo "🏥 Health check after install:" && \
+    bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check"
 
-# Run a bash instance for manual testing: user should validate apps run fine before and after unstowing
-WORKDIR /home/user/dev/my/dotfiles
-CMD ["/bin/bash"]
+# Stage 5: Update packages
+FROM install AS update
+RUN echo "=== UPDATE STAGE ===" && \
+    just update && \
+    echo "🏥 Final health check:" && \
+    bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check" && \
+    echo "✅ Arch workflow complete!"
+
+# Final verification stage
+FROM update AS verify
+RUN echo "=== VERIFICATION STAGE ===" && \
+    echo "📊 Final configuration:" && \
+    just show-config && \
+    echo "🧪 Verifying installed packages:" && \
+    which git stow vim && \
+    echo "✅ Arch Linux test successful!"

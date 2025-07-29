@@ -15,7 +15,15 @@
       "Bash(bash:*)",
       "Bash(just health-check-log:*)",
       "Bash(ls:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(mas search:*)",
+      "Bash(chmod:*)",
+      "Bash(./tools/package-management/test-configure-p1p2.sh:*)",
+      "Bash(just test:*)",
+      "Bash(docker run:*)",
+      "Bash(python3:*)",
+      "Bash(echo)",
+      "Bash(just)"
     ],
     "deny": []
   }

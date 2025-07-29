@@ -1,0 +1,558 @@
+# Development Environment Package Definitions
+# Programming languages, tools, and development utilities
+
+[metadata]
+category = "dev-env"
+description = "Essential development tools and programming language support"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# CORE LANGUAGE RUNTIMES (P1)
+# =============================================================================
+
+[packages.python]
+description = "Python programming language"
+health_check = "python3 --version"
+executable = "python3"
+priority = "p1"
+
+[packages.python.install]
+arch_pacman = "python"
+ubuntu_apt = "python3"
+osx_brew = "python"
+
+[packages.python-pip]
+description = "Python package manager"
+health_check = "pip3 --version"
+executable = "pip3"
+priority = "p1"
+
+[packages.python-pip.install]
+arch_pacman = "python-pip"
+ubuntu_apt = "python3-pip"
+# Note: pip comes with python on macOS brew
+
+[packages.python-venv]
+description = "Python virtual environment support"
+health_check = "python3 -m venv --help"
+executable = "python3"
+priority = "p1"
+platforms = ["ubuntu"]  # Ubuntu-specific
+
+[packages.python-venv.install]
+ubuntu_apt = "python3-venv"
+
+[packages.nodejs]
+description = "Node.js JavaScript runtime"
+health_check = "node --version"
+executable = "node"
+priority = "p1"
+
+[packages.nodejs.install]
+arch_pacman = "nodejs"
+ubuntu_apt = "nodejs"
+osx_brew = "node"
+
+[packages.npm]
+description = "Node.js package manager"
+health_check = "npm --version"
+executable = "npm"
+priority = "p1"
+
+[packages.npm.install]
+arch_pacman = "npm"
+ubuntu_apt = "npm"
+# Note: npm comes with node on macOS brew
+
+# =============================================================================
+# BUILD TOOLS (P1)
+# =============================================================================
+
+[packages.cmake]
+description = "Cross-platform build system"
+health_check = "cmake --version"
+executable = "cmake"
+priority = "p1"
+
+[packages.cmake.install]
+arch_pacman = "cmake"
+ubuntu_apt = "cmake"
+osx_brew = "cmake"
+
+[packages.gnupg]
+description = "GNU Privacy Guard for encryption"
+health_check = "gpg --version"
+executable = "gpg"
+priority = "p1"
+
+[packages.gnupg.install]
+arch_pacman = "gnupg"
+ubuntu_apt = "gpg"
+osx_brew = "gnupg"
+
+# =============================================================================
+# MACOS SPECIFIC TOOLS (P1)
+# =============================================================================
+
+[packages.mas]
+description = "Mac App Store CLI"
+health_check = "mas version"
+executable = "mas"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.mas.install]
+osx_brew = "mas"
+
+# =============================================================================
+# VERSION MANAGERS (P1)
+# =============================================================================
+
+[packages.pyenv]
+description = "Python version manager"
+health_check = "pyenv --version"
+executable = "pyenv"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.pyenv.install]
+osx_brew = "pyenv"
+
+[packages.pyenv-virtualenv]
+description = "Python virtual environment plugin for pyenv"
+health_check = "pyenv virtualenv --help"
+executable = "pyenv"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.pyenv-virtualenv.install]
+osx_brew = "pyenv-virtualenv"
+
+# =============================================================================
+# ADVANCED LANGUAGES & TOOLS (P2)
+# =============================================================================
+
+[packages.ruby]
+description = "Ruby programming language"
+health_check = "ruby --version"
+executable = "ruby"
+priority = "p2"
+
+[packages.ruby.install]
+arch_pacman = "ruby"
+ubuntu_apt = "ruby"
+osx_brew = "ruby"
+
+[packages.ruby-dev]
+description = "Ruby development headers"
+health_check = "ruby --version"
+executable = "ruby"
+priority = "p2"
+platforms = ["ubuntu"]
+
+[packages.ruby-dev.install]
+ubuntu_apt = "ruby-dev"
+
+[packages.rust]
+description = "Rust programming language"
+health_check = "rustc --version"
+executable = "rustc"
+priority = "p2"
+
+[packages.rust.install]
+arch_pacman = "rust"
+ubuntu_apt = "rustc"
+osx_brew = "rust"
+
+[packages.cargo]
+description = "Rust package manager"
+health_check = "cargo --version"
+executable = "cargo"
+priority = "p2"
+
+[packages.cargo.install]
+arch_pacman = "cargo"
+ubuntu_apt = "cargo"
+# Note: cargo comes with rust on macOS brew
+
+[packages.rust-analyzer]
+description = "Rust language server"
+health_check = "rust-analyzer --version"
+executable = "rust-analyzer"
+priority = "p2"
+
+[packages.rust-analyzer.install]
+arch_pacman = "rust-analyzer"
+osx_brew = "rust-analyzer"
+
+[packages.go]
+description = "Go programming language"
+health_check = "go version"
+executable = "go"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.go.install]
+arch_pacman = "go"
+
+[packages.openjdk]
+description = "Open Java Development Kit"
+health_check = "java --version"
+executable = "java"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.openjdk.install]
+osx_brew = "openjdk"
+
+# =============================================================================
+# BUILD & DEVELOPMENT TOOLS (P2)
+# =============================================================================
+
+[packages.base-devel]
+description = "Base development tools and libraries"
+health_check = "make --version"
+executable = "make"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.base-devel.install]
+arch_pacman = "base-devel"
+
+[packages.build-essential]
+description = "Essential build tools and libraries"
+health_check = "make --version"
+executable = "make"
+priority = "p2"
+platforms = ["ubuntu"]
+
+[packages.build-essential.install]
+ubuntu_apt = "build-essential"
+
+[packages.gcc]
+description = "GNU Compiler Collection"
+health_check = "gcc --version"
+executable = "gcc"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.gcc.install]
+osx_brew = "gcc"
+
+[packages.clang]
+description = "LLVM C/C++ compiler"
+health_check = "clang --version"
+executable = "clang"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.clang.install]
+arch_pacman = "clang"
+
+[packages.make]
+description = "Build automation tool"
+health_check = "make --version"
+executable = "make"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.make.install]
+osx_brew = "make"
+
+[packages.ninja]
+description = "Small build system with focus on speed"
+health_check = "ninja --version"
+executable = "ninja"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.ninja.install]
+osx_brew = "ninja"
+
+# =============================================================================
+# DEBUGGING TOOLS (P2)
+# =============================================================================
+
+[packages.gdb]
+description = "GNU Debugger"
+health_check = "gdb --version"
+executable = "gdb"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.gdb.install]
+arch_pacman = "gdb"
+
+[packages.lldb]
+description = "LLVM Debugger"
+health_check = "lldb --version"
+executable = "lldb"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.lldb.install]
+arch_pacman = "lldb"
+
+# =============================================================================
+# SHELL & ENVIRONMENT TOOLS (P2)
+# =============================================================================
+
+[packages.just]
+description = "Command runner and task manager"
+health_check = "just --version"
+executable = "just"
+priority = "p2"
+
+[packages.just.install]
+arch_pacman = "just"
+ubuntu_brew = "just"
+# Note: just not in standard Ubuntu repos, using homebrew
+
+[packages.direnv]
+description = "Environment variable manager"
+health_check = "direnv --version"
+executable = "direnv"
+priority = "p2"
+
+[packages.direnv.install]
+arch_pacman = "direnv"
+ubuntu_brew = "direnv"
+osx_brew = "direnv"
+
+[packages.zoxide]
+description = "Smart directory jumper"
+health_check = "zoxide --version"
+executable = "zoxide"
+priority = "p2"
+
+[packages.zoxide.install]
+arch_pacman = "zoxide"
+ubuntu_brew = "zoxide"
+
+[packages.fzf]
+description = "Command-line fuzzy finder"
+health_check = "fzf --version"
+executable = "fzf"
+priority = "p2"
+platforms = ["arch"]
+
+[packages.fzf.install]
+arch_pacman = "fzf"
+
+# =============================================================================
+# CODE QUALITY & FORMATTING (P2)
+# =============================================================================
+
+[packages.clang-format]
+description = "C/C++ code formatter"
+health_check = "clang-format --version"
+executable = "clang-format"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.clang-format.install]
+osx_brew = "clang-format"
+
+[packages.black]
+description = "Python code formatter"
+health_check = "black --version"
+executable = "black"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.black.install]
+osx_brew = "black"
+
+[packages.shellcheck]
+description = "Shell script linter"
+health_check = "shellcheck --version"
+executable = "shellcheck"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.shellcheck.install]
+osx_brew = "shellcheck"
+
+[packages.shfmt]
+description = "Shell script formatter"
+health_check = "shfmt --version"
+executable = "shfmt"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.shfmt.install]
+osx_brew = "shfmt"
+
+[packages.stylua]
+description = "Lua code formatter"
+health_check = "stylua --version"
+executable = "stylua"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.stylua.install]
+osx_brew = "stylua"
+
+[packages.editorconfig]
+description = "Code style consistency across editors"
+health_check = "editorconfig --version"
+executable = "editorconfig"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.editorconfig.install]
+osx_brew = "editorconfig"
+
+# =============================================================================
+# LANGUAGE SERVERS (P2)
+# =============================================================================
+
+[packages.bash-language-server]
+description = "Bash language server"
+health_check = "bash-language-server --version"
+executable = "bash-language-server"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.bash-language-server.install]
+osx_brew = "bash-language-server"
+
+[packages.ccls]
+description = "C/C++ language server"
+health_check = "ccls --version"
+executable = "ccls"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.ccls.install]
+osx_brew = "ccls"
+
+[packages.vscode-langservers-extracted]
+description = "Language servers extracted from VS Code"
+health_check = "vscode-html-language-server --version"
+executable = "vscode-html-language-server"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.vscode-langservers-extracted.install]
+osx_brew = "vscode-langservers-extracted"
+
+# =============================================================================
+# VERSION MANAGERS (P2)
+# =============================================================================
+
+[packages.rbenv]
+description = "Ruby version manager"
+health_check = "rbenv --version"
+executable = "rbenv"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.rbenv.install]
+osx_brew = "rbenv"
+
+[packages.jenv]
+description = "Java version manager"
+health_check = "jenv --version"
+executable = "jenv"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.jenv.install]
+osx_brew = "jenv"
+
+# =============================================================================
+# DATABASES & SERVICES (P2)
+# =============================================================================
+
+[packages.postgresql]
+description = "PostgreSQL database system"
+health_check = "psql --version"
+executable = "psql"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.postgresql.install]
+osx_brew = "postgresql"
+
+# =============================================================================
+# LIBRARIES & DEPENDENCIES (P2)
+# =============================================================================
+
+[packages.openssl]
+description = "Cryptography and SSL/TLS toolkit"
+health_check = "openssl version"
+executable = "openssl"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.openssl.install]
+osx_brew = "openssl@3"
+
+[packages.pcre2]
+description = "Perl Compatible Regular Expressions"
+health_check = "pcre2-config --version"
+executable = "pcre2-config"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.pcre2.install]
+osx_brew = "pcre2"
+
+[packages.expat]
+description = "XML parsing library"
+health_check = "xmlwf -h"
+executable = "xmlwf"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.expat.install]
+osx_brew = "expat"
+
+[packages.enchant]
+description = "Spell checking library"
+health_check = "enchant-2 --version"
+executable = "enchant-2"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.enchant.install]
+osx_brew = "enchant"
+
+# =============================================================================
+# DOCUMENTATION & GRAPHICS (P2)
+# =============================================================================
+
+[packages.doxygen]
+description = "Documentation generator for C++, C, Java, Python and other languages"
+health_check = "doxygen --version"
+executable = "doxygen"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.doxygen.install]
+osx_brew = "doxygen"
+
+[packages.graphviz]
+description = "Graph visualization software"
+health_check = "dot -V"
+executable = "dot"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.graphviz.install]
+osx_brew = "graphviz"
+
+# =============================================================================
+# TESTING FRAMEWORKS (P2)
+# =============================================================================
+
+[packages.catch2]
+description = "Modern, C++-native, header-only test framework"
+health_check = "pkg-config --modversion catch2"
+executable = "pkg-config"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.catch2.install]
+osx_brew = "catch2"

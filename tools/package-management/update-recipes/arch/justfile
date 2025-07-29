@@ -1,0 +1,139 @@
+#!/usr/bin/env just
+# Arch Linux System Maintenance Commands
+
+# Show available commands
+default:
+    @echo "🏛️  Arch Linux System Maintenance"
+    @echo "================================"
+    @echo ""
+    @echo "📦 Pacman:"
+    @echo "  pacman-check    - Check for updates"
+    @echo "  pacman-update   - Update system packages"
+    @echo "  pacman-cleanup  - Clean package cache"
+    @echo ""
+    @echo "🔧 AUR (if yay installed):"
+    @echo "  aur-check       - Check AUR updates"
+    @echo "  aur-update      - Update AUR packages"
+    @echo ""
+    @echo "🍺 Homebrew (if installed):"
+    @echo "  brew-check      - Check Homebrew updates"
+    @echo "  brew-update     - Update Homebrew packages"
+    @echo ""
+    @echo "🚀 Quick Actions:"
+    @echo "  check-all       - Check all available updates"
+    @echo "  update-all      - Update everything"
+    @echo "  system-maintain - Full system maintenance"
+
+# =============================================================================
+# PACMAN
+# =============================================================================
+
+# Check for system updates
+pacman-check:
+    @echo "🔍 Checking for system updates..."
+    @pacman -Qu || echo "System is up to date"
+
+# Update system packages
+pacman-update:
+    @echo "📦 Updating system packages..."
+    @sudo pacman -Syu
+
+# Clean package cache
+pacman-cleanup:
+    @echo "🧹 Cleaning package cache..."
+    @echo "Keeping last 2 versions..."
+    @sudo paccache -r
+    @echo ""
+    @echo "Removing uninstalled packages from cache..."
+    @sudo paccache -ruk0
+
+# =============================================================================
+# AUR (via yay)
+# =============================================================================
+
+# Check AUR updates
+aur-check:
+    @if command -v yay >/dev/null 2>&1; then \
+        echo "🔍 Checking AUR updates..."; \
+        yay -Qua; \
+    else \
+        echo "⚠️  yay not installed - skipping AUR check"; \
+    fi
+
+# Update AUR packages
+aur-update:
+    @if command -v yay >/dev/null 2>&1; then \
+        echo "📦 Updating AUR packages..."; \
+        yay -Sua; \
+    else \
+        echo "❌ yay not installed - cannot update AUR packages"; \
+        exit 1; \
+    fi
+
+# =============================================================================
+# HOMEBREW (optional)
+# =============================================================================
+
+# Check Homebrew updates
+brew-check:
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🔍 Checking Homebrew updates..."; \
+        brew outdated; \
+    else \
+        echo "⚠️  Homebrew not installed"; \
+    fi
+
+# Update Homebrew packages
+brew-update:
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🍺 Updating Homebrew..."; \
+        brew update && brew upgrade; \
+    else \
+        echo "❌ Homebrew not installed"; \
+        exit 1; \
+    fi
+
+# =============================================================================
+# COMBINED OPERATIONS
+# =============================================================================
+
+# Check all updates
+check-all:
+    @echo "🔍 Checking all available updates..."
+    @echo ""
+    @echo "=== Pacman ==="
+    @just pacman-check
+    @echo ""
+    @if command -v yay >/dev/null 2>&1; then \
+        echo "=== AUR ==="; \
+        just aur-check; \
+        echo ""; \
+    fi
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "=== Homebrew ==="; \
+        just brew-check; \
+    fi
+
+# Update everything
+update-all:
+    @echo "🚀 Updating everything..."
+    @echo ""
+    @just pacman-update
+    @echo ""
+    @if command -v yay >/dev/null 2>&1; then \
+        just aur-update; \
+        echo ""; \
+    fi
+    @if command -v brew >/dev/null 2>&1; then \
+        just brew-update; \
+    fi
+
+# Full system maintenance
+system-maintain:
+    @echo "🔧 Full system maintenance..."
+    @echo ""
+    @just update-all
+    @echo ""
+    @just pacman-cleanup
+    @echo ""
+    @echo "✅ Maintenance complete!"

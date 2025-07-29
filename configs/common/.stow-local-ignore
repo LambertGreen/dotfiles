@@ -1,0 +1,5 @@
+# Ignore transitional/legacy configs that shouldn't be stowed
+shell_old
+
+# Temporarily exclude emacs entirely due to runtime data conflicts
+emacs

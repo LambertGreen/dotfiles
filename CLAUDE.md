@@ -9,13 +9,18 @@ This is a personal dotfiles repository containing configuration files and setup 
 ## Key Architecture
 
 ### Directory Structure
-- **Platform-specific configs**: Directories ending with `_osx`, `_win`, `_linux`, `_msys2` contain platform-specific configurations
-- **Cross-platform configs**: Base directories (e.g., `emacs`, `git`, `shell`) contain universal configurations
+- **Reorganized config structure** (as of 2024-07):
+  - `configs/common/` - Cross-platform configurations
+  - `configs/osx_only/` - macOS-specific configurations
+  - `configs/windows_only/` - Windows-specific configurations
+  - `configs/linux_only/` - Linux-specific configurations
 - **Setup scripts**: `setup_*` directories contain platform-specific installation and configuration scripts
 - **System maintenance**: `sys_maintenance_*` directories contain Just files for automated system upkeep
+- **Tools**: `tools/` directory contains utilities like health check and package management
 
 ### Configuration Management
 - Uses **GNU Stow** for symlinking dotfiles to home directory
+- Each config directory has its own `.stowrc` with `--dotfiles` and `--no-folding` flags
 - Configurations are organized by application/tool in separate directories
 - Multiple Emacs configurations supported via Chemacs 2 (Doom, Spacemacs, custom)
 
@@ -28,34 +33,51 @@ This is a personal dotfiles repository containing configuration files and setup 
 
 ### System Maintenance (using Just)
 ```bash
-# Navigate to system maintenance directory
+# From project root (new environment-driven approach):
+just stow                  # Stow configurations based on .dotfiles.env
+just check-health          # Run health check on system
+just cleanup-broken-links  # Find broken symlinks (dry run)
+just cleanup-broken-links-remove  # Remove broken symlinks
+
+# Navigate to system maintenance directory for updates:
 just goto-sys-maintenance
 
 # In sys_maintenance directory:
 just system-check          # Preview all available updates
-just system-upgrade         # Weekly fast update (brew, mas, completions)
-just system-maintain        # Monthly deep maintenance
-just brew-upgrade           # Update Homebrew packages
-just mas-upgrade           # Update Mac App Store apps (macOS)
+just system-upgrade        # Weekly fast update (brew, mas, completions)
+just system-maintain       # Monthly deep maintenance
+just brew-upgrade          # Update Homebrew packages
+just mas-upgrade          # Update Mac App Store apps (macOS)
+```
+
+### Docker Testing Commands
+```bash
+# AUTOMATED tests (can be run in CI/scripts):
+cd test && just test-stow basic arch      # Test through stow stage
+cd test && just test-install basic arch   # Test through install stage
+cd test && just test-update basic arch    # Test complete workflow
+
+# INTERACTIVE tests (require human interaction - DO NOT USE IN SCRIPTS):
+cd test && just test-run basic arch       # Drops into interactive shell for manual testing
 ```
 
 ### Dotfile Management
 ```bash
-# Navigate to configs directory first
-cd configs
+# New approach - from project root:
+just stow                  # Automatically stows based on .dotfiles.env settings
 
-# Symlink common configs
+# Manual stowing (from within config directories):
+cd configs/common
 stow git git_my shell tmux vim wezterm spelling
 
-# Symlink platform-specific configs (macOS example)  
-stow git_osx shell_osx alacritty_osx
-
-# Symlink from root for submodule-containing packages (until reorganized)
-cd ..
-stow emacs hammerspoon nvim alfred-settings autohotkey nvim_win
+# Platform-specific configs (macOS example):
+cd ../osx_only
+stow git_osx shell_osx alacritty_osx hammerspoon
 
 # Remove symlinks
 stow -D <package_name>
+
+# Note: Each directory has .stowrc with --dotfiles and --no-folding flags
 ```
 
 ### Package Manager Operations
@@ -101,15 +123,17 @@ git submodule update --init --recursive
 ### Configuration Files
 - `README.org`: Comprehensive setup instructions for all platforms
 - `TODO.org`: Current tasks and ongoing work
-- Shell configs: `shell/dot-zshrc`, `shell/dot-shell_common`
-- Git configs: `git/dot-common.gitconfig`, `git_*/dot-gitconfig` (platform-specific)
-- Tmux: `tmux/dot-tmux.conf` with theme system
-- Editor configs: `emacs/dot-doom.d/`, `nvim/dot-config/nvim-*/`
+- `.dotfiles.env`: Environment variables for configuration (e.g., DOTFILES_CLI_EDITORS=true)
+- Shell configs: `configs/common/shell/dot-zshrc`, `configs/common/shell/dot-shell_common`
+- Git configs: `configs/common/git/dot-common.gitconfig`, `configs/*/git_*/dot-gitconfig` (platform-specific)
+- Tmux: `configs/common/tmux/dot-tmux.conf` with theme system
+- Editor configs: `configs/common/emacs/dot-doom.d/`, `configs/common/nvim/dot-config/nvim-*/`
 
 ### System Maintenance
-- Main justfile: `just/dot-justfile`
+- Main justfile: `justfile` (project root)
 - Platform-specific: `sys_maintenance_*/dot-sys_maintenance/justfile`
-- Common tasks: `sys_maintenance/dot-sys_maintenance/justfile_common`
+- Package management: `tools/package-management/` with TOML definitions
+- Health check: `tools/dotfiles-health/dotfiles-health.sh`
 
 ## Special Considerations
 

@@ -15,27 +15,32 @@ source .dotfiles.env
 
 echo "📊 Using configuration:"
 echo "  Platform: $DOTFILES_PLATFORM"
-echo "  Level: $DOTFILES_LEVEL"
+if [ -n "${DOTFILES_LEVEL:-}" ]; then
+    echo "  ⚠️  Warning: Legacy DOTFILES_LEVEL detected in environment, ignoring"
+fi
 echo ""
 
 # Validate configuration
-if [ -z "$DOTFILES_PLATFORM" ] || [ -z "$DOTFILES_LEVEL" ]; then
-    echo "❌ Invalid configuration. Run: ./configure.sh"
+if [ -z "$DOTFILES_PLATFORM" ]; then
+    echo "❌ Invalid configuration. Run: ./configure.sh or ./configure-p1p2.sh"
     exit 1
 fi
 
-# Check if just is available
-if command -v just >/dev/null 2>&1; then
-    echo "🔧 Using just command for bootstrap..."
-    just bootstrap
+# Check if essential tools are available
+if command -v stow >/dev/null 2>&1; then
+    echo "🔧 Stow is already installed, skipping bootstrap..."
 else
-    echo "🔧 Using direct bootstrap (just not yet installed)..."
+    echo "🔧 Installing essential tools..."
     cd bootstrap
+    
+    # Always use basic bootstrap (essential tools only) for P1/P2 system
+    BOOTSTRAP_LEVEL="basic"
+    
     if command -v just >/dev/null 2>&1; then
-        just "bootstrap-$DOTFILES_LEVEL-$DOTFILES_PLATFORM"
+        just "bootstrap-$BOOTSTRAP_LEVEL-$DOTFILES_PLATFORM"
     else
         echo "❌ Just command not found. Please install just first or run bootstrap manually."
-        echo "Expected command: bootstrap-$DOTFILES_LEVEL-$DOTFILES_PLATFORM"
+        echo "Expected command: bootstrap-$BOOTSTRAP_LEVEL-$DOTFILES_PLATFORM"
         exit 1
     fi
     cd ..

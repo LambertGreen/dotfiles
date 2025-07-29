@@ -42,9 +42,62 @@ ENV HOME=/home/user
 RUN mkdir -p ~/dev/my/dotfiles
 
 # =============================================================================
+# CONFIGURE STAGE - Environment setup (first step)
+# =============================================================================
+FROM base AS configure
+
+# Copy configure script and justfile for validation
+COPY --chown=user:user configure.sh /home/user/dev/my/dotfiles/configure.sh
+COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
+WORKDIR /home/user/dev/my/dotfiles
+
+# Health check before configure (should show not configured)
+RUN echo "🔍 Pre-configure health check (expecting not configured error)..." && \
+    (just health-check || echo "✅ Expected error: Not configured") && \
+    echo "Proceeding with configuration..."
+
+# Configure for ubuntu basic (non-interactive)
+RUN echo "⚙️ Configuring for ubuntu basic..." && \
+    echo -e "Y\n1\n1" | ./configure.sh && \
+    echo "✅ Configuration complete"
+
+# Health check after configure (should show no packages stowed)
+RUN echo "🔍 Post-configure health check..." && \
+    (just health-check || echo "✅ Expected EMPTY state after configure") && \
+    echo "✅ Post-configure validation complete"
+
+CMD ["/bin/bash"]
+
+FROM base AS configure-typical
+
+# Copy configure script and justfile for validation
+COPY --chown=user:user configure.sh /home/user/dev/my/dotfiles/configure.sh
+COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
+COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
+WORKDIR /home/user/dev/my/dotfiles
+
+# Health check before configure (should show not configured)
+RUN echo "🔍 Pre-configure health check (expecting not configured error)..." && \
+    (just health-check || echo "✅ Expected error: Not configured") && \
+    echo "Proceeding with configuration..."
+
+# Configure for ubuntu typical (non-interactive)
+RUN echo "⚙️ Configuring for ubuntu typical..." && \
+    echo -e "Y\n2" | ./configure.sh && \
+    echo "✅ Configuration complete"
+
+# Health check after configure (should show no packages stowed)
+RUN echo "🔍 Post-configure health check..." && \
+    (just health-check || echo "✅ Expected EMPTY state after configure") && \
+    echo "✅ Post-configure validation complete"
+
+CMD ["/bin/bash"]
+
+# =============================================================================
 # BOOTSTRAP STAGES - Tool installation by level
 # =============================================================================
-FROM base AS bootstrap-basic
+FROM configure AS bootstrap-basic
 
 COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
 WORKDIR /home/user/dev/my/dotfiles/bootstrap
@@ -52,14 +105,16 @@ WORKDIR /home/user/dev/my/dotfiles/bootstrap
 RUN echo "🚀 Running basic bootstrap..." && \
     just bootstrap-basic-ubuntu
 
-# Validate bootstrap - basic only needs apt (already installed)
-RUN echo "🔍 Validating basic bootstrap..." && \
+# Validate bootstrap with health check
+RUN echo "🔍 Post-bootstrap health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    (just health-check || echo "✅ Expected EMPTY state after bootstrap") && \
     command -v apt && \
-    echo "✅ Basic bootstrap validation complete"
+    echo "✅ Bootstrap validation complete"
 
 CMD ["/bin/bash"]
 
-FROM base AS bootstrap-typical
+FROM configure-typical AS bootstrap-typical
 
 COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
 WORKDIR /home/user/dev/my/dotfiles/bootstrap
@@ -67,11 +122,13 @@ WORKDIR /home/user/dev/my/dotfiles/bootstrap
 RUN echo "🚀 Running typical bootstrap..." && \
     just bootstrap-typical-ubuntu
 
-# Validate bootstrap
-RUN echo "🔍 Validating typical bootstrap..." && \
+# Validate bootstrap with health check
+RUN echo "🔍 Post-bootstrap health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    (just health-check || echo "✅ Expected EMPTY state after bootstrap") && \
     command -v apt && \
     command -v brew && \
-    echo "✅ Typical bootstrap validation complete"
+    echo "✅ Bootstrap validation complete"
 
 CMD ["/bin/bash"]
 
@@ -110,9 +167,6 @@ RUN echo "🔗 Running basic stow..." && \
 # Validate the stow setup worked
 WORKDIR /home/user/dev/my/dotfiles
 RUN echo "🧪 Validating basic stow with health check..." && \
-    test -d ~/.package_management && \
-    cd ~/.package_management/install && \
-    just --list > /dev/null && \
     echo "📋 Running dotfiles health check..." && \
     cd /home/user/dev/my/dotfiles && \
     just health-check && \
@@ -135,9 +189,6 @@ RUN echo "🔗 Running typical stow..." && \
 # Validate the stow setup worked
 WORKDIR /home/user/dev/my/dotfiles
 RUN echo "🧪 Validating typical stow with health check..." && \
-    test -d ~/.package_management && \
-    cd ~/.package_management/install && \
-    just --list > /dev/null && \
     echo "📋 Running dotfiles health check..." && \
     cd /home/user/dev/my/dotfiles && \
     just health-check && \
@@ -150,19 +201,43 @@ CMD ["/bin/bash"]
 # =============================================================================
 FROM stow-basic AS install-basic
 
-# Run install via package management justfile (from stowed location)
-RUN echo "📦 Running basic install..." && \
-    cd ~/.package_management/install && \
-    just install-basic
+# Pre-install health check (should show packages ready for install)
+RUN echo "🔍 Pre-install health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "Proceeding with package installation..."
+
+# Run install via new tool-based package management
+RUN echo "📦 Running basic install with new tool..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just install
+
+# Post-install health check (should show system ready)
+RUN echo "🔍 Post-install health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Install validation complete"
 
 CMD ["/bin/bash"]
 
 FROM stow-typical AS install-typical
 
-# Run install via package management justfile (from stowed location)
-RUN echo "📦 Running typical install..." && \
-    cd ~/.package_management/install && \
-    just install-typical
+# Pre-install health check
+RUN echo "🔍 Pre-install health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "Proceeding with package installation..."
+
+# Run install via new tool-based package management
+RUN echo "📦 Running typical install with new tool..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just install
+
+# Post-install health check
+RUN echo "🔍 Post-install health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Install validation complete"
 
 CMD ["/bin/bash"]
 
@@ -171,18 +246,42 @@ CMD ["/bin/bash"]
 # =============================================================================
 FROM install-basic AS update-basic
 
-# Run update via package management justfile (from stowed location)
-RUN echo "🔄 Running basic update..." && \
-    cd ~/.package_management/update && \
-    just update-basic
+# Pre-update health check
+RUN echo "🔍 Pre-update health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "Proceeding with package updates..."
+
+# Run update via new tool-based package management
+RUN echo "🔄 Running basic update with new tool..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just update
+
+# Post-update health check (final validation)
+RUN echo "🔍 Post-update health check (final validation)..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Complete workflow validation successful"
 
 CMD ["/bin/bash"]
 
 FROM install-typical AS update-typical
 
-# Run update via package management justfile (from stowed location)
-RUN echo "🔄 Running typical update..." && \
-    cd ~/.package_management/update && \
-    just update-typical
+# Pre-update health check
+RUN echo "🔍 Pre-update health check..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "Proceeding with package updates..."
+
+# Run update via new tool-based package management
+RUN echo "🔄 Running typical update with new tool..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just update
+
+# Post-update health check (final validation)
+RUN echo "🔍 Post-update health check (final validation)..." && \
+    cd /home/user/dev/my/dotfiles && \
+    just health-check && \
+    echo "✅ Complete workflow validation successful"
 
 CMD ["/bin/bash"]

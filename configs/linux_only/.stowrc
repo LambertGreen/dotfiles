@@ -1,0 +1,6 @@
+# Stow configuration for Linux-only configs
+# Target home directory
+--target=~
+--dotfiles
+--no-folding
+--ignore='\.DS_Store'

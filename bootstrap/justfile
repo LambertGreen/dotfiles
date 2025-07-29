@@ -10,8 +10,8 @@ default:
     @echo "  just bootstrap-max-ubuntu      - Typical + Nix (heavy, for older distros)"
     @echo ""
     @echo "Arch bootstrap recipes:"
-    @echo "  just bootstrap-basic-arch      - Essential tools (yay AUR helper)"
-    @echo "  just bootstrap-typical-arch    - Basic + Homebrew"
+    @echo "  just bootstrap-basic-arch      - Essential tools (minimal, fast)"
+    @echo "  just bootstrap-typical-arch    - Basic + AUR (yay) + Homebrew"
     @echo "  just bootstrap-max-arch        - Typical + Nix"
     @echo ""
     @echo "Individual bootstrap scripts:"
@@ -45,15 +45,15 @@ bootstrap-max-ubuntu:
 
 # Arch Bootstrap Recipes (Scaling Levels)
 
-# Essential tools only - minimal bootstrap for Arch
+# Essential tools only - minimal bootstrap for Arch (no AUR needed)
 bootstrap-basic-arch:
-    @echo "🏛️ Arch Basic Bootstrap - Essential tools"
-    ./install-yay-arch.sh
-    @echo "✅ Basic bootstrap complete! AUR access available"
+    @echo "🏛️ Arch Basic Bootstrap - Essential tools only"
+    sudo pacman -S --noconfirm stow
+    @echo "✅ Basic bootstrap complete! Using system package manager only"
 
-# Recommended setup - basic + common package managers
+# Recommended setup - basic + AUR + common package managers
 bootstrap-typical-arch:
-    @echo "🏛️ Arch Typical Bootstrap - Essential + Homebrew"
+    @echo "🏛️ Arch Typical Bootstrap - Essential + AUR + Homebrew"
     ./install-yay-arch.sh
     ./install-homebrew-linux.sh
     @echo "✅ Typical bootstrap complete! System ready for standard workflows"

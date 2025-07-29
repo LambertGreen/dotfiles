@@ -1,0 +1,48 @@
+# CLI Editors Package Definitions
+# Primary and advanced command-line text editors
+
+[metadata]
+category = "cli-editors"
+description = "Essential command-line text editors for development"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# PRIMARY EDITORS (P1)
+# =============================================================================
+
+[packages.neovim]
+description = "Hyperextensible Vim-based text editor"
+health_check = "nvim --version"
+executable = "nvim"
+priority = "p1"
+
+[packages.neovim.install]
+arch_pacman = "neovim"
+ubuntu_apt = "neovim"
+osx_brew = "neovim"
+
+[packages.emacs]
+description = "Extensible, customizable text editor and computing environment"
+health_check = "emacs --version"
+executable = "emacs"
+priority = "p1"
+
+[packages.emacs.install]
+arch_aur = "emacs-plus"
+ubuntu_apt = "emacs"
+osx_brew = "d12frosted/emacs-plus/emacs-plus@31"
+
+# =============================================================================
+# ADVANCED/MODERN EDITORS (P2)
+# =============================================================================
+
+[packages.helix]
+description = "A post-modern modal text editor"
+health_check = "hx --version"
+executable = "hx"
+priority = "p2"
+
+[packages.helix.install]
+arch_pacman = "helix"
+ubuntu_brew = "helix"  # Note: Ubuntu uses homebrew for helix
+osx_brew = "helix"

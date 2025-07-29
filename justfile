@@ -1,203 +1,181 @@
 # Dotfiles Management System
 set dotenv-load := true
-set dotenv-filename := ".dotfiles.env"
 
 # Environment variables (must be configured first)
 platform := env_var_or_default("DOTFILES_PLATFORM", "")
-level := env_var_or_default("DOTFILES_LEVEL", "")
 
-# Show available contexts
+# Set DOTFILES_DIR for all commands
+export DOTFILES_DIR := justfile_directory()
+
+# Show available commands
+[private]
 default:
     @echo "🏠 Dotfiles Management System"
     @echo ""
-    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then \
+    @if [ -z "{{platform}}" ]; then \
         echo "⚠️  Not configured yet. Run: just configure"; \
         echo ""; \
     else \
         echo "📊 Current Configuration:"; \
         echo "  Platform: {{platform}}"; \
-        echo "  Level: {{level}}"; \
+        echo "  Run 'just show-config' to see enabled categories"; \
         echo ""; \
-        echo "🚀 Quick Commands:"; \
-        echo "  just bootstrap         - Bootstrap system"; \
-        echo "  just stow              - Deploy configs"; \
-        echo "  just install           - Install packages"; \
-        echo "  just update            - Update packages"; \
-        echo "  just health-check      - Validate configuration"; \
+        echo "🚀 Main Commands:"; \
+        echo "  just bootstrap         - Bootstrap system (install core tools)"; \
+        echo "  just stow              - Deploy configuration files"; \
+        echo "  just install           - Install packages based on your categories"; \
+        echo "  just update-check      - Check for available package updates"; \
+        echo "  just update-upgrade    - Upgrade all configured packages"; \
+        echo "  just check-health      - Validate system health (auto-logs)"; \
         echo ""; \
     fi
     @echo "🔧 Setup Commands:"
-    @echo "  just configure         - Interactive configuration setup"
+    @echo "  just configure         - Interactive configuration (profiles or custom categories)"
+    @echo "  just show-config       - Show current configuration"
     @echo ""
-    @echo "🔧 Available contexts:"
-    @echo "  bootstrap-context - First-time setup (stow package_management)"
-    @echo "  install-context   - Install packages (interactive)"
-    @echo "  update-context    - Update system packages (interactive)"
-    @echo "  stow-context - Manage configuration symlinks"
-    @echo "  test      - Test dotfiles in Docker containers"
+    @echo "🔧 Specialized Commands:"
+    @echo "  just updates                   - Opens a sub-shell with platform-specific update tools"
+    @echo "  just testing                   - Opens a sub-shell with testing and validation tools"
     @echo ""
-    @echo "🔍 Other commands:"
-    @echo "  health-check-log          - Run health check with logging"
-    @echo "  cleanup-broken-links      - List broken symlinks (dry run)"
-    @echo "  cleanup-broken-links-remove - Remove broken symlinks"
+    @echo "🧪 Quick Test Commands:"
+    @echo "  just test-arch                 - Quick test Arch configuration"
+    @echo "  just test-ubuntu               - Quick test Ubuntu configuration" 
+    @echo ""
+    @echo "🔍 Other Commands:"
+    @echo "  just check-health-verbose      - Health check with detailed output"
+    @echo "  just cleanup-broken-links-dry-run - List broken symlinks (dry run)"
+    @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
 
-# Install packages using environment variables
+# Install packages based on your categories
 install:
-    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
-    @echo "📦 Installing {{platform}} {{level}} packages..."
-    @cd ~/.package_management/install && just install-{{level}}
+    @if [ -z "{{platform}}" ]; then \
+        echo "❌ Platform not configured. Run: just configure"; \
+        echo ""; \
+        echo "💡 This will set up your platform (osx/arch/ubuntu) and package categories."; \
+        exit 1; \
+    fi
+    @if [ ! -f ".dotfiles.env" ]; then \
+        echo "❌ Configuration file missing. Run: just configure"; \
+        exit 1; \
+    fi
+    @echo "📦 Installing {{platform}} packages using TOML-based package management..."
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_install"
 
-# Navigate to install context (requires package_management to be stowed)
-install-context:
-    @echo "📦 Entering install context..."
-    @echo "Type 'just' to see available commands, 'exit' to return"
+
+# Check for available package updates (safe to run)
+update-check:
+    @if [ -z "{{platform}}" ]; then \
+        echo "❌ Platform not configured. Run: just configure"; \
+        exit 1; \
+    fi
+    @echo "🔍 Checking for {{platform}} package updates..."
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_update_check"
+
+# Upgrade all configured packages (requires careful consideration)
+update-upgrade:
+    @if [ -z "{{platform}}" ]; then \
+        echo "❌ Platform not configured. Run: just configure"; \
+        exit 1; \
+    fi
+    @echo "⚠️  WARNING: This will upgrade all configured packages!"
+    @echo "Run 'just update-check' first to see what will be upgraded."
     @echo ""
-    @cd ~/.package_management/install && $SHELL
-
-# Update packages using environment variables
-update:
-    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
-    @echo "🔄 Updating {{platform}} packages..."
-    @cd ~/.package_management/update && just update-{{level}}
-
-# Navigate to update context (requires package_management to be stowed)
-update-context:
-    @echo "🔄 Entering update context..."
-    @echo "Type 'just' to see available commands, 'exit' to return"
+    @bash -c 'read -p "Continue with upgrade? (y/N): " confirm; if [[ "$confirm" != [yY] && "$confirm" != [yY][eE][sS] ]]; then echo "Cancelled."; exit 1; fi'
     @echo ""
-    @cd ~/.package_management/update && $SHELL
+    @echo "🔄 Upgrading {{platform}} packages..."
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_update"
 
-# Navigate to stow context
-stow-context:
-    @echo "🔗 Entering stow context..."
-    @echo "Type 'just' to see available commands, 'exit' to return"
+# Opens a sub-shell with platform-specific update tools
+updates:
+    @echo "🔧 Opening update tools for {{platform}}..."
+    @echo "Type 'just' to see available commands, 'exit' to return to main shell"
     @echo ""
-    @cd configs && $SHELL
+    @if [ -f "tools/package-management/update-recipes/{{platform}}/justfile" ]; then \
+        cd tools/package-management/update-recipes/{{platform}} && exec $SHELL; \
+    else \
+        echo "❌ No update tools available for platform: {{platform}}"; \
+        echo "Expected: tools/package-management/update-recipes/{{platform}}/justfile"; \
+        exit 1; \
+    fi
 
-# Navigate to test context
-test:
-    @echo "🧪 Entering test context..."
-    @echo "Type 'just' to see available commands, 'exit' to return"
+
+
+# Opens a sub-shell with testing and validation tools
+testing:
+    @echo "🧪 Opening testing tools..."
+    @echo "Type 'just' to see available commands, 'exit' to return to main shell"
     @echo ""
-    @cd test && $SHELL
+    @cd test && exec $SHELL
 
-# Bootstrap context - First-time setup
-bootstrap-context:
-    @echo "🚀 Bootstrap Context"
-    @echo "Type 'just' to see available commands, 'exit' to return"
-    @echo ""
-    @cd bootstrap && $SHELL
+# Test specific platform
+test-platform platform:
+    @cd test && just test-update basic {{platform}}
 
-# Health check - Validate dotfiles configuration state
-health-check:
-    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check"
+# Quick test shortcuts
+test-arch: (test-platform "arch")
+test-ubuntu: (test-platform "ubuntu")
+
+
+# Validate system health (auto-logs)
+check-health:
+    @just _check-health-with-log "health-check-$(date +%Y%m%d-%H%M%S).log" ""
 
 # Health check with verbose output
-health-check-verbose:
-    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check --verbose"
+check-health-verbose:
+    @just _check-health-with-log "health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
 
-# Health check with logging
-health-check-log logfile="health-check-$(date +%Y%m%d-%H%M%S).log":
-    @echo "📝 Running health check with logging to: {{logfile}}"
-    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check --log {{logfile}}"
+# Internal helper for health checks with logging
+[private]
+_check-health-with-log logfile flags:
+    @echo "🏥 Running health check with logging to: {{logfile}}"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source .dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check {{flags}} --log {{logfile}}"
 
-# Clean up broken symlinks (dry run)
-cleanup-broken-links:
+# Show current configuration
+show-config:
+    @if [ -z "{{platform}}" ]; then \
+        echo "❌ Platform not configured. Run: just configure"; \
+        exit 1; \
+    fi
+    @if [ ! -f ".dotfiles.env" ]; then \
+        echo "❌ Configuration file missing. Run: just configure"; \
+        exit 1; \
+    fi
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_show_config"
+
+# List broken symlinks (dry run)
+cleanup-broken-links-dry-run:
     @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
 
-# Clean up broken symlinks (actually remove)
+# Remove broken symlinks
 cleanup-broken-links-remove:
     @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
-# Configure dotfiles (delegates to shell script)
+# Interactive configuration (profiles or custom categories)
 configure:
     @./configure.sh
 
-# Bootstrap system (delegates to shell script for flexibility)
+
+# Bootstrap system (install core tools)
 bootstrap:
     @./bootstrap.sh
 
+# Deploy configuration files
 stow:
-    @if [ -z "{{platform}}" ] || [ -z "{{level}}" ]; then echo "❌ Not configured. Run: just configure"; exit 1; fi
-    @echo "🔗 Stowing {{platform}} {{level}} configurations..."
-    @cd configs && just {{platform}} stow-{{level}}
+    @if [ -z "{{platform}}" ]; then \
+        echo "❌ Platform not configured. Run: just configure"; \
+        exit 1; \
+    fi
+    @echo "🔗 Stowing {{platform}} configurations using new structure..."
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_stow"
 
-# Bootstrap commands (delegated to bootstrap/justfile)
-bootstrap-basic-arch:
-    @cd bootstrap && just bootstrap-basic-arch
 
-bootstrap-typical-arch:
-    @cd bootstrap && just bootstrap-typical-arch
-
-bootstrap-max-arch:
-    @cd bootstrap && just bootstrap-max-arch
-
-bootstrap-basic-ubuntu:
-    @cd bootstrap && just bootstrap-basic-ubuntu
-
-bootstrap-typical-ubuntu:
-    @cd bootstrap && just bootstrap-typical-ubuntu
-
-bootstrap-max-ubuntu:
-    @cd bootstrap && just bootstrap-max-ubuntu
-
-bootstrap-basic-osx:
-    @cd bootstrap && just bootstrap-basic-osx
-
-bootstrap-typical-osx:
-    @cd bootstrap && just bootstrap-typical-osx
-
-bootstrap-max-osx:
-    @cd bootstrap && just bootstrap-max-osx
-
-# Stow commands (delegated to configs/justfile)
-osx-stow-basic:
-    @cd configs && just osx stow-basic
-
-osx-stow-typical:
-    @cd configs && just osx stow-typical
-
-osx-stow-max:
-    @cd configs && just osx stow-max
-
-osx-stow-basic-force:
-    @cd configs && just osx stow-basic-force
-
-osx-stow-typical-force:
-    @cd configs && just osx stow-typical-force
-
-osx-stow-max-force:
-    @cd configs && just osx stow-max-force
-
-arch-stow-basic:
-    @cd configs && just arch stow-basic
-
-arch-stow-typical:
-    @cd configs && just arch stow-typical
-
-arch-stow-max:
-    @cd configs && just arch stow-max
-
-ubuntu-stow-basic:
-    @cd configs && just ubuntu stow-basic
-
-ubuntu-stow-typical:
-    @cd configs && just ubuntu stow-typical
-
-ubuntu-stow-max:
-    @cd configs && just ubuntu stow-max
-
-# Test commands (delegated to test/justfile)
-test-stow level platform:
-    @cd test && just test-stow {{level}} {{platform}}
-
-test-install level platform:
-    @cd test && just test-install {{level}} {{platform}}
-
-test-update level platform:
-    @cd test && just test-update {{level}} {{platform}}
 
 # Help aliases
+[private]
 help: default
+
+[private]
 h: default
+
+[private]
 usage: default
