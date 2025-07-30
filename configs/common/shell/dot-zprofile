@@ -15,8 +15,13 @@ lgreen_setup_homebrew() {
 
     if [[ -x /opt/homebrew/bin/brew ]]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
-    fi
 
+         # Add compilation paths for native extensions
+        export CPATH="/opt/homebrew/include${CPATH:+:$CPATH}"
+        export COMPILER_PATH="/opt/homebrew/bin:${COMPILER_PATH}"
+        export LIBRARY_PATH="/opt/homebrew/lib:/opt/homebrew/lib/gcc/current:${LIBRARY_PATH}"
+        export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+    fi
 
     if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
         # TODO: Find a long-term fix for PATH env setting and build systems
@@ -48,6 +53,43 @@ lgreen_setup_homebrew() {
 }
 
 # * GCC
+lgreen_setup_gcc_symlinks() {
+    if [[ -x /opt/homebrew/bin/brew ]] && command -v brew >/dev/null 2>&1; then
+        # Get the current GCC major version dynamically
+        local gcc_version=$(brew list --versions gcc 2>/dev/null | sed 's/gcc //' | awk '{print $1}' | cut -d. -f1)
+        if [[ -n "$gcc_version" && -f "/opt/homebrew/bin/gcc-${gcc_version}" ]]; then
+            # Check current symlinks and update if needed
+            local current_gcc_target=$(readlink /opt/homebrew/bin/gcc 2>/dev/null || echo "")
+            local current_gpp_target=$(readlink /opt/homebrew/bin/g++ 2>/dev/null || echo "")
+            local current_cpp_target=$(readlink /opt/homebrew/bin/cpp 2>/dev/null || echo "")
+
+            local updated=false
+
+            if [[ "$current_gcc_target" != "gcc-${gcc_version}" ]]; then
+                echo "Updating gcc symlink: gcc -> gcc-${gcc_version}"
+                ln -sf "gcc-${gcc_version}" /opt/homebrew/bin/gcc
+                updated=true
+            fi
+
+            if [[ "$current_gpp_target" != "g++-${gcc_version}" ]]; then
+                echo "Updating g++ symlink: g++ -> g++-${gcc_version}"
+                ln -sf "g++-${gcc_version}" /opt/homebrew/bin/g++
+                updated=true
+            fi
+
+            if [[ "$current_cpp_target" != "cpp-${gcc_version}" ]]; then
+                echo "Updating cpp symlink: cpp -> cpp-${gcc_version}"
+                ln -sf "cpp-${gcc_version}" /opt/homebrew/bin/cpp
+                updated=true
+            fi
+
+            if [[ "$updated" == true ]]; then
+                echo "GCC symlinks updated for version ${gcc_version}"
+            fi
+        fi
+    fi
+}
+
 lgreen_setup_gcc() {
     if command -v brew >/dev/null 2>&1; then
         export CC=$(brew --prefix)/bin/gcc
@@ -94,6 +136,7 @@ lgreen_export_ripgrep_config_path() {
 
 # * == MAIN ==
 lgreen_setup_homebrew
+lgreen_setup_gcc_symlinks
 lgreen_setup_gcc
 lgreen_start_agents
 lgreen_export_gpg_tty
