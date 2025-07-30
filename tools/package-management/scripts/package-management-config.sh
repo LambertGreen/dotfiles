@@ -450,21 +450,21 @@ package_stow() {
     
     # Always stow common configs (respects .stow-local-ignore)
     log "Stowing common configurations..."
-    cd common && stow * && cd ..
+    (cd common && stow *)
     
     # Stow platform-specific configs based on platform
     case "$PLATFORM" in
         osx)
             log "Stowing macOS-specific configurations..."
-            cd ../osx_only && stow * && cd ..
+            (cd osx_only && stow *)
             ;;
         arch|ubuntu)
             log "Stowing Linux-specific configurations..."
-            cd ../linux_only && stow * && cd ..
+            (cd linux_only && stow *)
             ;;
         win)
             log "Stowing Windows-specific configurations..."
-            cd ../windows_only && stow * && cd ..
+            (cd windows_only && stow *)
             ;;
         *)
             error "Unsupported platform for stowing: $PLATFORM"

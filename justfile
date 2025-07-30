@@ -128,7 +128,7 @@ check-health-verbose:
 [private]
 _check-health-with-log logfile flags:
     @echo "🏥 Running health check with logging to: {{logfile}}"
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source .dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_health_check {{flags}} --log {{logfile}}"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source .dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
 
 # Show current configuration
 show-config:

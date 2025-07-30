@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a personal dotfiles repository containing configuration files and setup scripts for cross-platform development environments (macOS, Windows, Linux). The repository uses GNU Stow for dotfile management and Just for system maintenance tasks.
+This is a unified cross-platform package management system (think "better Topgrade") combined with dotfiles management. It provides a single interface to manage packages across multiple package managers while also handling system configuration through GNU Stow.
 
 ## Key Architecture
 
@@ -24,10 +24,14 @@ This is a personal dotfiles repository containing configuration files and setup 
 - Configurations are organized by application/tool in separate directories
 - Multiple Emacs configurations supported via Chemacs 2 (Doom, Spacemacs, custom)
 
-### Package Management Strategy
-- **macOS**: Homebrew (preferred) + Mac App Store (via `mas`)
-- **Windows**: Scoop (preferred) + Chocolatey + MSYS2/Pacman for Unix tools
-- **Linux**: System package managers + Homebrew Linux + Nix/Home Manager
+### Unified Package Management
+- **Single interface** for multiple package managers per platform:
+  - **macOS**: brew/cask + mas (Mac App Store) + npm/pip/gem
+  - **Arch Linux**: pacman + AUR (via yay) + npm/pip/gem  
+  - **Ubuntu**: apt + npm/pip/gem
+  - **Windows**: scoop + chocolatey + MSYS2/pacman
+- **Future**: App-specific managers (zinit, elpaca, lazy.nvim, cargo, pipx)
+- **Two-step updates**: `just update-check` → `just update-upgrade`
 
 ## Common Commands
 
@@ -50,15 +54,19 @@ just brew-upgrade          # Update Homebrew packages
 just mas-upgrade          # Update Mac App Store apps (macOS)
 ```
 
-### Docker Testing Commands
+### Docker Testing Commands (Tiered Approach)
 ```bash
-# AUTOMATED tests (can be run in CI/scripts):
-cd test && just test-stow basic arch      # Test through stow stage
-cd test && just test-install basic arch   # Test through install stage
-cd test && just test-update basic arch    # Test complete workflow
+# CURRENT (working but outdated terminology):
+cd test && just test-update basic arch   # Test complete workflow
+cd test && just test-run basic arch      # Interactive shell
 
-# INTERACTIVE tests (require human interaction - DO NOT USE IN SCRIPTS):
-cd test && just test-run basic arch       # Drops into interactive shell for manual testing
+# PLANNED (tiered testing reflecting real usage patterns):
+just test-min-cli arch     # Minimal CLI tools only
+just test-mid-cli ubuntu   # Extended CLI tools  
+just test-mid-dev arch     # Development environment (multi-PM testing begins)
+just test-max-dev ubuntu   # Full development (comprehensive multi-PM validation)
+
+# GUI tiers tested manually only (no Docker)
 ```
 
 ### Dotfile Management
@@ -152,11 +160,33 @@ git submodule update --init --recursive
 - Emacs uses native compilation where available
 - Terminal color support configured for performance
 
+## Current Implementation Status (2025-07-29)
+
+### Recently Completed
+- ✅ Major dotfiles reorganization (common/, osx_only/, linux_only/, windows_only/)
+- ✅ Environment-driven architecture with .dotfiles.env configuration
+- ✅ Fixed all 13 git submodules after reorganization
+- ✅ Updated README.org with tiered configuration approach
+- ✅ Documentation positioned as "better Topgrade" unified package management
+
+### Planned Implementation (High Priority)
+- 🔄 Rename `_ADVANCED` → `_HEAVY` throughout system
+- 🔄 Implement `IS_PERSONAL_MACHINE` and `IS_WORK_MACHINE` context flags
+- 🔄 Create tiered test recipes (test-min-cli, test-mid-dev, etc.)
+- 🔄 Fix test justfile path inconsistencies and remove broken recipes
+- 🔄 Ensure mid-dev and max-dev tiers test multiple package managers (AUR on Arch)
+
+### Future Vision
+- App-specific package managers (zinit, elpaca, lazy.nvim)
+- Complete unified package management across all package managers
+- True multi-package-manager coordination and conflict resolution
+
 ## Workflow Notes
 
 When making changes:
-1. Test configurations on relevant platforms
-2. Update package export files when adding new tools
+1. Test configurations on relevant platforms using tiered approach
+2. Update TOML package definitions when adding new tools
 3. Consider both GUI and terminal environments
 4. Maintain backward compatibility where possible
-5. Use Just for system maintenance rather than manual commands
+5. Use unified package commands rather than individual package managers
+6. Test multi-package-manager scenarios in mid-dev and max-dev tiers

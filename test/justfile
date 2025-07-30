@@ -94,7 +94,7 @@ default:
 test-run level=test_level platform=test_platform:
     @echo "🐳 Running {{level}} {{platform}} interactive shell..."
     @echo "Building image to update stage first..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
     docker run -it --rm dotfiles-test-{{level}}-{{platform}}
 
@@ -104,35 +104,35 @@ test level=test_level platform=test_platform: (test-update level platform)
 # Helper: Test through install stage (complete workflow)
 test-install-local level platform:
     @echo "🔨 Building Docker image for {{level}} {{platform}} install stage..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target install-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target install-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
     @echo "🚀 Running test container..."
     docker run --rm dotfiles-test-{{level}}-{{platform}}
 
 # Helper: Test through stow stage only
 test-stow-local level platform:
     @echo "🔨 Building Docker image for {{level}} {{platform}} stow stage..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target stow-{{level}} -t dotfiles-stow-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target stow-{{level}} -t dotfiles-stow-{{level}}-{{platform}} .
     @echo "🚀 Running test container..."
     docker run --rm dotfiles-stow-{{level}}-{{platform}}
 
 # Helper: Test through update stage (complete workflow)
 test-update-local level platform:
     @echo "🔨 Building Docker image for {{level}} {{platform}} update stage..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
     @echo "🚀 Running test container..."
     docker run --rm dotfiles-test-{{level}}-{{platform}}
 
 # Test configure only (configuration generation)
 test-configure level platform:
     @echo "🔧 Building configure-only Docker image for {{level}} {{platform}}..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target configure -t dotfiles-configure-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target configure -t dotfiles-configure-{{level}}-{{platform}} .
     @echo "🚀 Running configure test container..."
     docker run --rm dotfiles-configure-{{level}}-{{platform}}
 
 # Test bootstrap only (no package installation)
 test-bootstrap level platform:
     @echo "🔨 Building bootstrap-only Docker image for {{level}} {{platform}}..."
-    cd .. && docker build -f test/dockerfiles/Dockerfile.{{platform}}.multi --target bootstrap-{{level}} -t dotfiles-bootstrap-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target bootstrap-{{level}} -t dotfiles-bootstrap-{{level}}-{{platform}} .
     @echo "🚀 Running bootstrap test container..."
     docker run --rm dotfiles-bootstrap-{{level}}-{{platform}}
 
@@ -226,7 +226,7 @@ update:
     echo "🧪 Testing minimal configuration on Arch Linux..."
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📝 Logging to test-minimal-arch-output.log"
-    docker build -f dockerfiles/Dockerfile.arch.multi --target update-basic .. 2>&1 | tee test-minimal-arch-output.log; \
+    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.arch.multi --target update-basic .. 2>&1 | tee test-minimal-arch-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
         echo "✅ Minimal Arch test PASSED"; \
     else \
@@ -242,7 +242,7 @@ update:
     echo "🧪 Testing developer configuration on Ubuntu..."
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "📝 Logging to test-developer-ubuntu-output.log"
-    docker build -f dockerfiles/Dockerfile.ubuntu.multi --target update-basic .. 2>&1 | tee test-developer-ubuntu-output.log; \
+    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.ubuntu.multi --target update-basic .. 2>&1 | tee test-developer-ubuntu-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
         echo "✅ Developer Ubuntu test PASSED"; \
     else \
@@ -267,7 +267,7 @@ update:
     echo "🐚 Interactive shell - Arch minimal configuration"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "🔧 Building container and dropping into shell..."
-    docker build -f dockerfiles/Dockerfile.arch.multi --target install-basic .. && \
+    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.arch.multi --target install-basic .. && \
     docker run -it $$(docker build -q -f dockerfiles/Dockerfile.arch.multi --target install-basic ..) /bin/bash
 
 # Interactive shell for debugging (developer Ubuntu)  
@@ -275,5 +275,5 @@ update:
     echo "🐚 Interactive shell - Ubuntu developer configuration"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "🔧 Building container and dropping into shell..."
-    docker build -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic .. && \
+    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic .. && \
     docker run -it $$(docker build -q -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic ..) /bin/bash

@@ -3,24 +3,28 @@
 #+DESCRIPTION: Cross-platform system configuration management and package management system
 #+STARTUP: overview
 
+
 * Introduction
 
-This is a comprehensive cross-platform system configuration management and package management system. It provides a unified approach to managing dotfiles, system packages, and development environments across macOS, Linux (Arch/Ubuntu), and Windows platforms.
+This is a comprehensive cross-platform dotfiles and unified package management system - think of it as a better, more flexible Topgrade. It provides a single interface to manage packages across multiple package managers, while also handling dotfiles deployment and system configuration.
+
+** Key Features
+
+- **Unified Package Management** - Single command updates packages across all your package managers:
+  - System: brew/cask, pacman/AUR, apt, mas (Mac App Store)
+  - Languages: npm, pip, gem, cargo (coming soon)
+  - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (planned)
+- **Smart Configuration** - Tiered setup options from minimal CLI to full desktop
+- **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
+- **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
+- **Comprehensive Testing** - Docker validates multi-package-manager scenarios
 
 ** Key Technologies
 
 - **GNU Stow** - Symlink management for dotfiles deployment
 - **Just** - Command runner for consistent cross-platform operations
-- **Docker** - Automated testing across different platforms and configurations
-- **Environment Variables** - Configuration-driven setup system
-
-** Features
-
-- **Auto-Detection** - Intelligent platform detection with manual override
-- **Flexible Configuration** - Choose CLI tools, development environment, and GUI applications as needed
-- **Work-Friendly** - Granular control to handle corporate restrictions
-- **Tested** - Comprehensive Docker test suite validates configurations
-- **Health Monitoring** - Built-in health check system validates symlink integrity
+- **Docker** - Automated testing including multi-package-manager validation
+- **TOML** - Declarative package definitions by category and platform
 
 * Quick Start
 
@@ -44,16 +48,17 @@ Interactive configuration:
 
 The script will auto-detect your platform and offer to use it, or you can choose manually:
 - Platform: =arch=, =ubuntu=, =osx=, =msys2=
-- Configuration: Select components that suit your needs
-  - *CLI Editors*: Essential text editors (vim, neovim, emacs)
-  - *CLI Utils*: Command-line utilities and tools
-  - *Development Environment*: Programming languages and development tools
-  - *GUI Applications*: Desktop applications (macOS only)
+- Configuration approach: 
+  - *Profile* (Recommended): Choose a pre-defined tier that matches your use case
+  - *Custom*: Select individual categories for specialized needs
 
-Examples:
-- Server setup: Enable CLI editors and development tools
-- Developer workstation: Enable all components
-- Minimal system: Enable only what you need
+Common tier selections:
+- *min-cli*: Servers, containers, minimal VMs
+- *mid-cli*: System administrators, terminal power users
+- *mid-dev*: Software developers (most common choice)
+- *max-dev*: Polyglot developers, DevOps engineers
+- *mid-gui*: Corporate workstations (work-appropriate apps)
+- *max-gui*: Personal workstations (unrestricted)
 
 Configuration is saved to =.dotfiles.env= for future use.
 
@@ -109,13 +114,43 @@ This uses your saved configuration (DOTFILES_PLATFORM and category flags) to ins
 
 ** System Updates
 
-Keep your system and packages up to date:
+Keep your system and packages up to date with a two-step process:
+
+*** Check for Available Updates
+
+First, update package manager registries and see what's available:
 
 #+begin_src bash
-just update     # Updates packages for your configured platform
+just update-check     # Refreshes package lists and shows available updates
 #+end_src
 
-This updates packages using your configured package managers (brew, pacman, apt, etc.).
+This is a safe, read-only operation that:
+- Updates package manager registries (brew update, apt update, etc.)
+- Shows which packages have newer versions available
+- Does NOT install anything
+
+*** Upgrade Packages
+
+After reviewing available updates, upgrade when ready:
+
+#+begin_src bash
+just update-upgrade   # Actually upgrades all packages
+#+end_src
+
+This will:
+- Prompt for confirmation before proceeding
+- Upgrade all packages for your configured platform
+- Clean up old versions where appropriate
+
+*** Platform-Specific Update Tools
+
+For more granular control over updates:
+
+#+begin_src bash
+just updates    # Opens platform-specific update sub-shell
+#+end_src
+
+This gives you access to individual update commands (brew-update, mas-update, etc.) for selective upgrading.
 
 * Configuration System
 
@@ -151,55 +186,184 @@ Desktop applications:
 - Productivity tools (Alfred, Raycast on macOS)
 - Platform-specific GUI applications
 
-** Advanced Categories (Optional)
+** Heavy Categories (Optional)
 
-*** CLI_EDITORS_ADVANCED
-Additional editors:
+*** CLI_EDITORS_HEAVY
+Additional editors and plugins:
 - Helix
 - Vim variants
 - Editor plugins and extensions
 
-*** DEV_ENV_ADVANCED
-Advanced development tools:
+*** DEV_ENV_HEAVY
+Extended development tools:
 - Additional language support (Rust, Go, Java)
 - Container tools
 - Advanced debugging tools
 
-*** CLI_UTILS_ADVANCED
-Specialized command-line tools:
+*** CLI_UTILS_HEAVY
+Extended command-line tools:
 - Network utilities
 - System monitoring tools
 - Advanced shell utilities
 
-*** GUI_APPS_ADVANCED
-Specialized desktop applications:
+*** GUI_APPS_HEAVY
+Extended desktop applications:
 - Window managers (Yabai, Skhd)
 - Advanced productivity tools
 - Platform-specific utilities
 
-** Configuration Profiles
+** Context Flags
 
-Pre-defined combinations for common use cases:
+*** IS_PERSONAL_MACHINE
+Enables personal-use packages:
+- Entertainment applications
+- Personal productivity tools
+- Non-work related utilities
 
-*** Minimal
-- basic-core only
-- Fastest setup, essential tools only
+*** IS_WORK_MACHINE
+Restricts to work-appropriate packages:
+- Filters out personal/entertainment apps
+- Ensures compliance with corporate policies
+- Work-focused productivity tools
 
-*** Developer
-- basic-core + CLI_EDITORS + DEV_ENV
-- Recommended for most development work
+** Quick Configuration Options (Recommended)
 
-*** Workstation
-- Developer + CLI_UTILS
-- Full command-line productivity suite
+The configure script offers these pre-defined tiers that cover most common usage scenarios. While you can customize individual categories, these tiers are designed for typical real-world setups:
 
-*** Desktop
-- Workstation + GUI_APPS
-- Complete desktop environment
+*** min-cli
+- Environment Variables: 
+  - =CLI_UTILS=true=
+  - All other categories =false=
+- Description: Light CLI tools for basic shell usage
+- Use Case: Minimal setup, servers
 
-*** Power-user
-- Desktop + all advanced categories
-- Everything available
+*** mid-cli
+- Environment Variables:
+  - =CLI_UTILS=true=
+  - =CLI_UTILS_HEAVY=true= (currently =_ADVANCED= until renamed)
+  - All other categories =false=
+- Description: Extended CLI utilities for power users
+- Use Case: Full command-line productivity
+
+*** mid-dev
+- Environment Variables:
+  - =CLI_EDITORS=true=
+  - =DEV_ENV=true=
+  - =CLI_EDITORS_HEAVY=false=
+  - =DEV_ENV_HEAVY=false=
+  - GUI categories =false=
+- Description: Standard development environment
+- Use Case: Most programming tasks
+
+*** max-dev
+- Environment Variables:
+  - =CLI_EDITORS=true=
+  - =CLI_EDITORS_HEAVY=true= (currently =_ADVANCED= until renamed)
+  - =DEV_ENV=true=
+  - =DEV_ENV_HEAVY=true= (currently =_ADVANCED= until renamed)
+  - GUI categories =false=
+- Description: Complete development environment
+- Use Case: Polyglot development, all tools
+
+*** mid-gui (Planned)
+- Environment Variables:
+  - Inherits from mid-dev
+  - =GUI_APPS=true=
+  - =GUI_APPS_HEAVY=false=
+  - =IS_WORK_MACHINE=true=
+  - =IS_PERSONAL_MACHINE=false=
+- Description: Work-appropriate desktop applications
+- Use Case: Corporate workstations
+
+*** max-gui
+- Environment Variables:
+  - Inherits from max-dev
+  - =GUI_APPS=true=
+  - =GUI_APPS_HEAVY=true= (currently =_ADVANCED= until renamed)
+  - =IS_PERSONAL_MACHINE=true=
+  - =IS_WORK_MACHINE=false=
+- Description: Complete personal desktop environment
+- Use Case: Personal workstations
+
+* Testing Strategy
+
+** Tiers Serve Dual Purposes
+
+*** Real-World Usage Patterns
+The configuration tiers aren't just for testing - they represent *common real-world usage patterns*:
+- Most users will choose one of these tiers as their actual configuration
+- Each tier is designed for a specific type of user or system
+- The tiers cover approximately 90% of typical use cases
+- Custom configuration remains available for specialized needs
+
+*** Efficient Testing
+Because these tiers represent actual usage patterns, our testing strategy:
+- Tests what people actually use in production
+- Uses cumulative tiers to avoid redundant testing
+- Validates real-world scenarios rather than arbitrary combinations
+- Docker tests run up to =max-dev= (GUI testing is manual only)
+
+** Test Tiers
+
+*** min-cli (Tier 1)
+- Categories: =CLI_UTILS=true
+- Purpose: Validate basic shell tools and core functionality
+- Platforms: arch, ubuntu
+
+*** mid-cli (Tier 2) 
+- Categories: =CLI_UTILS=true, =CLI_UTILS_HEAVY=true
+- Purpose: Validate extended CLI tools
+- Platforms: arch, ubuntu
+
+*** mid-dev (Tier 3)
+- Categories: Inherits all from mid-cli + =CLI_EDITORS=true, =DEV_ENV=true
+- Purpose: Validate development environment with standard tools
+- Platforms: arch, ubuntu
+- Package Managers: Begins testing multiple managers (system + language PMs)
+
+*** max-dev (Tier 4)
+- Categories: All CLI/DEV categories with =_HEAVY= variants enabled
+- Purpose: Validate complete development environment and multi-PM coordination
+- Platforms: arch, ubuntu  
+- Package Managers: Full validation - pacman/AUR, apt/PPA, npm, pip, gem
+
+*** mid-gui (Tier 5 - Manual Testing Only)
+- Categories: Inherits all from max-dev + =GUI_APPS=true, =IS_WORK_MACHINE=true
+- Purpose: Work-appropriate desktop environment
+- Platforms: osx (manual testing)
+
+*** max-gui (Tier 6 - Manual Testing Only)
+- Categories: Everything enabled + =IS_PERSONAL_MACHINE=true
+- Purpose: Complete personal desktop environment
+- Platforms: osx (manual testing)
+
+** Running Tests
+
+*** Docker Test Commands
+
+Test the tiered configurations using Docker:
+
+#+begin_src bash
+just test-min-cli arch    # Test minimal CLI on Arch
+just test-mid-cli ubuntu  # Test extended CLI on Ubuntu
+just test-mid-dev arch    # Test development setup on Arch
+just test-max-dev ubuntu  # Test full development on Ubuntu
+#+end_src
+
+*** Manual Testing
+
+GUI configurations must be tested on real systems:
+- Configure with =./configure.sh= and select appropriate tier
+- Run =just install= to install packages
+- Verify functionality manually
+
+*** Interactive Test Environment
+
+Enter the test environment to explore all testing options:
+
+#+begin_src bash
+just testing    # Opens test sub-shell with all test commands
+#+end_src
 
 * Platform-Specific Notes
 
@@ -220,6 +384,7 @@ Pre-defined combinations for common use cases:
 - MSYS2 for Unix-like environment and additional packages
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
+
 
 * Health Check
 
@@ -248,24 +413,6 @@ Actually remove broken links:
 just cleanup-broken-links --remove
 #+end_src
 
-* Testing
-
-Test configurations in Docker before applying to your system:
-
-#+begin_src bash
-# Enter test environment to explore all testing options
-just test
-
-# AUTOMATED tests (can be run in CI/scripts):
-cd test && just test-stow basic arch      # Test through stow stage
-cd test && just test-install basic arch   # Test through install stage  
-cd test && just test-update basic arch    # Test complete workflow
-
-# INTERACTIVE tests (require human interaction - DO NOT USE IN SCRIPTS):
-cd test && just test-run basic arch       # Drops into interactive shell for manual testing
-#+end_src
-
-The tests validate the complete workflow: configure → bootstrap → stow → install → update.
 
 * Common Tasks
 
@@ -337,10 +484,32 @@ dotfiles/
 └── justfile           # Environment-driven commands
 #+end_example
 
+* Future Roadmap
+
+** Application-Specific Package Managers (In Development)
+
+The system is designed to eventually manage ALL package managers on your system:
+
+*** Shell Plugin Managers
+- **zinit** - ZSH plugin management integrated with update cycle
+- **fisher** - Fish shell plugin management (planned)
+
+*** Editor Package Managers  
+- **elpaca** - Emacs package management (replacing straight.el)
+- **lazy.nvim** - Neovim plugin management
+- **vim-plug** - Vim plugin management (planned)
+
+*** Language-Specific Tooling
+- **cargo** - Rust packages and tools
+- **pipx** - Python applications in isolated environments
+- **go get** - Go tools and applications
+
+The goal is true unified package management - one command to update everything, with granular control when needed.
+
 * Contributing
 
 1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
-2. Test using Docker test infrastructure: `cd test && just test-stow basic arch`
+2. Test using Docker test infrastructure: `just test-mid-dev arch`
 3. Run health check to verify changes: `just check-health`
 4. Update package definitions in `tools/package-management/package-definitions/` if adding new packages
 5. Submit PR with description of changes

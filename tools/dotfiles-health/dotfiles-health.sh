@@ -49,23 +49,23 @@ _is_symlink_broken() {
 }
 
 # Find broken symlinks that point to dotfiles directory
-# Usage: _find_broken_symlinks 
+# Usage: _find_broken_symlinks
 # Sets: FOUND_BROKEN_SYMLINKS array with broken symlink paths
 _find_broken_symlinks() {
     FOUND_BROKEN_SYMLINKS=()
-    
+
     # Use fd for fast symlink discovery, then check if broken and if they point to dotfiles
     if command -v fd >/dev/null 2>&1; then
         # Home dotfiles (depth 1 only)
         while IFS= read -r link; do
             [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
         done < <(fd --type symlink --max-depth 1 . "$TEST_HOME" 2>/dev/null)
-        
+
         # .config directory (but avoid deep Library searches)
         [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r link; do
             [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
         done < <(fd --type symlink . "$TEST_HOME/.config" 2>/dev/null)
-        
+
         # Common dotfile directories (avoid searching all of Library)
         local dotfile_dirs=("$TEST_HOME/.hammerspoon" "$TEST_HOME/.tmux" "$TEST_HOME/.gnupg" "$TEST_HOME/.spacemacs.d" "$TEST_HOME/.doom.d")
         if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -73,7 +73,7 @@ _find_broken_symlinks() {
         elif [[ -d "$TEST_HOME/AppData" ]]; then
             dotfile_dirs+=("$TEST_HOME/AppData/Local" "$TEST_HOME/AppData/Roaming")
         fi
-        
+
         for dir in "${dotfile_dirs[@]}"; do
             [[ -d "$dir" ]] && while IFS= read -r link; do
                 [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
@@ -84,7 +84,7 @@ _find_broken_symlinks() {
         while IFS= read -r link; do
             [[ "$link" == "$TEST_HOME"/\.* ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
         done < <(find "$TEST_HOME" -maxdepth 1 -type l -exec test ! -e {} \; -print 2>/dev/null)
-        
+
         [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r link; do
             _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
         done < <(find "$TEST_HOME/.config" -type l -exec test ! -e {} \; -print 2>/dev/null)
@@ -100,98 +100,60 @@ _check_dotfile_symlink() {
 
 # Categorize symlinks by type (new system, legacy, broken)
 # Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS, WARNINGS, ERRORS arrays
+
+# Categorize symlinks by type (new system, legacy, broken)
+# Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS, WARNINGS, ERRORS arrays
 _categorize_symlinks() {
-    new_links_raw=()
-    old_links_raw=()
-    broken_links_raw=()
-    warnings_raw=()
-    errors_raw=()
-
-    # Use fd for fast symlink discovery, same as _find_broken_symlinks
-    if command -v fd >/dev/null 2>&1; then
-        # Home dotfiles (depth 1 only)
-        while IFS= read -r link; do
-            _categorize_single_symlink "$link"
-        done < <(fd --type symlink --max-depth 1 . "$TEST_HOME" 2>/dev/null)
-        
-        # .config directory
-        [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r link; do
-            _categorize_single_symlink "$link"
-        done < <(fd --type symlink . "$TEST_HOME/.config" 2>/dev/null)
-        
-        # Common dotfile directories (avoid searching all of Library)
-        local dotfile_dirs=("$TEST_HOME/.hammerspoon" "$TEST_HOME/.tmux" "$TEST_HOME/.gnupg" "$TEST_HOME/.spacemacs.d" "$TEST_HOME/.doom.d")
-        
-        for dir in "${dotfile_dirs[@]}"; do
-            if [[ -d "$dir" ]]; then
-                while IFS= read -r link; do
-                    _categorize_single_symlink "$link"
-                done < <(fd --type symlink . "$dir" 2>/dev/null)
-            fi
-        done
-    else
-        # Fallback to find (avoid Library entirely for performance)
-        while IFS= read -r -d '' link; do
-            [[ "$link" == "$TEST_HOME"/\.* ]] && _categorize_single_symlink "$link"
-        done < <(find "$TEST_HOME" -maxdepth 1 -type l -print0 2>/dev/null)
-        
-        [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r -d '' link; do
-            _categorize_single_symlink "$link"
-        done < <(find "$TEST_HOME/.config" -type l -print0 2>/dev/null)
-    fi
-
-    # Remove duplicates and convert to arrays (handle empty arrays safely)
+    # Initialize arrays
     NEW_LINKS=()
     OLD_LINKS=()
     BROKEN_LINKS=()
     WARNINGS=()
     ERRORS=()
     
-    if [[ ${#new_links_raw[@]} -gt 0 ]]; then
-        while IFS= read -r line; do NEW_LINKS+=("$line"); done < <(printf '%s\n' "${new_links_raw[@]}" | sort -u)
-    fi
-    
-    if [[ ${#old_links_raw[@]} -gt 0 ]]; then
-        while IFS= read -r line; do OLD_LINKS+=("$line"); done < <(printf '%s\n' "${old_links_raw[@]}" | sort -u)
-    fi
-    
-    if [[ ${#broken_links_raw[@]} -gt 0 ]]; then
-        while IFS= read -r line; do BROKEN_LINKS+=("$line"); done < <(printf '%s\n' "${broken_links_raw[@]}" | sort -u)
-    fi
-    
-    if [[ ${#warnings_raw[@]} -gt 0 ]]; then
-        while IFS= read -r line; do WARNINGS+=("$line"); done < <(printf '%s\n' "${warnings_raw[@]}" | sort -u)
-    fi
-    
-    if [[ ${#errors_raw[@]} -gt 0 ]]; then
-        while IFS= read -r line; do ERRORS+=("$line"); done < <(printf '%s\n' "${errors_raw[@]}" | sort -u)
-    fi
-}
-
-# Helper to categorize a single symlink
-_categorize_single_symlink() {
-    local link="$1"
-    local target=$(readlink "$link" 2>/dev/null || true)
-    
-    # Only process dotfiles symlinks
-    [[ "$target" == *"$DOTFILES_DIR"* ]] || [[ "$target" == *"dev/my/dotfiles"* ]] || return
-    
-    if _is_symlink_broken "$link"; then
-        broken_links_raw+=("$link")
-        errors_raw+=("Broken symlink: $link")
-    elif [[ "$target" == *"$DOTFILES_DIR/configs/"* ]] || [[ "$target" == *"dev/my/dotfiles/configs/"* ]]; then
-        new_links_raw+=("$link → $target")
-    else
-        for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
-            if [[ "$target" == *"$DOTFILES_DIR/$pkg"* ]]; then
-                old_links_raw+=("$link → $target")
-                warnings_raw+=("Legacy symlink detected: $link → $target")
-                break
+    # Find all symlinks pointing to dotfiles - search targeted directories only
+    while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
+        local link="${line%% -> *}"
+        local target="${line#* -> }"
+        
+        # Convert relative path to absolute for link
+        if [[ "$link" != /* ]]; then
+            link="$TEST_HOME/$link"
+        fi
+        
+        # Check if symlink is broken
+        if ! [[ -e "$link" ]]; then
+            BROKEN_LINKS+=("$link")
+            ERRORS+=("Broken symlink: $link")
+        elif [[ "$target" == *"/configs/"* ]]; then
+            # New system link
+            NEW_LINKS+=("$line")
+        else
+            # Check if it's an old system package
+            local is_old=false
+            for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
+                if [[ "$target" == *"/$pkg"* ]]; then
+                    OLD_LINKS+=("$line")
+                    WARNINGS+=("Legacy symlink detected: $line")
+                    is_old=true
+                    break
+                fi
+            done
+            if [[ "$is_old" == "false" ]]; then
+                NEW_LINKS+=("$line")
             fi
-        done
-    fi
+        fi
+    done < <(
+        # Search specific directories only - avoid Library and other large dirs
+        {
+            # Home directory dotfiles (depth 1 only)
+            cd "$TEST_HOME" && fd -t l --max-depth 1 -x sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
+            # .config directory
+            [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && fd -t l -x sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
+        } | rg "dev/my/dotfiles" 2>/dev/null || true
+    )
 }
-
 
 
 # =============================================================================
@@ -202,12 +164,12 @@ _categorize_single_symlink() {
 # Usage: _check_package_health log_output
 _check_package_health() {
     local log_output="$1"
-    
+
     $log_output "🔧 Package Health Checks"
-    
+
     local package_data_dir="$DOTFILES_DIR/tools/package-management/package-definitions"
     local toml_parser="$DOTFILES_DIR/tools/package-management/scripts/toml-parser.py"
-    
+
     # Check if we have the infrastructure for TOML-based health checks
     if [ ! -d "$package_data_dir" ]; then
         $log_output "  • ⚠️  Package data directory not found: $package_data_dir"
@@ -215,35 +177,35 @@ _check_package_health() {
         $log_output
         return
     fi
-    
+
     if [ ! -f "$toml_parser" ]; then
         $log_output "  • ⚠️  TOML parser not found: $toml_parser"
         WARNINGS+=("TOML parser not found")
         $log_output
         return
     fi
-    
+
     if ! command -v python3 >/dev/null 2>&1; then
         $log_output "  • ⚠️  Python3 not available for TOML parsing"
         WARNINGS+=("Python3 not available for TOML parsing")
         $log_output
         return
     fi
-    
+
     # Determine platform for health checks
     local platform="${DOTFILES_PLATFORM:-osx}"
-    
+
     # Find TOML files and run health checks
     local checked_packages=0
     local failed_packages=0
-    
+
     # Arrays to track passed and failed packages for verbose output
     PACKAGE_PASSED=()
     PACKAGE_FAILED=()
-    
+
     # Track packages we've already checked to avoid duplicates
     CHECKED_PACKAGES=()
-    
+
     # Cache brew package lists for fast lookups (if brew is available)
     BREW_PACKAGES=""
     BREW_CASKS=""
@@ -252,66 +214,66 @@ _check_package_health() {
         BREW_PACKAGES=$(brew list 2>/dev/null || echo "")
         BREW_CASKS=$(brew list --cask 2>/dev/null || echo "")
     fi
-    
+
     # Define which categories to check based on configuration
     local categories_to_check=()
-    
+
     # Check P1 categories if enabled
     if [ "${DOTFILES_CLI_EDITORS:-false}" = "true" ]; then
         categories_to_check+=("cli-editors:p1")
     fi
-    
+
     if [ "${DOTFILES_DEV_ENV:-false}" = "true" ]; then
         categories_to_check+=("dev-env:p1")
     fi
-    
+
     if [ "${DOTFILES_CLI_UTILS:-false}" = "true" ]; then
         categories_to_check+=("cli-utils:p1")
     fi
-    
+
     if [ "${DOTFILES_GUI_APPS:-false}" = "true" ]; then
         categories_to_check+=("gui-apps:p1")
     fi
-    
+
     # Check P2 categories if explicitly enabled
     if [ "${DOTFILES_CLI_EDITORS_ADVANCED:-false}" = "true" ]; then
         categories_to_check+=("cli-editors:p2")
     fi
-    
+
     if [ "${DOTFILES_DEV_ENV_ADVANCED:-false}" = "true" ]; then
         categories_to_check+=("dev-env:p2")
     fi
-    
+
     if [ "${DOTFILES_CLI_UTILS_ADVANCED:-false}" = "true" ]; then
         categories_to_check+=("cli-utils:p2")
     fi
-    
+
     if [ "${DOTFILES_GUI_APPS_ADVANCED:-false}" = "true" ]; then
         categories_to_check+=("gui-apps:p2")
     fi
-    
+
     # Process only enabled categories
     if [ ${#categories_to_check[@]} -eq 0 ]; then
         $log_output "  • ℹ️  No package categories enabled in configuration"
         $log_output
         return
     fi
-    
+
     for category_priority in "${categories_to_check[@]}"; do
         local category="${category_priority%:*}"
         local priority="${category_priority#*:}"
         local toml_file="$package_data_dir/$category.toml"
-        
+
         if [ ! -f "$toml_file" ]; then
             continue
         fi
-        
+
         $log_output "  • Checking $category packages ($priority priority)..."
-        
+
         # Get health checks from TOML for specific priority
         local health_checks
         health_checks=$(python3 "$toml_parser" "$toml_file" --action health-checks --platform "$platform" --priority "$priority" --format bash 2>/dev/null)
-        
+
         if [ -n "$health_checks" ]; then
             # Temporarily disable strict mode for eval of dynamic commands
             set +e
@@ -323,7 +285,7 @@ _check_package_health() {
             set -e
         fi
     done
-    
+
     if [ $checked_packages -gt 0 ]; then
         if [ $failed_packages -eq 0 ]; then
             $log_output "  • ✅ All $checked_packages packages healthy"
@@ -333,7 +295,7 @@ _check_package_health() {
     else
         $log_output "  • ℹ️  No TOML packages configured for health checking"
     fi
-    
+
     $log_output
 }
 
@@ -341,7 +303,7 @@ _check_package_health() {
 check_brew_package() {
     local package_name="$1"
     local package_type="$2"  # "formula" or "cask"
-    
+
     if [[ "$package_type" == "cask" ]]; then
         echo "$BREW_CASKS" | grep -q "^${package_name}$"
     else
@@ -354,7 +316,7 @@ check_package() {
     local name="$1"
     local executable="$2"
     local health_check="$3"
-    
+
     # Skip if we've already checked this package
     local already_checked=false
     if [[ ${#CHECKED_PACKAGES[@]} -gt 0 ]]; then
@@ -365,24 +327,24 @@ check_package() {
             fi
         done
     fi
-    
+
     if [[ "$already_checked" == "true" ]]; then
         return 0
     fi
-    
+
     # Mark this package as checked
     CHECKED_PACKAGES+=("$name")
-    
+
     # Use local variables to avoid issues with strict mode
     local current_count=$((checked_packages + 1))
     checked_packages=$current_count
-    
+
     # For brew packages, try fast brew check first
     if [[ "$health_check" == *"brew-check"* ]]; then
         # Extract package type and name from health check
         local brew_type=$(echo "$health_check" | sed 's/.*brew-check:\([^:]*\):.*/\1/')
         local brew_name=$(echo "$health_check" | sed 's/.*brew-check:[^:]*:\(.*\)/\1/')
-        
+
         if check_brew_package "$brew_name" "$brew_type"; then
             PACKAGE_PASSED+=("$name")
             return 0
@@ -394,7 +356,7 @@ check_package() {
             return 1
         fi
     fi
-    
+
     # First check if executable exists
     if ! command -v "$executable" >/dev/null 2>&1; then
         local current_failed=$((failed_packages + 1))
@@ -403,7 +365,7 @@ check_package() {
         PACKAGE_FAILED+=("$name (executable '$executable' not found)")
         return 1
     fi
-    
+
     # Run the health check command with error handling
     if eval "$health_check" >/dev/null 2>&1; then
         PACKAGE_PASSED+=("$name")
@@ -422,8 +384,8 @@ check_package() {
 # =============================================================================
 
 # Main health check function
-# Usage: dotfiles_health_check [--verbose] [--log <file>]
-dotfiles_health_check() {
+# Usage: dotfiles_check_health [--verbose] [--log <file>]
+dotfiles_check_health() {
     local VERBOSE=false
     local LOG_FILE=""
 
@@ -440,7 +402,7 @@ dotfiles_health_check() {
                 ;;
             *)
                 echo "Unknown option: $1"
-                echo "Usage: dotfiles_health_check [--log <file>] [-v|--verbose]"
+                echo "Usage: dotfiles_check_health [--log <file>] [-v|--verbose]"
                 return 1
                 ;;
         esac
@@ -524,17 +486,19 @@ dotfiles_health_check() {
     if [[ ${#ERRORS[@]} -gt 0 ]]; then
         log_output
         log_output "❌ Errors (${#ERRORS[@]}):"
-        for error in "${ERRORS[@]}"; do
+        # Sort errors for consistency
+        while IFS= read -r error; do
             log_output "  • $error"
-        done
+        done < <(printf '%s\n' "${ERRORS[@]}" | sort)
     fi
 
     if [[ ${#WARNINGS[@]} -gt 0 ]]; then
         log_output
         log_output "⚠️  Warnings (${#WARNINGS[@]}):"
-        for warning in "${WARNINGS[@]}"; do
+        # Sort warnings for consistency
+        while IFS= read -r warning; do
             log_output "  • $warning"
-        done
+        done < <(printf '%s\n' "${WARNINGS[@]}" | sort)
     fi
 
     log_output
@@ -594,17 +558,19 @@ dotfiles_health_check() {
         if [[ ${#OLD_LINKS[@]} -gt 0 ]]; then
             log_output
             log_output "📋 Legacy Links:"
-            for link in "${OLD_LINKS[@]}"; do
+            # Sort alphabetically for consistency
+            while IFS= read -r link; do
                 log_output "  $link"
-            done
+            done < <(printf '%s\n' "${OLD_LINKS[@]}" | sort)
         fi
 
         if [[ ${#NEW_LINKS[@]} -gt 0 ]]; then
             log_output
             log_output "📋 Current System Links:"
-            for link in "${NEW_LINKS[@]}"; do
+            # Sort alphabetically for consistency
+            while IFS= read -r link; do
                 log_output "  $link"
-            done
+            done < <(printf '%s\n' "${NEW_LINKS[@]}" | sort)
         fi
     fi
 
@@ -728,11 +694,11 @@ dotfiles_cleanup_broken_links() {
     echo "Found ${#FOUND_BROKEN_SYMLINKS[@]} broken symlinks:"
     echo
 
-    # Display broken links
-    for link in "${FOUND_BROKEN_SYMLINKS[@]}"; do
+    # Display broken links (sorted for consistency)
+    while IFS= read -r link; do
         target=$(readlink "$link" 2>/dev/null || echo "[unreadable]")
         echo "  ❌ $link -> $target"
-    done
+    done < <(printf '%s\n' "${FOUND_BROKEN_SYMLINKS[@]}" | sort)
 
     echo
 
@@ -763,5 +729,14 @@ dotfiles_cleanup_broken_links() {
 # =============================================================================
 
 # Export functions for use when sourced
-export -f dotfiles_health_check
+export -f dotfiles_check_health
 export -f dotfiles_cleanup_broken_links
+
+# =============================================================================
+# MAIN - Run when executed directly (not sourced)
+# =============================================================================
+
+# Run health check if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    dotfiles_check_health "$@"
+fi

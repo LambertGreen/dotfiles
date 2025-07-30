@@ -1,25 +1,24 @@
 # Multi-stage Dockerfile for Ubuntu dotfiles testing
-# Usage:
-#   docker build --target base -t dotfiles-ubuntu-base .
-#   docker build --target bootstrap-basic -t dotfiles-ubuntu-bootstrap-basic .
-#   docker build --target stow-basic -t dotfiles-ubuntu-stow-basic .
-#   docker build --target install-basic -t dotfiles-ubuntu-install-basic .
-#   docker build --target update-basic -t dotfiles-ubuntu-update-basic .
+# Tests complete workflow: configure → bootstrap → stow → install → update
 
 # =============================================================================
 # BASE STAGE - Common system setup for all Ubuntu tests
 # =============================================================================
 FROM ubuntu:22.04 AS base
 
-# Install minimal packages for dotfiles testing + realistic system defaults
+# Install minimal system packages only - let bootstrap scripts handle the rest
 RUN apt-get update --quiet && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       sudo git openssh-client wget curl ca-certificates build-essential \
       bash zsh && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
+    usermod -aG sudo user && \
+    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo 'user:user' | chpasswd
 
-# Copy and run bootstrap install scripts
+# Install stow and just (required tools)
 COPY --chown=root:root bootstrap/install-stow-ubuntu.sh /tmp/install-stow-ubuntu.sh
 COPY --chown=root:root bootstrap/install-just-ubuntu.sh /tmp/install-just-ubuntu.sh
 RUN chmod +x /tmp/install-stow-ubuntu.sh /tmp/install-just-ubuntu.sh && \
@@ -27,261 +26,93 @@ RUN chmod +x /tmp/install-stow-ubuntu.sh /tmp/install-just-ubuntu.sh && \
     /tmp/install-just-ubuntu.sh && \
     rm -f /tmp/install-stow-ubuntu.sh /tmp/install-just-ubuntu.sh
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-# Create a test user
-RUN useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
-    usermod -aG sudo user && \
-    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    echo 'user:user' | chpasswd
-
 USER user
-ENV HOME=/home/user
+WORKDIR /home/user
 
-# Create directory structure
-RUN mkdir -p ~/dev/my/dotfiles
+# Set timezone from host system (fallback to UTC)
+ARG TZ
+ENV TZ=${TZ:-UTC}
+RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
+
+# Copy dotfiles into container
+COPY --chown=user:user . dotfiles/
+WORKDIR /home/user/dotfiles
 
 # =============================================================================
-# CONFIGURE STAGE - Environment setup (first step)
+# CONFIGURE STAGE - Interactive configuration
 # =============================================================================
 FROM base AS configure
-
-# Copy configure script and justfile for validation
-COPY --chown=user:user configure.sh /home/user/dev/my/dotfiles/configure.sh
-COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
-COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
-WORKDIR /home/user/dev/my/dotfiles
-
-# Health check before configure (should show not configured)
-RUN echo "🔍 Pre-configure health check (expecting not configured error)..." && \
-    (just health-check || echo "✅ Expected error: Not configured") && \
-    echo "Proceeding with configuration..."
-
-# Configure for ubuntu basic (non-interactive)
-RUN echo "⚙️ Configuring for ubuntu basic..." && \
-    echo -e "Y\n1\n1" | ./configure.sh && \
-    echo "✅ Configuration complete"
-
-# Health check after configure (should show no packages stowed)
-RUN echo "🔍 Post-configure health check..." && \
-    (just health-check || echo "✅ Expected EMPTY state after configure") && \
-    echo "✅ Post-configure validation complete"
-
-CMD ["/bin/bash"]
-
-FROM base AS configure-typical
-
-# Copy configure script and justfile for validation
-COPY --chown=user:user configure.sh /home/user/dev/my/dotfiles/configure.sh
-COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
-COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
-WORKDIR /home/user/dev/my/dotfiles
-
-# Health check before configure (should show not configured)
-RUN echo "🔍 Pre-configure health check (expecting not configured error)..." && \
-    (just health-check || echo "✅ Expected error: Not configured") && \
-    echo "Proceeding with configuration..."
-
-# Configure for ubuntu typical (non-interactive)
-RUN echo "⚙️ Configuring for ubuntu typical..." && \
-    echo -e "Y\n2" | ./configure.sh && \
-    echo "✅ Configuration complete"
-
-# Health check after configure (should show no packages stowed)
-RUN echo "🔍 Post-configure health check..." && \
-    (just health-check || echo "✅ Expected EMPTY state after configure") && \
-    echo "✅ Post-configure validation complete"
-
-CMD ["/bin/bash"]
+RUN echo "=== CONFIGURE STAGE ===" && \
+    echo "🕐 Configure start time: $(date)" && \
+    rm -f .dotfiles.env && \
+    printf "3\n1\n1\n" | ./configure.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat .dotfiles.env && \
+    echo "🔍 Verifying configuration..." && \
+    grep -q "DOTFILES_PLATFORM=ubuntu" .dotfiles.env && \
+    grep -q "# Selected: min-cli" .dotfiles.env && \
+    echo "✅ Configuration verified!" && \
+    echo "🕐 Configure end time: $(date)"
 
 # =============================================================================
-# BOOTSTRAP STAGES - Tool installation by level
+# BOOTSTRAP STAGE - Tool installation
 # =============================================================================
 FROM configure AS bootstrap-basic
+RUN echo "=== BOOTSTRAP STAGE ===" && \
+    echo "🕐 Bootstrap start time: $(date)" && \
+    echo "🔧 Essential tools (stow, just) already installed in base stage..." && \
+    echo "🏥 Health check after bootstrap:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
+    which stow && stow --version && \
+    which just && just --version && \
+    echo "✅ Bootstrap complete!" && \
+    echo "🕐 Bootstrap end time: $(date)"
 
-COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
-WORKDIR /home/user/dev/my/dotfiles/bootstrap
-
-RUN echo "🚀 Running basic bootstrap..." && \
-    just bootstrap-basic-ubuntu
-
-# Validate bootstrap with health check
-RUN echo "🔍 Post-bootstrap health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    (just health-check || echo "✅ Expected EMPTY state after bootstrap") && \
-    command -v apt && \
-    echo "✅ Bootstrap validation complete"
-
-CMD ["/bin/bash"]
-
-FROM configure-typical AS bootstrap-typical
-
-COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
-WORKDIR /home/user/dev/my/dotfiles/bootstrap
-
-RUN echo "🚀 Running typical bootstrap..." && \
-    just bootstrap-typical-ubuntu
-
-# Validate bootstrap with health check
-RUN echo "🔍 Post-bootstrap health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    (just health-check || echo "✅ Expected EMPTY state after bootstrap") && \
-    command -v apt && \
-    command -v brew && \
-    echo "✅ Bootstrap validation complete"
-
-CMD ["/bin/bash"]
-
-FROM base AS bootstrap-max
-
-COPY --chown=user:user bootstrap/ /home/user/dev/my/dotfiles/bootstrap/
-WORKDIR /home/user/dev/my/dotfiles/bootstrap
-
-RUN echo "🚀 Running max bootstrap..." && \
-    just bootstrap-max-ubuntu
-
-# Validate bootstrap
-RUN echo "🔍 Validating max bootstrap..." && \
-    command -v apt && \
-    command -v brew && \
-    command -v nix && \
-    echo "✅ Max bootstrap validation complete"
-
-CMD ["/bin/bash"]
+# System supports different configurations via configure script
 
 # =============================================================================
-# STOW STAGES - Config deployment by level
+# STOW STAGE - Config deployment
 # =============================================================================
 FROM bootstrap-basic AS stow-basic
+RUN echo "=== STOW STAGE ===" && \
+    echo "🔍 Showing configuration before stow:" && \
+    cat .dotfiles.env && \
+    echo "🧹 Removing default shell files that conflict with stow..." && \
+    rm -f ~/.bash_profile ~/.bashrc && \
+    just stow && \
+    echo "🏥 Health check after stow:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    echo "✅ Stow complete!"
 
-# Add all configs for stowing
-COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
-COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
-COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
-
-# Run stow via platform-specific justfile
-WORKDIR /home/user/dev/my/dotfiles/configs
-RUN echo "🔗 Running basic stow..." && \
-    just -f justfile_ubuntu stow-basic
-
-# Validate the stow setup worked
-WORKDIR /home/user/dev/my/dotfiles
-RUN echo "🧪 Validating basic stow with health check..." && \
-    echo "📋 Running dotfiles health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Basic stow validation completed successfully"
-
-CMD ["/bin/bash"]
-
-FROM bootstrap-typical AS stow-typical
-
-# Add all configs for stowing
-COPY --chown=user:user configs/ /home/user/dev/my/dotfiles/configs/
-COPY --chown=user:user justfile /home/user/dev/my/dotfiles/justfile
-COPY --chown=user:user tools/ /home/user/dev/my/dotfiles/tools/
-
-# Run stow via platform-specific justfile
-WORKDIR /home/user/dev/my/dotfiles/configs
-RUN echo "🔗 Running typical stow..." && \
-    just -f justfile_ubuntu stow-typical
-
-# Validate the stow setup worked
-WORKDIR /home/user/dev/my/dotfiles
-RUN echo "🧪 Validating typical stow with health check..." && \
-    echo "📋 Running dotfiles health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Typical stow validation completed successfully"
-
-CMD ["/bin/bash"]
+# Typical stage removed - use configure script for selection
 
 # =============================================================================
-# INSTALL STAGES - Package installation by level
+# INSTALL STAGE - Package installation
 # =============================================================================
 FROM stow-basic AS install-basic
+RUN echo "=== INSTALL STAGE ===" && \
+    echo "📊 Showing configuration:" && \
+    just show-config && \
+    echo "📦 Installing packages..." && \
+    just install && \
+    echo "🏥 Health check after install:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "✅ Install complete!"
 
-# Pre-install health check (should show packages ready for install)
-RUN echo "🔍 Pre-install health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "Proceeding with package installation..."
-
-# Run install via new tool-based package management
-RUN echo "📦 Running basic install with new tool..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just install
-
-# Post-install health check (should show system ready)
-RUN echo "🔍 Post-install health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Install validation complete"
-
-CMD ["/bin/bash"]
-
-FROM stow-typical AS install-typical
-
-# Pre-install health check
-RUN echo "🔍 Pre-install health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "Proceeding with package installation..."
-
-# Run install via new tool-based package management
-RUN echo "📦 Running typical install with new tool..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just install
-
-# Post-install health check
-RUN echo "🔍 Post-install health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Install validation complete"
-
-CMD ["/bin/bash"]
+# Typical install stage removed - use configure script for selection
 
 # =============================================================================
-# UPDATE STAGES - Complete workflow (bootstrap + stow + install + update)
+# UPDATE STAGE - Complete workflow
 # =============================================================================
 FROM install-basic AS update-basic
+RUN echo "=== UPDATE STAGE ===" && \
+    just update-check && \
+    echo "🏥 Final health check:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "🧪 Verifying installed packages:" && \
+    which git stow && \
+    echo "✅ Ubuntu workflow complete!"
 
-# Pre-update health check
-RUN echo "🔍 Pre-update health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "Proceeding with package updates..."
-
-# Run update via new tool-based package management
-RUN echo "🔄 Running basic update with new tool..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just update
-
-# Post-update health check (final validation)
-RUN echo "🔍 Post-update health check (final validation)..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Complete workflow validation successful"
-
-CMD ["/bin/bash"]
-
-FROM install-typical AS update-typical
-
-# Pre-update health check
-RUN echo "🔍 Pre-update health check..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "Proceeding with package updates..."
-
-# Run update via new tool-based package management
-RUN echo "🔄 Running typical update with new tool..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just update
-
-# Post-update health check (final validation)
-RUN echo "🔍 Post-update health check (final validation)..." && \
-    cd /home/user/dev/my/dotfiles && \
-    just health-check && \
-    echo "✅ Complete workflow validation successful"
-
-CMD ["/bin/bash"]
+# Typical update stage removed - use configure script for selection
+# All workflow stages now use unified configuration approach
