@@ -1,184 +1,221 @@
-# Testing workflows for dotfiles
+# Testing workflows for dotfiles - Tiered Testing Approach
 
-# Default test platform and level
+# Default test platform
 test_platform := env_var_or_default("DOTFILES_TEST_PLATFORM", "arch")
-test_level := env_var_or_default("DOTFILES_TEST_LEVEL", "basic")
 
-# Available Docker platforms and levels
+# Legacy variable for backward compatibility (deprecated)
+test_level := "basic"
+
+# Available platforms and tiers
 docker_platforms := "arch ubuntu"
-docker_levels := "basic typical"
+docker_tiers := "min-cli mid-cli mid-dev max-dev"
 
 # Show test help
 default:
-    @echo "🧪 Dotfiles Testing"
+    @echo "🧪 Dotfiles Testing - Tiered Approach"
     @echo ""
-    @echo "Test stages (each builds on previous):"
-    @echo "  1. Bootstrap - Install essential tools (stow, package managers)"
-    @echo "  2. Stow      - Deploy configs to proper locations"
-    @echo "  3. Install   - Install packages using stowed configs"
-    @echo "  4. Update    - Update packages and system"
-    @echo "  5. Run       - Interactive shell to test environment"
+    @echo "Tiered Test Commands (Recommended):"
+    @echo "  just test-min-cli [platform]    - Minimal CLI tools (Tier 1)"
+    @echo "  just test-mid-cli [platform]    - Extended CLI tools (Tier 2)"  
+    @echo "  just test-mid-dev [platform]    - Development environment (Tier 3)"
+    @echo "  just test-max-dev [platform]    - Complete development (Tier 4)"
     @echo ""
-    @echo "Stage-specific tests:"
-    @echo "  just test-configure [level] [platform] - Test configure stage only"
-    @echo "  just test-bootstrap [level] [platform] - Test bootstrap stage only"
-    @echo "  just test-stow [level] [platform]      - Test through stow stage"
-    @echo "  just test-install [level] [platform]   - Test through install stage"
-    @echo "  just test-update [level] [platform]    - Test through update stage"
-    @echo "  just test-run [level] [platform]       - Run interactive shell"
-    @echo ""
-    @echo "Batch tests:"
-    @echo "  just test-level [level]                 - Test level across platforms"
-    @echo "  just test-platform [platform]          - Test platform across levels"
-    @echo "  just test-all                          - Test all combinations"
-    @echo ""
-    @echo "Configuration Tests (Recommended):"
-    @echo "  just test-minimal-arch             - Fast Arch validation"
-    @echo "  just test-developer-ubuntu         - Ubuntu developer environment"
-    @echo "  just test-all-configurations       - Test configuration system across platforms"
+    @echo "Interactive Testing:"
+    @echo "  just test-run-min-cli [platform] - Interactive shell for min-cli"
+    @echo "  just test-run-mid-cli [platform] - Interactive shell for mid-cli"
+    @echo "  just test-run-mid-dev [platform] - Interactive shell for mid-dev"
+    @echo "  just test-run-max-dev [platform] - Interactive shell for max-dev"
     @echo ""
     @echo "Log Management:"
-    @echo "  just show-last-log                 - Show most recent test output"
-    @echo "  just list-logs                     - List all available logs"
-    @echo "  just show-log <filename>           - Show specific log file"
-    @echo ""
-    @echo "Legacy Tests:"
-    @echo "  just test-update basic arch        - Build and test basic Arch (complete)"
-    @echo "  just test-run basic arch           - Interactive shell after update"
+    @echo "  just show-last-log               - Show most recent test output"
+    @echo "  just list-logs                  - List all available logs"
+    @echo "  just show-log <filename>        - Show specific log file"
     @echo ""
     @echo "Available:"
     @echo "  Platforms: {{docker_platforms}}"
-    @echo "  Levels: {{docker_levels}}"
-    @echo "  Defaults: {{test_level}} {{test_platform}}"
+    @echo "  Tiers: {{docker_tiers}}"
+    @echo "  Default Platform: {{test_platform}}"
 
-# Test through install stage (complete workflow)
-@test-install level=test_level platform=test_platform:
-    echo "🐳 Testing {{level}} {{platform}} install stage with Docker..."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-install-{{level}}-{{platform}}-output.log"
-    just test-install-local {{level}} {{platform}} 2>&1 | tee test-install-{{level}}-{{platform}}-output.log; \
+# =============================================================================
+# Tiered Test Recipes - Main Testing Interface
+# =============================================================================
+
+# Tier 1: Minimal CLI tools only
+test-min-cli platform=test_platform:
+    @echo "🧪 Testing min-cli tier on {{platform}}..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-min-cli-{{platform}}-output.log"
+    just _test-tier-impl min-cli {{platform}} 2>&1 | tee test-min-cli-{{platform}}-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ {{level}} {{platform}} install test PASSED"; \
+        echo "✅ min-cli {{platform}} test PASSED"; \
     else \
-        echo "❌ {{level}} {{platform}} install test FAILED"; \
-        echo "📄 Check test-install-{{level}}-{{platform}}-output.log for details"; \
+        echo "❌ min-cli {{platform}} test FAILED"; \
+        echo "📄 Check test-min-cli-{{platform}}-output.log for details"; \
     fi
 
-# Test through stow stage only
-@test-stow level=test_level platform=test_platform:
-    echo "🐳 Testing {{level}} {{platform}} stow stage with Docker..."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-stow-{{level}}-{{platform}}-output.log"
-    just test-stow-local {{level}} {{platform}} 2>&1 | tee test-stow-{{level}}-{{platform}}-output.log; \
+# Tier 2: Extended CLI tools
+test-mid-cli platform=test_platform:
+    @echo "🧪 Testing mid-cli tier on {{platform}}..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-mid-cli-{{platform}}-output.log"
+    just _test-tier-impl mid-cli {{platform}} 2>&1 | tee test-mid-cli-{{platform}}-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ {{level}} {{platform}} stow test PASSED"; \
+        echo "✅ mid-cli {{platform}} test PASSED"; \
     else \
-        echo "❌ {{level}} {{platform}} stow test FAILED"; \
-        echo "📄 Check test-stow-{{level}}-{{platform}}-output.log for details"; \
+        echo "❌ mid-cli {{platform}} test FAILED"; \
+        echo "📄 Check test-mid-cli-{{platform}}-output.log for details"; \
     fi
 
-# Test through update stage (complete workflow)
-@test-update level=test_level platform=test_platform:
-    echo "🐳 Testing {{level}} {{platform}} update stage with Docker..."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-update-{{level}}-{{platform}}-output.log"
-    just test-update-local {{level}} {{platform}} 2>&1 | tee test-update-{{level}}-{{platform}}-output.log; \
+# Tier 3: Development environment (multi-PM testing begins)
+test-mid-dev platform=test_platform:
+    @echo "🧪 Testing mid-dev tier on {{platform}}..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-mid-dev-{{platform}}-output.log"
+    just _test-tier-impl mid-dev {{platform}} 2>&1 | tee test-mid-dev-{{platform}}-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ {{level}} {{platform}} update test PASSED"; \
+        echo "✅ mid-dev {{platform}} test PASSED"; \
     else \
-        echo "❌ {{level}} {{platform}} update test FAILED"; \
-        echo "📄 Check test-update-{{level}}-{{platform}}-output.log for details"; \
+        echo "❌ mid-dev {{platform}} test FAILED"; \
+        echo "📄 Check test-mid-dev-{{platform}}-output.log for details"; \
     fi
 
-# Run interactive shell after update stage
-test-run level=test_level platform=test_platform:
-    @echo "🐳 Running {{level}} {{platform}} interactive shell..."
+# Tier 4: Complete development environment (full multi-PM validation)
+test-max-dev platform=test_platform:
+    @echo "🧪 Testing max-dev tier on {{platform}}..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-max-dev-{{platform}}-output.log"
+    just _test-tier-impl max-dev {{platform}} 2>&1 | tee test-max-dev-{{platform}}-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ max-dev {{platform}} test PASSED"; \
+    else \
+        echo "❌ max-dev {{platform}} test FAILED"; \
+        echo "📄 Check test-max-dev-{{platform}}-output.log for details"; \
+    fi
+
+# Interactive testing for tiers
+test-run-min-cli platform=test_platform:
+    @echo "🐳 Running min-cli interactive shell on {{platform}}..."
+    just _test-tier-interactive min-cli {{platform}}
+
+test-run-mid-cli platform=test_platform:
+    @echo "🐳 Running mid-cli interactive shell on {{platform}}..."
+    just _test-tier-interactive mid-cli {{platform}}
+
+test-run-mid-dev platform=test_platform:
+    @echo "🐳 Running mid-dev interactive shell on {{platform}}..."
+    just _test-tier-interactive mid-dev {{platform}}
+
+test-run-max-dev platform=test_platform:
+    @echo "🐳 Running max-dev interactive shell on {{platform}}..."
+    just _test-tier-interactive max-dev {{platform}}
+
+# =============================================================================
+# Implementation Helpers
+# =============================================================================
+
+# Helper: Build and run tier test
+_test-tier-impl tier platform:
+    @echo "🔨 Building Docker image for {{tier}} {{platform}}..."
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{tier}} -t dotfiles-test-{{tier}}-{{platform}} .
+    @echo "🚀 Running test container..."
+    docker run --rm dotfiles-test-{{tier}}-{{platform}}
+
+# Helper: Interactive tier testing
+_test-tier-interactive tier platform:
     @echo "Building image to update stage first..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{tier}} -t dotfiles-test-{{tier}}-{{platform}} .
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
-    docker run -it --rm dotfiles-test-{{level}}-{{platform}}
+    docker run -it --rm dotfiles-test-{{tier}}-{{platform}}
 
-# Backward compatibility alias (now uses complete workflow)
-test level=test_level platform=test_platform: (test-update level platform)
+# =============================================================================
+# Legacy Support (will be removed)
+# =============================================================================
 
-# Helper: Test through install stage (complete workflow)
+# Test through install stage (complete workflow) - DEPRECATED
+@test-install level=test_level platform=test_platform:
+    echo "⚠️  test-install is deprecated - legacy level system no longer supported"
+    echo "💡 Use tiered tests instead:"
+    echo "  just test-min-cli {{platform}}  # Basic CLI tools"
+    echo "  just test-mid-cli {{platform}}  # Extended CLI tools"
+    echo "  just test-mid-dev {{platform}}  # Development environment"
+    echo "  just test-max-dev {{platform}}  # Complete development tools"
+    @exit 1
+
+# Test through stow stage only - DEPRECATED
+@test-stow level=test_level platform=test_platform:
+    echo "⚠️  test-stow is deprecated - legacy level system no longer supported"
+    echo "💡 Use tiered interactive tests to explore stow stage:"
+    echo "  just test-run-min-cli {{platform}}  # Interactive shell at min-cli tier"
+    @exit 1
+
+# Test through update stage (complete workflow) - DEPRECATED
+@test-update level=test_level platform=test_platform:
+    echo "⚠️  test-update is deprecated - legacy level system no longer supported"
+    echo "💡 Use tiered tests instead:"
+    echo "  just test-min-cli {{platform}}  # Basic CLI tools"
+    echo "  just test-mid-cli {{platform}}  # Extended CLI tools"
+    echo "  just test-mid-dev {{platform}}  # Development environment"
+    echo "  just test-max-dev {{platform}}  # Complete development tools"
+    @exit 1
+
+# Run interactive shell after update stage - DEPRECATED
+test-run level=test_level platform=test_platform:
+    @echo "⚠️  test-run is deprecated - legacy level system no longer supported"
+    @echo "💡 Use tiered interactive tests instead:"
+    @echo "  just test-run-min-cli {{platform}}  # Interactive min-cli environment"
+    @echo "  just test-run-mid-cli {{platform}}  # Interactive mid-cli environment"
+    @echo "  just test-run-mid-dev {{platform}}  # Interactive mid-dev environment"
+    @echo "  just test-run-max-dev {{platform}}  # Interactive max-dev environment"
+    @exit 1
+
+# Backward compatibility alias - DEPRECATED
+test level=test_level platform=test_platform:
+    @echo "⚠️  Generic 'test' command is deprecated"
+    @echo "💡 Use specific tiered tests instead:"
+    @echo "  just test-min-cli {{platform}}  # Minimal CLI setup"
+    @echo "  just test-mid-cli {{platform}}  # Extended CLI setup"
+    @echo "  just test-mid-dev {{platform}}  # Development environment"
+    @echo "  just test-max-dev {{platform}}  # Complete development"
+    @exit 1
+
+# Helper: Test through install stage (complete workflow) - BROKEN
 test-install-local level platform:
-    @echo "🔨 Building Docker image for {{level}} {{platform}} install stage..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target install-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
-    @echo "🚀 Running test container..."
-    docker run --rm dotfiles-test-{{level}}-{{platform}}
+    @echo "❌ test-install-local is broken - targets install-{{level}} don't exist"
+    @echo "💡 Available targets: install-min-cli, install-mid-cli, install-mid-dev, install-max-dev"
+    @exit 1
 
-# Helper: Test through stow stage only
+# Helper: Test through stow stage only - BROKEN
 test-stow-local level platform:
-    @echo "🔨 Building Docker image for {{level}} {{platform}} stow stage..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target stow-{{level}} -t dotfiles-stow-{{level}}-{{platform}} .
-    @echo "🚀 Running test container..."
-    docker run --rm dotfiles-stow-{{level}}-{{platform}}
+    @echo "❌ test-stow-local is broken - targets stow-{{level}} don't exist"
+    @echo "💡 Available targets: stow-min-cli, stow-mid-cli, stow-mid-dev, stow-max-dev"
+    @exit 1
 
-# Helper: Test through update stage (complete workflow)
+# Helper: Test through update stage (complete workflow) - BROKEN  
 test-update-local level platform:
-    @echo "🔨 Building Docker image for {{level}} {{platform}} update stage..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{level}} -t dotfiles-test-{{level}}-{{platform}} .
-    @echo "🚀 Running test container..."
-    docker run --rm dotfiles-test-{{level}}-{{platform}}
+    @echo "❌ test-update-local is broken - targets update-{{level}} don't exist"
+    @echo "💡 Available targets: update-min-cli, update-mid-cli, update-mid-dev, update-max-dev"
+    @exit 1
 
-# Test configure only (configuration generation)
+# Test configure only (configuration generation) - BROKEN
 test-configure level platform:
-    @echo "🔧 Building configure-only Docker image for {{level}} {{platform}}..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target configure -t dotfiles-configure-{{level}}-{{platform}} .
-    @echo "🚀 Running configure test container..."
-    docker run --rm dotfiles-configure-{{level}}-{{platform}}
+    @echo "❌ test-configure is broken - single 'configure' target is legacy"
+    @echo "💡 Available targets: configure-min-cli, configure-mid-cli, configure-mid-dev, configure-max-dev"
+    @exit 1
 
-# Test bootstrap only (no package installation)
+# Test bootstrap only (no package installation) - BROKEN
 test-bootstrap level platform:
-    @echo "🔨 Building bootstrap-only Docker image for {{level}} {{platform}}..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target bootstrap-{{level}} -t dotfiles-bootstrap-{{level}}-{{platform}} .
-    @echo "🚀 Running bootstrap test container..."
-    docker run --rm dotfiles-bootstrap-{{level}}-{{platform}}
+    @echo "❌ test-bootstrap is broken - targets bootstrap-{{level}} don't exist"
+    @echo "💡 Available targets: bootstrap-min-cli, bootstrap-mid-cli, bootstrap-mid-dev, bootstrap-max-dev"
+    @exit 1
 
-# Test with GitHub (full integration test)
+# Test with GitHub (full integration test) - BROKEN: no single-platform dockerfiles exist
 test-remote platform:
-    @echo "🔨 Building Docker image for {{platform}} (GitHub integration)..."
-    docker build \
-        -f dockerfiles/Dockerfile.{{platform}} \
-        -t dotfiles-test-{{platform}} .
-    @echo "🚀 Running integration test container..."
-    docker run --rm dotfiles-test-{{platform}}
+    @echo "❌ test-remote is broken - no single-platform dockerfiles exist"
+    @echo "💡 Use tiered tests instead: just test-min-cli {{platform}}"
+    @exit 1
 
-# Test specific level across all platforms
-@test-level level:
-    echo "🧪 Testing {{level}} across all platforms: {{docker_platforms}}"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-level-{{level}}-output.log"
-    -just test-update {{level}} arch 2>&1 | tee -a test-level-{{level}}-output.log
-    -just test-update {{level}} ubuntu 2>&1 | tee -a test-level-{{level}}-output.log
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🏁 {{level}} level tests completed"
-    echo "📄 Full log available in test-level-{{level}}-output.log"
 
-# Test specific platform across all levels
-@test-platform platform:
-    echo "🧪 Testing {{platform}} across all levels: {{docker_levels}}"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-platform-{{platform}}-output.log"
-    -just test-update basic {{platform}} 2>&1 | tee -a test-platform-{{platform}}-output.log
-    -just test-update typical {{platform}} 2>&1 | tee -a test-platform-{{platform}}-output.log
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🏁 {{platform}} platform tests completed"
-    echo "📄 Full log available in test-platform-{{platform}}-output.log"
 
-# Test all combinations
-@test-all:
-    echo "🧪 Testing all combinations"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-all-output.log"
-    -just test-update basic arch 2>&1 | tee -a test-all-output.log
-    -just test-update basic ubuntu 2>&1 | tee -a test-all-output.log
-    -just test-update typical arch 2>&1 | tee -a test-all-output.log
-    -just test-update typical ubuntu 2>&1 | tee -a test-all-output.log
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🏁 All combination tests completed"
-    echo "📄 Full log available in test-all-output.log"
 
 # Show git status
 @status:
@@ -211,69 +248,4 @@ test-remote platform:
 update:
     cd .. && git submodule update --init --recursive
 
-# Validate everything
-@validate:
-    echo "🔍 Running validations..."
-    just test-all
-    echo "✅ All validations passed"
 
-# =====================================
-# Configuration Testing
-# =====================================
-
-# Test minimal configuration on Arch Linux
-@test-minimal-arch:
-    echo "🧪 Testing minimal configuration on Arch Linux..."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-minimal-arch-output.log"
-    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.arch.multi --target update-basic .. 2>&1 | tee test-minimal-arch-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ Minimal Arch test PASSED"; \
-    else \
-        echo "❌ Minimal Arch test FAILED"; \
-        echo "📄 Check test-minimal-arch-output.log for details"; \
-        exit 1; \
-    fi
-
-# Removed platform-specific test recipes - use existing level/platform structure instead
-
-# Test developer configuration on Ubuntu
-@test-developer-ubuntu:
-    echo "🧪 Testing developer configuration on Ubuntu..."
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-developer-ubuntu-output.log"
-    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.ubuntu.multi --target update-basic .. 2>&1 | tee test-developer-ubuntu-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ Developer Ubuntu test PASSED"; \
-    else \
-        echo "❌ Developer Ubuntu test FAILED"; \
-        echo "📄 Check test-developer-ubuntu-output.log for details"; \
-        exit 1; \
-    fi
-
-# Test configuration system across platforms
-@test-all-configurations:
-    echo "🧪 Testing configuration system across platforms"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "📝 Logging to test-all-configurations-output.log"
-    -just test-minimal-arch 2>&1 | tee -a test-all-configurations-output.log
-    -just test-developer-ubuntu 2>&1 | tee -a test-all-configurations-output.log
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🏁 Configuration tests completed"
-    echo "📄 Full log available in test-all-configurations-output.log"
-
-# Interactive shell for debugging (minimal Arch)
-@test-shell-arch:
-    echo "🐚 Interactive shell - Arch minimal configuration"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🔧 Building container and dropping into shell..."
-    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.arch.multi --target install-basic .. && \
-    docker run -it $$(docker build -q -f dockerfiles/Dockerfile.arch.multi --target install-basic ..) /bin/bash
-
-# Interactive shell for debugging (developer Ubuntu)  
-@test-shell-ubuntu:
-    echo "🐚 Interactive shell - Ubuntu developer configuration"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "🔧 Building container and dropping into shell..."
-    docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic .. && \
-    docker run -it $$(docker build -q -f dockerfiles/Dockerfile.ubuntu.multi --target install-basic ..) /bin/bash

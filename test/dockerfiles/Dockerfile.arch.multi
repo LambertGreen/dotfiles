@@ -6,11 +6,9 @@
 # =============================================================================
 FROM --platform=linux/amd64 archlinux:latest AS base
 
-# Install minimal system packages and required tools
+# Install only absolute minimal system requirements - let bootstrap handle the rest
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm git curl wget sudo base-devel tzdata stow zsh && \
-    # Install just command runner
-    curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin && \
+    pacman -S --noconfirm git curl wget sudo base-devel tzdata zsh && \
     useradd -m -G wheel -s /bin/bash user && \
     echo 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
@@ -32,40 +30,144 @@ WORKDIR /home/user/dotfiles
 FROM base AS configure
 RUN echo "=== CONFIGURE STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
-    rm -f .dotfiles.env && \
-    printf "2\n1\n1\n" | ./configure.sh --no-autodetect && \
+    rm -f ~/.dotfiles.env && \
+    printf "2\n1\n1\ny\n" | ./configure.sh --no-autodetect && \
     echo "📋 Generated configuration:" && \
-    cat .dotfiles.env && \
+    cat ~/.dotfiles.env && \
     echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" .dotfiles.env && \
-    grep -q "# Selected: min-cli" .dotfiles.env && \
+    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
+    grep -q "# Selected: min-cli" ~/.dotfiles.env && \
     echo "✅ Configuration verified!" && \
     echo "🕐 Configure end time: $(date)"
 
 # =============================================================================
 # BOOTSTRAP STAGE - Tool installation
 # =============================================================================
-FROM configure AS bootstrap-basic
-RUN echo "=== BOOTSTRAP STAGE ===" && \
+# Tier 1: min-cli configuration
+FROM base AS configure-min-cli
+RUN echo "=== CONFIGURE min-cli STAGE ===" && \
+    echo "🕐 Configure start time: $(date)" && \
+    rm -f ~/.dotfiles.env && \
+    printf "2\n1\n1\ny\n" | ./configure.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat ~/.dotfiles.env && \
+    echo "🔍 Verifying configuration..." && \
+    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
+    grep -q "# Selected: min-cli" ~/.dotfiles.env && \
+    echo "✅ Configuration verified!" && \
+    echo "🕐 Configure end time: $(date)"
+
+# Tier 2: mid-cli configuration
+FROM base AS configure-mid-cli
+RUN echo "=== CONFIGURE mid-cli STAGE ===" && \
+    echo "🕐 Configure start time: $(date)" && \
+    rm -f ~/.dotfiles.env && \
+    printf "2\n1\n2\ny\n" | ./configure.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat ~/.dotfiles.env && \
+    echo "🔍 Verifying configuration..." && \
+    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
+    grep -q "# Selected: mid-cli" ~/.dotfiles.env && \
+    echo "✅ Configuration verified!" && \
+    echo "🕐 Configure end time: $(date)"
+
+# Tier 3: mid-dev configuration
+FROM base AS configure-mid-dev
+RUN echo "=== CONFIGURE mid-dev STAGE ===" && \
+    echo "🕐 Configure start time: $(date)" && \
+    rm -f ~/.dotfiles.env && \
+    printf "2\n1\n3\ny\n" | ./configure.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat ~/.dotfiles.env && \
+    echo "🔍 Verifying configuration..." && \
+    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
+    grep -q "# Selected: mid-dev" ~/.dotfiles.env && \
+    echo "✅ Configuration verified!" && \
+    echo "🕐 Configure end time: $(date)"
+
+# Tier 4: max-dev configuration
+FROM base AS configure-max-dev
+RUN echo "=== CONFIGURE max-dev STAGE ===" && \
+    echo "🕐 Configure start time: $(date)" && \
+    rm -f ~/.dotfiles.env && \
+    printf "2\n1\n4\ny\n" | ./configure.sh --no-autodetect && \
+    echo "📋 Generated configuration:" && \
+    cat ~/.dotfiles.env && \
+    echo "🔍 Verifying configuration..." && \
+    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
+    grep -q "# Selected: max-dev" ~/.dotfiles.env && \
+    echo "✅ Configuration verified!" && \
+    echo "🕐 Configure end time: $(date)"
+
+FROM configure-min-cli AS bootstrap-min-cli
+RUN echo "=== BOOTSTRAP min-cli STAGE ===" && \
     echo "🕐 Bootstrap start time: $(date)" && \
-    echo "🔧 Essential tools (stow, just) already installed in base stage..." && \
+    echo "🔧 Running actual bootstrap script for system parity..." && \
+    ./bootstrap.sh && \
     echo "🏥 Health check after bootstrap:" && \
     bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
     echo "🔍 Verifying tools installed by bootstrap scripts..." && \
     which stow && stow --version && \
     which just && just --version && \
+    which python3 && python3 --version && \
     echo "✅ Bootstrap complete!" && \
     echo "🕐 Bootstrap end time: $(date)"
 
-# System supports different configurations via configure script
+FROM configure-mid-cli AS bootstrap-mid-cli
+RUN echo "=== BOOTSTRAP mid-cli STAGE ===" && \
+    echo "🕐 Bootstrap start time: $(date)" && \
+    echo "🔧 Running actual bootstrap script for system parity..." && \
+    ./bootstrap.sh && \
+    echo "🏥 Health check after bootstrap:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
+    which stow && stow --version && \
+    which just && just --version && \
+    which python3 && python3 --version && \
+    echo "✅ Bootstrap complete!" && \
+    echo "🕐 Bootstrap end time: $(date)"
+
+FROM configure-mid-dev AS bootstrap-mid-dev
+RUN echo "=== BOOTSTRAP mid-dev STAGE ===" && \
+    echo "🕐 Bootstrap start time: $(date)" && \
+    echo "🔧 Running actual bootstrap script for system parity..." && \
+    ./bootstrap.sh && \
+    echo "🏥 Health check after bootstrap:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
+    which stow && stow --version && \
+    which just && just --version && \
+    which python3 && python3 --version && \
+    echo "✅ Bootstrap complete!" && \
+    echo "🕐 Bootstrap end time: $(date)"
+
+FROM configure-max-dev AS bootstrap-max-dev
+RUN echo "=== BOOTSTRAP max-dev STAGE ===" && \
+    echo "🕐 Bootstrap start time: $(date)" && \
+    echo "🔧 Running actual bootstrap script for system parity..." && \
+    ./bootstrap.sh && \
+    echo "🏥 Health check after bootstrap:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
+    which stow && stow --version && \
+    which just && just --version && \
+    which python3 && python3 --version && \
+    echo "✅ Bootstrap complete!" && \
+    echo "🕐 Bootstrap end time: $(date)"
 
 # =============================================================================
 # STOW STAGE - Config deployment
 # =============================================================================
-FROM bootstrap-basic AS stow-basic
-RUN echo "=== STOW STAGE ===" && \
-    echo "🔍 Showing configuration before stow:" && \
-    cat .dotfiles.env && \
+FROM bootstrap-min-cli AS stow-min-cli
+RUN echo "=== STOW min-cli STAGE ===" && \
+    echo "🔍 Validating min-cli configuration before stow:" && \
+    cat ~/.dotfiles.env && \
+    echo "🔍 Asserting expected min-cli config values..." && \
+    grep -q "DOTFILES_CLI_UTILS=true" ~/.dotfiles.env && \
+    grep -q "DOTFILES_CLI_UTILS_HEAVY=false" ~/.dotfiles.env && \
+    grep -q "DOTFILES_CLI_EDITORS=false" ~/.dotfiles.env && \
+    grep -q "DOTFILES_DEV_ENV=false" ~/.dotfiles.env && \
+    echo "✅ min-cli configuration validated!" && \
     echo "🧹 Removing default shell files that conflict with stow..." && \
     rm -f ~/.bash_profile ~/.bashrc && \
     just stow && \
@@ -75,13 +177,50 @@ RUN echo "=== STOW STAGE ===" && \
     bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
     echo "✅ Stow complete!"
 
-# Typical stage removed - use configure script for selection
+FROM bootstrap-mid-cli AS stow-mid-cli
+RUN echo "=== STOW mid-cli STAGE ===" && \
+    echo "🔍 Showing configuration before stow:" && \
+    cat ~/.dotfiles.env && \
+    echo "🧹 Removing default shell files that conflict with stow..." && \
+    rm -f ~/.bash_profile ~/.bashrc && \
+    just stow && \
+    echo "🔍 Checking what symlinks were created:" && \
+    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
+    echo "🏥 Health check after stow:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    echo "✅ Stow complete!"
+
+FROM bootstrap-mid-dev AS stow-mid-dev
+RUN echo "=== STOW mid-dev STAGE ===" && \
+    echo "🔍 Showing configuration before stow:" && \
+    cat ~/.dotfiles.env && \
+    echo "🧹 Removing default shell files that conflict with stow..." && \
+    rm -f ~/.bash_profile ~/.bashrc && \
+    just stow && \
+    echo "🔍 Checking what symlinks were created:" && \
+    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
+    echo "🏥 Health check after stow:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    echo "✅ Stow complete!"
+
+FROM bootstrap-max-dev AS stow-max-dev
+RUN echo "=== STOW max-dev STAGE ===" && \
+    echo "🔍 Showing configuration before stow:" && \
+    cat ~/.dotfiles.env && \
+    echo "🧹 Removing default shell files that conflict with stow..." && \
+    rm -f ~/.bash_profile ~/.bashrc && \
+    just stow && \
+    echo "🔍 Checking what symlinks were created:" && \
+    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
+    echo "🏥 Health check after stow:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    echo "✅ Stow complete!"
 
 # =============================================================================
 # INSTALL STAGE - Package installation
 # =============================================================================
-FROM stow-basic AS install-basic
-RUN echo "=== INSTALL STAGE ===" && \
+FROM stow-min-cli AS install-min-cli
+RUN echo "=== INSTALL min-cli STAGE ===" && \
     echo "📊 Showing configuration:" && \
     just show-config && \
     echo "📦 Installing packages..." && \
@@ -90,19 +229,74 @@ RUN echo "=== INSTALL STAGE ===" && \
     bash tools/dotfiles-health/dotfiles-health.sh && \
     echo "✅ Install complete!"
 
-# Typical install stage removed - use configure script for selection
+FROM stow-mid-cli AS install-mid-cli
+RUN echo "=== INSTALL mid-cli STAGE ===" && \
+    echo "📊 Showing configuration:" && \
+    just show-config && \
+    echo "📦 Installing packages..." && \
+    just install && \
+    echo "🏥 Health check after install:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "✅ Install complete!"
+
+FROM stow-mid-dev AS install-mid-dev
+RUN echo "=== INSTALL mid-dev STAGE ===" && \
+    echo "📊 Showing configuration:" && \
+    just show-config && \
+    echo "📦 Installing packages..." && \
+    just install && \
+    echo "🏥 Health check after install:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "✅ Install complete!"
+
+FROM stow-max-dev AS install-max-dev
+RUN echo "=== INSTALL max-dev STAGE ===" && \
+    echo "📊 Showing configuration:" && \
+    just show-config && \
+    echo "📦 Installing packages..." && \
+    just install && \
+    echo "🏥 Health check after install:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "✅ Install complete!"
 
 # =============================================================================
 # UPDATE STAGE - Complete workflow
 # =============================================================================
-FROM install-basic AS update-basic
-RUN echo "=== UPDATE STAGE ===" && \
+FROM install-min-cli AS update-min-cli
+RUN echo "=== UPDATE min-cli STAGE ===" && \
     just update-check && \
     echo "🏥 Final health check:" && \
     bash tools/dotfiles-health/dotfiles-health.sh && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
-    echo "✅ Arch workflow complete!"
+    echo "✅ Arch min-cli workflow complete!"
 
-# Typical update stage removed - use configure script for selection
-# All workflow stages now use unified configuration approach
+FROM install-mid-cli AS update-mid-cli
+RUN echo "=== UPDATE mid-cli STAGE ===" && \
+    just update-check && \
+    echo "🏥 Final health check:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "🧪 Verifying installed packages:" && \
+    which git stow && \
+    echo "✅ Arch mid-cli workflow complete!"
+
+FROM install-mid-dev AS update-mid-dev
+RUN echo "=== UPDATE mid-dev STAGE ===" && \
+    just update-check && \
+    echo "🏥 Final health check:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "🧪 Verifying installed packages:" && \
+    which git stow && \
+    echo "✅ Arch mid-dev workflow complete!"
+
+FROM install-max-dev AS update-max-dev
+RUN echo "=== UPDATE max-dev STAGE ===" && \
+    just update-check && \
+    echo "🏥 Final health check:" && \
+    bash tools/dotfiles-health/dotfiles-health.sh && \
+    echo "🧪 Verifying installed packages:" && \
+    which git stow && \
+    echo "✅ Arch max-dev workflow complete!"
+
+# Legacy compatibility targets
+FROM update-min-cli AS update-basic
