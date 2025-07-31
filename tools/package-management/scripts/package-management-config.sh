@@ -255,19 +255,19 @@ package_install() {
     fi
     
     # Install advanced categories if explicitly enabled
-    if [ "${DOTFILES_CLI_EDITORS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ]; then
         install_category_toml "cli-editors" "p2"
     fi
     
-    if [ "${DOTFILES_DEV_ENV_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ]; then
         install_category_toml "dev-env" "p2"
     fi
     
-    if [ "${DOTFILES_CLI_UTILS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_CLI_UTILS_HEAVY:-false}" = "true" ]; then
         install_category_toml "cli-utils" "p2"
     fi
     
-    if [ "${DOTFILES_GUI_APPS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_GUI_APPS_HEAVY:-false}" = "true" ]; then
         install_category_toml "gui-apps" "p2"
     fi
     
@@ -329,11 +329,11 @@ package_show_config() {
     [ "${DOTFILES_GUI_APPS:-false}" = "true" ] && echo "  ✓ GUI_APPS" || echo "  ✗ GUI_APPS"
     echo ""
     
-    echo "Advanced Categories:"
-    [ "${DOTFILES_CLI_EDITORS_ADVANCED:-false}" = "true" ] && echo "  ✓ CLI_EDITORS_ADVANCED" || echo "  ✗ CLI_EDITORS_ADVANCED"
-    [ "${DOTFILES_DEV_ENV_ADVANCED:-false}" = "true" ] && echo "  ✓ DEV_ENV_ADVANCED" || echo "  ✗ DEV_ENV_ADVANCED"
-    [ "${DOTFILES_CLI_UTILS_ADVANCED:-false}" = "true" ] && echo "  ✓ CLI_UTILS_ADVANCED" || echo "  ✗ CLI_UTILS_ADVANCED"
-    [ "${DOTFILES_GUI_APPS_ADVANCED:-false}" = "true" ] && echo "  ✓ GUI_APPS_ADVANCED" || echo "  ✗ GUI_APPS_ADVANCED"
+    echo "Heavy Categories:"
+    [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ] && echo "  ✓ CLI_EDITORS_HEAVY" || echo "  ✗ CLI_EDITORS_HEAVY"
+    [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ] && echo "  ✓ DEV_ENV_HEAVY" || echo "  ✗ DEV_ENV_HEAVY"
+    [ "${DOTFILES_CLI_UTILS_HEAVY:-false}" = "true" ] && echo "  ✓ CLI_UTILS_HEAVY" || echo "  ✗ CLI_UTILS_HEAVY"
+    [ "${DOTFILES_GUI_APPS_HEAVY:-false}" = "true" ] && echo "  ✓ GUI_APPS_HEAVY" || echo "  ✗ GUI_APPS_HEAVY"
 }
 
 # Check for available package updates (read-only, safe)

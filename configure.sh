@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Configure Script for Dotfiles Package Management
-# Generates transparent .dotfiles.env with explicit configuration controls
+# Generates transparent ~/.dotfiles.env with explicit configuration controls
 
 set -euo pipefail
 
@@ -24,9 +24,9 @@ echo "🔧 Dotfiles Configuration"
 echo ""
 
 # Check if already configured
-if [ -f .dotfiles.env ]; then
+if [ -f ~/~/.dotfiles.env ]; then
     echo "📋 Current configuration found:"
-    cat .dotfiles.env
+    cat ~/~/.dotfiles.env
     echo ""
     read -p "Reconfigure? (y/N): " reconfigure
     if [[ ! "$reconfigure" =~ ^[Yy]$ ]]; then
@@ -120,10 +120,10 @@ esac
 echo ""
 
 # Generate configuration
-echo "# Dotfiles Configuration" > .dotfiles.env
-echo "# Generated on $(date)" >> .dotfiles.env
-echo "export DOTFILES_PLATFORM=$PLATFORM" >> .dotfiles.env
-echo "" >> .dotfiles.env
+echo "# Dotfiles Configuration" > ~/.dotfiles.env
+echo "# Generated on $(date)" >> ~/.dotfiles.env
+echo "export DOTFILES_PLATFORM=$PLATFORM" >> ~/.dotfiles.env
+echo "" >> ~/.dotfiles.env
 
 if [ "$USE_PROFILES" = true ]; then
     # Configuration selection
@@ -167,48 +167,48 @@ if [ "$USE_PROFILES" = true ]; then
     done
     
     # Generate configuration based on selections
-    echo "# Selected:$SELECTED_AREAS" >> .dotfiles.env
-    echo "" >> .dotfiles.env
+    echo "# Selected:$SELECTED_AREAS" >> ~/.dotfiles.env
+    echo "" >> ~/.dotfiles.env
     
     # Map areas to environment variables
     # CLI areas map to CLI_UTILS
     if [ "$CLI_MIN" = true ] || [ "$CLI_MID" = true ]; then
-        echo "export DOTFILES_CLI_UTILS=true" >> .dotfiles.env
+        echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
         if [ "$CLI_MID" = true ]; then
-            echo "export DOTFILES_CLI_UTILS_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
         else
-            echo "export DOTFILES_CLI_UTILS_ADVANCED=false" >> .dotfiles.env
+            echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
         fi
     else
-        echo "export DOTFILES_CLI_UTILS=false" >> .dotfiles.env
-        echo "export DOTFILES_CLI_UTILS_ADVANCED=false" >> .dotfiles.env
+        echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
+        echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
     fi
     
     # DEV areas map to CLI_EDITORS and DEV_ENV
     if [ "$DEV_MID" = true ] || [ "$DEV_MAX" = true ]; then
-        echo "export DOTFILES_CLI_EDITORS=true" >> .dotfiles.env
-        echo "export DOTFILES_DEV_ENV=true" >> .dotfiles.env
+        echo "export DOTFILES_CLI_EDITORS=true" >> ~/.dotfiles.env
+        echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
         if [ "$DEV_MAX" = true ]; then
-            echo "export DOTFILES_CLI_EDITORS_ADVANCED=true" >> .dotfiles.env
-            echo "export DOTFILES_DEV_ENV_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
+            echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
         else
-            echo "export DOTFILES_CLI_EDITORS_ADVANCED=false" >> .dotfiles.env
-            echo "export DOTFILES_DEV_ENV_ADVANCED=false" >> .dotfiles.env
+            echo "export DOTFILES_CLI_EDITORS_HEAVY=false" >> ~/.dotfiles.env
+            echo "export DOTFILES_DEV_ENV_HEAVY=false" >> ~/.dotfiles.env
         fi
     else
-        echo "export DOTFILES_CLI_EDITORS=false" >> .dotfiles.env
-        echo "export DOTFILES_DEV_ENV=false" >> .dotfiles.env
-        echo "export DOTFILES_CLI_EDITORS_ADVANCED=false" >> .dotfiles.env
-        echo "export DOTFILES_DEV_ENV_ADVANCED=false" >> .dotfiles.env
+        echo "export DOTFILES_CLI_EDITORS=false" >> ~/.dotfiles.env
+        echo "export DOTFILES_DEV_ENV=false" >> ~/.dotfiles.env
+        echo "export DOTFILES_CLI_EDITORS_HEAVY=false" >> ~/.dotfiles.env
+        echo "export DOTFILES_DEV_ENV_HEAVY=false" >> ~/.dotfiles.env
     fi
     
     # GUI areas map to GUI_APPS
     if [ "$GUI_MAX" = true ]; then
-        echo "export DOTFILES_GUI_APPS=true" >> .dotfiles.env
-        echo "export DOTFILES_GUI_APPS_ADVANCED=true" >> .dotfiles.env
+        echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
+        echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
     else
-        echo "export DOTFILES_GUI_APPS=false" >> .dotfiles.env
-        echo "export DOTFILES_GUI_APPS_ADVANCED=false" >> .dotfiles.env
+        echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
+        echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
     fi
     
 else
@@ -220,75 +220,96 @@ else
     # P1 Categories
     read -p "CLI_EDITORS (neovim, emacs): (Y/n): " cli_editors
     if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_CLI_EDITORS=true" >> .dotfiles.env
+        echo "export DOTFILES_CLI_EDITORS=true" >> ~/.dotfiles.env
     else
-        echo "export DOTFILES_CLI_EDITORS=false" >> .dotfiles.env
+        echo "export DOTFILES_CLI_EDITORS=false" >> ~/.dotfiles.env
     fi
     
     read -p "DEV_ENV (python, node, cmake): (Y/n): " dev_env
     if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_DEV_ENV=true" >> .dotfiles.env
+        echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
     else
-        echo "export DOTFILES_DEV_ENV=false" >> .dotfiles.env
+        echo "export DOTFILES_DEV_ENV=false" >> ~/.dotfiles.env
     fi
     
     read -p "CLI_UTILS (ripgrep, fd, bat, jq): (Y/n): " cli_utils
     if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_CLI_UTILS=true" >> .dotfiles.env
+        echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
     else
-        echo "export DOTFILES_CLI_UTILS=false" >> .dotfiles.env
+        echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
     fi
     
     read -p "GUI_APPS (desktop applications): (y/N): " gui_apps
     if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
-        echo "export DOTFILES_GUI_APPS=true" >> .dotfiles.env
+        echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
     else
-        echo "export DOTFILES_GUI_APPS=false" >> .dotfiles.env
+        echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
     fi
     
     echo ""
-    echo "📈 Optional Advanced Categories (experimental):"
+    echo "📈 Optional Heavy Categories (additional tools):"
     
-    # Advanced Categories - only ask if base category is enabled
+    # Heavy Categories - only ask if base category is enabled
     if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
-        read -p "CLI_EDITORS_ADVANCED (helix): (y/N): " cli_editors_p2
+        read -p "CLI_EDITORS_HEAVY (helix): (y/N): " cli_editors_p2
         if [[ "$cli_editors_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_CLI_EDITORS_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
     
     if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
-        read -p "DEV_ENV_ADVANCED (rust, go, advanced tools): (y/N): " dev_env_p2
+        read -p "DEV_ENV_HEAVY (rust, go, additional tools): (y/N): " dev_env_p2
         if [[ "$dev_env_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_DEV_ENV_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
     
     if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
-        read -p "CLI_UTILS_ADVANCED (additional utilities): (y/N): " cli_utils_p2
+        read -p "CLI_UTILS_HEAVY (additional utilities): (y/N): " cli_utils_p2
         if [[ "$cli_utils_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_CLI_UTILS_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
     
     if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
-        read -p "GUI_APPS_ADVANCED (additional desktop apps): (y/N): " gui_apps_p2
+        read -p "GUI_APPS_HEAVY (additional desktop apps): (y/N): " gui_apps_p2
         if [[ "$gui_apps_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_GUI_APPS_ADVANCED=true" >> .dotfiles.env
+            echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
 fi
 
-echo "✅ Configuration saved to .dotfiles.env"
+# Context flags - determine work vs personal machine usage
+echo ""
+echo "🏢 Machine Context"
+echo "These flags help filter packages appropriately for your environment:"
+echo ""
+
+read -p "Is this a work machine? (restricts to work-appropriate packages): (y/N): " is_work
+if [[ "$is_work" =~ ^[Yy]$ ]]; then
+    echo "export IS_WORK_MACHINE=true" >> ~/.dotfiles.env
+    echo "export IS_PERSONAL_MACHINE=false" >> ~/.dotfiles.env
+else
+    echo "export IS_WORK_MACHINE=false" >> ~/.dotfiles.env
+    
+    read -p "Is this a personal machine? (enables personal/entertainment packages): (Y/n): " is_personal
+    if [[ ! "$is_personal" =~ ^[Nn]$ ]]; then
+        echo "export IS_PERSONAL_MACHINE=true" >> ~/.dotfiles.env
+    else
+        echo "export IS_PERSONAL_MACHINE=false" >> ~/.dotfiles.env
+    fi
+fi
+
+echo "✅ Configuration saved to ~/.dotfiles.env"
 
 # Create symlink for compatibility with older just versions
-ln -sf .dotfiles.env .env
+ln -sf ~/.dotfiles.env .env
 
 echo ""
 
 # Show the configuration using the package tool
 echo "📊 Your configuration:"
-source .dotfiles.env
+source ~/.dotfiles.env
 if [ -f "tools/package-management/package-management-config.sh" ]; then
     bash tools/package-management/package-management-config.sh show-config
 else
@@ -297,8 +318,8 @@ else
 fi
 
 echo ""
-echo "📋 Complete .dotfiles.env configuration:"
-cat .dotfiles.env
+echo "📋 Complete ~/.dotfiles.env configuration:"
+cat ~/.dotfiles.env
 
 echo ""
 echo "Next steps:"

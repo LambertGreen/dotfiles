@@ -54,12 +54,12 @@ install:
         echo "💡 This will set up your platform (osx/arch/ubuntu) and package categories."; \
         exit 1; \
     fi
-    @if [ ! -f ".dotfiles.env" ]; then \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Configuration file missing. Run: just configure"; \
         exit 1; \
     fi
     @echo "📦 Installing {{platform}} packages using TOML-based package management..."
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_install"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_install"
 
 
 # Check for available package updates (safe to run)
@@ -128,7 +128,7 @@ check-health-verbose:
 [private]
 _check-health-with-log logfile flags:
     @echo "🏥 Running health check with logging to: {{logfile}}"
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source .dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
 
 # Show current configuration
 show-config:
@@ -136,11 +136,11 @@ show-config:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @if [ ! -f ".dotfiles.env" ]; then \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Configuration file missing. Run: just configure"; \
         exit 1; \
     fi
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_show_config"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_show_config"
 
 # List broken symlinks (dry run)
 cleanup-broken-links-dry-run:

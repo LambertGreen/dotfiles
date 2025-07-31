@@ -65,13 +65,13 @@ assert_file_exists() {
 setup_test_env() {
     cd "$PROJECT_ROOT"
     # Remove any existing config
-    rm -f .dotfiles.env
+    rm -f ~/.dotfiles.env
 }
 
 cleanup_test_env() {
     cd "$PROJECT_ROOT"
     # Clean up test config
-    rm -f .dotfiles.env
+    rm -f ~/.dotfiles.env
 }
 
 # Test: Configure script exists and is executable
@@ -100,9 +100,9 @@ test_developer_profile() {
     local output
     output=$(echo -e "2\n1\n2" | "$CONFIGURE_SCRIPT" --no-autodetect 2>/dev/null || true)
     
-    if [ -f .dotfiles.env ]; then
+    if [ -f ~/.dotfiles.env ]; then
         local config_content
-        config_content=$(cat .dotfiles.env)
+        config_content=$(cat ~/.dotfiles.env)
         
         assert_contains "$config_content" "DOTFILES_PLATFORM=arch" "Platform set correctly"
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS=true" "CLI editors enabled"
@@ -110,7 +110,7 @@ test_developer_profile() {
         assert_contains "$config_content" "DOTFILES_CLI_UTILS=false" "CLI utils disabled in developer profile"
         assert_contains "$config_content" "DOTFILES_GUI_APPS=false" "GUI apps disabled in developer profile"
     else
-        echo "✗ FAIL: .dotfiles.env not created"
+        echo "✗ FAIL: ~/.dotfiles.env not created"
         TESTS_RUN=$((TESTS_RUN + 5))
     fi
     
@@ -127,9 +127,9 @@ test_power_user_profile() {
     local output
     output=$(echo -e "1\n1\n5" | "$CONFIGURE_SCRIPT" 2>/dev/null || true)
     
-    if [ -f .dotfiles.env ]; then
+    if [ -f ~/.dotfiles.env ]; then
         local config_content
-        config_content=$(cat .dotfiles.env)
+        config_content=$(cat ~/.dotfiles.env)
         
         assert_contains "$config_content" "DOTFILES_PLATFORM=osx" "Platform set correctly"
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS=true" "CLI editors enabled"
@@ -139,7 +139,7 @@ test_power_user_profile() {
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS_P2=true" "P2 CLI editors enabled"
         assert_contains "$config_content" "DOTFILES_DEV_ENV_P2=true" "P2 Dev env enabled"
     else
-        echo "✗ FAIL: .dotfiles.env not created"
+        echo "✗ FAIL: ~/.dotfiles.env not created"
         TESTS_RUN=$((TESTS_RUN + 1))
     fi
     
@@ -156,9 +156,9 @@ test_minimal_profile() {
     local output
     output=$(echo -e "3\n1\n1" | "$CONFIGURE_SCRIPT" --no-autodetect 2>/dev/null || true)
     
-    if [ -f .dotfiles.env ]; then
+    if [ -f ~/.dotfiles.env ]; then
         local config_content
-        config_content=$(cat .dotfiles.env)
+        config_content=$(cat ~/.dotfiles.env)
         
         assert_contains "$config_content" "DOTFILES_PLATFORM=ubuntu" "Platform set correctly"
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS=false" "CLI editors disabled"
@@ -166,7 +166,7 @@ test_minimal_profile() {
         assert_contains "$config_content" "DOTFILES_CLI_UTILS=false" "CLI utils disabled"
         assert_contains "$config_content" "DOTFILES_GUI_APPS=false" "GUI apps disabled"
     else
-        echo "✗ FAIL: .dotfiles.env not created"
+        echo "✗ FAIL: ~/.dotfiles.env not created"
         TESTS_RUN=$((TESTS_RUN + 5))
     fi
     
@@ -183,9 +183,9 @@ test_custom_configuration() {
     local output
     output=$(echo -e "2\n2\nY\nN\nY\nN\nY" | "$CONFIGURE_SCRIPT" --no-autodetect 2>/dev/null || true)
     
-    if [ -f .dotfiles.env ]; then
+    if [ -f ~/.dotfiles.env ]; then
         local config_content
-        config_content=$(cat .dotfiles.env)
+        config_content=$(cat ~/.dotfiles.env)
         
         assert_contains "$config_content" "DOTFILES_PLATFORM=arch" "Platform set correctly"
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS=true" "CLI editors enabled"
@@ -194,7 +194,7 @@ test_custom_configuration() {
         assert_contains "$config_content" "DOTFILES_GUI_APPS=false" "GUI apps disabled"
         assert_contains "$config_content" "DOTFILES_CLI_EDITORS_P2=true" "P2 CLI editors enabled"
     else
-        echo "✗ FAIL: .dotfiles.env not created"
+        echo "✗ FAIL: ~/.dotfiles.env not created"
         TESTS_RUN=$((TESTS_RUN + 6))
     fi
     
@@ -210,9 +210,9 @@ test_config_file_format() {
     # Generate a simple config: arch platform (2), profile approach (1), developer profile (2)
     echo -e "2\n1\n2" | "$CONFIGURE_SCRIPT" --no-autodetect 2>/dev/null || true
     
-    if [ -f .dotfiles.env ]; then
+    if [ -f ~/.dotfiles.env ]; then
         local config_content
-        config_content=$(cat .dotfiles.env)
+        config_content=$(cat ~/.dotfiles.env)
         
         assert_contains "$config_content" "# Dotfiles Configuration - P1/P2 Category System" "Header comment present"
         assert_contains "$config_content" "# Generated on" "Timestamp present"
@@ -220,7 +220,7 @@ test_config_file_format() {
         
         # Check that all lines with DOTFILES_ are export statements
         local dotfiles_lines
-        dotfiles_lines=$(grep "DOTFILES_" .dotfiles.env | grep -v "^#" || true)
+        dotfiles_lines=$(grep "DOTFILES_" ~/.dotfiles.env | grep -v "^#" || true)
         local all_exports=true
         while IFS= read -r line; do
             if [[ -n "$line" && ! "$line" =~ ^export ]]; then
@@ -239,7 +239,7 @@ test_config_file_format() {
         TESTS_RUN=$((TESTS_RUN + 1))
         
     else
-        echo "✗ FAIL: .dotfiles.env not created"
+        echo "✗ FAIL: ~/.dotfiles.env not created"
         TESTS_RUN=$((TESTS_RUN + 4))
     fi
     

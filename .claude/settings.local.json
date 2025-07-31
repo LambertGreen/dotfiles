@@ -23,7 +23,9 @@
       "Bash(docker run:*)",
       "Bash(python3:*)",
       "Bash(echo)",
-      "Bash(just)"
+      "Bash(just)",
+      "Bash(git submodule add:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

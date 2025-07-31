@@ -2,7 +2,7 @@
 # -*- mode: just -*-
 
 # Configuration-aware dotfiles stowing using new directory structure
-# Uses .dotfiles.env to determine which configs to stow
+# Uses ~/.dotfiles.env to determine which configs to stow
 
 _default:
     @echo "🔗 Configuration-Aware Stowing"

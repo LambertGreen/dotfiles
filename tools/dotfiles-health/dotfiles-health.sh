@@ -95,7 +95,22 @@ _find_broken_symlinks() {
 _check_dotfile_symlink() {
     local link="$1"
     local target=$(readlink "$link" 2>/dev/null || true)
-    [[ "$target" == *"$DOTFILES_DIR"* ]] || [[ "$target" == *"dev/my/dotfiles"* ]]
+
+    # Check if target contains the actual dotfiles directory path
+    if [[ "$target" == *"$DOTFILES_DIR"* ]]; then
+        return 0
+    fi
+
+    # For relative paths, resolve from the link's directory
+    local link_dir=$(dirname "$link")
+    local resolved_target=$(cd "$link_dir" 2>/dev/null && realpath -m "$target" 2>/dev/null || echo "")
+
+    if [[ -n "$resolved_target" ]] && [[ "$resolved_target" == *"$DOTFILES_DIR"* ]]; then
+        return 0
+    fi
+
+    # Also check for common dotfiles directory patterns
+    [[ "$target" == *"/dotfiles/"* ]] || [[ "$target" == *"/.dotfiles/"* ]]
 }
 
 # Categorize symlinks by type (new system, legacy, broken)
@@ -110,18 +125,18 @@ _categorize_symlinks() {
     BROKEN_LINKS=()
     WARNINGS=()
     ERRORS=()
-    
+
     # Find all symlinks pointing to dotfiles - search targeted directories only
     while IFS= read -r line; do
         [[ -n "$line" ]] || continue
         local link="${line%% -> *}"
         local target="${line#* -> }"
-        
+
         # Convert relative path to absolute for link
         if [[ "$link" != /* ]]; then
             link="$TEST_HOME/$link"
         fi
-        
+
         # Check if symlink is broken
         if ! [[ -e "$link" ]]; then
             BROKEN_LINKS+=("$link")
@@ -148,10 +163,32 @@ _categorize_symlinks() {
         # Search specific directories only - avoid Library and other large dirs
         {
             # Home directory dotfiles (depth 1 only)
-            cd "$TEST_HOME" && fd -t l --max-depth 1 -x sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
-            # .config directory
-            [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && fd -t l -x sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
-        } | rg "dev/my/dotfiles" 2>/dev/null || true
+            if command -v fd >/dev/null 2>&1; then
+                cd "$TEST_HOME" && fd -t l --max-depth 1 -x sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
+                # .config directory
+                [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && fd -t l -x sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
+            else
+                # Fallback to find if fd not available
+                cd "$TEST_HOME" && find . -maxdepth 1 -type l -exec sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
+                [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && find . -type l -exec sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
+            fi
+        } | while IFS= read -r line; do
+            # Check if symlink points to dotfiles directory
+            local link="${line%% -> *}"
+            local target="${line#* -> }"
+
+            # Resolve relative paths to check if they point to DOTFILES_DIR
+            local abs_link="$TEST_HOME/$link"
+            [[ "$link" == /* ]] && abs_link="$link"
+
+            local link_dir=$(dirname "$abs_link")
+            local resolved_target=$(cd "$link_dir" 2>/dev/null && realpath -m "$target" 2>/dev/null || echo "$target")
+
+            # Only include links that point to the dotfiles directory
+            if [[ "$resolved_target" == *"$DOTFILES_DIR"* ]] || [[ "$target" == *"/dotfiles/"* ]] || [[ "$target" == *"/.dotfiles/"* ]]; then
+                echo "$line"
+            fi
+        done
     )
 }
 
@@ -236,19 +273,19 @@ _check_package_health() {
     fi
 
     # Check P2 categories if explicitly enabled
-    if [ "${DOTFILES_CLI_EDITORS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ]; then
         categories_to_check+=("cli-editors:p2")
     fi
 
-    if [ "${DOTFILES_DEV_ENV_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ]; then
         categories_to_check+=("dev-env:p2")
     fi
 
-    if [ "${DOTFILES_CLI_UTILS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_CLI_UTILS_HEAVY:-false}" = "true" ]; then
         categories_to_check+=("cli-utils:p2")
     fi
 
-    if [ "${DOTFILES_GUI_APPS_ADVANCED:-false}" = "true" ]; then
+    if [ "${DOTFILES_GUI_APPS_HEAVY:-false}" = "true" ]; then
         categories_to_check+=("gui-apps:p2")
     fi
 

@@ -8,6 +8,22 @@ This is a unified cross-platform package management system (think "better Topgra
 
 ## Key Architecture
 
+### Core Architectural Principles
+
+**CRITICAL: Docker is Testing Infrastructure ONLY**
+- Docker containers are used exclusively for testing the dotfiles system
+- Docker is NOT a target daily driver environment
+- Real users run the system on actual Linux/macOS/Windows machines
+- Bootstrap scripts in `bootstrap/` folder must work on real systems
+- Docker base stages should mirror what bootstrap scripts produce on real systems
+- If something is universally needed (like Python3), it belongs in platform bootstrap scripts, not just Docker
+
+**Bootstrap Brings All Platforms to Parity**
+- Bootstrap must ensure system "readiness" - all platforms should reach the same functional state
+- No platform should be "lame" and require special handling in later stages
+- Bootstrap failures should be visible and explicit about which platforms need extra help
+- The bootstrap process is a communication interface showing system requirements
+
 ### Directory Structure
 - **Reorganized config structure** (as of 2024-07):
   - `configs/common/` - Cross-platform configurations
@@ -169,12 +185,21 @@ git submodule update --init --recursive
 - ✅ Updated README.org with tiered configuration approach
 - ✅ Documentation positioned as "better Topgrade" unified package management
 
-### Planned Implementation (High Priority)
-- 🔄 Rename `_ADVANCED` → `_HEAVY` throughout system
-- 🔄 Implement `IS_PERSONAL_MACHINE` and `IS_WORK_MACHINE` context flags
-- 🔄 Create tiered test recipes (test-min-cli, test-mid-dev, etc.)
-- 🔄 Fix test justfile path inconsistencies and remove broken recipes
-- 🔄 Ensure mid-dev and max-dev tiers test multiple package managers (AUR on Arch)
+### Recently Completed (Continued)
+- ✅ Rename `_ADVANCED` → `_HEAVY` throughout system (configure.sh, package-management-config.sh, README.org)
+- ✅ Implement `IS_PERSONAL_MACHINE` and `IS_WORK_MACHINE` context flags
+- ✅ Create tiered test recipes (test-min-cli, test-mid-cli, test-mid-dev, test-max-dev)
+- ✅ Update Dockerfiles to use proper configuration inputs for each tier
+- ✅ Update test justfile to use correct Docker targets
+- ✅ Fix test justfile Docker path inconsistencies and mark broken legacy recipes
+- ✅ Remove all broken test recipes and batch testing shortcuts
+- ✅ Clean test justfile - only working tiered tests and utility functions remain
+
+### Recently Completed (Final)
+- ✅ Verified multi-PM testing: mid-dev enables CLI_EDITORS (emacs from AUR → yay installation), max-dev adds HEAVY variants
+
+### Completed: All High Priority Tasks
+**The tiered testing system is now fully operational with clean, consistent implementation!**
 
 ### Future Vision
 - App-specific package managers (zinit, elpaca, lazy.nvim)

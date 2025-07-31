@@ -17,7 +17,7 @@ fi
 
 # Install just using the official installer
 echo "⬇️  Downloading and installing just..."
-curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin
+curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin
 
 # Verify installation
 if command -v just >/dev/null 2>&1; then

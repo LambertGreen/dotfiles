@@ -391,7 +391,7 @@ just testing    # Opens test sub-shell with all test commands
 The health check tool validates your dotfiles setup:
 
 #+begin_src bash
-just health-check
+just check-health
 #+end_src
 
 It reports:
