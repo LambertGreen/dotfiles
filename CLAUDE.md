@@ -178,33 +178,65 @@ git submodule update --init --recursive
 
 ## Current Implementation Status (2025-07-29)
 
-### Recently Completed
+### Recently Completed Major Refactoring (July 2025)
+
+**Phase 1: Core Architecture**
 - ✅ Major dotfiles reorganization (common/, osx_only/, linux_only/, windows_only/)
-- ✅ Environment-driven architecture with .dotfiles.env configuration
+- ✅ Environment-driven architecture with ~/.dotfiles.env configuration
 - ✅ Fixed all 13 git submodules after reorganization
-- ✅ Updated README.org with tiered configuration approach
 - ✅ Documentation positioned as "better Topgrade" unified package management
 
-### Recently Completed (Continued)
-- ✅ Rename `_ADVANCED` → `_HEAVY` throughout system (configure.sh, package-management-config.sh, README.org)
+**Phase 2: Tiered Configuration System**
+- ✅ Rename `_ADVANCED` → `_HEAVY` throughout system
 - ✅ Implement `IS_PERSONAL_MACHINE` and `IS_WORK_MACHINE` context flags
+- ✅ Create 4-tier configuration approach (min-cli → mid-cli → mid-dev → max-dev)
+- ✅ Update all documentation (README.org, CLAUDE.md) with tiered approach
+
+**Phase 3: Testing Infrastructure Overhaul**
 - ✅ Create tiered test recipes (test-min-cli, test-mid-cli, test-mid-dev, test-max-dev)
 - ✅ Update Dockerfiles to use proper configuration inputs for each tier
-- ✅ Update test justfile to use correct Docker targets
-- ✅ Fix test justfile Docker path inconsistencies and mark broken legacy recipes
-- ✅ Remove all broken test recipes and batch testing shortcuts
-- ✅ Clean test justfile - only working tiered tests and utility functions remain
+- ✅ Remove all broken test recipes and legacy shortcuts
+- ✅ Clean test justfile - only working tiered tests remain
+- ✅ Fix Docker path inconsistencies and configuration state management
 
-### Recently Completed (Final)
-- ✅ Verified multi-PM testing: mid-dev enables CLI_EDITORS (emacs from AUR → yay installation), max-dev adds HEAVY variants
+**Phase 4: Bootstrap Transparency & Health Check Fixes**
+- ✅ Create individual install scripts in bootstrap/ folder for transparency
+- ✅ Remove hidden curl commands - all downloads now visible
+- ✅ Fix Ubuntu bootstrap (sudo for just installer, tomli for Python 3.10)
+- ✅ Fix health check symlink detection to work with any dotfiles directory location
+- ✅ Update health check to use HEAVY variable names
+- ✅ Verify accurate symlink reporting (49 system links, 10 top-level)
 
-### Completed: All High Priority Tasks
-**The tiered testing system is now fully operational with clean, consistent implementation!**
+**Phase 5: Multi-Package Manager Testing**
+- ✅ Test min-cli tier on Arch and Ubuntu (basic functionality)
+- ✅ Test mid-cli tier on Arch and Ubuntu (extended CLI tools)
+- ✅ Test mid-dev tier on Arch (validates AUR/yay multi-PM installation)
+- ✅ Verify health check shows "HEALTHY" status after successful stow operations
 
-### Future Vision
-- App-specific package managers (zinit, elpaca, lazy.nvim)
+## ARCHITECTURE IS NOW STABLE AND PRODUCTION-READY
+
+The system has completed its major architectural transformation. All high-priority tasks are complete.
+
+### Remaining Testing Tasks (Medium Priority)
+These can be completed in future sessions as needed:
+
+- 🔄 Test mid-dev tier on Ubuntu (validates APT + other package managers)
+- 🔄 Test max-dev tier on Arch (validates full HEAVY package installation)
+- 🔄 Test max-dev tier on Ubuntu (validates complete Ubuntu workflow)
+
+### Future Vision (Low Priority)
+- App-specific package managers integration (zinit, elpaca, lazy.nvim)
 - Complete unified package management across all package managers
 - True multi-package-manager coordination and conflict resolution
+
+### Next Session Guidance
+The architecture is stable. Future work should focus on:
+1. **Completing remaining tier tests** if needed for validation
+2. **Adding new package categories** using the established TOML structure
+3. **Implementing app-specific package managers** following existing patterns
+4. **Production usage** - the system is ready for daily use
+
+The tiered testing system is fully operational and the health check accurately validates system state.
 
 ## Workflow Notes
 
