@@ -103,7 +103,16 @@ _check_dotfile_symlink() {
 
     # For relative paths, resolve from the link's directory
     local link_dir=$(dirname "$link")
-    local resolved_target=$(cd "$link_dir" 2>/dev/null && realpath -m "$target" 2>/dev/null || echo "")
+    local resolved_target=""
+    if [[ -n "$target" ]]; then
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            # macOS realpath doesn't support -m flag
+            resolved_target=$(cd "$link_dir" 2>/dev/null && realpath "$target" 2>/dev/null || echo "")
+        else
+            # Linux realpath supports -m for missing paths
+            resolved_target=$(cd "$link_dir" 2>/dev/null && realpath -m "$target" 2>/dev/null || echo "")
+        fi
+    fi
 
     if [[ -n "$resolved_target" ]] && [[ "$resolved_target" == *"$DOTFILES_DIR"* ]]; then
         return 0

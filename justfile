@@ -144,7 +144,8 @@ show-config:
 
 # List broken symlinks (dry run)
 cleanup-broken-links-dry-run:
-    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
+    @echo "🔍 Finding broken symlinks in dotfiles..."
+    @bash -c "export DOTFILES_DIR={{justfile_directory()}} && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links" 2>&1 || true
 
 # Remove broken symlinks
 cleanup-broken-links-remove:
