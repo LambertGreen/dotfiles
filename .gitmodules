@@ -26,10 +26,6 @@
 	path = configs/common/emacs/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
 	branch = develop
-[submodule "alfred-settings"]
-	path = configs/osx_only/alfred-settings
-	url = ../alfred-settings.git
-	branch = main
 [submodule "nvim/.config/nvim-lgreen"]
 	path = configs/common/nvim/dot-config/nvim-lgreen
 	url = ../dot-nvim.git
@@ -54,10 +50,6 @@
 	path = configs/common/emacs/dot-doom.d
 	url = ../dot-emacs-doom.git
 	branch = master
-[submodule "configs/common/emacs/dot-emacs.default"]
-	path = configs/common/emacs/dot-emacs.default
-	url = ../dot-emacs-default.git
-	branch = main
 [submodule "configs/common/emacs/dot-spacemacs.d"]
 	path = configs/common/emacs/dot-spacemacs.d
 	url = ../dot-spacemacs.git
@@ -65,9 +57,6 @@
 	path = configs/common/emacs/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
 	branch = develop
-[submodule "configs/common/nvim/dot-config/nvim-lgreen"]
-	path = configs/common/nvim/dot-config/nvim-lgreen
-	url = ../dot-nvim.git
 [submodule "configs/common/nvim/dot-config/nvim-doom"]
 	path = configs/common/nvim/dot-config/nvim-doom
 	url = ../doom-nvim.git
@@ -88,4 +77,16 @@
 [submodule "configs/windows_only/autohotkey/dot-autohotkey"]
 	path = configs/windows_only/autohotkey/dot-autohotkey
 	url = ../dot-autohotkey.git
+	branch = main
+[submodule "configs/common/emacs/dot-emacs.d"]
+	path = configs/common/emacs/dot-emacs.d
+	url = ../dot-emacs-default.git
+	branch = main
+[submodule "configs/common/nvim/dot-config/nvim"]
+	path = configs/common/nvim/dot-config/nvim
+	url = ../dot-nvim.git
+	branch = main
+[submodule "configs/osx_only/alfred-settings/Library/Application Support/Alfred"]
+	path = configs/osx_only/alfred-settings/Library/Application Support/Alfred
+	url = ../alfred-settings.git
 	branch = main
