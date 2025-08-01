@@ -18,7 +18,7 @@ priority = "p1"
 
 [packages.neovim.install]
 arch_pacman = "neovim"
-ubuntu_apt = "neovim"
+ubuntu_brew = "neovim"  # Ubuntu APT has old 0.6.1, using Homebrew for newer version
 osx_brew = "neovim"
 
 [packages.emacs]

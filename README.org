@@ -385,7 +385,6 @@ just testing    # Opens test sub-shell with all test commands
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
 
-
 * Health Check
 
 The health check tool validates your dotfiles setup:
@@ -412,7 +411,6 @@ Actually remove broken links:
 #+begin_src bash
 just cleanup-broken-links --remove
 #+end_src
-
 
 * Common Tasks
 
