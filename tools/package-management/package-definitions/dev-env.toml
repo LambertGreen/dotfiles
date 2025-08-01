@@ -234,10 +234,12 @@ description = "GNU Compiler Collection"
 health_check = "gcc --version"
 executable = "gcc"
 priority = "p2"
-platforms = ["osx"]
+platforms = ["osx", "ubuntu", "arch"]
 
 [packages.gcc.install]
 osx_brew = "gcc"
+ubuntu_apt = "gcc"
+arch_pacman = "gcc"
 
 [packages.clang]
 description = "LLVM C/C++ compiler"
