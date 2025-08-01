@@ -46,8 +46,13 @@ lgreen_setup-homebrew-on-linux() {
         # for both curl and git (https://github.com/Linuxbrew/brew/wiki/FAQ#why-does-curl-fail), then
         # use Homebrew to download latest versions, and removing the workaround, then pointing
         # Homebrew to these versions.
-        export HOMEBREW_CURL_PATH=/home/linuxbrew/.linuxbrew/bin/curl
-        export HOMEBREW_GIT_PATH=/home/linuxbrew/.linuxbrew/bin/git
+        # Only set these if the Homebrew versions exist, otherwise Homebrew commands will fail
+        if [ -x "/home/linuxbrew/.linuxbrew/bin/curl" ]; then
+            export HOMEBREW_CURL_PATH=/home/linuxbrew/.linuxbrew/bin/curl
+        fi
+        if [ -x "/home/linuxbrew/.linuxbrew/bin/git" ]; then
+            export HOMEBREW_GIT_PATH=/home/linuxbrew/.linuxbrew/bin/git
+        fi
 
         # The below will update the shell environment:
         # - Add some HOMEBREW environment variables

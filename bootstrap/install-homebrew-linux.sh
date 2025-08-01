@@ -28,3 +28,19 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # Verify installation
 INSTALLED_VERSION=$(brew --version | head -1)
 echo "✅ Homebrew installed: ${INSTALLED_VERSION}"
+
+# Install essential tools via Homebrew to avoid circular dependencies
+echo "📦 Installing essential Homebrew packages (curl, git)..."
+# Use system tools for initial package installation
+export HOMEBREW_CURL_PATH=/usr/bin/curl
+export HOMEBREW_GIT_PATH=/usr/bin/git
+
+# Install curl and git via Homebrew
+if brew install curl git; then
+    echo "✅ Homebrew curl and git installed successfully"
+    # Now Homebrew can use its own versions
+    unset HOMEBREW_CURL_PATH
+    unset HOMEBREW_GIT_PATH
+else
+    echo "⚠️  Warning: Failed to install curl/git via Homebrew, will use system versions"
+fi

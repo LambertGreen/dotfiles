@@ -28,7 +28,7 @@ error() {
     exit 1
 }
 
-# Validate environment
+# Validate environment and set up package managers
 validate_environment() {
     if [ -z "$PLATFORM" ]; then
         error "DOTFILES_PLATFORM not set. Run: just configure"
@@ -36,6 +36,15 @@ validate_environment() {
     
     if [ ! -d "$PACKAGE_DATA_DIR" ]; then
         error "Package data directory not found: $PACKAGE_DATA_DIR"
+    fi
+    
+    # Set up Homebrew PATH if available (needed for non-interactive shells)
+    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && [[ "$PLATFORM" == "ubuntu" || "$PLATFORM" == "arch" ]]; then
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    elif [ -f "/opt/homebrew/bin/brew" ] && [[ "$PLATFORM" == "osx" ]]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -f "/usr/local/bin/brew" ] && [[ "$PLATFORM" == "osx" ]]; then
+        eval "$(/usr/local/bin/brew shellenv)"
     fi
 }
 
@@ -74,8 +83,7 @@ install_packages_with_manager() {
     case "$manager" in
         "brew")
             if ! command -v brew >/dev/null 2>&1; then
-                log "Installing Homebrew..."
-                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                error "Homebrew not found. Please run bootstrap first: ./bootstrap.sh"
             fi
             
             # Add taps if needed

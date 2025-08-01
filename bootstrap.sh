@@ -51,6 +51,7 @@ else
             ./install-python3-ubuntu.sh
             ./install-stow-ubuntu.sh
             ./install-just-ubuntu.sh
+            ./install-homebrew-linux.sh
             ;;
         osx)
             echo "🍎 macOS Basic Bootstrap - Essential tools"

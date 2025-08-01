@@ -1,7 +1,64 @@
-# Don't include the .git folder and other unnecessary files
+# .dockerignore - Prevent copying unnecessary files to Docker build context
+
+# Git and version control
 .git
 .github
 .runtime
+.gitignore
+.gitmodules
+
+# Logs and environment files
 *.log
 .env
+
+# Documentation (keep CLAUDE.md and README.org for reference)
 README*.md
+TODO.org
+CHANGELOG*
+LICENSE
+CONTRIBUTING*
+docs/
+
+# Emacs package directories (contain local symlinks and machine-specific builds)
+**/elpaca/
+**/elpa/
+**/eln-cache/
+**/var/
+**/.cache/
+**/.local/
+**/straight/
+
+# Test artifacts
+test/test-*.log
+test/docker-build.log
+
+# Package manager exports (environment-specific)
+package_manager_exports/
+
+# OS-specific files
+.DS_Store
+*.swp
+*~
+Thumbs.db
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Node modules (if any get installed locally)
+node_modules/
+
+# Backup and temporary files
+*.bak
+*.backup
+*.old
+*.tmp
+tmp/
+temp/
+
+# Personal/sensitive files
+**/private/
+**/secret/
+**/*.pem
+**/*.key

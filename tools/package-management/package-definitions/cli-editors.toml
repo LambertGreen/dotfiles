@@ -29,7 +29,7 @@ priority = "p1"
 
 [packages.emacs.install]
 arch_aur = "emacs-plus"
-ubuntu_apt = "emacs"
+ubuntu_brew = "emacs"  # Ubuntu APT has old 27.1, using Homebrew for newer version
 osx_brew = "d12frosted/emacs-plus/emacs-plus@31"
 
 # =============================================================================

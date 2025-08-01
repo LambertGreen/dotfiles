@@ -301,33 +301,14 @@ arch_pacman = "lldb"
 description = "Command runner and task manager"
 health_check = "just --version"
 executable = "just"
-priority = "p2"
+priority = "p1"
 
 [packages.just.install]
 arch_pacman = "just"
 ubuntu_brew = "just"
 # Note: just not in standard Ubuntu repos, using homebrew
 
-[packages.direnv]
-description = "Environment variable manager"
-health_check = "direnv --version"
-executable = "direnv"
-priority = "p2"
 
-[packages.direnv.install]
-arch_pacman = "direnv"
-ubuntu_brew = "direnv"
-osx_brew = "direnv"
-
-[packages.zoxide]
-description = "Smart directory jumper"
-health_check = "zoxide --version"
-executable = "zoxide"
-priority = "p2"
-
-[packages.zoxide.install]
-arch_pacman = "zoxide"
-ubuntu_brew = "zoxide"
 
 [packages.fzf]
 description = "Command-line fuzzy finder"

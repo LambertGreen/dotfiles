@@ -36,14 +36,14 @@ This is a unified cross-platform package management system (think "better Topgra
 
 ### Configuration Management
 - Uses **GNU Stow** for symlinking dotfiles to home directory
-- Each config directory has its own `.stowrc` with `--dotfiles` and `--no-folding` flags
+- Each config directory has its own `.stowrc` with `--dotfiles` and `--target=~` flags
 - Configurations are organized by application/tool in separate directories
 - Multiple Emacs configurations supported via Chemacs 2 (Doom, Spacemacs, custom)
 
 ### Unified Package Management
 - **Single interface** for multiple package managers per platform:
   - **macOS**: brew/cask + mas (Mac App Store) + npm/pip/gem
-  - **Arch Linux**: pacman + AUR (via yay) + npm/pip/gem  
+  - **Arch Linux**: pacman + AUR (via yay) + npm/pip/gem
   - **Ubuntu**: apt + npm/pip/gem
   - **Windows**: scoop + chocolatey + MSYS2/pacman
 - **Future**: App-specific managers (zinit, elpaca, lazy.nvim, cargo, pipx)
@@ -76,11 +76,11 @@ just mas-upgrade          # Update Mac App Store apps (macOS)
 cd test && just test-update basic arch   # Test complete workflow
 cd test && just test-run basic arch      # Interactive shell
 
-# PLANNED (tiered testing reflecting real usage patterns):
-just test-min-cli arch     # Minimal CLI tools only
-just test-mid-cli ubuntu   # Extended CLI tools  
-just test-mid-dev arch     # Development environment (multi-PM testing begins)
-just test-max-dev ubuntu   # Full development (comprehensive multi-PM validation)
+# CURRENT (tiered testing reflecting real usage patterns):
+cd test && just test-min-cli arch     # Minimal CLI tools only
+cd test && just test-mid-cli ubuntu   # Extended CLI tools
+cd test && just test-mid-dev arch     # Development environment (multi-PM testing begins)
+cd test && just test-max-dev ubuntu   # Full development (comprehensive multi-PM validation)
 
 # GUI tiers tested manually only (no Docker)
 ```
@@ -101,7 +101,7 @@ stow git_osx shell_osx alacritty_osx hammerspoon
 # Remove symlinks
 stow -D <package_name>
 
-# Note: Each directory has .stowrc with --dotfiles and --no-folding flags
+# Note: Each directory has .stowrc with --dotfiles and --target=~ flags
 ```
 
 ### Package Manager Operations

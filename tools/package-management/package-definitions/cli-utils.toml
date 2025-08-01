@@ -81,6 +81,17 @@ ubuntu_apt = "unzip"
 # Note: unzip usually comes with macOS, but can be installed via brew if needed
 osx_brew = "unzip"
 
+[packages.zoxide]
+description = "Smart directory jumper"
+health_check = "zoxide --version"
+executable = "zoxide"
+priority = "p1"
+
+[packages.zoxide.install]
+arch_pacman = "zoxide"
+ubuntu_brew = "zoxide"
+osx_brew = "zoxide"
+
 # =============================================================================
 # OSX-SPECIFIC ADDITIONAL PACKAGES
 # =============================================================================

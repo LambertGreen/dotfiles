@@ -20,14 +20,15 @@ ARG TZ
 ENV TZ=${TZ:-UTC}
 RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 
-# Copy dotfiles into container
-COPY --chown=user:user . dotfiles/
+# Copy only essential files first for better caching
 WORKDIR /home/user/dotfiles
 
 # =============================================================================
 # CONFIGURE STAGE - Interactive configuration
 # =============================================================================
 FROM base AS configure
+# Copy only configuration script for configure stage
+COPY --chown=user:user configure.sh ./
 RUN echo "=== CONFIGURE STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
     rm -f ~/.dotfiles.env && \
@@ -45,6 +46,8 @@ RUN echo "=== CONFIGURE STAGE ===" && \
 # =============================================================================
 # Tier 1: min-cli configuration
 FROM base AS configure-min-cli
+# Copy only configuration script for configure stage
+COPY --chown=user:user configure.sh ./
 RUN echo "=== CONFIGURE min-cli STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
     rm -f ~/.dotfiles.env && \
@@ -59,6 +62,8 @@ RUN echo "=== CONFIGURE min-cli STAGE ===" && \
 
 # Tier 2: mid-cli configuration
 FROM base AS configure-mid-cli
+# Copy only configuration script for configure stage
+COPY --chown=user:user configure.sh ./
 RUN echo "=== CONFIGURE mid-cli STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
     rm -f ~/.dotfiles.env && \
@@ -73,6 +78,8 @@ RUN echo "=== CONFIGURE mid-cli STAGE ===" && \
 
 # Tier 3: mid-dev configuration
 FROM base AS configure-mid-dev
+# Copy only configuration script for configure stage
+COPY --chown=user:user configure.sh ./
 RUN echo "=== CONFIGURE mid-dev STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
     rm -f ~/.dotfiles.env && \
@@ -87,6 +94,8 @@ RUN echo "=== CONFIGURE mid-dev STAGE ===" && \
 
 # Tier 4: max-dev configuration
 FROM base AS configure-max-dev
+# Copy only configuration script for configure stage
+COPY --chown=user:user configure.sh ./
 RUN echo "=== CONFIGURE max-dev STAGE ===" && \
     echo "🕐 Configure start time: $(date)" && \
     rm -f ~/.dotfiles.env && \
@@ -100,12 +109,16 @@ RUN echo "=== CONFIGURE max-dev STAGE ===" && \
     echo "🕐 Configure end time: $(date)"
 
 FROM configure-min-cli AS bootstrap-min-cli
+# Copy bootstrap files and health check tools
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user bootstrap/ ./bootstrap/
+COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
 RUN echo "=== BOOTSTRAP min-cli STAGE ===" && \
     echo "🕐 Bootstrap start time: $(date)" && \
     echo "🔧 Running actual bootstrap script for system parity..." && \
     ./bootstrap.sh && \
     echo "🏥 Health check after bootstrap:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
     echo "🔍 Verifying tools installed by bootstrap scripts..." && \
     which stow && stow --version && \
     which just && just --version && \
@@ -114,12 +127,16 @@ RUN echo "=== BOOTSTRAP min-cli STAGE ===" && \
     echo "🕐 Bootstrap end time: $(date)"
 
 FROM configure-mid-cli AS bootstrap-mid-cli
+# Copy bootstrap files and health check tools
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user bootstrap/ ./bootstrap/
+COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
 RUN echo "=== BOOTSTRAP mid-cli STAGE ===" && \
     echo "🕐 Bootstrap start time: $(date)" && \
     echo "🔧 Running actual bootstrap script for system parity..." && \
     ./bootstrap.sh && \
     echo "🏥 Health check after bootstrap:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
     echo "🔍 Verifying tools installed by bootstrap scripts..." && \
     which stow && stow --version && \
     which just && just --version && \
@@ -128,12 +145,16 @@ RUN echo "=== BOOTSTRAP mid-cli STAGE ===" && \
     echo "🕐 Bootstrap end time: $(date)"
 
 FROM configure-mid-dev AS bootstrap-mid-dev
+# Copy bootstrap files and health check tools
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user bootstrap/ ./bootstrap/
+COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
 RUN echo "=== BOOTSTRAP mid-dev STAGE ===" && \
     echo "🕐 Bootstrap start time: $(date)" && \
     echo "🔧 Running actual bootstrap script for system parity..." && \
     ./bootstrap.sh && \
     echo "🏥 Health check after bootstrap:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
     echo "🔍 Verifying tools installed by bootstrap scripts..." && \
     which stow && stow --version && \
     which just && just --version && \
@@ -142,12 +163,16 @@ RUN echo "=== BOOTSTRAP mid-dev STAGE ===" && \
     echo "🕐 Bootstrap end time: $(date)"
 
 FROM configure-max-dev AS bootstrap-max-dev
+# Copy bootstrap files and health check tools
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user bootstrap/ ./bootstrap/
+COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
 RUN echo "=== BOOTSTRAP max-dev STAGE ===" && \
     echo "🕐 Bootstrap start time: $(date)" && \
     echo "🔧 Running actual bootstrap script for system parity..." && \
     ./bootstrap.sh && \
     echo "🏥 Health check after bootstrap:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Empty system after bootstrap is expected' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
     echo "🔍 Verifying tools installed by bootstrap scripts..." && \
     which stow && stow --version && \
     which just && just --version && \
@@ -159,6 +184,10 @@ RUN echo "=== BOOTSTRAP max-dev STAGE ===" && \
 # STOW STAGE - Config deployment
 # =============================================================================
 FROM bootstrap-min-cli AS stow-min-cli
+# Copy configuration files and package management scripts for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== STOW min-cli STAGE ===" && \
     echo "🔍 Validating min-cli configuration before stow:" && \
     cat ~/.dotfiles.env && \
@@ -174,10 +203,14 @@ RUN echo "=== STOW min-cli STAGE ===" && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
     echo "✅ Stow complete!"
 
 FROM bootstrap-mid-cli AS stow-mid-cli
+# Copy configuration files and package management scripts for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== STOW mid-cli STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
@@ -187,10 +220,14 @@ RUN echo "=== STOW mid-cli STAGE ===" && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
     echo "✅ Stow complete!"
 
 FROM bootstrap-mid-dev AS stow-mid-dev
+# Copy configuration files and package management scripts for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== STOW mid-dev STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
@@ -200,10 +237,14 @@ RUN echo "=== STOW mid-dev STAGE ===" && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
     echo "✅ Stow complete!"
 
 FROM bootstrap-max-dev AS stow-max-dev
+# Copy configuration files and package management scripts for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== STOW max-dev STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
@@ -213,50 +254,58 @@ RUN echo "=== STOW max-dev STAGE ===" && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
     echo "✅ Stow complete!"
 
 # =============================================================================
 # INSTALL STAGE - Package installation
 # =============================================================================
 FROM stow-min-cli AS install-min-cli
+# Copy package management tools
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== INSTALL min-cli STAGE ===" && \
     echo "📊 Showing configuration:" && \
     just show-config && \
     echo "📦 Installing packages..." && \
     just install && \
     echo "🏥 Health check after install:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-mid-cli AS install-mid-cli
+# Copy package management tools
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== INSTALL mid-cli STAGE ===" && \
     echo "📊 Showing configuration:" && \
     just show-config && \
     echo "📦 Installing packages..." && \
     just install && \
     echo "🏥 Health check after install:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-mid-dev AS install-mid-dev
+# Copy package management tools
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== INSTALL mid-dev STAGE ===" && \
     echo "📊 Showing configuration:" && \
     just show-config && \
     echo "📦 Installing packages..." && \
     just install && \
     echo "🏥 Health check after install:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-max-dev AS install-max-dev
+# Copy package management tools
+COPY --chown=user:user tools/package-management/ ./tools/package-management/
 RUN echo "=== INSTALL max-dev STAGE ===" && \
     echo "📊 Showing configuration:" && \
     just show-config && \
     echo "📦 Installing packages..." && \
     just install && \
     echo "🏥 Health check after install:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 # =============================================================================
@@ -266,7 +315,7 @@ FROM install-min-cli AS update-min-cli
 RUN echo "=== UPDATE min-cli STAGE ===" && \
     just update-check && \
     echo "🏥 Final health check:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch min-cli workflow complete!"
@@ -275,7 +324,7 @@ FROM install-mid-cli AS update-mid-cli
 RUN echo "=== UPDATE mid-cli STAGE ===" && \
     just update-check && \
     echo "🏥 Final health check:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch mid-cli workflow complete!"
@@ -284,7 +333,7 @@ FROM install-mid-dev AS update-mid-dev
 RUN echo "=== UPDATE mid-dev STAGE ===" && \
     just update-check && \
     echo "🏥 Final health check:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch mid-dev workflow complete!"
@@ -293,7 +342,7 @@ FROM install-max-dev AS update-max-dev
 RUN echo "=== UPDATE max-dev STAGE ===" && \
     just update-check && \
     echo "🏥 Final health check:" && \
-    bash tools/dotfiles-health/dotfiles-health.sh && \
+    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch max-dev workflow complete!"
