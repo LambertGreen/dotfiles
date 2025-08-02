@@ -51,44 +51,55 @@ _is_symlink_broken() {
 # Find broken symlinks that point to dotfiles directory
 # Usage: _find_broken_symlinks
 # Sets: FOUND_BROKEN_SYMLINKS array with broken symlink paths
-_find_broken_symlinks() {
-    FOUND_BROKEN_SYMLINKS=()
-
-    # Use fd for fast symlink discovery, then check if broken and if they point to dotfiles
-    if command -v fd >/dev/null 2>&1; then
-        # Home dotfiles (depth 1 only)
-        while IFS= read -r link; do
-            [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
-        done < <(fd --type symlink --max-depth 1 . "$TEST_HOME" 2>/dev/null)
-
-        # .config directory (but avoid deep Library searches)
-        [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r link; do
-            [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
-        done < <(fd --type symlink . "$TEST_HOME/.config" 2>/dev/null)
-
-        # Common dotfile directories (avoid searching all of Library)
-        local dotfile_dirs=("$TEST_HOME/.hammerspoon" "$TEST_HOME/.tmux" "$TEST_HOME/.gnupg" "$TEST_HOME/.spacemacs.d" "$TEST_HOME/.doom.d")
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            dotfile_dirs+=("$TEST_HOME/Library/Application Support/Code/User" "$TEST_HOME/Library/Application Support/Cursor/User" "$TEST_HOME/Library/Keybindings")
-        elif [[ -d "$TEST_HOME/AppData" ]]; then
-            dotfile_dirs+=("$TEST_HOME/AppData/Local" "$TEST_HOME/AppData/Roaming")
-        fi
-
-        for dir in "${dotfile_dirs[@]}"; do
-            [[ -d "$dir" ]] && while IFS= read -r link; do
-                [[ -L "$link" ]] && ! [[ -e "$link" ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
-            done < <(fd --type symlink . "$dir" 2>/dev/null)
-        done
-    else
-        # Fallback to find (avoid Library entirely for performance)
-        while IFS= read -r link; do
-            [[ "$link" == "$TEST_HOME"/\.* ]] && _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
-        done < <(find "$TEST_HOME" -maxdepth 1 -type l -exec test ! -e {} \; -print 2>/dev/null)
-
-        [[ -d "$TEST_HOME/.config" ]] && while IFS= read -r link; do
-            _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
-        done < <(find "$TEST_HOME/.config" -type l -exec test ! -e {} \; -print 2>/dev/null)
+# Get standard dotfile search directories
+# Returns: array of directories to search for symlinks
+_get_search_directories() {
+    local dirs=()
+    dirs+=("$TEST_HOME")  # Home directory (depth 1 only)
+    [[ -d "$TEST_HOME/.config" ]] && dirs+=("$TEST_HOME/.config")
+    [[ -d "$TEST_HOME/.local/share/applications" ]] && dirs+=("$TEST_HOME/.local/share/applications")
+    
+    # Common dotfile directories
+    local dotfile_dirs=("$TEST_HOME/.hammerspoon" "$TEST_HOME/.tmux" "$TEST_HOME/.gnupg" "$TEST_HOME/.spacemacs.d" "$TEST_HOME/.doom.d")
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        dotfile_dirs+=("$TEST_HOME/Library/Application Support/Code/User" "$TEST_HOME/Library/Application Support/Cursor/User" "$TEST_HOME/Library/Keybindings")
+    elif [[ -d "$TEST_HOME/AppData" ]]; then
+        dotfile_dirs+=("$TEST_HOME/AppData/Local" "$TEST_HOME/AppData/Roaming")
     fi
+    
+    for dir in "${dotfile_dirs[@]}"; do
+        [[ -d "$dir" ]] && dirs+=("$dir")
+    done
+    
+    printf '%s\n' "${dirs[@]}"
+}
+
+# Core function to find broken symlinks in dotfile locations
+# Args: filter_dotfiles_only (true/false) - if true, only include symlinks pointing to dotfiles repo
+# Sets FOUND_BROKEN_SYMLINKS array with results
+_find_broken_symlinks() {
+    local filter_dotfiles_only="${1:-false}"
+    FOUND_BROKEN_SYMLINKS=()
+    
+    # Get search directories using shared function
+    local search_dirs=()
+    while IFS= read -r dir; do
+        search_dirs+=("$dir")
+    done < <(_get_search_directories)
+    
+    # Find broken symlinks using find (fd doesn't handle broken symlinks well)
+    for dir in "${search_dirs[@]}"; do
+        local depth_args=""
+        [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
+        
+        while IFS= read -r link; do
+            if [[ "$filter_dotfiles_only" == "true" ]]; then
+                _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
+            else
+                FOUND_BROKEN_SYMLINKS+=("$link")
+            fi
+        done < <(find "$dir" $depth_args -type l -exec test ! -e {} \; -print 2>/dev/null)
+    done
 }
 
 # Helper function to check if broken symlink points to dotfiles directory
@@ -119,7 +130,7 @@ _check_dotfile_symlink() {
     fi
 
     # Also check for common dotfiles directory patterns
-    [[ "$target" == *"/dotfiles/"* ]] || [[ "$target" == *"/.dotfiles/"* ]]
+    [[ "$target" == *"/dotfiles/"* ]] || [[ "$target" == *"/.dotfiles/"* ]] || [[ "$target" == *"dotfiles/"* ]]
 }
 
 # Categorize symlinks by type (new system, legacy, broken)
@@ -134,71 +145,108 @@ _categorize_symlinks() {
     BROKEN_LINKS=()
     WARNINGS=()
     ERRORS=()
-
-    # Find all symlinks pointing to dotfiles - search targeted directories only
-    while IFS= read -r line; do
-        [[ -n "$line" ]] || continue
-        local link="${line%% -> *}"
-        local target="${line#* -> }"
-
-        # Convert relative path to absolute for link
-        if [[ "$link" != /* ]]; then
-            link="$TEST_HOME/$link"
-        fi
-
-        # Check if symlink is broken
-        if ! [[ -e "$link" ]]; then
-            BROKEN_LINKS+=("$link")
-            ERRORS+=("Broken symlink: $link")
-        elif [[ "$target" == *"/configs/"* ]]; then
-            # New system link
-            NEW_LINKS+=("$line")
-        else
-            # Check if it's an old system package
-            local is_old=false
-            for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
-                if [[ "$target" == *"/$pkg"* ]]; then
-                    OLD_LINKS+=("$line")
-                    WARNINGS+=("Legacy symlink detected: $line")
-                    is_old=true
-                    break
+    
+    # First, find all broken symlinks using the shared function (no filtering)
+    _find_broken_symlinks false
+    BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
+    for link in "${BROKEN_LINKS[@]}"; do
+        ERRORS+=("Broken symlink: $link")
+    done
+    
+    # Now categorize non-broken symlinks that point to dotfiles
+    # Use same search locations as _find_broken_symlinks for consistency
+    local search_dirs=()
+    while IFS= read -r dir; do
+        search_dirs+=("$dir")
+    done < <(_get_search_directories)
+    
+    # Find all non-broken symlinks that point to dotfiles
+    if command -v fd >/dev/null 2>&1; then
+        for dir in "${search_dirs[@]}"; do
+            local depth_args=""
+            [[ "$dir" == "$TEST_HOME" ]] && depth_args="--max-depth 1"
+            
+            while IFS= read -r link; do
+                # Skip if broken (already handled)
+                local is_broken=false
+                for broken in "${BROKEN_LINKS[@]}"; do
+                    [[ "$link" == "$broken" ]] && is_broken=true && break
+                done
+                [[ "$is_broken" == "true" ]] && continue
+                
+                # Only process symlinks that point to dotfiles
+                if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
+                    local target=$(readlink "$link" 2>/dev/null || continue)
+                    local display_link="$link"
+                    
+                    # Make display path relative to home if possible
+                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
+                    
+                    if [[ "$target" == *"/configs/"* ]]; then
+                        # New system link
+                        NEW_LINKS+=("$display_link -> $target")
+                    else
+                        # Check if it's an old system package
+                        local is_old=false
+                        for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
+                            if [[ "$target" == *"/$pkg"* ]]; then
+                                OLD_LINKS+=("$display_link -> $target")
+                                WARNINGS+=("Legacy symlink detected: $display_link -> $target")
+                                is_old=true
+                                break
+                            fi
+                        done
+                        if [[ "$is_old" == "false" ]]; then
+                            NEW_LINKS+=("$display_link -> $target")
+                        fi
+                    fi
                 fi
-            done
-            if [[ "$is_old" == "false" ]]; then
-                NEW_LINKS+=("$line")
-            fi
-        fi
-    done < <(
-        # Search specific directories only - avoid Library and other large dirs
-        {
-            # Home directory dotfiles (depth 1 only)
-            if command -v fd >/dev/null 2>&1; then
-                cd "$TEST_HOME" && fd -t l --max-depth 1 -x sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
-                # .config directory
-                [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && fd -t l -x sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
-            else
-                # Fallback to find if fd not available
-                cd "$TEST_HOME" && find . -maxdepth 1 -type l -exec sh -c 'target=$(readlink "{}") && echo "{} -> $target"' \; 2>/dev/null
-                [[ -d "$TEST_HOME/.config" ]] && cd "$TEST_HOME/.config" && find . -type l -exec sh -c 'target=$(readlink "{}") && echo ".config/{} -> $target"' \; 2>/dev/null
-            fi
-        } | while IFS= read -r line; do
-            # Check if symlink points to dotfiles directory
-            local link="${line%% -> *}"
-            local target="${line#* -> }"
-
-            # Resolve relative paths to check if they point to DOTFILES_DIR
-            local abs_link="$TEST_HOME/$link"
-            [[ "$link" == /* ]] && abs_link="$link"
-
-            local link_dir=$(dirname "$abs_link")
-            local resolved_target=$(cd "$link_dir" 2>/dev/null && realpath -m "$target" 2>/dev/null || echo "$target")
-
-            # Only include links that point to the dotfiles directory
-            if [[ "$resolved_target" == *"$DOTFILES_DIR"* ]] || [[ "$target" == *"/dotfiles/"* ]] || [[ "$target" == *"/.dotfiles/"* ]]; then
-                echo "$line"
-            fi
+            done < <(fd --type symlink $depth_args . "$dir" 2>/dev/null)
         done
-    )
+    else
+        # Fallback to find (same logic as fd version)
+        for dir in "${search_dirs[@]}"; do
+            local depth_args=""
+            [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
+            
+            while IFS= read -r link; do
+                # Skip if broken (already handled)
+                local is_broken=false
+                for broken in "${BROKEN_LINKS[@]}"; do
+                    [[ "$link" == "$broken" ]] && is_broken=true && break
+                done
+                [[ "$is_broken" == "true" ]] && continue
+                
+                # Only process symlinks that point to dotfiles
+                if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
+                    local target=$(readlink "$link" 2>/dev/null || continue)
+                    local display_link="$link"
+                    
+                    # Make display path relative to home if possible
+                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
+                    
+                    if [[ "$target" == *"/configs/"* ]]; then
+                        # New system link
+                        NEW_LINKS+=("$display_link -> $target")
+                    else
+                        # Check if it's an old system package
+                        local is_old=false
+                        for pkg in "${OLD_SYSTEM_PACKAGES[@]}"; do
+                            if [[ "$target" == *"/$pkg"* ]]; then
+                                OLD_LINKS+=("$display_link -> $target")
+                                WARNINGS+=("Legacy symlink detected: $display_link -> $target")
+                                is_old=true
+                                break
+                            fi
+                        done
+                        if [[ "$is_old" == "false" ]]; then
+                            NEW_LINKS+=("$display_link -> $target")
+                        fi
+                    fi
+                fi
+            done < <(find "$dir" $depth_args -type l 2>/dev/null)
+        done
+    fi
 }
 
 
@@ -729,8 +777,8 @@ dotfiles_cleanup_broken_links() {
     echo "🔍 Finding broken symlinks..."
     echo
 
-    # Use shared detection logic
-    _find_broken_symlinks
+    # Use shared detection logic, filtering to only dotfiles-related
+    _find_broken_symlinks true
 
     if [[ ${#FOUND_BROKEN_SYMLINKS[@]} -eq 0 ]]; then
         echo "✅ No broken symlinks found!"
