@@ -392,7 +392,7 @@ osx_brew = "ccls"
 
 [packages.vscode-langservers-extracted]
 description = "Language servers extracted from VS Code"
-health_check = "vscode-html-language-server --version"
+health_check = "command -v vscode-html-language-server"
 executable = "vscode-html-language-server"
 priority = "p2"
 platforms = ["osx"]
@@ -464,7 +464,7 @@ osx_brew = "pcre2"
 
 [packages.expat]
 description = "XML parsing library"
-health_check = "xmlwf -h"
+health_check = "test -f /opt/homebrew/opt/expat/bin/xmlwf"
 executable = "xmlwf"
 priority = "p2"
 platforms = ["osx"]

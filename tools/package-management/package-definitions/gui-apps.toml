@@ -213,15 +213,7 @@ platforms = ["osx"]
 osx_cask = "whatsapp"
 
 # =============================================================================
-# FONTS (P2)
+# FONTS 
 # =============================================================================
-
-[packages.font-iosevka-nerd-font]
-description = "Iosevka Nerd Font for programming"
-health_check = "test -f '/System/Library/Fonts/Supplemental/IosevkaNerdFont-Regular.ttf' || test -f '/Library/Fonts/IosevkaNerdFont-Regular.ttf'"
-executable = "echo"  # No executable for fonts
-priority = "p1"
-platforms = ["osx"]
-
-[packages.font-iosevka-nerd-font.install]
-osx_cask = "font-iosevka-nerd-font"
+# NOTE: Fonts have been moved to a separate fonts.toml file
+# Fonts are treated as optional (P3) since applications should have fallbacks

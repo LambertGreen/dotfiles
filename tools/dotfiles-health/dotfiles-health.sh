@@ -668,6 +668,12 @@ dotfiles_check_health() {
         fi
     fi
 
+    # Show log file location at the end for easy access
+    if [[ -n "$LOG_FILE" ]]; then
+        log_output
+        log_output "📄 Full log saved to: $LOG_FILE"
+    fi
+
     # Return appropriate exit code
     case $HEALTH_STATUS in
         "HEALTHY"|"WARNING"|"EMPTY")

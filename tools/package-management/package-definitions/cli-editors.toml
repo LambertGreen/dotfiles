@@ -28,9 +28,9 @@ executable = "emacs"
 priority = "p1"
 
 [packages.emacs.install]
-arch_aur = "emacs-plus"
-ubuntu_brew = "emacs"  # Ubuntu APT has old 27.1, using Homebrew for newer version
-osx_brew = "d12frosted/emacs-plus/emacs-plus@31"
+arch_pacman = "emacs"  # Official Arch package with native compilation
+ubuntu_brew = "emacs"  # Ubuntu APT has old version, using Homebrew for newer version
+osx_brew = "emacs-mac-exp@31"  # Mac-specific Emacs build (railwaycat/emacsmacport)
 
 # =============================================================================
 # ADVANCED/MODERN EDITORS (P2)

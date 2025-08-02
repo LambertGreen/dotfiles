@@ -126,8 +126,8 @@ osx_brew = "coreutils"
 
 [packages.diffutils]
 description = "GNU diff, cmp, diff3, and sdiff utilities"
-health_check = "gdiff --version"
-executable = "gdiff"
+health_check = "diff --version"
+executable = "diff"
 priority = "p1"
 platforms = ["osx"]
 
@@ -180,7 +180,7 @@ osx_brew = "cloc"
 
 [packages.trash]
 description = "Safe rm replacement that moves files to trash"
-health_check = "trash --version"
+health_check = "command -v trash"
 executable = "trash"
 priority = "p1"
 
