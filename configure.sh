@@ -138,7 +138,8 @@ if [ "$USE_PROFILES" = true ]; then
     echo "  4) max-dev   - Comprehensive development tools"
     echo ""
     echo "GUI Applications:"
-    echo "  5) max-gui   - Desktop applications"
+    echo "  5) mid-gui   - Essential desktop applications (P1)"
+    echo "  6) max-gui   - All desktop applications (P1 + P2)"
     echo ""
     echo "Select options (comma-separated, e.g., '1,3' for minimal CLI + core development):"
     read -p "Choice: " area_choices
@@ -148,6 +149,7 @@ if [ "$USE_PROFILES" = true ]; then
     CLI_MID=false
     DEV_MID=false
     DEV_MAX=false
+    GUI_MID=false
     GUI_MAX=false
     
     # Parse comma-separated choices
@@ -161,7 +163,8 @@ if [ "$USE_PROFILES" = true ]; then
             2) CLI_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-cli" ;;
             3) DEV_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-dev" ;;
             4) DEV_MAX=true; SELECTED_AREAS="$SELECTED_AREAS max-dev" ;;
-            5) GUI_MAX=true; SELECTED_AREAS="$SELECTED_AREAS max-gui" ;;
+            5) GUI_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-gui" ;;
+            6) GUI_MAX=true; SELECTED_AREAS="$SELECTED_AREAS max-gui" ;;
             *) echo "❌ Invalid choice: $choice"; exit 1 ;;
         esac
     done
@@ -203,9 +206,13 @@ if [ "$USE_PROFILES" = true ]; then
     fi
     
     # GUI areas map to GUI_APPS
-    if [ "$GUI_MAX" = true ]; then
+    if [ "$GUI_MID" = true ] || [ "$GUI_MAX" = true ]; then
         echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
-        echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
+        if [ "$GUI_MAX" = true ]; then
+            echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
+        else
+            echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
+        fi
     else
         echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
         echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env

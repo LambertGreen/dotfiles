@@ -46,13 +46,18 @@ def get_package_list(data, platform, package_manager, priority=None):
     
     return packages
 
-def get_health_checks(data, platform=None):
+def get_health_checks(data, platform=None, priority=None):
     """Extract health check commands for packages"""
     checks = []
     
     for pkg_name, pkg_info in data.get('packages', {}).items():
         # Check if package is platform-specific
         if platform and 'platforms' in pkg_info and platform not in pkg_info['platforms']:
+            continue
+            
+        # Check priority filter if specified
+        pkg_priority = pkg_info.get('priority')
+        if priority and pkg_priority != priority:
             continue
             
         if 'health_check' in pkg_info:
@@ -95,7 +100,7 @@ def main():
                 print(' '.join(packages))
                 
         elif args.action == 'health-checks':
-            checks = get_health_checks(data, args.platform)
+            checks = get_health_checks(data, args.platform, args.priority)
             
             if args.format == 'list':
                 for check in checks:

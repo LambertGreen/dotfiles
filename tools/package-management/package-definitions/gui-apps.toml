@@ -42,7 +42,7 @@ osx_cask = "wezterm"
 description = "Application launcher and productivity tool"
 health_check = "brew-check:cask:alfred@4"
 executable = "alfred"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.alfred.install]
@@ -62,7 +62,7 @@ osx_cask = "appcleaner"
 description = "Prevent your Mac from going to sleep"
 health_check = "brew-check:cask:caffeine"
 executable = "caffeine"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.caffeine.install]
@@ -76,7 +76,7 @@ osx_cask = "caffeine"
 description = "Window switcher for macOS"
 health_check = "brew-check:cask:contexts"
 executable = "contexts"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.contexts.install]
@@ -86,7 +86,7 @@ osx_cask = "contexts"
 description = "Window management utility"
 health_check = "brew-check:cask:divvy"
 executable = "divvy"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.divvy.install]
@@ -106,7 +106,7 @@ osx_cask = "amethyst"
 description = "Powerful automation tool for macOS"
 health_check = "brew-check:cask:hammerspoon"
 executable = "hammerspoon"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.hammerspoon.install]
@@ -130,7 +130,7 @@ osx_cask = "karabiner-elements"
 description = "Smooth scrolling and set scroll direction independently"
 health_check = "brew-check:cask:mos"
 executable = "mos"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.mos.install]
@@ -140,7 +140,7 @@ osx_cask = "mos"
 description = "System monitor for the menu bar"
 health_check = "brew-check:cask:stats"
 executable = "stats"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.stats.install]
@@ -150,7 +150,7 @@ osx_cask = "stats"
 description = "Hide menu bar icons on macOS"
 health_check = "brew-check:cask:vanilla"
 executable = "vanilla"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.vanilla.install]
@@ -164,7 +164,7 @@ osx_cask = "vanilla"
 description = "Cursor utility for developers"
 health_check = "brew-check:cask:cursorcerer"
 executable = "cursorcerer"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.cursorcerer.install]
@@ -206,7 +206,7 @@ osx_cask = "steam"
 description = "WhatsApp Desktop"
 health_check = "brew-check:cask:whatsapp"
 executable = "whatsapp"
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.whatsapp.install]
@@ -220,7 +220,7 @@ osx_cask = "whatsapp"
 description = "Iosevka Nerd Font for programming"
 health_check = "test -f '/System/Library/Fonts/Supplemental/IosevkaNerdFont-Regular.ttf' || test -f '/Library/Fonts/IosevkaNerdFont-Regular.ttf'"
 executable = "echo"  # No executable for fonts
-priority = "p2"
+priority = "p1"
 platforms = ["osx"]
 
 [packages.font-iosevka-nerd-font.install]
