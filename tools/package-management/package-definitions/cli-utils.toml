@@ -92,6 +92,125 @@ arch_pacman = "zoxide"
 ubuntu_brew = "zoxide"
 osx_brew = "zoxide"
 
+[packages.fastfetch]
+description = "System information fetch tool"
+health_check = "fastfetch --version"
+executable = "fastfetch"
+priority = "p1"
+
+[packages.fastfetch.install]
+arch_pacman = "fastfetch"
+ubuntu_apt = "fastfetch"
+osx_brew = "fastfetch"
+
+[packages.fzf]
+description = "Command-line fuzzy finder"
+health_check = "fzf --version"
+executable = "fzf"
+priority = "p1"
+
+[packages.fzf.install]
+arch_pacman = "fzf"
+ubuntu_apt = "fzf"
+osx_brew = "fzf"
+
+[packages.coreutils]
+description = "GNU core utilities (macOS compatibility)"
+health_check = "gls --version"
+executable = "gls"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.coreutils.install]
+osx_brew = "coreutils"
+
+[packages.diffutils]
+description = "GNU diff, cmp, diff3, and sdiff utilities"
+health_check = "gdiff --version"
+executable = "gdiff"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.diffutils.install]
+osx_brew = "diffutils"
+
+[packages.fortune]
+description = "Display random quotations"
+health_check = "fortune --version || fortune -v"
+executable = "fortune"
+priority = "p1"
+
+[packages.fortune.install]
+arch_pacman = "fortune-mod"
+ubuntu_apt = "fortune-mod"
+osx_brew = "fortune"
+
+[packages.cowsay]
+description = "ASCII art cow that speaks"
+health_check = "cowsay --version || cowsay -h"
+executable = "cowsay"
+priority = "p1"
+
+[packages.cowsay.install]
+arch_pacman = "cowsay"
+ubuntu_apt = "cowsay"
+osx_brew = "cowsay"
+
+[packages.tldr]
+description = "Simplified and community-driven man pages"
+health_check = "tldr --version"
+executable = "tldr"
+priority = "p1"
+
+[packages.tldr.install]
+arch_pacman = "tldr"
+ubuntu_apt = "tldr"
+osx_brew = "tldr"
+
+[packages.cloc]
+description = "Count lines of code"
+health_check = "cloc --version"
+executable = "cloc"
+priority = "p1"
+
+[packages.cloc.install]
+arch_pacman = "cloc"
+ubuntu_apt = "cloc"
+osx_brew = "cloc"
+
+[packages.trash]
+description = "Safe rm replacement that moves files to trash"
+health_check = "trash --version"
+executable = "trash"
+priority = "p1"
+
+[packages.trash.install]
+arch_pacman = "trash-cli"
+ubuntu_apt = "trash-cli"
+osx_brew = "trash"
+
+[packages.hyperfine]
+description = "Command-line benchmarking tool"
+health_check = "hyperfine --version"
+executable = "hyperfine"
+priority = "p2"
+
+[packages.hyperfine.install]
+arch_pacman = "hyperfine"
+ubuntu_apt = "hyperfine"
+osx_brew = "hyperfine"
+
+[packages.btop]
+description = "Resource monitor that shows usage and stats"
+health_check = "btop --version"
+executable = "btop"
+priority = "p2"
+
+[packages.btop.install]
+arch_pacman = "btop"
+ubuntu_apt = "btop"
+osx_brew = "btop"
+
 # =============================================================================
 # OSX-SPECIFIC ADDITIONAL PACKAGES
 # =============================================================================

@@ -46,3 +46,29 @@ priority = "p2"
 arch_pacman = "helix"
 ubuntu_brew = "helix"  # Note: Ubuntu uses homebrew for helix
 osx_brew = "helix"
+
+# =============================================================================
+# TERMINAL TOOLS & DOCUMENT PROCESSING (P1)
+# =============================================================================
+
+[packages.tmux]
+description = "Terminal multiplexer for session management"
+health_check = "tmux -V"
+executable = "tmux"
+priority = "p1"
+
+[packages.tmux.install]
+arch_pacman = "tmux"
+ubuntu_apt = "tmux"
+osx_brew = "tmux"
+
+[packages.pandoc]
+description = "Universal markup converter"
+health_check = "pandoc --version"
+executable = "pandoc"
+priority = "p1"
+
+[packages.pandoc.install]
+arch_pacman = "pandoc"
+ubuntu_apt = "pandoc"
+osx_brew = "pandoc"

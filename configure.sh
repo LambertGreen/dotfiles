@@ -40,7 +40,7 @@ fi
 DETECTED_PLATFORM="unknown"
 if [ "$AUTODETECT" = true ]; then
     echo "🔍 Auto-detecting platform..."
-    
+
     if [[ "$OSTYPE" == "darwin"* ]]; then
         DETECTED_PLATFORM="osx"
         echo "✅ Detected: macOS"
@@ -62,7 +62,7 @@ if [ "$AUTODETECT" = true ]; then
         DETECTED_PLATFORM="unknown"
         echo "⚠️  Unknown platform: $OSTYPE"
     fi
-    
+
     echo ""
 fi
 
@@ -83,14 +83,14 @@ if [ "${PLATFORM:-}" = "" ]; then
     echo "  3) ubuntu  - Ubuntu Linux"
     echo "  4) msys2   - Windows with MSYS2"
     echo ""
-    
+
     # Provide smart default for Linux
     if [ "$DETECTED_PLATFORM" = "linux" ]; then
         echo "💡 Linux detected but distribution unclear. Choose the closest match:"
     fi
-    
+
     read -p "Select platform (1-4): " platform_choice
-    
+
     case $platform_choice in
         1) PLATFORM="osx" ;;
         2) PLATFORM="arch" ;;
@@ -143,7 +143,7 @@ if [ "$USE_PROFILES" = true ]; then
     echo ""
     echo "Select options (comma-separated, e.g., '1,3' for minimal CLI + core development):"
     read -p "Choice: " area_choices
-    
+
     # Initialize all categories as false
     CLI_MIN=false
     CLI_MID=false
@@ -151,11 +151,11 @@ if [ "$USE_PROFILES" = true ]; then
     DEV_MAX=false
     GUI_MID=false
     GUI_MAX=false
-    
+
     # Parse comma-separated choices
     IFS=',' read -ra CHOICES <<< "$area_choices"
     SELECTED_AREAS=""
-    
+
     for choice in "${CHOICES[@]}"; do
         choice=$(echo "$choice" | tr -d ' ') # Remove spaces
         case $choice in
@@ -168,16 +168,25 @@ if [ "$USE_PROFILES" = true ]; then
             *) echo "❌ Invalid choice: $choice"; exit 1 ;;
         esac
     done
-    
+
     # Generate configuration based on selections
     echo "# Selected:$SELECTED_AREAS" >> ~/.dotfiles.env
     echo "" >> ~/.dotfiles.env
-    
-    # Map areas to environment variables
-    # CLI areas map to CLI_UTILS
-    if [ "$CLI_MIN" = true ] || [ "$CLI_MID" = true ]; then
+
+    # Map areas to environment variables with cumulative tier logic
+    # Determine the highest tier selected to make tiers cumulative
+    HIGHEST_TIER=0
+    if [ "$CLI_MIN" = true ]; then HIGHEST_TIER=1; fi
+    if [ "$CLI_MID" = true ]; then HIGHEST_TIER=2; fi
+    if [ "$DEV_MID" = true ]; then HIGHEST_TIER=3; fi
+    if [ "$DEV_MAX" = true ]; then HIGHEST_TIER=4; fi
+    if [ "$GUI_MID" = true ]; then HIGHEST_TIER=5; fi
+    if [ "$GUI_MAX" = true ]; then HIGHEST_TIER=6; fi
+
+    # CLI_UTILS: enabled from tier 1+ (min-cli and above)
+    if [ $HIGHEST_TIER -ge 1 ]; then
         echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
-        if [ "$CLI_MID" = true ]; then
+        if [ $HIGHEST_TIER -ge 2 ]; then
             echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
         else
             echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
@@ -186,12 +195,12 @@ if [ "$USE_PROFILES" = true ]; then
         echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
         echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
     fi
-    
-    # DEV areas map to CLI_EDITORS and DEV_ENV
-    if [ "$DEV_MID" = true ] || [ "$DEV_MAX" = true ]; then
+
+    # CLI_EDITORS and DEV_ENV: enabled from tier 3+ (mid-dev and above)
+    if [ $HIGHEST_TIER -ge 3 ]; then
         echo "export DOTFILES_CLI_EDITORS=true" >> ~/.dotfiles.env
         echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
-        if [ "$DEV_MAX" = true ]; then
+        if [ $HIGHEST_TIER -ge 4 ]; then
             echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
             echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
         else
@@ -204,11 +213,11 @@ if [ "$USE_PROFILES" = true ]; then
         echo "export DOTFILES_CLI_EDITORS_HEAVY=false" >> ~/.dotfiles.env
         echo "export DOTFILES_DEV_ENV_HEAVY=false" >> ~/.dotfiles.env
     fi
-    
-    # GUI areas map to GUI_APPS
-    if [ "$GUI_MID" = true ] || [ "$GUI_MAX" = true ]; then
+
+    # GUI_APPS: enabled from tier 5+ (mid-gui and above)
+    if [ $HIGHEST_TIER -ge 5 ]; then
         echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
-        if [ "$GUI_MAX" = true ]; then
+        if [ $HIGHEST_TIER -ge 6 ]; then
             echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
         else
             echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
@@ -217,13 +226,13 @@ if [ "$USE_PROFILES" = true ]; then
         echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
         echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
     fi
-    
+
 else
     # Custom category selection
     echo "🎛️  Custom Category Selection"
     echo "Select which P1 categories to enable:"
     echo ""
-    
+
     # P1 Categories
     read -p "CLI_EDITORS (neovim, emacs): (Y/n): " cli_editors
     if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
@@ -231,31 +240,31 @@ else
     else
         echo "export DOTFILES_CLI_EDITORS=false" >> ~/.dotfiles.env
     fi
-    
+
     read -p "DEV_ENV (python, node, cmake): (Y/n): " dev_env
     if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
         echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
     else
         echo "export DOTFILES_DEV_ENV=false" >> ~/.dotfiles.env
     fi
-    
+
     read -p "CLI_UTILS (ripgrep, fd, bat, jq): (Y/n): " cli_utils
     if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
         echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
     else
         echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
     fi
-    
+
     read -p "GUI_APPS (desktop applications): (y/N): " gui_apps
     if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
         echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
     else
         echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
     fi
-    
+
     echo ""
     echo "📈 Optional Heavy Categories (additional tools):"
-    
+
     # Heavy Categories - only ask if base category is enabled
     if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
         read -p "CLI_EDITORS_HEAVY (helix): (y/N): " cli_editors_p2
@@ -263,21 +272,21 @@ else
             echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
-    
+
     if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
         read -p "DEV_ENV_HEAVY (rust, go, additional tools): (y/N): " dev_env_p2
         if [[ "$dev_env_p2" =~ ^[Yy]$ ]]; then
             echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
-    
+
     if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
         read -p "CLI_UTILS_HEAVY (additional utilities): (y/N): " cli_utils_p2
         if [[ "$cli_utils_p2" =~ ^[Yy]$ ]]; then
             echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
         fi
     fi
-    
+
     if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
         read -p "GUI_APPS_HEAVY (additional desktop apps): (y/N): " gui_apps_p2
         if [[ "$gui_apps_p2" =~ ^[Yy]$ ]]; then
@@ -298,7 +307,7 @@ if [[ "$is_work" =~ ^[Yy]$ ]]; then
     echo "export IS_PERSONAL_MACHINE=false" >> ~/.dotfiles.env
 else
     echo "export IS_WORK_MACHINE=false" >> ~/.dotfiles.env
-    
+
     read -p "Is this a personal machine? (enables personal/entertainment packages): (Y/n): " is_personal
     if [[ ! "$is_personal" =~ ^[Nn]$ ]]; then
         echo "export IS_PERSONAL_MACHINE=true" >> ~/.dotfiles.env
@@ -331,5 +340,5 @@ cat ~/.dotfiles.env
 echo ""
 echo "Next steps:"
 echo "  ./bootstrap.sh                # Install tools"
-echo "  just stow                     # Deploy configurations" 
+echo "  just stow                     # Deploy configurations"
 echo "  just install                  # Install packages"

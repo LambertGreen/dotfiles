@@ -336,26 +336,6 @@ platforms = ["osx"]
 [packages.clang-format.install]
 osx_brew = "clang-format"
 
-[packages.black]
-description = "Python code formatter"
-health_check = "black --version"
-executable = "black"
-priority = "p2"
-platforms = ["osx"]
-
-[packages.black.install]
-osx_brew = "black"
-
-[packages.shellcheck]
-description = "Shell script linter"
-health_check = "shellcheck --version"
-executable = "shellcheck"
-priority = "p2"
-platforms = ["osx"]
-
-[packages.shellcheck.install]
-osx_brew = "shellcheck"
-
 [packages.shfmt]
 description = "Shell script formatter"
 health_check = "shfmt --version"
@@ -539,3 +519,52 @@ platforms = ["osx"]
 
 [packages.catch2.install]
 osx_brew = "catch2"
+
+# =============================================================================
+# VERSION CONTROL & CODE QUALITY (P2)
+# =============================================================================
+
+[packages.git-delta]
+description = "Better git diff viewer with syntax highlighting"
+health_check = "delta --version"
+executable = "delta"
+priority = "p2"
+
+[packages.git-delta.install]
+arch_pacman = "git-delta"
+ubuntu_apt = "git-delta"
+osx_brew = "git-delta"
+
+[packages.shellcheck]
+description = "Shell script static analysis tool"
+health_check = "shellcheck --version"
+executable = "shellcheck"
+priority = "p2"
+
+[packages.shellcheck.install]
+arch_pacman = "shellcheck"
+ubuntu_apt = "shellcheck"
+osx_brew = "shellcheck"
+
+[packages.black]
+description = "Python code formatter"
+health_check = "black --version"
+executable = "black"
+priority = "p2"
+
+[packages.black.install]
+arch_pacman = "python-black"
+ubuntu_apt = "black"
+osx_brew = "black"
+
+[packages.isort]
+description = "Python import sorter"
+health_check = "isort --version"
+executable = "isort"
+priority = "p2"
+
+[packages.isort.install]
+arch_pacman = "python-isort"
+ubuntu_apt = "python3-isort"
+osx_brew = "isort"
+
