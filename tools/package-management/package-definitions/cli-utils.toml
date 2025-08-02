@@ -19,6 +19,7 @@ executable = "rg"
 arch_pacman = "ripgrep"
 ubuntu_apt = "ripgrep" 
 osx_brew = "ripgrep"
+msys2_scoop = "ripgrep"
 
 [packages.fd]
 description = "Fast and user-friendly alternative to find"
@@ -29,6 +30,7 @@ executable = "fd"
 arch_pacman = "fd"
 ubuntu_apt = "fd-find"  # Note: Ubuntu has different package name
 osx_brew = "fd"
+msys2_scoop = "fd"
 
 [packages.bat]
 description = "Cat clone with syntax highlighting and git integration"
@@ -39,6 +41,7 @@ executable = "bat"
 arch_pacman = "bat"
 ubuntu_apt = "bat"
 osx_brew = "bat"
+msys2_scoop = "bat"
 
 [packages.jq]
 description = "Lightweight and flexible command-line JSON processor"
@@ -49,6 +52,7 @@ executable = "jq"
 arch_pacman = "jq"
 ubuntu_apt = "jq"
 osx_brew = "jq"
+msys2_scoop = "jq"
 
 [packages.htop]
 description = "Interactive process viewer (top replacement)"
@@ -59,6 +63,8 @@ executable = "htop"
 arch_pacman = "htop"
 ubuntu_apt = "htop"
 osx_brew = "htop"
+# Note: htop not available in scoop, use choco
+msys2_choco = "htop"
 
 [packages.tree]
 description = "Recursive directory listing in tree format"
@@ -69,6 +75,8 @@ executable = "tree"
 arch_pacman = "tree"
 ubuntu_apt = "tree"
 osx_brew = "tree"
+# Note: tree not in scoop main, use choco
+msys2_choco = "tree"
 
 [packages.unzip]
 description = "Archive extraction utility"
@@ -80,6 +88,8 @@ arch_pacman = "unzip"
 ubuntu_apt = "unzip"
 # Note: unzip usually comes with macOS, but can be installed via brew if needed
 osx_brew = "unzip"
+# Note: unzip not in scoop main, use choco
+msys2_choco = "unzip"
 
 [packages.zoxide]
 description = "Smart directory jumper"
@@ -91,6 +101,7 @@ priority = "p1"
 arch_pacman = "zoxide"
 ubuntu_brew = "zoxide"
 osx_brew = "zoxide"
+msys2_scoop = "zoxide"
 
 [packages.fastfetch]
 description = "System information fetch tool"
@@ -102,6 +113,7 @@ priority = "p1"
 arch_pacman = "fastfetch"
 ubuntu_apt = "fastfetch"
 osx_brew = "fastfetch"
+msys2_scoop = "fastfetch"
 
 [packages.fzf]
 description = "Command-line fuzzy finder"
@@ -113,6 +125,7 @@ priority = "p1"
 arch_pacman = "fzf"
 ubuntu_apt = "fzf"
 osx_brew = "fzf"
+msys2_scoop = "fzf"
 
 [packages.coreutils]
 description = "GNU core utilities (macOS compatibility)"
@@ -144,6 +157,8 @@ priority = "p1"
 arch_pacman = "fortune-mod"
 ubuntu_apt = "fortune-mod"
 osx_brew = "fortune"
+# Note: fortune not in scoop, use choco
+msys2_choco = "fortune"
 
 [packages.cowsay]
 description = "ASCII art cow that speaks"
@@ -155,6 +170,8 @@ priority = "p1"
 arch_pacman = "cowsay"
 ubuntu_apt = "cowsay"
 osx_brew = "cowsay"
+# Note: cowsay not in scoop, use choco
+msys2_choco = "cowsay"
 
 [packages.tldr]
 description = "Simplified and community-driven man pages"
@@ -166,6 +183,7 @@ priority = "p1"
 arch_pacman = "tldr"
 ubuntu_apt = "tldr"
 osx_brew = "tldr"
+msys2_scoop = "tldr"
 
 [packages.cloc]
 description = "Count lines of code"
@@ -177,6 +195,8 @@ priority = "p1"
 arch_pacman = "cloc"
 ubuntu_apt = "cloc"
 osx_brew = "cloc"
+# Note: cloc failed in scoop install, use choco
+msys2_choco = "cloc"
 
 [packages.trash]
 description = "Safe rm replacement that moves files to trash"
@@ -188,6 +208,8 @@ priority = "p1"
 arch_pacman = "trash-cli"
 ubuntu_apt = "trash-cli"
 osx_brew = "trash"
+# Note: trash not in scoop, different approach needed for Windows
+msys2_choco = "recycle-bin"
 
 [packages.hyperfine]
 description = "Command-line benchmarking tool"
@@ -199,6 +221,8 @@ priority = "p2"
 arch_pacman = "hyperfine"
 ubuntu_apt = "hyperfine"
 osx_brew = "hyperfine"
+# Note: hyperfine not in scoop main, use choco
+msys2_choco = "hyperfine"
 
 [packages.btop]
 description = "Resource monitor that shows usage and stats"
@@ -210,6 +234,8 @@ priority = "p2"
 arch_pacman = "btop"
 ubuntu_apt = "btop"
 osx_brew = "btop"
+# Note: btop not in scoop main, use choco
+msys2_choco = "btop"
 
 # =============================================================================
 # OSX-SPECIFIC ADDITIONAL PACKAGES

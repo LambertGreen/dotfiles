@@ -15,7 +15,8 @@ case "$OSTYPE" in
         PLATFORM="linux"
         ;;
     msys*|cygwin*)
-        FONT_DIR="/c/Windows/Fonts"
+        # Use user fonts directory to avoid requiring admin privileges
+        FONT_DIR="$HOME/AppData/Local/Microsoft/Windows/Fonts"
         PLATFORM="windows"
         ;;
     *)
@@ -71,6 +72,8 @@ install_font_from_url() {
     if [ "$PLATFORM" = "linux" ]; then
         echo "  🔄 Updating font cache..."
         fc-cache -fv >/dev/null 2>&1
+    elif [ "$PLATFORM" = "windows" ]; then
+        echo "  🔄 Font installed (restart applications to refresh cache)"
     fi
 }
 
@@ -102,6 +105,8 @@ case "${1:-}" in
         if [ "$PLATFORM" = "linux" ]; then
             echo "  🔄 Updating font cache..."
             fc-cache -fv >/dev/null 2>&1
+        elif [ "$PLATFORM" = "windows" ]; then
+            echo "  🔄 Font installed (restart applications to refresh cache)"
         fi
         
         echo "  ✅ Installed to $FONT_DIR"
@@ -118,6 +123,8 @@ case "${1:-}" in
         if [ "$PLATFORM" = "linux" ]; then
             echo "  🔄 Updating font cache..."
             fc-cache -fv >/dev/null 2>&1
+        elif [ "$PLATFORM" = "windows" ]; then
+            echo "  🔄 Font installed (restart applications to refresh cache)"
         fi
         echo "  ✅ Installed to $FONT_DIR"
         ;;
@@ -133,6 +140,8 @@ case "${1:-}" in
         if [ "$PLATFORM" = "linux" ]; then
             echo "  🔄 Updating font cache..."
             fc-cache -fv >/dev/null 2>&1
+        elif [ "$PLATFORM" = "windows" ]; then
+            echo "  🔄 Font installed (restart applications to refresh cache)"
         fi
         echo "  ✅ Installed to $FONT_DIR"
         ;;

@@ -12,13 +12,15 @@ priority = "p1"  # Essential packages
 
 [packages.firefox]
 description = "Mozilla Firefox web browser"
-health_check = "brew-check:cask:firefox"
+health_check = "command -v firefox"
 executable = "firefox"
 priority = "p1"
-platforms = ["osx"]
+platforms = ["osx", "msys2"]
 
 [packages.firefox.install]
 osx_cask = "firefox"
+# Note: firefox not in scoop main, use choco
+msys2_choco = "firefox"
 
 # =============================================================================
 # TERMINAL EMULATORS (P1)
@@ -26,13 +28,14 @@ osx_cask = "firefox"
 
 [packages.wezterm]
 description = "GPU-accelerated cross-platform terminal emulator"
-health_check = "brew-check:cask:wezterm"
+health_check = "command -v wezterm"
 executable = "wezterm"
 priority = "p1"
-platforms = ["osx"]
+platforms = ["osx", "msys2"]
 
 [packages.wezterm.install]
 osx_cask = "wezterm"
+msys2_scoop = "wezterm"
 
 # =============================================================================
 # PRODUCTIVITY & UTILITIES (P2)

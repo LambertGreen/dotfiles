@@ -405,6 +405,34 @@ check_brew_package() {
     fi
 }
 
+# Windows package manager checks
+check_scoop_package() {
+    local package_name="$1"
+    if command -v scoop >/dev/null 2>&1; then
+        scoop list | grep -q "^${package_name} "
+    else
+        return 1
+    fi
+}
+
+check_choco_package() {
+    local package_name="$1"
+    if command -v choco >/dev/null 2>&1; then
+        choco list --local-only | grep -q "^${package_name} "
+    else
+        return 1
+    fi
+}
+
+check_winget_package() {
+    local package_name="$1"
+    if command -v winget >/dev/null 2>&1; then
+        winget list --name "$package_name" >/dev/null 2>&1
+    else
+        return 1
+    fi
+}
+
 # Helper function called by TOML parser for each package check
 check_package() {
     local name="$1"
@@ -447,6 +475,35 @@ check_package() {
             failed_packages=$current_failed
             WARNINGS+=("Package $name: not installed via brew")
             PACKAGE_FAILED+=("$name (not installed via brew)")
+            return 1
+        fi
+    fi
+
+    # For Windows package managers, check scoop/choco/winget
+    if [[ "$health_check" == *"scoop-check"* ]]; then
+        local scoop_name=$(echo "$health_check" | sed 's/.*scoop-check:\(.*\)/\1/')
+        if check_scoop_package "$scoop_name"; then
+            PACKAGE_PASSED+=("$name")
+            return 0
+        else
+            local current_failed=$((failed_packages + 1))
+            failed_packages=$current_failed
+            WARNINGS+=("Package $name: not installed via scoop")
+            PACKAGE_FAILED+=("$name (not installed via scoop)")
+            return 1
+        fi
+    fi
+
+    if [[ "$health_check" == *"choco-check"* ]]; then
+        local choco_name=$(echo "$health_check" | sed 's/.*choco-check:\(.*\)/\1/')
+        if check_choco_package "$choco_name"; then
+            PACKAGE_PASSED+=("$name")
+            return 0
+        else
+            local current_failed=$((failed_packages + 1))
+            failed_packages=$current_failed
+            WARNINGS+=("Package $name: not installed via chocolatey")
+            PACKAGE_FAILED+=("$name (not installed via chocolatey)")
             return 1
         fi
     fi

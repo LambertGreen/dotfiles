@@ -14,7 +14,7 @@ fi
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dev/my/dotfiles}"
 PLATFORM="${DOTFILES_PLATFORM:-}"
 
-# Package lists directory  
+# Package lists directory
 PACKAGE_DATA_DIR="$SCRIPT_DIR/../package-definitions"
 
 # Logging function
@@ -33,11 +33,11 @@ validate_environment() {
     if [ -z "$PLATFORM" ]; then
         error "DOTFILES_PLATFORM not set. Run: just configure"
     fi
-    
+
     if [ ! -d "$PACKAGE_DATA_DIR" ]; then
         error "Package data directory not found: $PACKAGE_DATA_DIR"
     fi
-    
+
     # Set up Homebrew PATH if available (needed for non-interactive shells)
     if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ] && [[ "$PLATFORM" == "ubuntu" || "$PLATFORM" == "arch" ]]; then
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
@@ -52,7 +52,7 @@ validate_environment() {
 get_packages_from_files() {
     local pattern="$1"
     local packages=()
-    
+
     for file in "$PACKAGE_DATA_DIR"/$pattern; do
         if [ -f "$file" ]; then
             log "Reading packages from: $(basename "$file")"
@@ -64,7 +64,7 @@ get_packages_from_files() {
             done < "$file"
         fi
     done
-    
+
     printf '%s\n' "${packages[@]}"
 }
 
@@ -72,26 +72,26 @@ get_packages_from_files() {
 install_packages_with_manager() {
     local manager="$1"
     local packages=("${@:2}")
-    
+
     if [ ${#packages[@]} -eq 0 ]; then
         log "No $manager packages to install"
         return
     fi
-    
+
     log "Installing ${#packages[@]} $manager packages: ${packages[*]}"
-    
+
     case "$manager" in
         "brew")
             if ! command -v brew >/dev/null 2>&1; then
                 error "Homebrew not found. Please run bootstrap first: ./bootstrap.sh"
             fi
-            
+
             # Add taps if needed
             brew tap adoptopenjdk/openjdk 2>/dev/null || true
             brew tap d12frosted/emacs-plus 2>/dev/null || true
             brew tap homebrew/cask 2>/dev/null || true
             brew tap homebrew/cask-fonts 2>/dev/null || true
-            
+
             for package in "${packages[@]}"; do
                 brew install "$package" || log "Warning: Failed to install $package"
             done
@@ -133,6 +133,33 @@ install_packages_with_manager() {
             sudo apt update
             printf '%s\n' "${packages[@]}" | xargs sudo apt install -y
             ;;
+        "scoop")
+            if ! command -v scoop >/dev/null 2>&1; then
+                log "Warning: Scoop not installed, skipping scoop packages"
+                return
+            fi
+            for package in "${packages[@]}"; do
+                scoop install "$package" || log "Warning: Failed to install $package"
+            done
+            ;;
+        "choco")
+            if ! command -v choco >/dev/null 2>&1; then
+                log "Warning: Chocolatey not installed, skipping choco packages"
+                return
+            fi
+            for package in "${packages[@]}"; do
+                choco install "$package" -y || log "Warning: Failed to install $package"
+            done
+            ;;
+        "winget")
+            if ! command -v winget >/dev/null 2>&1; then
+                log "Warning: Winget not installed, skipping winget packages"
+                return
+            fi
+            for package in "${packages[@]}"; do
+                winget install "$package" --accept-package-agreements --accept-source-agreements || log "Warning: Failed to install $package"
+            done
+            ;;
         *)
             error "Unsupported package manager: $manager"
             ;;
@@ -143,18 +170,18 @@ install_packages_with_manager() {
 install_category_priority() {
     local category="$1"
     local priority="$2"  # "basic-core", "p1", "p2"
-    
+
     log "Installing $category $priority packages for platform: $PLATFORM"
-    
+
     # Find all files matching the pattern and install packages directly
     local pattern="${PLATFORM}-${priority}-${category}-*"
     for file in "$PACKAGE_DATA_DIR"/$pattern; do
         if [ -f "$file" ]; then
             # Extract package manager from filename
             local manager=$(basename "$file" | sed "s/${PLATFORM}-${priority}-${category}-//; s/\.txt//")
-            
+
             log "Found $manager packages in: $(basename "$file")"
-            
+
             # Read packages from file into array
             local packages=()
             while IFS= read -r package; do
@@ -163,7 +190,7 @@ install_category_priority() {
                     packages+=("$package")
                 fi
             done < "$file"
-            
+
             # Install packages for this manager
             if [ ${#packages[@]} -gt 0 ]; then
                 install_packages_with_manager "$manager" "${packages[@]}"
@@ -176,17 +203,17 @@ install_category_priority() {
 install_category_toml() {
     local category="$1"
     local priority="$2"  # "p1", "p2" - priority filter for packages
-    
+
     local toml_file="$PACKAGE_DATA_DIR/${category}.toml"
-    
+
     if [ ! -f "$toml_file" ]; then
         log "Warning: TOML file not found: $toml_file, falling back to legacy approach"
         install_category_priority "$category" "$priority"
         return
     fi
-    
+
     log "Installing $category packages from TOML for platform: $PLATFORM (priority: $priority)"
-    
+
     # Determine appropriate package managers for platform and category
     local package_managers=()
     case "$PLATFORM" in
@@ -203,11 +230,14 @@ install_category_toml() {
         ubuntu)
             package_managers=("apt" "brew")  # Some packages use homebrew on Ubuntu
             ;;
+        msys2)
+            package_managers=("scoop" "choco" "winget" "pacman")  # Windows package managers
+            ;;
         *)
             error "Unsupported platform for TOML packages: $PLATFORM"
             ;;
     esac
-    
+
     # Get packages from TOML using our parser
     local toml_parser="$SCRIPT_DIR/toml-parser.py"
     if [ ! -f "$toml_parser" ]; then
@@ -215,19 +245,19 @@ install_category_toml() {
         install_category_priority "$category" "$priority"
         return
     fi
-    
+
     # Check if python3 is available
     if ! command -v python3 >/dev/null 2>&1; then
         log "Warning: python3 not available for TOML parsing, falling back to legacy approach"
         install_category_priority "$category" "$priority"
         return
     fi
-    
+
     # Install packages for each package manager
     for package_manager in "${package_managers[@]}"; do
         local packages
         packages=$(python3 "$toml_parser" "$toml_file" --action packages --platform "$PLATFORM" --package-manager "$package_manager" --priority "$priority" --format bash)
-        
+
         if [ -n "$packages" ]; then
             log "Installing $package_manager packages from TOML: $packages"
             local package_array=($packages)
@@ -239,58 +269,58 @@ install_category_toml() {
 # Main install function
 package_install() {
     validate_environment
-    
+
     log "Installing packages for platform: $PLATFORM"
-    
+
     # Always install basic core packages
     install_category_priority "core" "basic"
-    
+
     # Install P1 categories if enabled
     if [ "${DOTFILES_CLI_EDITORS:-false}" = "true" ]; then
         install_category_toml "cli-editors" "p1"
     fi
-    
+
     if [ "${DOTFILES_DEV_ENV:-false}" = "true" ]; then
         install_category_toml "dev-env" "p1"
     fi
-    
+
     if [ "${DOTFILES_CLI_UTILS:-false}" = "true" ]; then
         install_category_toml "cli-utils" "p1"
     fi
-    
+
     if [ "${DOTFILES_GUI_APPS:-false}" = "true" ]; then
         install_category_toml "gui-apps" "p1"
     fi
-    
+
     # Install advanced categories if explicitly enabled
     if [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ]; then
         install_category_toml "cli-editors" "p2"
     fi
-    
+
     if [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ]; then
         install_category_toml "dev-env" "p2"
     fi
-    
+
     if [ "${DOTFILES_CLI_UTILS_HEAVY:-false}" = "true" ]; then
         install_category_toml "cli-utils" "p2"
     fi
-    
+
     if [ "${DOTFILES_GUI_APPS_HEAVY:-false}" = "true" ]; then
         install_category_toml "gui-apps" "p2"
     fi
-    
+
     # Install global packages if development environment enabled
     if [ "${DOTFILES_DEV_ENV:-false}" = "true" ]; then
         install_global_packages
     fi
-    
+
     log "Package installation complete for $PLATFORM"
 }
 
 # Install global packages (Python, Node, Ruby)
 install_global_packages() {
     log "Installing global packages..."
-    
+
     # Python packages - handle externally-managed-environment
     if command -v python3 >/dev/null 2>&1; then
         log "Installing Python packages..."
@@ -304,13 +334,13 @@ install_global_packages() {
             python3 -m pip install black pyflakes isort pytest nose pipenv pynvim --break-system-packages || log "Warning: Some Python packages failed to install"
         fi
     fi
-    
+
     # Node.js packages
     if command -v npm >/dev/null 2>&1; then
         log "Installing Node.js packages..."
         npm install -g typescript typescript-language-server stylelint js-beautify js-tidy prettier neovim || log "Warning: Some Node.js packages failed to install"
     fi
-    
+
     # Ruby packages
     if command -v gem >/dev/null 2>&1; then
         log "Installing Ruby packages..."
@@ -321,22 +351,22 @@ install_global_packages() {
 # Show current configuration
 package_show_config() {
     validate_environment
-    
+
     echo "=== Dotfiles Configuration ==="
     echo "Platform: $PLATFORM"
     echo ""
-    
+
     echo "Core (always enabled):"
     echo "  ✓ basic-core"
     echo ""
-    
+
     echo "Base Categories:"
     [ "${DOTFILES_CLI_EDITORS:-false}" = "true" ] && echo "  ✓ CLI_EDITORS" || echo "  ✗ CLI_EDITORS"
     [ "${DOTFILES_DEV_ENV:-false}" = "true" ] && echo "  ✓ DEV_ENV" || echo "  ✗ DEV_ENV"
     [ "${DOTFILES_CLI_UTILS:-false}" = "true" ] && echo "  ✓ CLI_UTILS" || echo "  ✗ CLI_UTILS"
     [ "${DOTFILES_GUI_APPS:-false}" = "true" ] && echo "  ✓ GUI_APPS" || echo "  ✗ GUI_APPS"
     echo ""
-    
+
     echo "Heavy Categories:"
     [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ] && echo "  ✓ CLI_EDITORS_HEAVY" || echo "  ✗ CLI_EDITORS_HEAVY"
     [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ] && echo "  ✓ DEV_ENV_HEAVY" || echo "  ✗ DEV_ENV_HEAVY"
@@ -347,9 +377,9 @@ package_show_config() {
 # Check for available package updates (read-only, safe)
 package_update_check() {
     validate_environment
-    
+
     log "Checking for available updates on platform: $PLATFORM"
-    
+
     case "$PLATFORM" in
         osx)
             echo ""
@@ -359,7 +389,7 @@ package_update_check() {
             else
                 echo "Homebrew not installed"
             fi
-            
+
             echo ""
             echo "=== Mac App Store ==="
             if command -v mas >/dev/null 2>&1; then
@@ -376,7 +406,7 @@ package_update_check() {
             else
                 echo "Pacman not available"
             fi
-            
+
             echo ""
             echo "=== AUR (yay) ==="
             if command -v yay >/dev/null 2>&1; then
@@ -395,12 +425,45 @@ package_update_check() {
                 echo "APT not available"
             fi
             ;;
+        msys2)
+            echo ""
+            echo "=== Scoop ==="
+            if command -v scoop >/dev/null 2>&1; then
+                scoop status || echo "All Scoop packages up to date"
+            else
+                echo "Scoop not installed"
+            fi
+
+            echo ""
+            echo "=== Chocolatey ==="
+            if command -v choco >/dev/null 2>&1; then
+                choco outdated || echo "All Chocolatey packages up to date"
+            else
+                echo "Chocolatey not installed"
+            fi
+
+            echo ""
+            echo "=== Winget ==="
+            if command -v winget >/dev/null 2>&1; then
+                winget upgrade || echo "All Winget packages up to date"
+            else
+                echo "Winget not installed"
+            fi
+
+            echo ""
+            echo "=== MSYS2 Pacman ==="
+            if command -v pacman >/dev/null 2>&1; then
+                pacman -Qu || echo "All MSYS2 packages up to date"
+            else
+                echo "MSYS2 Pacman not available"
+            fi
+            ;;
         *)
             log "Unknown platform: $PLATFORM"
             exit 1
             ;;
     esac
-    
+
     echo ""
     echo "💡 Run 'just update-upgrade' to upgrade packages"
     echo "💡 Run 'just updates' for granular control"
@@ -409,9 +472,9 @@ package_update_check() {
 # Update packages (potentially dangerous - requires confirmation)
 package_update() {
     validate_environment
-    
+
     log "Updating packages for platform: $PLATFORM"
-    
+
     case "$PLATFORM" in
         osx)
             if command -v brew >/dev/null 2>&1; then
@@ -434,32 +497,46 @@ package_update() {
                 brew update && brew upgrade
             fi
             ;;
+        msys2)
+            if command -v scoop >/dev/null 2>&1; then
+                scoop update && scoop update --all
+            fi
+            if command -v choco >/dev/null 2>&1; then
+                choco upgrade all -y
+            fi
+            if command -v winget >/dev/null 2>&1; then
+                winget upgrade --all
+            fi
+            if command -v pacman >/dev/null 2>&1; then
+                pacman -Syu --noconfirm
+            fi
+            ;;
         *)
             error "Unsupported platform: $PLATFORM"
             ;;
     esac
-    
+
     log "Package update complete for $PLATFORM"
 }
 
 # Stow configuration files based on enabled categories
 package_stow() {
     validate_environment
-    
+
     log "Stowing configurations for platform: $PLATFORM"
-    
+
     # Change to configs directory
     local configs_dir="$DOTFILES_DIR/configs"
     if [ ! -d "$configs_dir" ]; then
         error "Configs directory not found: $configs_dir"
     fi
-    
+
     cd "$configs_dir"
-    
+
     # Always stow common configs (respects .stow-local-ignore)
     log "Stowing common configurations..."
     (cd common && stow *)
-    
+
     # Stow platform-specific configs based on platform
     case "$PLATFORM" in
         osx)
@@ -470,7 +547,7 @@ package_stow() {
             log "Stowing Linux-specific configurations..."
             (cd linux_only && stow *)
             ;;
-        win)
+        msys2)
             log "Stowing Windows-specific configurations..."
             (cd windows_only && stow *)
             ;;
@@ -478,7 +555,7 @@ package_stow() {
             error "Unsupported platform for stowing: $PLATFORM"
             ;;
     esac
-    
+
     log "Configuration stowing complete for $PLATFORM"
 }
 

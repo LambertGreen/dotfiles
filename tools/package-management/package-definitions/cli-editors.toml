@@ -20,6 +20,7 @@ priority = "p1"
 arch_pacman = "neovim"
 ubuntu_brew = "neovim"  # Ubuntu APT has old 0.6.1, using Homebrew for newer version
 osx_brew = "neovim"
+msys2_scoop = "neovim"
 
 [packages.emacs]
 description = "Extensible, customizable text editor and computing environment"
@@ -31,6 +32,7 @@ priority = "p1"
 arch_pacman = "emacs"  # Official Arch package with native compilation
 ubuntu_brew = "emacs"  # Ubuntu APT has old version, using Homebrew for newer version
 osx_brew = "emacs-mac-exp@31"  # Mac-specific Emacs build (railwaycat/emacsmacport)
+msys2_scoop = "emacs"
 
 # =============================================================================
 # ADVANCED/MODERN EDITORS (P2)
@@ -46,6 +48,8 @@ priority = "p2"
 arch_pacman = "helix"
 ubuntu_brew = "helix"  # Note: Ubuntu uses homebrew for helix
 osx_brew = "helix"
+# Note: helix not in scoop main, use choco
+msys2_choco = "helix"
 
 # =============================================================================
 # TERMINAL TOOLS & DOCUMENT PROCESSING (P1)
@@ -61,6 +65,7 @@ priority = "p1"
 arch_pacman = "tmux"
 ubuntu_apt = "tmux"
 osx_brew = "tmux"
+msys2_pacman = "tmux"
 
 [packages.pandoc]
 description = "Universal markup converter"
@@ -72,3 +77,5 @@ priority = "p1"
 arch_pacman = "pandoc"
 ubuntu_apt = "pandoc"
 osx_brew = "pandoc"
+# Note: pandoc not in scoop main, use choco
+msys2_choco = "pandoc"
