@@ -45,6 +45,8 @@ default:
     @echo "  just check-health-verbose      - Health check with detailed output"
     @echo "  just cleanup-broken-links-dry-run - List broken symlinks (dry run)"
     @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
+    @echo ""
+    @echo "📁 Logs are saved to logs/ directory - cleanup with: trash logs"
 
 # Install packages based on your categories
 install:
@@ -118,15 +120,16 @@ test-ubuntu: (test-platform "ubuntu")
 
 # Validate system health (auto-logs)
 check-health:
-    @just _check-health-with-log "health-check-$(date +%Y%m%d-%H%M%S).log" ""
+    @just _check-health-with-log "logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
 
 # Health check with verbose output
 check-health-verbose:
-    @just _check-health-with-log "health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
+    @just _check-health-with-log "logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
 
 # Internal helper for health checks with logging
 [private]
 _check-health-with-log logfile flags:
+    @mkdir -p "$(dirname {{logfile}})"
     @echo "🏥 Running health check with logging to: {{logfile}}"
     @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
 

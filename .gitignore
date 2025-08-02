@@ -35,3 +35,4 @@ Keypirinha.history
 .runtime/
 .runtime_testing/
 *.log
+logs/
