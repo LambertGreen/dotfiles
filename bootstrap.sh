@@ -26,11 +26,47 @@ if [ -z "$DOTFILES_PLATFORM" ]; then
     exit 1
 fi
 
-# Check if essential tools are available
-if command -v stow >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1; then
-    echo "🔧 Essential tools (stow, python3) already installed, skipping bootstrap..."
+# Define platform-specific requirements
+case "$DOTFILES_PLATFORM" in
+    arch)
+        REQUIRED_TOOLS="stow python3 just"
+        PLATFORM_MSG="🏛️ Arch: stow, python3, just"
+        ;;
+    ubuntu)
+        REQUIRED_TOOLS="stow python3 just brew"
+        PLATFORM_MSG="🐧 Ubuntu: stow, python3, just, homebrew"
+        ;;
+    osx)
+        REQUIRED_TOOLS="stow python3 just brew"
+        PLATFORM_MSG="🍎 macOS: stow, python3, just, homebrew"
+        ;;
+    *)
+        echo "❌ Unsupported platform: $DOTFILES_PLATFORM"
+        exit 1
+        ;;
+esac
+
+echo "🔍 Checking required tools for $DOTFILES_PLATFORM..."
+echo "   Required: $PLATFORM_MSG"
+echo ""
+
+# Check each required tool
+ALL_TOOLS_PRESENT=true
+for tool in $REQUIRED_TOOLS; do
+    if command -v "$tool" >/dev/null 2>&1; then
+        echo "  ✅ $tool: $(command -v "$tool")"
+    else
+        echo "  ❌ $tool: NOT FOUND"
+        ALL_TOOLS_PRESENT=false
+    fi
+done
+echo ""
+
+# Decide whether to run bootstrap
+if [ "$ALL_TOOLS_PRESENT" = true ]; then
+    echo "✅ All required tools are already installed!"
 else
-    echo "🔧 Installing essential tools (stow, python3 for TOML parsing)..."
+    echo "🔧 Installing missing tools..."
     cd bootstrap
     
     # Always use basic bootstrap (essential tools only) for P1/P2 system
