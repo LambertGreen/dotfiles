@@ -20,7 +20,7 @@ platforms = ["osx", "msys2"]
 [packages.firefox.install]
 osx_cask = "firefox"
 # Note: firefox not in scoop main, use choco
-msys2_choco = "firefox"
+win_choco = "firefox"
 
 # =============================================================================
 # TERMINAL EMULATORS (P1)
@@ -35,7 +35,7 @@ platforms = ["osx", "msys2"]
 
 [packages.wezterm.install]
 osx_cask = "wezterm"
-msys2_scoop = "wezterm"
+win_scoop = "wezterm"
 
 # =============================================================================
 # PRODUCTIVITY & UTILITIES (P2)

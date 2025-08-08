@@ -139,6 +139,30 @@ lgreen_export_ripgrep_config_path() {
     export COLORTERM=truecolor
 }
 
+# * Platform-specific profiles
+lgreen_source_platform_profile() {
+    # Source platform-specific profile files based on uname detection
+    local uname_result="$(uname_cached)"
+    
+    case "$uname_result" in
+        *"_NT"*)
+            # MSYS2/Windows
+            if [[ -f ~/.profile_msys2 ]]; then
+                source ~/.profile_msys2
+            fi
+            if [[ -f ~/.shell_msys2 ]]; then
+                source ~/.shell_msys2
+            fi
+            ;;
+        Darwin)
+            # macOS - could add macOS-specific profiles here if needed
+            ;;
+        Linux)
+            # Linux - could add Linux-specific profiles here if needed
+            ;;
+    esac
+}
+
 # * == MAIN ==
 lgreen_setup_homebrew
 lgreen_setup_gcc_symlinks
@@ -146,3 +170,4 @@ lgreen_setup_gcc
 lgreen_start_agents
 lgreen_export_gpg_tty
 lgreen_export_ripgrep_config_path
+lgreen_source_platform_profile
