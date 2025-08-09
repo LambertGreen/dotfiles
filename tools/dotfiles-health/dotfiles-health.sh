@@ -26,6 +26,12 @@ fi
 # Use TEST_HOME if set (for testing), otherwise use actual HOME
 TEST_HOME="${TEST_HOME:-$HOME}"
 
+# Fix Windows path case sensitivity issue with MSYS2
+# MSYS2 uses lowercase /c/users but filesystem uses /c/Users
+if [[ "$TEST_HOME" == "/c/users/"* ]]; then
+    TEST_HOME="/c/Users${TEST_HOME#/c/users}"
+fi
+
 OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey nvim_win)
 
 # =============================================================================
@@ -207,7 +213,7 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(fd --type symlink $depth_args . "$dir" 2>/dev/null)
+            done < <(fd --hidden --type symlink $depth_args . "$dir" 2>/dev/null)
         done
     else
         # Fallback to find (same logic as fd version)
