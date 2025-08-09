@@ -101,3 +101,18 @@ function lgreen-setup-disable-office-hyper-key-hijacking {
     # 1. git clone https://github.com/LambertGreen/OfficeKeyFix ~/dev/my/officekeyfix
     # 2. build
 }
+
+function lgreen-setup-msys2-environment {
+    # Set MSYS2 environment variables for optimal performance and symlink support
+    
+    # Enable native Windows symlinks (required for GNU Stow)
+    [Environment]::SetEnvironmentVariable("MSYS", "winsymlinks:nativestrict", "User")
+    
+    # Use strict PATH mode for performance (no slow Windows PATH inheritance)
+    [Environment]::SetEnvironmentVariable("MSYS2_PATH_TYPE", "strict", "User")
+    
+    Write-Host "MSYS2 environment variables set:"
+    Write-Host "  MSYS=winsymlinks:nativestrict (enables native symlinks)"
+    Write-Host "  MSYS2_PATH_TYPE=strict (performance optimization)"
+    Write-Host "NOTE: Restart MSYS2 terminals for changes to take effect"
+}
