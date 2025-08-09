@@ -151,6 +151,15 @@ install_packages_with_manager() {
                 choco install "$package" -y || log "Warning: Failed to install $package"
             done
             ;;
+        "pip")
+            if ! command -v python >/dev/null 2>&1; then
+                log "Warning: Python not installed, skipping pip packages"
+                return
+            fi
+            for package in "${packages[@]}"; do
+                python -m pip install "$package" || log "Warning: Failed to install $package"
+            done
+            ;;
         "winget")
             if ! command -v winget >/dev/null 2>&1; then
                 log "Warning: Winget not installed, skipping winget packages"
@@ -230,8 +239,8 @@ install_category_toml() {
         ubuntu)
             package_managers=("apt" "brew")  # Some packages use homebrew on Ubuntu
             ;;
-        msys2)
-            package_managers=("scoop" "choco" "winget" "pacman")  # Windows package managers
+        msys2|win)
+            package_managers=("scoop" "choco" "pip" "winget" "pacman")  # Windows package managers
             ;;
         *)
             error "Unsupported platform for TOML packages: $PLATFORM"

@@ -157,8 +157,7 @@ priority = "p1"
 arch_pacman = "fortune-mod"
 ubuntu_apt = "fortune-mod"
 osx_brew = "fortune"
-# Note: fortune not in scoop, use choco
-win_choco = "fortune"
+win_pip = "fortune"
 
 [packages.cowsay]
 description = "ASCII art cow that speaks"
@@ -170,8 +169,7 @@ priority = "p1"
 arch_pacman = "cowsay"
 ubuntu_apt = "cowsay"
 osx_brew = "cowsay"
-# Note: cowsay not in scoop, use choco
-win_choco = "cowsay"
+win_pip = "cowsay"
 
 [packages.tldr]
 description = "Simplified and community-driven man pages"
