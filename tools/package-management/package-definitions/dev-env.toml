@@ -20,7 +20,7 @@ priority = "p1"
 arch_pacman = "python"
 ubuntu_apt = "python3"
 osx_brew = "python"
-msys2_scoop = "python"
+win_scoop = "python"
 
 [packages.python-pip]
 description = "Python package manager"
@@ -53,7 +53,7 @@ priority = "p1"
 arch_pacman = "nodejs"
 ubuntu_apt = "nodejs"
 osx_brew = "node"
-msys2_scoop = "nodejs"
+win_scoop = "nodejs"
 
 [packages.npm]
 description = "Node.js package manager"
@@ -80,7 +80,7 @@ priority = "p1"
 arch_pacman = "cmake"
 ubuntu_apt = "cmake"
 osx_brew = "cmake"
-msys2_scoop = "cmake"
+win_scoop = "cmake"
 
 [packages.gnupg]
 description = "GNU Privacy Guard for encryption"
@@ -93,7 +93,7 @@ arch_pacman = "gnupg"
 ubuntu_apt = "gpg"
 osx_brew = "gnupg"
 # Note: gpg not in scoop main, use choco
-msys2_choco = "gnupg"
+win_choco = "gnupg"
 
 # =============================================================================
 # MACOS SPECIFIC TOOLS (P1)
@@ -148,7 +148,7 @@ arch_pacman = "ruby"
 ubuntu_apt = "ruby"
 osx_brew = "ruby"
 # Note: ruby not in scoop main, use choco
-msys2_choco = "ruby"
+win_choco = "ruby"
 
 [packages.ruby-dev]
 description = "Ruby development headers"
@@ -171,7 +171,7 @@ arch_pacman = "rust"
 ubuntu_apt = "rustc"
 osx_brew = "rust"
 # Note: rust uses rustup in scoop
-msys2_scoop = "rustup"
+win_scoop = "rustup"
 
 [packages.cargo]
 description = "Rust package manager"
@@ -318,7 +318,7 @@ priority = "p1"
 arch_pacman = "just"
 ubuntu_brew = "just"
 # Note: just not in standard Ubuntu repos, using homebrew
-msys2_scoop = "just"
+win_scoop = "just"
 
 
 
@@ -545,7 +545,7 @@ arch_pacman = "git-delta"
 ubuntu_apt = "git-delta"
 osx_brew = "git-delta"
 # Note: git-delta not in scoop main, use choco (package name: delta)
-msys2_choco = "delta"
+win_choco = "delta"
 
 [packages.shellcheck]
 description = "Shell script static analysis tool"
@@ -558,7 +558,7 @@ arch_pacman = "shellcheck"
 ubuntu_apt = "shellcheck"
 osx_brew = "shellcheck"
 # Note: shellcheck not in scoop main, use choco
-msys2_choco = "shellcheck"
+win_choco = "shellcheck"
 
 [packages.black]
 description = "Python code formatter"
@@ -571,7 +571,7 @@ arch_pacman = "python-black"
 ubuntu_apt = "black"
 osx_brew = "black"
 # Note: black not in scoop main, use choco
-msys2_choco = "black"
+win_choco = "black"
 
 [packages.isort]
 description = "Python import sorter"

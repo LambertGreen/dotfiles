@@ -26,6 +26,12 @@ fi
 # Use TEST_HOME if set (for testing), otherwise use actual HOME
 TEST_HOME="${TEST_HOME:-$HOME}"
 
+# Fix Windows path case sensitivity issue with MSYS2
+# MSYS2 uses lowercase /c/users but filesystem uses /c/Users
+if [[ "$TEST_HOME" == "/c/users/"* ]]; then
+    TEST_HOME="/c/Users${TEST_HOME#/c/users}"
+fi
+
 OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey nvim_win)
 
 # =============================================================================
@@ -92,13 +98,19 @@ _find_broken_symlinks() {
         local depth_args=""
         [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
         
+        # Exclude Temp directory on Windows
+        local exclude_args=""
+        if [[ "$dir" == *"AppData/Local"* ]]; then
+            exclude_args="-path '*/Temp/*' -prune -o"
+        fi
+        
         while IFS= read -r link; do
             if [[ "$filter_dotfiles_only" == "true" ]]; then
                 _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
             else
                 FOUND_BROKEN_SYMLINKS+=("$link")
             fi
-        done < <(find "$dir" $depth_args -type l -exec test ! -e {} \; -print 2>/dev/null)
+        done < <(eval "find \"$dir\" $depth_args $exclude_args -type l -exec test ! -e {} \; -print" 2>/dev/null)
     done
 }
 
@@ -201,13 +213,19 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(fd --type symlink $depth_args . "$dir" 2>/dev/null)
+            done < <(fd --hidden --type symlink $depth_args . "$dir" 2>/dev/null)
         done
     else
         # Fallback to find (same logic as fd version)
         for dir in "${search_dirs[@]}"; do
             local depth_args=""
             [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
+            
+            # Exclude Temp directory on Windows
+            local exclude_args=""
+            if [[ "$dir" == *"AppData/Local"* ]]; then
+                exclude_args="-path '*/Temp/*' -prune -o"
+            fi
             
             while IFS= read -r link; do
                 # Skip if broken (already handled)
@@ -244,7 +262,7 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(find "$dir" $depth_args -type l 2>/dev/null)
+            done < <(eval "find \"$dir\" $depth_args $exclude_args -type l -print" 2>/dev/null)
         done
     fi
 }
@@ -366,7 +384,12 @@ _check_package_health() {
 
         # Get health checks from TOML for specific priority
         local health_checks
-        health_checks=$(python3 "$toml_parser" "$toml_file" --action health-checks --platform "$platform" --priority "$priority" --format bash 2>/dev/null)
+        local python_cmd="python3"
+        # Use MINGW64 Python on MSYS2 for better package support
+        if [[ "$(uname -s)" == *"_NT"* ]] && [[ -x "/mingw64/bin/python3" ]]; then
+            python_cmd="/mingw64/bin/python3"
+        fi
+        health_checks=$($python_cmd "$toml_parser" "$toml_file" --action health-checks --platform "$platform" --priority "$priority" --format bash 2>/dev/null)
 
         if [ -n "$health_checks" ]; then
             # Temporarily disable strict mode for eval of dynamic commands
