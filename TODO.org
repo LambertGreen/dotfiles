@@ -1,16 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/2]
-*** TODO Add =fortune= to =nvim= startup screen
-**** Description
-+ Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
-
-*** TODO Add app for doing presentations
-**** Requirements [0/2]
-***** [ ] Show mouse cursor
-***** [ ] Zoom in/out
-
+** Open [0/5]
 *** TODO Install remaining missing packages via correct package managers
 **** Context
 After implementing pip package manager support, several packages still fail health checks.
@@ -49,6 +40,15 @@ Following the pip implementation pattern, add cargo support for Rust packages.
 - Use 'cargo install' for Rust packages
 - Add cargo to platform package managers
 - May need to handle Rust toolchain installation first
+
+*** TODO Add =fortune= to =nvim= startup screen
+**** Description
++ Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
+
+*** TODO Add app for doing presentations
+**** Requirements [0/2]
+***** [ ] Show mouse cursor
+***** [ ] Zoom in/out
 
 ** Completed [13/13]
 *** DONE Consider using =make= or =just= file for machine setup
