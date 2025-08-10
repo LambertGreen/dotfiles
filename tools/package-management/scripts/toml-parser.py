@@ -8,16 +8,14 @@ import sys
 import argparse
 from pathlib import Path
 
-# Handle different Python versions for TOML parsing
+# Python 3.11+ required for native TOML support
 try:
     import tomllib
 except ImportError:
-    try:
-        import tomli as tomllib
-    except ImportError:
-        print("Error: Neither tomllib (Python 3.11+) nor tomli library available", file=sys.stderr)
-        print("Install tomli with: pip install tomli", file=sys.stderr)
-        sys.exit(1)
+    print("Error: Python 3.11+ required for native tomllib support", file=sys.stderr)
+    print("Your Python version:", sys.version, file=sys.stderr)
+    print("Please run bootstrap to install Python 3.11+", file=sys.stderr)
+    sys.exit(1)
 
 def load_toml_file(file_path):
     """Load and parse a TOML file"""
