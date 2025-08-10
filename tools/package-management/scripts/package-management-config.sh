@@ -130,8 +130,12 @@ install_packages_with_manager() {
             printf '%s\n' "${packages[@]}" | xargs yay -S --noconfirm
             ;;
         "apt")
-            sudo apt update
-            printf '%s\n' "${packages[@]}" | xargs sudo apt install -y
+            # Don't run apt update here - it should be done once at the beginning
+            if check_apt_available; then
+                printf '%s\n' "${packages[@]}" | xargs sudo apt install -y
+            else
+                log "Warning: Skipping APT packages due to lock conflict: ${packages[*]}"
+            fi
             ;;
         "scoop")
             if ! command -v scoop >/dev/null 2>&1; then
@@ -266,11 +270,52 @@ install_category_toml() {
     done
 }
 
+# Check if apt/dpkg is available for operations
+check_apt_available() {
+    local max_wait=60  # Maximum seconds to wait
+    local waited=0
+
+    while [ $waited -lt $max_wait ]; do
+        if ! sudo lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 && \
+           ! sudo lsof /var/lib/apt/lists/lock >/dev/null 2>&1; then
+            return 0  # Lock is available
+        fi
+
+        if [ $waited -eq 0 ]; then
+            log "Waiting for other package managers to finish (timeout: ${max_wait}s)..."
+        elif [ $((waited % 10)) -eq 0 ]; then
+            log "Still waiting... (${waited}s/${max_wait}s)"
+        fi
+
+        sleep 5
+        waited=$((waited + 5))
+    done
+
+    log "Warning: Timed out waiting for package manager lock after ${max_wait} seconds"
+    return 1
+}
+
 # Main install function
 package_install() {
     validate_environment
 
     log "Installing packages for platform: $PLATFORM"
+
+    # Update package managers once at the beginning
+    case "$PLATFORM" in
+        ubuntu)
+            if check_apt_available; then
+                log "Updating APT package lists..."
+                sudo apt update || log "Warning: APT update failed"
+            else
+                error "Cannot proceed: APT is locked by another process"
+            fi
+            ;;
+        arch)
+            log "Updating Pacman database..."
+            sudo pacman -Sy --noconfirm || log "Warning: Pacman sync failed"
+            ;;
+    esac
 
     # Always install basic core packages
     install_category_priority "core" "basic"
@@ -419,8 +464,12 @@ package_update_check() {
             echo ""
             echo "=== APT ==="
             if command -v apt >/dev/null 2>&1; then
-                sudo apt update >/dev/null 2>&1
-                apt list --upgradable 2>/dev/null | grep -v "Listing..." || echo "All APT packages up to date"
+                if check_apt_available; then
+                    sudo apt update >/dev/null 2>&1
+                    apt list --upgradable 2>/dev/null | grep -v "Listing..." || echo "All APT packages up to date"
+                else
+                    echo "APT is locked by another process - try again later"
+                fi
             else
                 echo "APT not available"
             fi
@@ -492,7 +541,11 @@ package_update() {
             fi
             ;;
         ubuntu)
-            sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+            if check_apt_available; then
+                sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+            else
+                log "Warning: APT is locked by another process - skipping APT updates"
+            fi
             if command -v brew >/dev/null 2>&1; then
                 brew update && brew upgrade
             fi
