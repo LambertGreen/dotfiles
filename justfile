@@ -60,8 +60,10 @@ install:
         echo "❌ Configuration file missing. Run: just configure"; \
         exit 1; \
     fi
+    @mkdir -p logs
     @echo "📦 Installing {{platform}} packages using TOML-based package management..."
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_install"
+    @echo "📝 Logging to: logs/install-$(date +%Y%m%d-%H%M%S).log"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_install" 2>&1 | tee "logs/install-$(date +%Y%m%d-%H%M%S).log"
 
 
 # Check for available package updates (safe to run)
