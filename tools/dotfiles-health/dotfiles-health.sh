@@ -158,8 +158,8 @@ _categorize_symlinks() {
     WARNINGS=()
     ERRORS=()
     
-    # First, find all broken symlinks using the shared function (no filtering)
-    _find_broken_symlinks false
+    # First, find broken symlinks pointing to dotfiles directory (filtered)
+    _find_broken_symlinks true
     BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
     for link in "${BROKEN_LINKS[@]}"; do
         ERRORS+=("Broken symlink: $link")
