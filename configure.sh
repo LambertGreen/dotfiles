@@ -326,8 +326,8 @@ echo ""
 # Show the configuration using the package tool
 echo "📊 Your configuration:"
 source ~/.dotfiles.env
-if [ -f "tools/package-management/package-management-config.sh" ]; then
-    bash tools/package-management/package-management-config.sh show-config
+if [ -f "tools/package-management/scripts/install.sh" ]; then
+    bash tools/package-management/scripts/install.sh show-config
 else
     echo "  Platform: $PLATFORM"
     echo "  (Run package tool to see full configuration)"
