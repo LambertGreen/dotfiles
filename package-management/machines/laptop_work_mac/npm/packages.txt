@@ -1,0 +1,16 @@
+lib
+claude-code
+cli
+eslint-plugin
+corepack
+do-not-disturb-cli
+eslint
+js-beautify
+js-tidy
+mcp-server-gus
+neovim
+pdf2md
+prettier
+stylelint
+typescript-language-server
+typescript

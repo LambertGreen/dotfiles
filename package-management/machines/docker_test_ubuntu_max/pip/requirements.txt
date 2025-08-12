@@ -1,0 +1,10 @@
+black
+ipython
+isort
+nose
+pipenv
+pyflakes
+pytest
+requests
+virtualenv
+virtualenv-clone

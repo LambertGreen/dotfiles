@@ -1,8 +1,38 @@
 #!/usr/bin/env bash
-# Configure Script for Dotfiles Package Management
-# Generates transparent ~/.dotfiles.env with explicit configuration controls
+# Configure Script for Dotfiles Environment 
+# Sets up platform and basic environment, then configures machine class for package management
 
 set -euo pipefail
+
+# Set up logging
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_FILE="${LOG_DIR}/configure-$(date +%Y%m%d-%H%M%S).log"
+
+# Create log directory if it doesn't exist
+mkdir -p "${LOG_DIR}"
+
+# Initialize log file with header
+{
+    echo "Dotfiles Configuration Log"
+    echo "=========================="
+    echo "Date: $(date)"
+    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
+    echo "User: ${USER:-$(whoami)}"
+    echo "Script: $0 $*"
+    echo "=========================="
+    echo ""
+} > "${LOG_FILE}"
+
+# Function to log both to console and file
+log_output() {
+    echo "$1" | tee -a "${LOG_FILE}"
+}
+
+# Function to log only to file (for verbose details)
+log_verbose() {
+    echo "$1" >> "${LOG_FILE}"
+}
 
 # Parse command line arguments
 AUTODETECT=true
@@ -20,13 +50,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo "🔧 Dotfiles Configuration"
-echo ""
+log_output "🔧 Dotfiles Configuration"
+log_output ""
 
 # Check if already configured
-if [ -f ~/~/.dotfiles.env ]; then
+if [ -f ~/.dotfiles.env ]; then
     echo "📋 Current configuration found:"
-    cat ~/~/.dotfiles.env
+    cat ~/.dotfiles.env
     echo ""
     read -p "Reconfigure? (y/N): " reconfigure
     if [[ ! "$reconfigure" =~ ^[Yy]$ ]]; then
@@ -102,243 +132,236 @@ fi
 
 echo ""
 
-# Configuration approach selection
-echo "📦 Configuration Selection"
-echo ""
-echo "Choose configuration approach:"
-echo "  1) profile - Use pre-defined configurations"
-echo "  2) custom  - Select individual categories"
-echo ""
-read -p "Select approach (1-2): " approach_choice
+# Check if machine class already exists
+EXISTING_MACHINE_CLASS=""
+if [[ -f ~/.dotfiles.env ]]; then
+    EXISTING_MACHINE_CLASS=$(grep "^export DOTFILES_MACHINE_CLASS=" ~/.dotfiles.env 2>/dev/null | cut -d'=' -f2- | tr -d '"' | tr -d "'" || echo "")
+fi
 
-case $approach_choice in
-    1) USE_PROFILES=true ;;
-    2) USE_PROFILES=false ;;
-    *) echo "❌ Invalid choice"; exit 1 ;;
-esac
+if [[ -z "$EXISTING_MACHINE_CLASS" && -f ~/.dotfiles.machine.class.env ]]; then
+    EXISTING_MACHINE_CLASS=$(grep "^DOTFILES_MACHINE_CLASS=" ~/.dotfiles.machine.class.env 2>/dev/null | cut -d'=' -f2- || echo "")
+fi
 
-echo ""
+# Configure machine class
+MACHINE_CLASS=""
+PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
+MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
 
-# Generate configuration
+if [[ -n "$EXISTING_MACHINE_CLASS" ]]; then
+    echo "📋 Current machine class: $EXISTING_MACHINE_CLASS"
+    read -p "Change machine class? (y/N): " change_class
+    if [[ "$change_class" =~ ^[Yy]$ ]]; then
+        MACHINE_CLASS=""  # Will prompt for new one below
+    else
+        MACHINE_CLASS="$EXISTING_MACHINE_CLASS"
+    fi
+fi
+
+if [[ -z "$MACHINE_CLASS" ]]; then
+    echo ""
+    echo "⚙️  Machine Class Configuration"
+    echo ""
+    
+    # Display available machine classes
+    echo "📋 Available machine classes:"
+    echo ""
+    
+    machines=()
+    i=1
+    
+    for machine_dir in "${MACHINES_DIR}"/*; do
+        if [[ -d "${machine_dir}" ]]; then
+            machine=$(basename "${machine_dir}")
+            machines+=("${machine}")
+            
+            # Parse machine name components
+            form_factor=$(echo "${machine}" | cut -d'_' -f1)
+            purpose=$(echo "${machine}" | cut -d'_' -f2) 
+            os=$(echo "${machine}" | cut -d'_' -f3)
+            
+            # Format description
+            desc="${form_factor^} for ${purpose} on ${os^}"
+            
+            # Check what package managers this machine has
+            pms=()
+            for pm_dir in "${machine_dir}"/*; do
+                if [[ -d "${pm_dir}" ]]; then
+                    pms+=("$(basename "${pm_dir}")")
+                fi
+            done
+            pm_list=$(IFS=', '; echo "${pms[*]}")
+            
+            printf "  %2d) %-30s - %s\n" "${i}" "${machine}" "${desc}"
+            printf "      Package managers: %s\n" "${pm_list}"
+            echo ""
+            
+            ((i++))
+        fi
+    done
+    
+    # Get user selection
+    selection=""
+    while true; do
+        read -p "Select machine class (1-${#machines[@]}): " selection
+        
+        # Validate selection
+        if [[ "${selection}" =~ ^[0-9]+$ ]] && (( selection >= 1 && selection <= ${#machines[@]} )); then
+            break
+        else
+            echo "❌ Invalid selection. Please enter a number between 1 and ${#machines[@]}"
+        fi
+    done
+    
+    # Get selected machine class
+    MACHINE_CLASS="${machines[$((selection - 1))]}"
+    echo ""
+    echo "✅ Selected machine class: $MACHINE_CLASS"
+fi
+
+# Generate unified configuration file
 echo "# Dotfiles Configuration" > ~/.dotfiles.env
 echo "# Generated on $(date)" >> ~/.dotfiles.env
 echo "export DOTFILES_PLATFORM=$PLATFORM" >> ~/.dotfiles.env
-echo "" >> ~/.dotfiles.env
+echo "export DOTFILES_MACHINE_CLASS=$MACHINE_CLASS" >> ~/.dotfiles.env
 
-if [ "$USE_PROFILES" = true ]; then
-    # Configuration selection
-    echo "Available configuration options:"
+echo ""
+
+# Configure package managers if machine class is available
+if [[ -n "$MACHINE_CLASS" ]]; then
+    echo "📦 Package Manager Configuration"
     echo ""
-    echo "CLI Tools:"
-    echo "  1) min-cli   - Essential shell tools only"
-    echo "  2) mid-cli   - Extended CLI utilities"
-    echo ""
-    echo "Development:"
-    echo "  3) mid-dev   - Core development environment"
-    echo "  4) max-dev   - Comprehensive development tools"
-    echo ""
-    echo "GUI Applications:"
-    echo "  5) mid-gui   - Essential desktop applications (P1)"
-    echo "  6) max-gui   - All desktop applications (P1 + P2)"
-    echo ""
-    echo "Select options (comma-separated, e.g., '1,3' for minimal CLI + core development):"
-    read -p "Choice: " area_choices
-
-    # Initialize all categories as false
-    CLI_MIN=false
-    CLI_MID=false
-    DEV_MID=false
-    DEV_MAX=false
-    GUI_MID=false
-    GUI_MAX=false
-
-    # Parse comma-separated choices
-    IFS=',' read -ra CHOICES <<< "$area_choices"
-    SELECTED_AREAS=""
-
-    for choice in "${CHOICES[@]}"; do
-        choice=$(echo "$choice" | tr -d ' ') # Remove spaces
-        case $choice in
-            1) CLI_MIN=true; SELECTED_AREAS="$SELECTED_AREAS min-cli" ;;
-            2) CLI_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-cli" ;;
-            3) DEV_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-dev" ;;
-            4) DEV_MAX=true; SELECTED_AREAS="$SELECTED_AREAS max-dev" ;;
-            5) GUI_MID=true; SELECTED_AREAS="$SELECTED_AREAS mid-gui" ;;
-            6) GUI_MAX=true; SELECTED_AREAS="$SELECTED_AREAS max-gui" ;;
-            *) echo "❌ Invalid choice: $choice"; exit 1 ;;
-        esac
-    done
-
-    # Generate configuration based on selections
-    echo "# Selected:$SELECTED_AREAS" >> ~/.dotfiles.env
-    echo "" >> ~/.dotfiles.env
-
-    # Map areas to environment variables with cumulative tier logic
-    # Determine the highest tier selected to make tiers cumulative
-    HIGHEST_TIER=0
-    if [ "$CLI_MIN" = true ]; then HIGHEST_TIER=1; fi
-    if [ "$CLI_MID" = true ]; then HIGHEST_TIER=2; fi
-    if [ "$DEV_MID" = true ]; then HIGHEST_TIER=3; fi
-    if [ "$DEV_MAX" = true ]; then HIGHEST_TIER=4; fi
-    if [ "$GUI_MID" = true ]; then HIGHEST_TIER=5; fi
-    if [ "$GUI_MAX" = true ]; then HIGHEST_TIER=6; fi
-
-    # CLI_UTILS: enabled from tier 1+ (min-cli and above)
-    if [ $HIGHEST_TIER -ge 1 ]; then
-        echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
-        if [ $HIGHEST_TIER -ge 2 ]; then
-            echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
+    
+    # Source the interactive prompts library
+    PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
+    source "${PACKAGE_MANAGEMENT_DIR}/scripts/interactive-prompts.sh"
+    
+    # Find available package managers for this machine class
+    MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+    MACHINE_DIR="${MACHINES_DIR}/${MACHINE_CLASS}"
+    
+    if [[ -d "$MACHINE_DIR" ]]; then
+        echo "🔍 Detecting configured package managers for $MACHINE_CLASS..."
+        
+        # Get all configured package managers for this machine class
+        CONFIGURED_PMS=()
+        for pm_dir in "$MACHINE_DIR"/*; do
+            if [[ -d "$pm_dir" ]]; then
+                pm_name=$(basename "$pm_dir")
+                CONFIGURED_PMS+=("$pm_name")
+            fi
+        done
+        
+        if [[ ${#CONFIGURED_PMS[@]} -gt 0 ]]; then
+            echo "Found ${#CONFIGURED_PMS[@]} configured package manager(s): ${CONFIGURED_PMS[*]}"
+            echo ""
+            
+            # Get descriptions with package counts
+            log_verbose "Getting package manager descriptions for: ${CONFIGURED_PMS[*]}"
+            
+            # Get descriptions one by one (the function returns one description per call)
+            PM_DESCRIPTIONS=()
+            for pm in "${CONFIGURED_PMS[@]}"; do
+                desc=$(get_package_manager_descriptions "$MACHINE_CLASS" "$pm")
+                PM_DESCRIPTIONS+=("$desc")
+                log_verbose "PM description for $pm: $desc"
+            done
+            
+            log_verbose "Final PM Descriptions array: ${PM_DESCRIPTIONS[*]}"
+            
+            echo "🎯 Interactive Package Manager Selection"
+            echo "By default, all available package managers will be enabled."
+            echo ""
+            
+            # Use the opt-out selection
+            log_verbose "Calling prompt_opt_out_selection with ${#PM_DESCRIPTIONS[@]} items"
+            log_verbose "PM_DESCRIPTIONS: $(printf '"%s" ' "${PM_DESCRIPTIONS[@]}")"
+            SELECTED_PMS_LIST=$(prompt_opt_out_selection "Package managers to enable:" 15 "${PM_DESCRIPTIONS[@]}")
+            log_verbose "prompt_opt_out_selection returned: '$SELECTED_PMS_LIST'"
+            
+            # Convert the selected descriptions back to PM names
+            SELECTED_PMS=()
+            if [[ -n "$SELECTED_PMS_LIST" ]]; then
+                IFS=$'\n' read -d '' -r -a selected_array <<< "$SELECTED_PMS_LIST" || true
+                
+                for i in "${!PM_DESCRIPTIONS[@]}"; do
+                    if [[ ${#selected_array[@]} -gt 0 ]]; then
+                        for selected_desc in "${selected_array[@]}"; do
+                            if [[ "${PM_DESCRIPTIONS[i]}" == "$selected_desc" ]]; then
+                                SELECTED_PMS+=("${CONFIGURED_PMS[i]}")
+                                break
+                            fi
+                        done
+                    fi
+                done
+            else
+                # If no selection made, use all configured PMs (timeout behavior)
+                SELECTED_PMS=("${CONFIGURED_PMS[@]}")
+            fi
+            
+            # Save package manager configuration
+            if [[ ${#SELECTED_PMS[@]} -gt 0 ]]; then
+                PM_LIST=$(printf "%s," "${SELECTED_PMS[@]}")
+                PM_LIST=${PM_LIST%,}  # Remove trailing comma
+                echo "export DOTFILES_PACKAGE_MANAGERS=\"$PM_LIST\"" >> ~/.dotfiles.env
+                echo "✅ Enabled package managers: ${SELECTED_PMS[*]}"
+            else
+                echo "export DOTFILES_PACKAGE_MANAGERS=\"\"" >> ~/.dotfiles.env
+                echo "⚠️  No package managers enabled"
+            fi
+            
+            # Save disabled package managers for reference
+            DISABLED_PMS=()
+            for pm in "${CONFIGURED_PMS[@]}"; do
+                enabled=false
+                for selected_pm in "${SELECTED_PMS[@]}"; do
+                    if [[ "$pm" == "$selected_pm" ]]; then
+                        enabled=true
+                        break
+                    fi
+                done
+                if [[ "$enabled" != true ]]; then
+                    DISABLED_PMS+=("$pm")
+                fi
+            done
+            
+            if [[ ${#DISABLED_PMS[@]} -gt 0 ]]; then
+                DISABLED_LIST=$(printf "%s," "${DISABLED_PMS[@]}")
+                DISABLED_LIST=${DISABLED_LIST%,}  # Remove trailing comma
+                echo "export DOTFILES_PACKAGE_MANAGERS_DISABLED=\"$DISABLED_LIST\"" >> ~/.dotfiles.env
+                echo "ℹ️  Disabled package managers: ${DISABLED_PMS[*]}"
+            fi
         else
-            echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
+            echo "⚠️  No package managers configured for machine class: $MACHINE_CLASS"
+            echo "export DOTFILES_PACKAGE_MANAGERS=\"\"" >> ~/.dotfiles.env
         fi
     else
-        echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
-        echo "export DOTFILES_CLI_UTILS_HEAVY=false" >> ~/.dotfiles.env
-    fi
-
-    # CLI_EDITORS and DEV_ENV: enabled from tier 3+ (mid-dev and above)
-    if [ $HIGHEST_TIER -ge 3 ]; then
-        echo "export DOTFILES_CLI_EDITORS=true" >> ~/.dotfiles.env
-        echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
-        if [ $HIGHEST_TIER -ge 4 ]; then
-            echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
-            echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
-        else
-            echo "export DOTFILES_CLI_EDITORS_HEAVY=false" >> ~/.dotfiles.env
-            echo "export DOTFILES_DEV_ENV_HEAVY=false" >> ~/.dotfiles.env
-        fi
-    else
-        echo "export DOTFILES_CLI_EDITORS=false" >> ~/.dotfiles.env
-        echo "export DOTFILES_DEV_ENV=false" >> ~/.dotfiles.env
-        echo "export DOTFILES_CLI_EDITORS_HEAVY=false" >> ~/.dotfiles.env
-        echo "export DOTFILES_DEV_ENV_HEAVY=false" >> ~/.dotfiles.env
-    fi
-
-    # GUI_APPS: enabled from tier 5+ (mid-gui and above)
-    if [ $HIGHEST_TIER -ge 5 ]; then
-        echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
-        if [ $HIGHEST_TIER -ge 6 ]; then
-            echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
-        else
-            echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
-        fi
-    else
-        echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
-        echo "export DOTFILES_GUI_APPS_HEAVY=false" >> ~/.dotfiles.env
-    fi
-
-else
-    # Custom category selection
-    echo "🎛️  Custom Category Selection"
-    echo "Select which P1 categories to enable:"
-    echo ""
-
-    # P1 Categories
-    read -p "CLI_EDITORS (neovim, emacs): (Y/n): " cli_editors
-    if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_CLI_EDITORS=true" >> ~/.dotfiles.env
-    else
-        echo "export DOTFILES_CLI_EDITORS=false" >> ~/.dotfiles.env
-    fi
-
-    read -p "DEV_ENV (python, node, cmake): (Y/n): " dev_env
-    if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_DEV_ENV=true" >> ~/.dotfiles.env
-    else
-        echo "export DOTFILES_DEV_ENV=false" >> ~/.dotfiles.env
-    fi
-
-    read -p "CLI_UTILS (ripgrep, fd, bat, jq): (Y/n): " cli_utils
-    if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
-        echo "export DOTFILES_CLI_UTILS=true" >> ~/.dotfiles.env
-    else
-        echo "export DOTFILES_CLI_UTILS=false" >> ~/.dotfiles.env
-    fi
-
-    read -p "GUI_APPS (desktop applications): (y/N): " gui_apps
-    if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
-        echo "export DOTFILES_GUI_APPS=true" >> ~/.dotfiles.env
-    else
-        echo "export DOTFILES_GUI_APPS=false" >> ~/.dotfiles.env
-    fi
-
-    echo ""
-    echo "📈 Optional Heavy Categories (additional tools):"
-
-    # Heavy Categories - only ask if base category is enabled
-    if [[ ! "$cli_editors" =~ ^[Nn]$ ]]; then
-        read -p "CLI_EDITORS_HEAVY (helix): (y/N): " cli_editors_p2
-        if [[ "$cli_editors_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_CLI_EDITORS_HEAVY=true" >> ~/.dotfiles.env
-        fi
-    fi
-
-    if [[ ! "$dev_env" =~ ^[Nn]$ ]]; then
-        read -p "DEV_ENV_HEAVY (rust, go, additional tools): (y/N): " dev_env_p2
-        if [[ "$dev_env_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_DEV_ENV_HEAVY=true" >> ~/.dotfiles.env
-        fi
-    fi
-
-    if [[ ! "$cli_utils" =~ ^[Nn]$ ]]; then
-        read -p "CLI_UTILS_HEAVY (additional utilities): (y/N): " cli_utils_p2
-        if [[ "$cli_utils_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_CLI_UTILS_HEAVY=true" >> ~/.dotfiles.env
-        fi
-    fi
-
-    if [[ "$gui_apps" =~ ^[Yy]$ ]]; then
-        read -p "GUI_APPS_HEAVY (additional desktop apps): (y/N): " gui_apps_p2
-        if [[ "$gui_apps_p2" =~ ^[Yy]$ ]]; then
-            echo "export DOTFILES_GUI_APPS_HEAVY=true" >> ~/.dotfiles.env
-        fi
+        echo "⚠️  Machine class directory not found: $MACHINE_DIR"
+        echo "export DOTFILES_PACKAGE_MANAGERS=\"\"" >> ~/.dotfiles.env
     fi
 fi
 
-# Context flags - determine work vs personal machine usage
 echo ""
-echo "🏢 Machine Context"
-echo "These flags help filter packages appropriately for your environment:"
-echo ""
-
-read -p "Is this a work machine? (restricts to work-appropriate packages): (y/N): " is_work
-if [[ "$is_work" =~ ^[Yy]$ ]]; then
-    echo "export IS_WORK_MACHINE=true" >> ~/.dotfiles.env
-    echo "export IS_PERSONAL_MACHINE=false" >> ~/.dotfiles.env
-else
-    echo "export IS_WORK_MACHINE=false" >> ~/.dotfiles.env
-
-    read -p "Is this a personal machine? (enables personal/entertainment packages): (Y/n): " is_personal
-    if [[ ! "$is_personal" =~ ^[Nn]$ ]]; then
-        echo "export IS_PERSONAL_MACHINE=true" >> ~/.dotfiles.env
-    else
-        echo "export IS_PERSONAL_MACHINE=false" >> ~/.dotfiles.env
-    fi
-fi
-
-echo "✅ Configuration saved to ~/.dotfiles.env"
-
-# Create symlink for compatibility with older just versions
-ln -sf ~/.dotfiles.env .env
-
-echo ""
-
-# Show the configuration using the package tool
-echo "📊 Your configuration:"
-source ~/.dotfiles.env
-if [ -f "tools/package-management/scripts/install.sh" ]; then
-    bash tools/package-management/scripts/install.sh show-config
-else
-    echo "  Platform: $PLATFORM"
-    echo "  (Run package tool to see full configuration)"
-fi
-
-echo ""
-echo "📋 Complete ~/.dotfiles.env configuration:"
+echo "📋 Final configuration:"
 cat ~/.dotfiles.env
-
+echo ""
+echo "🎉 Configuration complete!"
 echo ""
 echo "Next steps:"
-echo "  ./bootstrap.sh                # Install tools"
-echo "  just stow                     # Deploy configurations"
-echo "  just install                  # Install packages"
+echo "  just bootstrap    - Install core tools (stow, just, etc.)"
+echo "  just stow         - Deploy configuration files"
+echo "  just preview-packages - Preview packages to install"
+echo "  just install-packages - Install packages"
+echo "  just check-health - Validate system health"
+
+echo ""
+echo "📝 Configuration session logged to: ${LOG_FILE}"
+
+# Log final configuration to file
+{
+    echo ""
+    echo "=== FINAL CONFIGURATION ==="
+    cat ~/.dotfiles.env
+    echo "==========================="
+    echo ""
+    echo "Configuration completed at: $(date)"
+} >> "${LOG_FILE}"

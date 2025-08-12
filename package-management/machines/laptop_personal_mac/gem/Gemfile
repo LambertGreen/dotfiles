@@ -1,0 +1,12 @@
+source 'https://rubygems.org'
+
+gem 'CFPropertyList'
+gem 'kramdown'
+gem 'kramdown-parser-gfm'
+gem 'liquid'
+gem 'listen'
+gem 'nokogiri'
+gem 'rouge'
+gem 'safe_yaml'
+gem 'terminal-table'
+gem 'xcpretty'

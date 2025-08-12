@@ -1,0 +1,6 @@
+# Casks that require sudo for installation/upgrades
+# Run separately with: brew bundle install --file=Brewfile.casks-sudo
+
+cask "docker"         # Docker Desktop
+# cask "virtualbox"   # Requires kernel extensions
+# cask "vmware-fusion"

@@ -1,0 +1,13 @@
+black
+ipython
+isort
+nose
+ntfy
+pipenv
+pyflakes
+pytest
+requests
+six
+toml
+virtualenv
+virtualenv-clone

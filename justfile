@@ -13,47 +13,124 @@ default:
     @echo "🏠 Dotfiles Management System"
     @echo ""
     @if [ -z "{{platform}}" ]; then \
-        echo "⚠️  Not configured yet. Run: just configure"; \
+        echo "⚠️  Not configured yet. Start with Fresh Setup below."; \
         echo ""; \
     else \
         echo "📊 Current Configuration:"; \
         echo "  Platform: {{platform}}"; \
-        echo "  Run 'just show-config' to see enabled categories"; \
-        echo ""; \
-        echo "🚀 Main Commands:"; \
-        echo "  just bootstrap         - Bootstrap system (install core tools)"; \
-        echo "  just stow              - Deploy configuration files"; \
-        echo "  just install           - Install packages based on your categories"; \
-        echo "  just update-check      - Check for available package updates"; \
-        echo "  just update-upgrade    - Upgrade all configured packages"; \
-        echo "  just check-health      - Validate system health (auto-logs)"; \
+        if [ -f "$HOME/.dotfiles.env" ] && grep -q "DOTFILES_MACHINE_CLASS=" "$HOME/.dotfiles.env"; then \
+            echo "  Machine class: $(grep DOTFILES_MACHINE_CLASS= "$HOME/.dotfiles.env" | cut -d= -f2)"; \
+        fi; \
         echo ""; \
     fi
-    @echo "🔧 Setup Commands:"
-    @echo "  just configure         - Interactive configuration (profiles or custom categories)"
-    @echo "  just show-config       - Show current configuration"
+    @echo "🚀 Fresh Setup (New Machine):"
+    @echo "  just configure         - Interactive configuration (select machine class)"
+    @echo "  just bootstrap         - Bootstrap system (install core tools like Python, Just)"
+    @echo "  just stow              - Deploy configuration files (dotfiles symlinks)"
+    @echo "  just install-packages  - Install all packages for this machine"
     @echo ""
-    @echo "🔧 Specialized Commands:"
-    @echo "  just updates                   - Opens a sub-shell with platform-specific update tools"
-    @echo "  just testing                   - Opens a sub-shell with testing and validation tools"
+    @echo "🔄 Maintenance (Regular Updates):"
+    @echo "  just check-packages    - Check for available package updates"
+    @echo "  just upgrade-packages  - Upgrade all packages"
     @echo ""
-    @echo "🧪 Quick Test Commands:"
-    @echo "  just test-arch                 - Quick test Arch configuration"
-    @echo "  just test-ubuntu               - Quick test Ubuntu configuration" 
-    @echo ""
-    @echo "🔍 Other Commands:"
-    @echo "  just check-health-verbose      - Health check with detailed output"
-    @echo "  just cleanup-broken-links-dry-run - List broken symlinks (dry run)"
+    @echo "🏥 Health Check & Troubleshooting:"
+    @echo "  just check-health      - Validate system health (auto-logs)"
+    @echo "  just check-health-verbose - Detailed health check output"
+    @echo "  just cleanup-broken-links-dry-run - List broken symlinks"
     @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
     @echo ""
-    @echo "📁 Logs are saved to logs/ directory - cleanup with: trash logs"
+    @echo "📊 Show Information:"
+    @echo "  just show-packages     - Show packages configured for current machine"
+    @echo "  just show-config       - Show dotfiles and machine class configuration"
+    @echo "  just show-logs         - Show recent package management logs"
+    @echo ""
+    @echo "⚙️  Advanced (Fine-grained Control):"
+    @echo "  just goto-packages     - Enter package management modal interface"
+    @echo "    Available: installs, checks, upgrades - Show commands by type"
+    @echo "  just install-packages-sudo - Install packages requiring sudo"
+    @echo "  just export-packages   - Export current system packages"
+    @echo "  just updates           - Enter update tools sub-shell"
+    @echo ""
+    @echo "🛠️  Project Development & Testing:"
+    @echo "  just testing           - Enter testing sub-shell (Docker test commands)"
+    @echo "  just test-arch         - Quick test Arch configuration"
+    @echo "  just test-ubuntu       - Quick test Ubuntu configuration"
+    @echo ""
+    @echo "📁 Logs: logs/ directory - cleanup with: trash logs"
 
-# Install packages based on your categories
+# ═══════════════════════════════════════════════════════════════════════════════
+# Package Management - Primary Interface
+# Native package manager formats (Brewfile, requirements.txt, etc.)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+# Show packages configured for current machine class
+show-packages:
+    @./package-management/scripts/show-packages.sh
+
+# Install all packages (non-sudo)
+install-packages:
+    @./package-management/scripts/import.sh --install --interactive
+    @echo ""
+    @echo "📝 View log: just show-logs-last"
+
+# Install packages requiring sudo (Docker Desktop, etc.)
+install-packages-sudo:
+    @cd package-management && just install-brew-sudo
+
+# Check for available package updates
+check-packages:
+    @./scripts/check-packages-with-logging.sh
+
+# Upgrade all packages
+upgrade-packages:
+    @./scripts/upgrade-packages-with-logging.sh
+
+# Export current system packages (for migration/backup)
+export-packages:
+    @./scripts/export-and-update-machine.sh
+
+# Update current machine class with all installed packages
+update-machine-packages:
+    @./scripts/export-and-update-machine.sh --update-current
+
+# Show recent package management logs
+show-logs:
+    @cd package-management && just show-logs
+
+# Show most recent package management log
+show-logs-last:
+    @cd package-management && just show-last-log
+
+# Enter modal package management interface (fine-grained control)
+goto-packages:
+    @echo "📦 Entering package management modal interface..."
+    @echo "Type 'just' to see all available commands, 'exit' to return to main shell"
+    @echo "Quick start:"
+    @echo "  just installs    - Show install commands"
+    @echo "  just checks      - Show check commands" 
+    @echo "  just upgrades    - Show upgrade commands"
+    @echo ""
+    @echo "Examples:"
+    @echo "  just install-brew-packages  - Install only Homebrew packages"
+    @echo "  just check-pip              - Check pip updates only"
+    @echo "  just upgrade-npm            - Upgrade NPM packages only"
+    @echo ""
+    @cd package-management && exec $SHELL
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Legacy Commands (TOML-based system - deprecated)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Legacy package installation using TOML (deprecated - use packages-* commands)
 install:
+    @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
+    @echo "Falling back to TOML-based system..."
+    @echo ""
     @if [ -z "{{platform}}" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         echo ""; \
-        echo "💡 This will set up your platform (osx/arch/ubuntu) and package categories."; \
+        echo "💡 This will set up your platform (osx/arch/ubuntu) and machine class."; \
         exit 1; \
     fi
     @if [ ! -f "$HOME/.dotfiles.env" ]; then \
@@ -63,20 +140,32 @@ install:
     @mkdir -p logs
     @echo "📦 Installing {{platform}} packages using TOML-based package management..."
     @echo "📝 Logging to: logs/install-$(date +%Y%m%d-%H%M%S).log"
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_install" 2>&1 | tee "logs/install-$(date +%Y%m%d-%H%M%S).log"
+    @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
+    @echo "This will install packages using the new machine class system"
+    @echo ""
+    @./package-management/scripts/import.sh --install
 
 
-# Check for available package updates (safe to run)
+# Legacy update check (deprecated - use packages-* commands)
 update-check:
+    @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
+    @echo "Falling back to TOML-based system..."
+    @echo ""
     @if [ -z "{{platform}}" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
     @echo "🔍 Checking for {{platform}} package updates..."
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_update_check"
+    @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
+    @echo "This will check updates using the new machine class system"
+    @echo ""
+    @cd package-management && just update-check
 
-# Upgrade all configured packages (requires careful consideration)
+# Legacy upgrade command (deprecated - use packages-* commands)
 update-upgrade:
+    @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
+    @echo "Falling back to TOML-based system..."
+    @echo ""
     @if [ -z "{{platform}}" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
@@ -87,20 +176,20 @@ update-upgrade:
     @bash -c 'read -p "Continue with upgrade? (y/N): " confirm; if [[ "$confirm" != [yY] && "$confirm" != [yY][eE][sS] ]]; then echo "Cancelled."; exit 1; fi'
     @echo ""
     @echo "🔄 Upgrading {{platform}} packages..."
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_update"
+    @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
+    @echo "This will update packages using the new machine class system"
+    @echo ""
+    @cd package-management && just update-all
 
 # Opens a sub-shell with platform-specific update tools
 updates:
     @echo "🔧 Opening update tools for {{platform}}..."
     @echo "Type 'just' to see available commands, 'exit' to return to main shell"
     @echo ""
-    @if [ -f "tools/package-management/update-recipes/{{platform}}/justfile" ]; then \
-        cd tools/package-management/update-recipes/{{platform}} && exec $SHELL; \
-    else \
-        echo "❌ No update tools available for platform: {{platform}}"; \
-        echo "Expected: tools/package-management/update-recipes/{{platform}}/justfile"; \
-        exit 1; \
-    fi
+    @echo "⚠️  DEPRECATED: Use 'just goto-packages' for new package management modal interface"
+    @echo "This provides fine-grained control over package operations"
+    @echo ""
+    @cd package-management && exec $SHELL
 
 
 
@@ -145,7 +234,10 @@ show-config:
         echo "❌ Configuration file missing. Run: just configure"; \
         exit 1; \
     fi
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/package-management/scripts/package-management-config.sh && package_show_config"
+    @echo "📊 Current Configuration:"
+    @echo "  Platform: {{platform}}"
+    @echo "  Machine class configuration:"
+    @cd package-management && just show-config
 
 # List broken symlinks (dry run)
 cleanup-broken-links-dry-run:
@@ -156,7 +248,7 @@ cleanup-broken-links-dry-run:
 cleanup-broken-links-remove:
     @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
-# Interactive configuration (profiles or custom categories)
+# Interactive configuration (select machine class)
 configure:
     @./configure.sh
 
@@ -171,8 +263,7 @@ stow:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @echo "🔗 Stowing {{platform}} configurations using new structure..."
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "source tools/package-management/scripts/package-management-config.sh && package_stow"
+    @./scripts/stow-with-logging.sh "{{platform}}"
 
 
 

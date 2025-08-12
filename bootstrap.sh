@@ -1,44 +1,75 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🚀 Dotfiles Bootstrap"
-echo ""
+# Set up logging
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_FILE="${LOG_DIR}/bootstrap-$(date +%Y%m%d-%H%M%S).log"
+
+# Create log directory if it doesn't exist
+mkdir -p "${LOG_DIR}"
+
+# Initialize log file with header
+{
+    echo "Dotfiles Bootstrap Log"
+    echo "======================"
+    echo "Date: $(date)"
+    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
+    echo "User: ${USER:-$(whoami)}"
+    echo "Script: $0 $*"
+    echo "======================"
+    echo ""
+} > "${LOG_FILE}"
+
+# Function to log both to console and file
+log_output() {
+    echo "$1" | tee -a "${LOG_FILE}"
+}
+
+# Function to log only to file (for verbose details)
+log_verbose() {
+    echo "$1" >> "${LOG_FILE}"
+}
+
+log_output "🚀 Dotfiles Bootstrap"
+log_output ""
 
 # Check if configured
 if [ ! -f ~/.dotfiles.env ]; then
-    echo "❌ Not configured yet. Run: ./configure.sh"
+    log_output "❌ Not configured yet. Run: ./configure.sh"
     exit 1
 fi
 
 # Load configuration
 source ~/.dotfiles.env
+log_verbose "Loaded configuration from ~/.dotfiles.env"
 
-echo "📊 Using configuration:"
-echo "  Platform: $DOTFILES_PLATFORM"
+log_output "📊 Using configuration:"
+log_output "  Platform: $DOTFILES_PLATFORM"
 if [ -n "${DOTFILES_LEVEL:-}" ]; then
-    echo "  ⚠️  Warning: Legacy DOTFILES_LEVEL detected in environment, ignoring"
+    log_output "  ⚠️  Warning: Legacy DOTFILES_LEVEL detected in environment, ignoring"
 fi
-echo ""
+log_output ""
 
 # Validate configuration
 if [ -z "$DOTFILES_PLATFORM" ]; then
-    echo "❌ Invalid configuration. Run: ./configure.sh or ./configure-p1p2.sh"
+    log_output "❌ Invalid configuration. Run: ./configure.sh or ./configure-p1p2.sh"
     exit 1
 fi
 
 # Define platform-specific requirements
 case "$DOTFILES_PLATFORM" in
     arch)
-        REQUIRED_TOOLS="stow python3 just"
-        PLATFORM_MSG="🏛️ Arch: stow, python3, just"
+        REQUIRED_TOOLS="stow just"
+        PLATFORM_MSG="🏛️ Arch: stow, just"
         ;;
     ubuntu)
-        REQUIRED_TOOLS="stow python3 just brew"
-        PLATFORM_MSG="🐧 Ubuntu: stow, python3, just, homebrew"
+        REQUIRED_TOOLS="stow just brew"
+        PLATFORM_MSG="🐧 Ubuntu: stow, just, homebrew"
         ;;
     osx)
-        REQUIRED_TOOLS="stow python3 just brew"
-        PLATFORM_MSG="🍎 macOS: stow, python3, just, homebrew"
+        REQUIRED_TOOLS="stow just brew"
+        PLATFORM_MSG="🍎 macOS: stow, just, homebrew"
         ;;
     *)
         echo "❌ Unsupported platform: $DOTFILES_PLATFORM"
@@ -46,8 +77,8 @@ case "$DOTFILES_PLATFORM" in
         ;;
 esac
 
-echo "🔍 Checking required tools for $DOTFILES_PLATFORM..."
-echo "   Required: $PLATFORM_MSG"
+log_output "🔍 Checking required tools for $DOTFILES_PLATFORM..."
+log_output "   Required: $PLATFORM_MSG"
 echo ""
 
 # Check each required tool
@@ -77,21 +108,18 @@ else
     case "$DOTFILES_PLATFORM" in
         arch)
             echo "🏛️ Arch Basic Bootstrap - Essential tools"
-            ./install-python3-arch.sh
             ./install-just-arch.sh
             # stow comes from system packages on Arch
             sudo pacman -S --noconfirm stow
             ;;
         ubuntu)
             echo "🐧 Ubuntu Basic Bootstrap - Essential tools"
-            ./install-python3-ubuntu.sh
             ./install-stow-ubuntu.sh
             ./install-just-ubuntu.sh
             ./install-homebrew-linux.sh
             ;;
         osx)
             echo "🍎 macOS Basic Bootstrap - Essential tools"
-            ./install-python3-osx.sh
             ./install-homebrew-osx.sh
             ./install-stow-osx.sh
             ./install-just-osx.sh
@@ -104,9 +132,24 @@ else
     cd ..
 fi
 
-echo ""
-echo "✅ Bootstrap completed!"
-echo ""
-echo "Next steps:"
-echo "  just stow           # Deploy configurations"
-echo "  just health-check   # Verify setup"
+log_output ""
+log_output "✅ Bootstrap completed!"
+log_output ""
+log_output "Next steps:"
+log_output "  just stow           # Deploy configurations"
+log_output "  just check-health   # Verify setup"
+
+log_output ""
+log_output "📝 Bootstrap session logged to: ${LOG_FILE}"
+
+# Log final status to file
+{
+    echo ""
+    echo "=== BOOTSTRAP COMPLETION ==="
+    echo "Platform: $DOTFILES_PLATFORM"
+    echo "Required tools: $PLATFORM_MSG"
+    echo "Status: SUCCESS"
+    echo "============================"
+    echo ""
+    echo "Bootstrap completed at: $(date)"
+} >> "${LOG_FILE}"
