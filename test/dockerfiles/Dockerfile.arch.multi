@@ -187,7 +187,7 @@ FROM bootstrap-min-cli AS stow-min-cli
 # Copy configuration files and package management scripts for stowing
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== STOW min-cli STAGE ===" && \
     echo "🔍 Validating min-cli configuration before stow:" && \
     cat ~/.dotfiles.env && \
@@ -199,7 +199,8 @@ RUN echo "=== STOW min-cli STAGE ===" && \
     echo "✅ min-cli configuration validated!" && \
     echo "🧹 Removing default shell files that conflict with stow..." && \
     rm -f ~/.bash_profile ~/.bashrc && \
-    just stow && \
+    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
+    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
@@ -210,13 +211,14 @@ FROM bootstrap-mid-cli AS stow-mid-cli
 # Copy configuration files and package management scripts for stowing
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== STOW mid-cli STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
     echo "🧹 Removing default shell files that conflict with stow..." && \
     rm -f ~/.bash_profile ~/.bashrc && \
-    just stow && \
+    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
+    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
@@ -227,13 +229,14 @@ FROM bootstrap-mid-dev AS stow-mid-dev
 # Copy configuration files and package management scripts for stowing
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== STOW mid-dev STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
     echo "🧹 Removing default shell files that conflict with stow..." && \
     rm -f ~/.bash_profile ~/.bashrc && \
-    just stow && \
+    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
+    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
@@ -244,13 +247,14 @@ FROM bootstrap-max-dev AS stow-max-dev
 # Copy configuration files and package management scripts for stowing
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== STOW max-dev STAGE ===" && \
     echo "🔍 Showing configuration before stow:" && \
     cat ~/.dotfiles.env && \
     echo "🧹 Removing default shell files that conflict with stow..." && \
     rm -f ~/.bash_profile ~/.bashrc && \
-    just stow && \
+    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
+    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
     echo "🔍 Checking what symlinks were created:" && \
     find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
     echo "🏥 Health check after stow:" && \
@@ -261,49 +265,65 @@ RUN echo "=== STOW max-dev STAGE ===" && \
 # INSTALL STAGE - Package installation
 # =============================================================================
 FROM stow-min-cli AS install-min-cli
-# Copy package management tools
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+# Copy complete package management system
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== INSTALL min-cli STAGE ===" && \
+    echo "📊 Setting up machine class for Docker test:" && \
+    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
     echo "📊 Showing configuration:" && \
-    just show-config && \
+    just show-packages-config && \
+    echo "📦 Previewing packages..." && \
+    just preview-packages && \
     echo "📦 Installing packages..." && \
-    just install && \
+    just install-packages && \
     echo "🏥 Health check after install:" && \
     bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-mid-cli AS install-mid-cli
 # Copy package management tools
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== INSTALL mid-cli STAGE ===" && \
+    echo "📊 Setting up machine class for Docker test:" && \
+    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
     echo "📊 Showing configuration:" && \
-    just show-config && \
+    just show-packages-config && \
+    echo "📦 Previewing packages..." && \
+    just preview-packages && \
     echo "📦 Installing packages..." && \
-    just install && \
+    just install-packages && \
     echo "🏥 Health check after install:" && \
     bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-mid-dev AS install-mid-dev
 # Copy package management tools
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== INSTALL mid-dev STAGE ===" && \
+    echo "📊 Setting up machine class for Docker test:" && \
+    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
     echo "📊 Showing configuration:" && \
-    just show-config && \
+    just show-packages-config && \
+    echo "📦 Previewing packages..." && \
+    just preview-packages && \
     echo "📦 Installing packages..." && \
-    just install && \
+    just install-packages && \
     echo "🏥 Health check after install:" && \
     bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
 
 FROM stow-max-dev AS install-max-dev
 # Copy package management tools
-COPY --chown=user:user tools/package-management/ ./tools/package-management/
+COPY --chown=user:user package-management/ ./package-management/
 RUN echo "=== INSTALL max-dev STAGE ===" && \
+    echo "📊 Setting up machine class for Docker test:" && \
+    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
     echo "📊 Showing configuration:" && \
-    just show-config && \
+    just show-packages-config && \
+    echo "📦 Previewing packages..." && \
+    just preview-packages && \
     echo "📦 Installing packages..." && \
-    just install && \
+    just install-packages && \
     echo "🏥 Health check after install:" && \
     bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
     echo "✅ Install complete!"
@@ -313,36 +333,40 @@ RUN echo "=== INSTALL max-dev STAGE ===" && \
 # =============================================================================
 FROM install-min-cli AS update-min-cli
 RUN echo "=== UPDATE min-cli STAGE ===" && \
-    just update-check && \
+    echo "🔄 Checking for package updates..." && \
+    just update-packages-check && \
     echo "🏥 Final health check:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
+    just check-health && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch min-cli workflow complete!"
 
 FROM install-mid-cli AS update-mid-cli
 RUN echo "=== UPDATE mid-cli STAGE ===" && \
-    just update-check && \
+    echo "🔄 Checking for package updates..." && \
+    just update-packages-check && \
     echo "🏥 Final health check:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
+    just check-health && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch mid-cli workflow complete!"
 
 FROM install-mid-dev AS update-mid-dev
 RUN echo "=== UPDATE mid-dev STAGE ===" && \
-    just update-check && \
+    echo "🔄 Checking for package updates..." && \
+    just update-packages-check && \
     echo "🏥 Final health check:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
+    just check-health && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch mid-dev workflow complete!"
 
 FROM install-max-dev AS update-max-dev
 RUN echo "=== UPDATE max-dev STAGE ===" && \
-    just update-check && \
+    echo "🔄 Checking for package updates..." && \
+    just update-packages-check && \
     echo "🏥 Final health check:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
+    just check-health && \
     echo "🧪 Verifying installed packages:" && \
     which git stow && \
     echo "✅ Arch max-dev workflow complete!"

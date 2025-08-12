@@ -43,16 +43,15 @@ dotfiles_cleanup_broken_links --remove
 
 ```bash
 # Health check
-just health-check
+just check-health
 
 # Verbose health check
-just health-check-verbose
+just check-health-verbose
 
-# Health check with logging
-just health-check-log
+# Cleanup broken links (dry run)
+just cleanup-broken-links-dry-run
 
-# Cleanup broken links
-just cleanup-broken-links
+# Cleanup broken links (remove)
 just cleanup-broken-links-remove
 ```
 
@@ -115,10 +114,10 @@ The test suite covers:
 
 ## Migration Workflow
 
-1. **Capture State**: `just health-check-log`
+1. **Capture State**: `just check-health`
 2. **Dry Run**: `just stow osx stow-basic-dry`  
 3. **Migrate**: `just stow osx stow-basic-force`
-4. **Validate**: `just health-check`
+4. **Validate**: `just check-health`
 5. **Cleanup**: `just cleanup-broken-links-remove`
 
 ## Files

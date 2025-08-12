@@ -272,286 +272,276 @@ _categorize_symlinks() {
 # PACKAGE HEALTH CHECKS
 # =============================================================================
 
-# Check package health using TOML definitions
+# Check if package manager is available
+check_package_manager() {
+    local pm="$1"
+    
+    case "${pm}" in
+        brew)
+            command -v brew >/dev/null 2>&1
+            ;;
+        apt)
+            command -v apt >/dev/null 2>&1
+            ;;
+        pacman)
+            command -v pacman >/dev/null 2>&1
+            ;;
+        pip)
+            command -v pip3 >/dev/null 2>&1 || command -v pip >/dev/null 2>&1
+            ;;
+        npm)
+            command -v npm >/dev/null 2>&1
+            ;;
+        gem)
+            command -v gem >/dev/null 2>&1
+            ;;
+        cargo)
+            command -v cargo >/dev/null 2>&1
+            ;;
+        scoop)
+            command -v scoop >/dev/null 2>&1
+            ;;
+        choco)
+            command -v choco >/dev/null 2>&1
+            ;;
+        winget)
+            command -v winget >/dev/null 2>&1
+            ;;
+        snap)
+            command -v snap >/dev/null 2>&1
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Check package health using native package manager files
 # Usage: _check_package_health log_output
 _check_package_health() {
     local log_output="$1"
 
     $log_output "🔧 Package Health Checks"
 
-    local package_data_dir="$DOTFILES_DIR/tools/package-management/package-definitions"
-    local toml_parser="$DOTFILES_DIR/tools/package-management/scripts/toml-parser.py"
-
-    # Check if we have the infrastructure for TOML-based health checks
-    if [ ! -d "$package_data_dir" ]; then
-        $log_output "  • ⚠️  Package data directory not found: $package_data_dir"
-        WARNINGS+=("Package data directory not found")
+    # Load machine class configuration
+    local machine_class_env="${HOME}/.dotfiles.env"
+    if [[ ! -f "$machine_class_env" ]]; then
+        $log_output "  • ⚠️  Machine class not configured. Run: just configure"
+        WARNINGS+=("Machine class not configured")
         $log_output
         return
     fi
 
-    if [ ! -f "$toml_parser" ]; then
-        $log_output "  • ⚠️  TOML parser not found: $toml_parser"
-        WARNINGS+=("TOML parser not found")
+    source "$machine_class_env"
+    if [[ -z "${DOTFILES_MACHINE_CLASS:-}" ]]; then
+        $log_output "  • ⚠️  DOTFILES_MACHINE_CLASS not set"
+        WARNINGS+=("DOTFILES_MACHINE_CLASS not set")
         $log_output
         return
     fi
 
-    if ! command -v python3 >/dev/null 2>&1; then
-        $log_output "  • ⚠️  Python3 not available for TOML parsing"
-        WARNINGS+=("Python3 not available for TOML parsing")
+    local machine_dir="$DOTFILES_DIR/package-management/machines/$DOTFILES_MACHINE_CLASS"
+    if [[ ! -d "$machine_dir" ]]; then
+        $log_output "  • ⚠️  Machine class directory not found: $machine_dir"
+        WARNINGS+=("Machine class directory not found")
         $log_output
         return
     fi
 
-    # Determine platform for health checks
-    local platform="${DOTFILES_PLATFORM:-osx}"
-
-    # Find TOML files and run health checks
-    local checked_packages=0
-    local failed_packages=0
+    $log_output "  • Machine class: $DOTFILES_MACHINE_CLASS"
 
     # Arrays to track passed and failed packages for verbose output
     PACKAGE_PASSED=()
     PACKAGE_FAILED=()
 
-    # Track packages we've already checked to avoid duplicates
-    CHECKED_PACKAGES=()
+    local checked_packages=0
+    local failed_packages=0
 
-    # Cache brew package lists for fast lookups (if brew is available)
-    BREW_PACKAGES=""
-    BREW_CASKS=""
-    if command -v brew >/dev/null 2>&1; then
-        $log_output "  • Caching brew package lists for fast lookups..."
-        BREW_PACKAGES=$(brew list 2>/dev/null || echo "")
-        BREW_CASKS=$(brew list --cask 2>/dev/null || echo "")
-    fi
-
-    # Define which categories to check based on configuration
-    local categories_to_check=()
-
-    # Check P1 categories if enabled
-    if [ "${DOTFILES_CLI_EDITORS:-false}" = "true" ]; then
-        categories_to_check+=("cli-editors:p1")
-    fi
-
-    if [ "${DOTFILES_DEV_ENV:-false}" = "true" ]; then
-        categories_to_check+=("dev-env:p1")
-    fi
-
-    if [ "${DOTFILES_CLI_UTILS:-false}" = "true" ]; then
-        categories_to_check+=("cli-utils:p1")
-    fi
-
-    if [ "${DOTFILES_GUI_APPS:-false}" = "true" ]; then
-        categories_to_check+=("gui-apps:p1")
-    fi
-
-    # Check P2 categories if explicitly enabled
-    if [ "${DOTFILES_CLI_EDITORS_HEAVY:-false}" = "true" ]; then
-        categories_to_check+=("cli-editors:p2")
-    fi
-
-    if [ "${DOTFILES_DEV_ENV_HEAVY:-false}" = "true" ]; then
-        categories_to_check+=("dev-env:p2")
-    fi
-
-    if [ "${DOTFILES_CLI_UTILS_HEAVY:-false}" = "true" ]; then
-        categories_to_check+=("cli-utils:p2")
-    fi
-
-    if [ "${DOTFILES_GUI_APPS_HEAVY:-false}" = "true" ]; then
-        categories_to_check+=("gui-apps:p2")
-    fi
-
-    # Process only enabled categories
-    if [ ${#categories_to_check[@]} -eq 0 ]; then
-        $log_output "  • ℹ️  No package categories enabled in configuration"
-        $log_output
-        return
-    fi
-
-    for category_priority in "${categories_to_check[@]}"; do
-        local category="${category_priority%:*}"
-        local priority="${category_priority#*:}"
-        local toml_file="$package_data_dir/$category.toml"
-
-        if [ ! -f "$toml_file" ]; then
+    # Check each package manager that has configuration
+    for pm_dir in "$machine_dir"/*; do
+        if [[ ! -d "$pm_dir" ]]; then
             continue
         fi
 
-        $log_output "  • Checking $category packages ($priority priority)..."
+        local pm_name=$(basename "$pm_dir")
+        $log_output "  • Checking $pm_name packages..."
 
-        # Get health checks from TOML for specific priority
-        local health_checks
-        local python_cmd="python3"
-        # Use MINGW64 Python on MSYS2 for better package support
-        if [[ "$(uname -s)" == *"_NT"* ]] && [[ -x "/mingw64/bin/python3" ]]; then
-            python_cmd="/mingw64/bin/python3"
+        # Check if package manager is available
+        if ! check_package_manager "$pm_name"; then
+            $log_output "    - ⚠️  $pm_name not available on this system"
+            WARNINGS+=("$pm_name package manager not available")
+            continue
         fi
-        health_checks=$($python_cmd "$toml_parser" "$toml_file" --action health-checks --platform "$platform" --priority "$priority" --format bash 2>/dev/null)
 
-        if [ -n "$health_checks" ]; then
-            # Temporarily disable strict mode for eval of dynamic commands
-            set +e
-            while IFS= read -r check_cmd; do
-                if [ -n "$check_cmd" ]; then
-                    eval "$check_cmd"
+        # Check packages based on package manager type
+        case "$pm_name" in
+            brew)
+                if [[ -f "$pm_dir/Brewfile" ]]; then
+                    # Count packages in Brewfile
+                    local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    local total_brewfile=$((brew_count + cask_count))
+                    
+                    # Get system info
+                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
+                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
+                    
+                    $log_output "    - 📊 $brew_info"
+                    $log_output "    - 📦 Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
+                    $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
+                    
+                    # Check if packages match Brewfile
+                    if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
+                        $log_output "    - ✅ All Brewfile packages installed"
+                        PACKAGE_PASSED+=("$pm_name (Brewfile)")
+                    else
+                        $log_output "    - ⚠️  Some Brewfile packages missing or outdated"
+                        WARNINGS+=("$pm_name: Some packages missing or outdated")
+                        PACKAGE_FAILED+=("$pm_name (Brewfile)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
                 fi
-            done <<< "$health_checks"
-            set -e
-        fi
+                ;;
+                
+            pip)
+                if [[ -f "$pm_dir/requirements.txt" ]]; then
+                    local pip_cmd="pip3"
+                    command -v pip3 >/dev/null 2>&1 || pip_cmd="pip"
+                    
+                    # Count packages in requirements.txt
+                    local req_count=$(grep -v '^#' "$pm_dir/requirements.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    
+                    if command -v "$pip_cmd" >/dev/null 2>&1; then
+                        # Get pip info and installed packages count
+                        local pip_info=$($pip_cmd --version 2>/dev/null || echo "pip version unknown")
+                        local installed_count=$($pip_cmd list --user 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')
+                        
+                        $log_output "    - 📊 $pip_info"
+                        $log_output "    - 📦 requirements.txt: $req_count packages"
+                        $log_output "    - 🏠 Installed (user): $installed_count packages"
+                        $log_output "    - ✅ pip available for requirements.txt"
+                        PACKAGE_PASSED+=("$pm_name (requirements.txt)")
+                    else
+                        $log_output "    - 📦 requirements.txt: $req_count packages"
+                        $log_output "    - ⚠️  pip not available"
+                        WARNINGS+=("$pm_name: pip not available")
+                        PACKAGE_FAILED+=("$pm_name (pip not available)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
+                fi
+                ;;
+                
+            npm)
+                if [[ -f "$pm_dir/packages.txt" ]]; then
+                    # Count packages in packages.txt
+                    local npm_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    
+                    if command -v npm >/dev/null 2>&1; then
+                        # Get npm info and global packages count
+                        local npm_info=$(npm --version 2>/dev/null | sed 's/^/npm v/' || echo "npm version unknown")
+                        local node_info=$(node --version 2>/dev/null | sed 's/^/Node /' || echo "Node version unknown")
+                        local installed_count=$(npm list -g --depth=0 2>/dev/null | grep -c '^├──\|^└──' || echo "0")
+                        
+                        $log_output "    - 📊 $npm_info, $node_info"
+                        $log_output "    - 📦 packages.txt: $npm_count packages"
+                        $log_output "    - 🏠 Installed (global): $installed_count packages"
+                        $log_output "    - ✅ npm available for packages.txt"
+                        PACKAGE_PASSED+=("$pm_name (packages.txt)")
+                    else
+                        $log_output "    - 📦 packages.txt: $npm_count packages"
+                        $log_output "    - ⚠️  npm not available"
+                        WARNINGS+=("$pm_name: npm not available")
+                        PACKAGE_FAILED+=("$pm_name (npm not available)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
+                fi
+                ;;
+                
+            apt|pacman)
+                if [[ -f "$pm_dir/packages.txt" ]]; then
+                    # Count packages in packages.txt
+                    local pkg_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    
+                    if command -v "$pm_name" >/dev/null 2>&1; then
+                        # Get package manager info
+                        local pm_info=""
+                        if [[ "$pm_name" == "apt" ]]; then
+                            pm_info=$(apt --version 2>/dev/null | head -1 || echo "apt version unknown")
+                            local installed_count=$(dpkg -l 2>/dev/null | grep '^ii' | wc -l | tr -d ' ')
+                            $log_output "    - 📊 $pm_info"
+                            $log_output "    - 📦 packages.txt: $pkg_count packages"
+                            $log_output "    - 🏠 Installed: $installed_count packages"
+                        elif [[ "$pm_name" == "pacman" ]]; then
+                            pm_info=$(pacman --version 2>/dev/null | head -1 || echo "pacman version unknown")
+                            local installed_count=$(pacman -Q 2>/dev/null | wc -l | tr -d ' ')
+                            $log_output "    - 📊 $pm_info"
+                            $log_output "    - 📦 packages.txt: $pkg_count packages"
+                            $log_output "    - 🏠 Installed: $installed_count packages"
+                        fi
+                        $log_output "    - ✅ $pm_name available for packages.txt"
+                        PACKAGE_PASSED+=("$pm_name (packages.txt)")
+                    else
+                        $log_output "    - 📦 packages.txt: $pkg_count packages"
+                        $log_output "    - ⚠️  $pm_name not available"
+                        WARNINGS+=("$pm_name: not available")
+                        PACKAGE_FAILED+=("$pm_name (not available)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
+                fi
+                ;;
+                
+            gem)
+                if [[ -f "$pm_dir/Gemfile" ]]; then
+                    # Count gems in Gemfile
+                    local gem_count=$(grep -c "^gem " "$pm_dir/Gemfile" 2>/dev/null || echo 0)
+                    
+                    if command -v gem >/dev/null 2>&1; then
+                        # Get Ruby and gem info
+                        local ruby_info=$(ruby --version 2>/dev/null | cut -d' ' -f1-2 || echo "Ruby version unknown")
+                        local gem_info=$(gem --version 2>/dev/null | sed 's/^/RubyGems v/' || echo "RubyGems version unknown")
+                        local installed_count=$(gem list 2>/dev/null | wc -l | tr -d ' ')
+                        
+                        $log_output "    - 📊 $ruby_info, $gem_info"
+                        $log_output "    - 📦 Gemfile: $gem_count gems"
+                        $log_output "    - 🏠 Installed: $installed_count gems"
+                        $log_output "    - ✅ gem available for Gemfile"
+                        PACKAGE_PASSED+=("$pm_name (Gemfile)")
+                    else
+                        $log_output "    - 📦 Gemfile: $gem_count gems"
+                        $log_output "    - ⚠️  gem not available"
+                        WARNINGS+=("$pm_name: gem not available")
+                        PACKAGE_FAILED+=("$pm_name (gem not available)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
+                fi
+                ;;
+                
+            *)
+                $log_output "    - ℹ️  Health check not implemented for $pm_name"
+                ;;
+        esac
     done
 
     if [ $checked_packages -gt 0 ]; then
         if [ $failed_packages -eq 0 ]; then
-            $log_output "  • ✅ All $checked_packages packages healthy"
+            $log_output "  • ✅ All $checked_packages package managers healthy"
         else
-            $log_output "  • ⚠️  $failed_packages of $checked_packages packages failed health checks"
+            $log_output "  • ⚠️  $failed_packages of $checked_packages package managers have issues"
         fi
     else
-        $log_output "  • ℹ️  No TOML packages configured for health checking"
+        $log_output "  • ℹ️  No package managers configured for health checking"
     fi
 
     $log_output
 }
 
-# Fast brew package check using cached lists
-check_brew_package() {
-    local package_name="$1"
-    local package_type="$2"  # "formula" or "cask"
-
-    if [[ "$package_type" == "cask" ]]; then
-        echo "$BREW_CASKS" | grep -q "^${package_name}$"
-    else
-        echo "$BREW_PACKAGES" | grep -q "^${package_name}$"
-    fi
-}
-
-# Windows package manager checks
-check_scoop_package() {
-    local package_name="$1"
-    if command -v scoop >/dev/null 2>&1; then
-        scoop list | grep -q "^${package_name} "
-    else
-        return 1
-    fi
-}
-
-check_choco_package() {
-    local package_name="$1"
-    if command -v choco >/dev/null 2>&1; then
-        choco list --local-only | grep -q "^${package_name} "
-    else
-        return 1
-    fi
-}
-
-check_winget_package() {
-    local package_name="$1"
-    if command -v winget >/dev/null 2>&1; then
-        winget list --name "$package_name" >/dev/null 2>&1
-    else
-        return 1
-    fi
-}
-
-# Helper function called by TOML parser for each package check
-check_package() {
-    local name="$1"
-    local executable="$2"
-    local health_check="$3"
-
-    # Skip if we've already checked this package
-    local already_checked=false
-    if [[ ${#CHECKED_PACKAGES[@]} -gt 0 ]]; then
-        for checked_pkg in "${CHECKED_PACKAGES[@]}"; do
-            if [[ "$checked_pkg" == "$name" ]]; then
-                already_checked=true
-                break
-            fi
-        done
-    fi
-
-    if [[ "$already_checked" == "true" ]]; then
-        return 0
-    fi
-
-    # Mark this package as checked
-    CHECKED_PACKAGES+=("$name")
-
-    # Use local variables to avoid issues with strict mode
-    local current_count=$((checked_packages + 1))
-    checked_packages=$current_count
-
-    # For brew packages, try fast brew check first
-    if [[ "$health_check" == *"brew-check"* ]]; then
-        # Extract package type and name from health check
-        local brew_type=$(echo "$health_check" | sed 's/.*brew-check:\([^:]*\):.*/\1/')
-        local brew_name=$(echo "$health_check" | sed 's/.*brew-check:[^:]*:\(.*\)/\1/')
-
-        if check_brew_package "$brew_name" "$brew_type"; then
-            PACKAGE_PASSED+=("$name")
-            return 0
-        else
-            local current_failed=$((failed_packages + 1))
-            failed_packages=$current_failed
-            WARNINGS+=("Package $name: not installed via brew")
-            PACKAGE_FAILED+=("$name (not installed via brew)")
-            return 1
-        fi
-    fi
-
-    # For Windows package managers, check scoop/choco/winget
-    if [[ "$health_check" == *"scoop-check"* ]]; then
-        local scoop_name=$(echo "$health_check" | sed 's/.*scoop-check:\(.*\)/\1/')
-        if check_scoop_package "$scoop_name"; then
-            PACKAGE_PASSED+=("$name")
-            return 0
-        else
-            local current_failed=$((failed_packages + 1))
-            failed_packages=$current_failed
-            WARNINGS+=("Package $name: not installed via scoop")
-            PACKAGE_FAILED+=("$name (not installed via scoop)")
-            return 1
-        fi
-    fi
-
-    if [[ "$health_check" == *"choco-check"* ]]; then
-        local choco_name=$(echo "$health_check" | sed 's/.*choco-check:\(.*\)/\1/')
-        if check_choco_package "$choco_name"; then
-            PACKAGE_PASSED+=("$name")
-            return 0
-        else
-            local current_failed=$((failed_packages + 1))
-            failed_packages=$current_failed
-            WARNINGS+=("Package $name: not installed via chocolatey")
-            PACKAGE_FAILED+=("$name (not installed via chocolatey)")
-            return 1
-        fi
-    fi
-
-    # First check if executable exists
-    if ! command -v "$executable" >/dev/null 2>&1; then
-        local current_failed=$((failed_packages + 1))
-        failed_packages=$current_failed
-        WARNINGS+=("Package $name: executable '$executable' not found")
-        PACKAGE_FAILED+=("$name (executable '$executable' not found)")
-        return 1
-    fi
-
-    # Run the health check command with error handling
-    if eval "$health_check" >/dev/null 2>&1; then
-        PACKAGE_PASSED+=("$name")
-        return 0
-    else
-        local current_failed=$((failed_packages + 1))
-        failed_packages=$current_failed
-        WARNINGS+=("Package $name: health check failed - $health_check")
-        PACKAGE_FAILED+=("$name (health check failed: $health_check)")
-        return 1
-    fi
-}
+# Legacy TOML-based functions removed - now using native package management
 
 # =============================================================================
 # HEALTH CHECK FUNCTIONS
