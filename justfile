@@ -1,7 +1,7 @@
 # Dotfiles Management System
-set dotenv-load := true
+# Note: Configuration loaded from ~/.dotfiles.env via shell sourcing in commands
 
-# Environment variables (must be configured first)
+# Environment variables (will be loaded from ~/.dotfiles.env in commands)
 platform := env_var_or_default("DOTFILES_PLATFORM", "")
 
 # Set DOTFILES_DIR for all commands
@@ -12,15 +12,13 @@ export DOTFILES_DIR := justfile_directory()
 default:
     @echo "🏠 Dotfiles Management System"
     @echo ""
-    @if [ -z "{{platform}}" ]; then \
-        echo "⚠️  Not configured yet. Start with Fresh Setup below."; \
+    @if [ -f "$HOME/.dotfiles.env" ]; then \
+        echo "📊 Current Configuration:"; \
+        echo "  Platform: `source $HOME/.dotfiles.env 2>/dev/null && echo $DOTFILES_PLATFORM`"; \
+        echo "  Machine class: `source $HOME/.dotfiles.env 2>/dev/null && echo $DOTFILES_MACHINE_CLASS`"; \
         echo ""; \
     else \
-        echo "📊 Current Configuration:"; \
-        echo "  Platform: {{platform}}"; \
-        if [ -f "$HOME/.dotfiles.env" ] && grep -q "DOTFILES_MACHINE_CLASS=" "$HOME/.dotfiles.env"; then \
-            echo "  Machine class: $(grep DOTFILES_MACHINE_CLASS= "$HOME/.dotfiles.env" | cut -d= -f2)"; \
-        fi; \
+        echo "⚠️  Not configured yet. Start with Fresh Setup below."; \
         echo ""; \
     fi
     @echo "🚀 Fresh Setup (New Machine):"
@@ -127,18 +125,14 @@ install:
     @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
     @echo "Falling back to TOML-based system..."
     @echo ""
-    @if [ -z "{{platform}}" ]; then \
-        echo "❌ Platform not configured. Run: just configure"; \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
+        echo "❌ Configuration file missing. Run: just configure"; \
         echo ""; \
         echo "💡 This will set up your platform (osx/arch/ubuntu) and machine class."; \
         exit 1; \
     fi
-    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
-        echo "❌ Configuration file missing. Run: just configure"; \
-        exit 1; \
-    fi
     @mkdir -p logs
-    @echo "📦 Installing {{platform}} packages using TOML-based package management..."
+    @source "$HOME/.dotfiles.env" && echo "📦 Installing $DOTFILES_PLATFORM packages using TOML-based package management..."
     @echo "📝 Logging to: logs/install-$(date +%Y%m%d-%H%M%S).log"
     @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
     @echo "This will install packages using the new machine class system"
@@ -151,11 +145,11 @@ update-check:
     @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
     @echo "Falling back to TOML-based system..."
     @echo ""
-    @if [ -z "{{platform}}" ]; then \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @echo "🔍 Checking for {{platform}} package updates..."
+    @source "$HOME/.dotfiles.env" && echo "🔍 Checking for $DOTFILES_PLATFORM package updates..."
     @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
     @echo "This will check updates using the new machine class system"
     @echo ""
@@ -166,7 +160,7 @@ update-upgrade:
     @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
     @echo "Falling back to TOML-based system..."
     @echo ""
-    @if [ -z "{{platform}}" ]; then \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
@@ -175,7 +169,7 @@ update-upgrade:
     @echo ""
     @bash -c 'read -p "Continue with upgrade? (y/N): " confirm; if [[ "$confirm" != [yY] && "$confirm" != [yY][eE][sS] ]]; then echo "Cancelled."; exit 1; fi'
     @echo ""
-    @echo "🔄 Upgrading {{platform}} packages..."
+    @source "$HOME/.dotfiles.env" && echo "🔄 Upgrading $DOTFILES_PLATFORM packages..."
     @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
     @echo "This will update packages using the new machine class system"
     @echo ""
@@ -183,7 +177,7 @@ update-upgrade:
 
 # Opens a sub-shell with platform-specific update tools
 updates:
-    @echo "🔧 Opening update tools for {{platform}}..."
+    @source "$HOME/.dotfiles.env" && echo "🔧 Opening update tools for $DOTFILES_PLATFORM..."
     @echo "Type 'just' to see available commands, 'exit' to return to main shell"
     @echo ""
     @echo "⚠️  DEPRECATED: Use 'just goto-packages' for new package management modal interface"
@@ -222,20 +216,15 @@ check-health-verbose:
 _check-health-with-log logfile flags:
     @mkdir -p "$(dirname {{logfile}})"
     @echo "🏥 Running health check with logging to: {{logfile}}"
-    @export DOTFILES_DIR="{{justfile_directory()}}" && export DOTFILES_PLATFORM="{{platform}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
 
 # Show current configuration
 show-config:
-    @if [ -z "{{platform}}" ]; then \
-        echo "❌ Platform not configured. Run: just configure"; \
-        exit 1; \
-    fi
     @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Configuration file missing. Run: just configure"; \
         exit 1; \
     fi
-    @echo "📊 Current Configuration:"
-    @echo "  Platform: {{platform}}"
+    @source "$HOME/.dotfiles.env" && echo "📊 Current Configuration:" && echo "  Platform: $DOTFILES_PLATFORM" && echo "  Machine class: $DOTFILES_MACHINE_CLASS"
     @echo "  Machine class configuration:"
     @cd package-management && just show-config
 
@@ -259,11 +248,11 @@ bootstrap:
 
 # Deploy configuration files
 stow:
-    @if [ -z "{{platform}}" ]; then \
+    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @./scripts/stow-with-logging.sh "{{platform}}"
+    @source "$HOME/.dotfiles.env" && ./scripts/stow-with-logging.sh "$DOTFILES_PLATFORM"
 
 
 
