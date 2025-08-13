@@ -2,11 +2,15 @@ lib
 claude-code
 cli
 eslint-plugin
+claude-code
+cli
 corepack
 do-not-disturb-cli
+eslint-plugin
 eslint
 js-beautify
 js-tidy
+lib
 mcp-server-gus
 neovim
 pdf2md
