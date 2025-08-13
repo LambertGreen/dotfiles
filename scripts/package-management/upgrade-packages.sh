@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # Set up logging
-DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 LOG_DIR="${DOTFILES_ROOT}/logs"
 LOG_FILE="${LOG_DIR}/upgrade-packages-$(date +%Y%m%d-%H%M%S).log"
 
@@ -35,7 +35,7 @@ log_verbose() {
 
 # Source interactive prompts library
 PACKAGE_MANAGEMENT_DIR="${DOTFILES_ROOT}/package-management"
-source "${PACKAGE_MANAGEMENT_DIR}/scripts/interactive-prompts.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/interactive-prompts.sh"
 
 log_output "🔄 Package Upgrade Manager"
 log_output ""

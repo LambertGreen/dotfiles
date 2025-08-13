@@ -4,7 +4,7 @@
 set -euo pipefail
 
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/package-management"
 MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
 
 # Load configuration

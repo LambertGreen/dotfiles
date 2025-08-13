@@ -4,8 +4,8 @@
 set -euo pipefail
 
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DOTFILES_ROOT="$(cd "${PACKAGE_MANAGEMENT_DIR}/.." && pwd)"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PACKAGE_MANAGEMENT_DIR="${DOTFILES_ROOT}/package-management"
 MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
 LOG_DIR="${DOTFILES_ROOT}/logs"
 LOG_FILE="${LOG_DIR}/package-import-$(date +%Y%m%d-%H%M%S).log"

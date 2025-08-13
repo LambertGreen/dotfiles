@@ -64,15 +64,15 @@ default:
 
 # Show full list of packages configured for current machine class
 show-package-list:
-    @./package-management/scripts/show-packages.sh
+    @./scripts/package-management/show-packages.sh
 
 # Show package counts summary  
 show-package-stats:
-    @./package-management/scripts/show-package-stats.sh
+    @./scripts/package-management/show-package-stats.sh
 
 # Install all packages (non-sudo)
 install-packages:
-    @./package-management/scripts/import.sh --install --interactive
+    @./scripts/package-management/import.sh --install --interactive
     @echo ""
     @echo "📝 View log: just show-logs-last"
 
@@ -82,15 +82,15 @@ install-packages-sudo:
 
 # Check for available package updates
 check-packages:
-    @./scripts/check-packages-with-logging.sh
+    @./scripts/package-management/check-packages.sh
 
 # Upgrade all packages
 upgrade-packages:
-    @./scripts/upgrade-packages-with-logging.sh
+    @./scripts/package-management/upgrade-packages.sh
 
 # Export current system packages and update machine class
 export-packages:
-    @./scripts/export-and-update-machine.sh --update-current
+    @./scripts/package-management/export-and-update-machine.sh --update-current
 
 # Show recent package management logs
 show-logs:
@@ -137,7 +137,7 @@ install:
     @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
     @echo "This will install packages using the new machine class system"
     @echo ""
-    @./package-management/scripts/import.sh --install
+    @./scripts/package-management/import.sh --install
 
 
 # Legacy update check (deprecated - use packages-* commands)
@@ -206,7 +206,7 @@ check-health-verbose:
 _check-health-with-log logfile flags:
     @mkdir -p "$(dirname {{logfile}})"
     @echo "🏥 Running health check with logging to: {{logfile}}"
-    @export DOTFILES_DIR="{{justfile_directory()}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
+    @export DOTFILES_DIR="{{justfile_directory()}}" && bash -c "set -a && source $HOME/.dotfiles.env && set +a && source scripts/health/dotfiles-health.sh && dotfiles_check_health {{flags}} --log {{logfile}}"
 
 # Show current configuration
 show-config:
@@ -221,11 +221,11 @@ show-config:
 # List broken symlinks (dry run)
 cleanup-broken-links-dry-run:
     @echo "🔍 Finding broken symlinks in dotfiles..."
-    @bash -c "export DOTFILES_DIR={{justfile_directory()}} && source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links" 2>&1 || true
+    @bash -c "export DOTFILES_DIR={{justfile_directory()}} && source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links" 2>&1 || true
 
 # Remove broken symlinks
 cleanup-broken-links-remove:
-    @bash -c "source tools/dotfiles-health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
+    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
 # Interactive configuration (select machine class)
 configure:
@@ -242,7 +242,7 @@ stow:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @source "$HOME/.dotfiles.env" && ./scripts/stow-with-logging.sh "$DOTFILES_PLATFORM"
+    @source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
 
 
 
