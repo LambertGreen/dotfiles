@@ -1,0 +1,133 @@
+#!/usr/bin/env just --justfile
+# APT Package Manager Commands (Ubuntu/Debian)
+# Documentation and execution for apt operations
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "📦 APT Package Manager (Ubuntu/Debian)"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install packages from current machine class"
+    @echo "  just check             # Check for available updates"
+    @echo "  just upgrade           # Upgrade all packages"
+    @echo "  just clean             # Clean package cache"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed packages"
+    @echo "  just search <package>  # Search for packages"
+    @echo "  just info <package>    # Get package information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current packages"
+    @echo "  just autoremove        # Remove unused packages"
+    @echo "  just sources           # Show package sources"
+    @echo ""
+    @echo "💡 APT Tips:"
+    @echo "  - Most operations require sudo"
+    @echo "  - Update index before installing: apt update"
+    @echo "  - Use apt-file to find which package provides a file"
+
+# Install packages from current machine class
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        packages_file="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/apt/packages.txt"; \
+        if [[ -f "$packages_file" ]]; then \
+            echo "📦 Installing packages from: $packages_file"; \
+            sudo apt update; \
+            while IFS= read -r package; do \
+                if [[ -n "$package" && ! "$package" =~ ^#.* ]]; then \
+                    echo "Installing: $package"; \
+                    sudo apt install -y "$package"; \
+                fi; \
+            done < "$packages_file"; \
+        else \
+            echo "❌ No packages.txt found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for available updates
+check:
+    @echo "🔍 Checking for available updates..."
+    @sudo apt update >/dev/null 2>&1
+    @apt list --upgradable 2>/dev/null | grep -v "WARNING" || echo "✅ All packages are up to date"
+
+# Upgrade all packages
+upgrade:
+    @echo "🔄 Upgrading all packages..."
+    @sudo apt update
+    @sudo apt upgrade -y
+    @sudo apt autoremove -y
+    @echo "✅ Upgrade complete"
+
+# Clean package cache
+clean:
+    @echo "🧹 Cleaning APT cache..."
+    @sudo apt autoremove -y
+    @sudo apt autoclean
+    @echo "✅ Cleanup complete"
+
+# List installed packages
+list:
+    @echo "📦 Installed packages:"
+    @apt list --installed 2>/dev/null | grep -v "WARNING" | head -20
+    @echo "... (showing first 20, use 'apt list --installed' for all)"
+
+# Search for packages
+search package:
+    @echo "🔍 Searching for: {{package}}"
+    @apt search {{package}} 2>/dev/null | head -10
+
+# Get package information
+info package:
+    @echo "ℹ️  Information for: {{package}}"
+    @apt show {{package}} 2>/dev/null
+
+# Export current packages
+export:
+    @echo "📦 Exporting currently installed packages..."
+    @apt list --installed 2>/dev/null | grep -v "WARNING" | cut -d/ -f1 | tail -n +2 > apt-packages.txt
+    @echo "✅ Exported to ./apt-packages.txt"
+    @echo ""
+    @echo "💡 To install from this list:"
+    @echo "  sudo apt install \$(cat apt-packages.txt)"
+
+# Remove unused packages
+autoremove:
+    @echo "🗑️  Removing unused packages..."
+    @sudo apt autoremove -y
+
+# Show package sources
+sources:
+    @echo "📡 Package sources:"
+    @cat /etc/apt/sources.list
+    @echo ""
+    @ls /etc/apt/sources.list.d/ 2>/dev/null || echo "No additional sources"
+
+# Common package operations
+install-package package:
+    @echo "📦 Installing: {{package}}"
+    @sudo apt update
+    @sudo apt install -y {{package}}
+
+remove-package package:
+    @echo "🗑️  Removing: {{package}}"
+    @sudo apt remove -y {{package}}
+
+# Show package dependencies
+deps package:
+    @echo "🔗 Dependencies for: {{package}}"
+    @apt depends {{package}} 2>/dev/null
+
+# Find which package provides a file
+find-file file:
+    @echo "🔍 Finding package that provides: {{file}}"
+    @if command -v apt-file >/dev/null 2>&1; then \
+        apt-file search {{file}}; \
+    else \
+        echo "apt-file not installed. Install with: sudo apt install apt-file"; \
+    fi

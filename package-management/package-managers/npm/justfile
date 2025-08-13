@@ -1,0 +1,140 @@
+#!/usr/bin/env just --justfile
+# NPM Package Manager Commands
+# Documentation and execution for Node.js package operations
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "📦 NPM Package Manager (Node.js)"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install global packages from current machine class"
+    @echo "  just check             # Check for outdated global packages"
+    @echo "  just upgrade           # Upgrade all global packages"
+    @echo "  just clean             # Clean npm cache"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed global packages"
+    @echo "  just search <package>  # Search for packages"
+    @echo "  just info <package>    # Get package information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current global packages"
+    @echo "  just doctor            # Run npm doctor"
+    @echo "  just audit             # Run security audit"
+    @echo ""
+    @echo "💡 NPM Tips:"
+    @echo "  - Global packages install CLI tools"
+    @echo "  - Use 'npx' to run packages without installing"
+    @echo "  - Local packages go in package.json"
+
+# Install global packages from current machine class
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        packages_file="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/npm/packages.txt"; \
+        if [[ -f "$packages_file" ]]; then \
+            echo "📦 Installing global packages from: $packages_file"; \
+            while IFS= read -r package; do \
+                if [[ -n "$package" && ! "$package" =~ ^#.* ]]; then \
+                    echo "Installing: $package"; \
+                    npm install -g "$package"; \
+                fi; \
+            done < "$packages_file"; \
+        else \
+            echo "❌ No packages.txt found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for outdated global packages
+check:
+    @echo "🔍 Checking for outdated global packages..."
+    @npm outdated -g || echo "✅ All global packages are up to date"
+
+# Upgrade all global packages
+upgrade:
+    @echo "🔄 Upgrading all global packages..."
+    @npm update -g
+    @echo "✅ Upgrade complete"
+
+# Clean npm cache
+clean:
+    @echo "🧹 Cleaning npm cache..."
+    @npm cache clean --force
+    @echo "✅ Cache cleaned"
+
+# List installed global packages
+list:
+    @echo "📦 Installed global packages:"
+    @npm list -g --depth=0 2>/dev/null | grep -v "├──\|└──" | tail -n +2 || echo "No global packages installed"
+
+# Search for packages
+search package:
+    @echo "🔍 Searching for: {{package}}"
+    @npm search {{package}}
+
+# Get package information
+info package:
+    @echo "ℹ️  Information for: {{package}}"
+    @npm info {{package}}
+
+# Export current global packages
+export:
+    @echo "📦 Exporting current global packages..."
+    @npm list -g --depth=0 --parseable 2>/dev/null | grep -v "/npm$" | sed 's/.*\///' > npm-packages.txt
+    @echo "✅ Exported to ./npm-packages.txt"
+    @echo ""
+    @echo "💡 To install from this list:"
+    @echo "  cat npm-packages.txt | xargs npm install -g"
+
+# Run npm doctor
+doctor:
+    @echo "🏥 Running npm doctor..."
+    @npm doctor
+
+# Run security audit
+audit:
+    @echo "🔍 Running security audit..."
+    @npm audit
+
+# Common package operations
+install-package package:
+    @echo "📦 Installing globally: {{package}}"
+    @npm install -g {{package}}
+
+remove-package package:
+    @echo "🗑️  Removing global package: {{package}}"
+    @npm uninstall -g {{package}}
+
+# Update npm itself
+update-npm:
+    @echo "🔄 Updating npm..."
+    @npm install -g npm@latest
+
+# Show npm configuration
+config:
+    @echo "⚙️  NPM configuration:"
+    @npm config list
+
+# Set npm registry (useful for corporate environments)
+set-registry registry:
+    @echo "🌐 Setting npm registry to: {{registry}}"
+    @npm config set registry {{registry}}
+
+# Reset to default registry
+reset-registry:
+    @echo "🌐 Resetting to default npm registry..."
+    @npm config set registry https://registry.npmjs.org/
+
+# Run package with npx (without installing)
+run package *args:
+    @echo "🏃 Running {{package}} with npx..."
+    @npx {{package}} {{args}}
+
+# Show package scripts (for local packages)
+scripts:
+    @echo "📜 Available scripts:"
+    @npm run

@@ -26,10 +26,12 @@ default:
     @echo "  just bootstrap         - Bootstrap system (install core tools like Python, Just)"
     @echo "  just stow              - Deploy configuration files (dotfiles symlinks)"
     @echo "  just install-packages  - Install all packages for this machine"
+    @echo "  just install-packages-sudo - Install packages requiring sudo (Docker Desktop, etc.)"
     @echo ""
     @echo "🔄 Maintenance (Regular Updates):"
     @echo "  just check-packages    - Check for available package updates"
     @echo "  just upgrade-packages  - Upgrade all packages"
+    @echo "  just export-packages   - Update machine class with currently installed packages"
     @echo ""
     @echo "🏥 Health Check & Troubleshooting:"
     @echo "  just check-health      - Validate system health (auto-logs)"
@@ -38,16 +40,14 @@ default:
     @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
     @echo ""
     @echo "📊 Show Information:"
-    @echo "  just show-packages     - Show packages configured for current machine"
+    @echo "  just show-package-list  - Show full list of packages (pipeable to pager)"
+    @echo "  just show-package-stats - Show package counts summary"
     @echo "  just show-config       - Show dotfiles and machine class configuration"
     @echo "  just show-logs         - Show recent package management logs"
     @echo ""
     @echo "⚙️  Advanced (Fine-grained Control):"
-    @echo "  just goto-packages     - Enter package management modal interface"
-    @echo "    Available: installs, checks, upgrades - Show commands by type"
-    @echo "  just install-packages-sudo - Install packages requiring sudo"
-    @echo "  just export-packages   - Export current system packages"
-    @echo "  just updates           - Enter update tools sub-shell"
+    @echo "  just shell-into-package-manager-hub - Enter package manager hub (per-PM commands)"
+    @echo "    Individual justfiles for brew, npm, pip, scoop, choco, etc."
     @echo ""
     @echo "🛠️  Project Development & Testing:"
     @echo "  just testing           - Enter testing sub-shell (Docker test commands)"
@@ -62,9 +62,13 @@ default:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-# Show packages configured for current machine class
-show-packages:
+# Show full list of packages configured for current machine class
+show-package-list:
     @./package-management/scripts/show-packages.sh
+
+# Show package counts summary  
+show-package-stats:
+    @./package-management/scripts/show-package-stats.sh
 
 # Install all packages (non-sudo)
 install-packages:
@@ -84,12 +88,8 @@ check-packages:
 upgrade-packages:
     @./scripts/upgrade-packages-with-logging.sh
 
-# Export current system packages (for migration/backup)
+# Export current system packages and update machine class
 export-packages:
-    @./scripts/export-and-update-machine.sh
-
-# Update current machine class with all installed packages
-update-machine-packages:
     @./scripts/export-and-update-machine.sh --update-current
 
 # Show recent package management logs
@@ -100,21 +100,21 @@ show-logs:
 show-logs-last:
     @cd package-management && just show-last-log
 
-# Enter modal package management interface (fine-grained control)
-goto-packages:
-    @echo "📦 Entering package management modal interface..."
-    @echo "Type 'just' to see all available commands, 'exit' to return to main shell"
-    @echo "Quick start:"
-    @echo "  just installs    - Show install commands"
-    @echo "  just checks      - Show check commands" 
-    @echo "  just upgrades    - Show upgrade commands"
+# Enter package manager hub (focused per-PM commands)
+shell-into-package-manager-hub:
+    @echo "📦 Entering package manager hub..."
+    @echo "Each package manager has its own focused commands and documentation"
     @echo ""
-    @echo "Examples:"
-    @echo "  just install-brew-packages  - Install only Homebrew packages"
-    @echo "  just check-pip              - Check pip updates only"
-    @echo "  just upgrade-npm            - Upgrade NPM packages only"
+    @echo "Available package managers:"
+    @echo "  just brew    - Homebrew commands (install, upgrade, clean, etc.)"
+    @echo "  just npm     - NPM commands (global packages)"
+    @echo "  just pip     - Python pip commands"
+    @echo "  just scoop   - Windows Scoop commands"
+    @echo "  just choco   - Windows Chocolatey commands"
     @echo ""
-    @cd package-management && exec $SHELL
+    @echo "💡 Each PM has documented commands for complex syntax (e.g., choco vs scoop)"
+    @echo ""
+    @cd package-management/package-managers && exec $SHELL
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Legacy Commands (TOML-based system - deprecated)
@@ -174,16 +174,6 @@ update-upgrade:
     @echo "This will update packages using the new machine class system"
     @echo ""
     @cd package-management && just update-all
-
-# Opens a sub-shell with platform-specific update tools
-updates:
-    @source "$HOME/.dotfiles.env" && echo "🔧 Opening update tools for $DOTFILES_PLATFORM..."
-    @echo "Type 'just' to see available commands, 'exit' to return to main shell"
-    @echo ""
-    @echo "⚠️  DEPRECATED: Use 'just goto-packages' for new package management modal interface"
-    @echo "This provides fine-grained control over package operations"
-    @echo ""
-    @cd package-management && exec $SHELL
 
 
 

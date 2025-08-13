@@ -1,0 +1,151 @@
+#!/usr/bin/env just --justfile
+# Chocolatey Package Manager Commands (Windows)
+# Documentation and execution for choco operations
+# Chocolatey requires admin privileges for most operations
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "🍫 Chocolatey Package Manager (Windows)"
+    @echo ""
+    @echo "⚠️  Most operations require admin privileges"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install packages from current machine class"
+    @echo "  just check             # Check for outdated packages"
+    @echo "  just upgrade           # Upgrade all packages"
+    @echo "  just clean             # Clean up temp files"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed packages"
+    @echo "  just search <package>  # Search for packages"
+    @echo "  just info <package>    # Get package information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current packages"
+    @echo "  just features          # List chocolatey features"
+    @echo "  just sources           # List package sources"
+    @echo ""
+    @echo "💡 Chocolatey Tips:"
+    @echo "  - Requires admin for system-wide installs"
+    @echo "  - Use --force to reinstall packages"
+    @echo "  - Use -y to confirm all prompts"
+    @echo "  - Run from WSL or MSYS2 with admin privileges"
+
+# Install packages from current machine class  
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        chocofile="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/choco/packages.txt"; \
+        if [[ -f "$chocofile" ]]; then \
+            echo "🍫 Installing packages from: $chocofile"; \
+            while IFS= read -r package; do \
+                if [[ -n "$package" && ! "$package" =~ ^#.* ]]; then \
+                    echo "Installing: $package"; \
+                    choco install "$package" -y; \
+                fi; \
+            done < "$chocofile"; \
+        else \
+            echo "❌ No packages.txt found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for outdated packages
+check:
+    @echo "🔍 Checking for outdated packages..."
+    @choco outdated
+
+# Upgrade all packages
+upgrade:
+    @echo "🔄 Upgrading all packages..."
+    @choco upgrade all -y
+    @echo "✅ Upgrade complete"
+
+# Clean up temp files
+clean:
+    @echo "🧹 Cleaning chocolatey temp files..."
+    @if [[ -d "/tmp/chocolatey" ]]; then rm -rf /tmp/chocolatey; fi
+    @if [[ -d "$TEMP/chocolatey" ]]; then rm -rf "$TEMP/chocolatey"; fi
+    @echo "✅ Cleanup complete"
+
+# List installed packages
+list:
+    @echo "🍫 Installed packages:"
+    @choco list --local-only
+
+# Search for packages
+search package:
+    @echo "🔍 Searching for: {{package}}"
+    @choco search {{package}}
+
+# Get package information
+info package:
+    @echo "ℹ️  Information for: {{package}}"
+    @choco info {{package}}
+
+# Export current packages
+export:
+    @echo "📦 Exporting current packages..."
+    @choco list --local-only --id-only > chocolatey-packages.txt
+    @echo "✅ Exported to ./chocolatey-packages.txt"
+    @echo ""
+    @echo "💡 To install from this list:"
+    @echo "  cat chocolatey-packages.txt | while read pkg; do choco install \$pkg -y; done"
+
+# List chocolatey features
+features:
+    @echo "⚙️  Chocolatey features:"
+    @choco feature list
+
+# List package sources
+sources:
+    @echo "📡 Package sources:"
+    @choco source list
+
+# Common package operations
+install-package package:
+    @echo "🍫 Installing: {{package}}"
+    @choco install {{package}} -y
+
+remove-package package:
+    @echo "🗑️  Removing: {{package}}"
+    @choco uninstall {{package}} -y
+
+# Force reinstall a package
+reinstall-package package:
+    @echo "🔄 Reinstalling: {{package}}"
+    @choco install {{package}} --force -y
+
+# Pin a package to prevent upgrades
+pin-package package:
+    @echo "📌 Pinning package: {{package}}"
+    @choco pin add -n={{package}}
+
+# Unpin a package
+unpin-package package:
+    @echo "📌 Unpinning package: {{package}}"
+    @choco pin remove -n={{package}}
+
+# List pinned packages
+list-pinned:
+    @echo "📌 Pinned packages:"
+    @choco pin list
+
+# Update chocolatey itself
+update-choco:
+    @echo "🔄 Updating chocolatey..."
+    @choco upgrade chocolatey -y
+
+# Show chocolatey configuration
+config:
+    @echo "⚙️  Chocolatey configuration:"
+    @choco config list
+
+# Check chocolatey installation
+doctor:
+    @echo "🏥 Checking chocolatey installation..."
+    @choco --version
+    @echo "Chocolatey location: $(which choco)"

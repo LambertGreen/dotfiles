@@ -1,0 +1,141 @@
+#!/usr/bin/env just --justfile
+# Pip Package Manager Commands (Python)
+# Documentation and execution for Python package operations
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "🐍 Pip Package Manager (Python)"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install packages from current machine class"
+    @echo "  just check             # Check for outdated packages"
+    @echo "  just upgrade           # Upgrade all packages"
+    @echo "  just clean             # Clean pip cache"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed packages"
+    @echo "  just search <package>  # Search for packages (PyPI)"
+    @echo "  just info <package>    # Get package information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current packages to requirements.txt"
+    @echo "  just freeze            # Show all installed packages with versions"
+    @echo "  just check-deps        # Check dependency conflicts"
+    @echo ""
+    @echo "💡 Pip Tips:"
+    @echo "  - Use virtual environments for projects"
+    @echo "  - --user installs to user directory"
+    @echo "  - pipx for isolated CLI tools"
+
+# Install packages from current machine class
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        requirements_file="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/pip/requirements.txt"; \
+        if [[ -f "$requirements_file" ]]; then \
+            echo "🐍 Installing packages from: $requirements_file"; \
+            pip3 install --user -r "$requirements_file"; \
+        else \
+            echo "❌ No requirements.txt found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for outdated packages
+check:
+    @echo "🔍 Checking for outdated packages..."
+    @pip3 list --outdated --user 2>/dev/null || pip3 list --outdated 2>/dev/null || echo "✅ All packages are up to date"
+
+# Upgrade all packages
+upgrade:
+    @echo "🔄 Upgrading all user packages..."
+    @pip3 list --outdated --user --format=freeze 2>/dev/null | cut -d= -f1 | xargs -n1 pip3 install --user -U || \
+     pip3 list --outdated --format=freeze 2>/dev/null | cut -d= -f1 | xargs -n1 pip3 install -U || \
+     echo "No packages to upgrade"
+    @echo "✅ Upgrade complete"
+
+# Clean pip cache
+clean:
+    @echo "🧹 Cleaning pip cache..."
+    @pip3 cache purge 2>/dev/null || echo "Cache purged (or pip cache not available)"
+    @echo "✅ Cache cleaned"
+
+# List installed packages
+list:
+    @echo "🐍 Installed packages:"
+    @pip3 list --user 2>/dev/null || pip3 list
+
+# Search for packages (requires pip-search or use PyPI web)
+search package:
+    @echo "🔍 Searching for: {{package}}"
+    @echo "💡 Pip search was removed. Searching PyPI web instead..."
+    @curl -s "https://pypi.org/simple/{{package}}/" | grep -o 'href="[^"]*"' | head -5 || echo "Package not found or connection issue"
+    @echo ""
+    @echo "🌐 Visit: https://pypi.org/search/?q={{package}}"
+
+# Get package information
+info package:
+    @echo "ℹ️  Information for: {{package}}"
+    @pip3 show {{package}}
+
+# Export current packages
+export:
+    @echo "📦 Exporting current user packages..."
+    @pip3 freeze --user > requirements.txt 2>/dev/null || pip3 freeze > requirements.txt
+    @echo "✅ Exported to ./requirements.txt"
+    @echo ""
+    @echo "💡 To install from this file:"
+    @echo "  pip3 install --user -r requirements.txt"
+
+# Show all installed packages with versions
+freeze:
+    @echo "❄️  All installed packages:"
+    @pip3 freeze --user 2>/dev/null || pip3 freeze
+
+# Check dependency conflicts
+check-deps:
+    @echo "🔍 Checking for dependency conflicts..."
+    @pip3 check || echo "✅ No dependency conflicts found"
+
+# Common package operations
+install-package package:
+    @echo "🐍 Installing: {{package}}"
+    @pip3 install --user {{package}}
+
+remove-package package:
+    @echo "🗑️  Removing: {{package}}"
+    @pip3 uninstall {{package}}
+
+# Install from requirements file
+install-requirements file:
+    @echo "📋 Installing from: {{file}}"
+    @pip3 install --user -r {{file}}
+
+# Update pip itself
+update-pip:
+    @echo "🔄 Updating pip..."
+    @pip3 install --user --upgrade pip
+
+# Show pip configuration
+config:
+    @echo "⚙️  Pip configuration:"
+    @pip3 config list
+
+# Install in development mode (for local packages)
+install-dev package_dir:
+    @echo "🛠️  Installing in development mode: {{package_dir}}"
+    @pip3 install --user -e {{package_dir}}
+
+# Create virtual environment
+create-venv name:
+    @echo "🏗️  Creating virtual environment: {{name}}"
+    @python3 -m venv {{name}}
+    @echo "💡 Activate with: source {{name}}/bin/activate"
+
+# Show package dependencies
+deps package:
+    @echo "🔗 Dependencies for: {{package}}"
+    @pip3 show {{package}} | grep "Requires:"

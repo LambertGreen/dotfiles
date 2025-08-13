@@ -98,7 +98,7 @@ if [ "$ALL_TOOLS_PRESENT" = true ]; then
     echo "✅ All required tools are already installed!"
 else
     echo "🔧 Installing missing tools..."
-    cd bootstrap
+    cd scripts/bootstrap
     
     # Always use basic bootstrap (essential tools only) for P1/P2 system
     BOOTSTRAP_LEVEL="basic"

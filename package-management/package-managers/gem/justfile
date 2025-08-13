@@ -1,0 +1,132 @@
+#!/usr/bin/env just --justfile
+# RubyGems Package Manager Commands (Ruby)
+# Documentation and execution for Ruby gem operations
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "💎 RubyGems Package Manager (Ruby)"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install gems from current machine class"
+    @echo "  just check             # Check for outdated gems"
+    @echo "  just upgrade           # Upgrade all gems"
+    @echo "  just clean             # Clean gem cache"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed gems"
+    @echo "  just search <gem>      # Search for gems"
+    @echo "  just info <gem>        # Get gem information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current gems to Gemfile"
+    @echo "  just doctor            # Check gem environment"
+    @echo "  just bundle            # Use bundler commands"
+    @echo ""
+    @echo "💡 Gem Tips:"
+    @echo "  - Use --user-install to avoid sudo"
+    @echo "  - Bundler manages project dependencies"
+    @echo "  - Use 'gem env' to check paths"
+
+# Install gems from current machine class
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        gemfile="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/gem/Gemfile"; \
+        if [[ -f "$gemfile" ]]; then \
+            echo "💎 Installing gems from: $gemfile"; \
+            if command -v bundle >/dev/null 2>&1; then \
+                cd "$(dirname "$gemfile")" && bundle install --path ~/.gem; \
+            else \
+                echo "Installing bundler first..."; \
+                gem install --user-install bundler; \
+                cd "$(dirname "$gemfile")" && bundle install --path ~/.gem; \
+            fi; \
+        else \
+            echo "❌ No Gemfile found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for outdated gems
+check:
+    @echo "🔍 Checking for outdated gems..."
+    @gem outdated || echo "✅ All gems are up to date"
+
+# Upgrade all gems
+upgrade:
+    @echo "🔄 Upgrading all gems..."
+    @gem update --user-install
+    @echo "✅ Upgrade complete"
+
+# Clean gem cache
+clean:
+    @echo "🧹 Cleaning gem cache..."
+    @gem cleanup
+    @echo "✅ Cache cleaned"
+
+# List installed gems
+list:
+    @echo "💎 Installed gems:"
+    @gem list --local
+
+# Search for gems
+search gem:
+    @echo "🔍 Searching for: {{gem}}"
+    @gem search {{gem}} | head -10
+
+# Get gem information
+info gem:
+    @echo "ℹ️  Information for: {{gem}}"
+    @gem info {{gem}}
+
+# Export current gems to Gemfile
+export:
+    @echo "📦 Exporting current gems to Gemfile..."
+    @echo "source 'https://rubygems.org'" > Gemfile
+    @echo "" >> Gemfile
+    @gem list --local --no-versions | grep -v "^$" | sort | while read gem; do \
+        if [[ "$gem" != "bundler" && "$gem" != "rubygems-update" ]]; then \
+            echo "gem '$gem'" >> Gemfile; \
+        fi; \
+    done
+    @echo "✅ Exported to ./Gemfile"
+    @echo ""
+    @echo "💡 To install from this Gemfile:"
+    @echo "  bundle install"
+
+# Check gem environment
+doctor:
+    @echo "🏥 Checking gem environment..."
+    @gem environment
+
+# Bundler operations
+bundle *args:
+    @echo "📦 Running bundler: {{args}}"
+    @bundle {{args}}
+
+# Common gem operations
+install-gem gem:
+    @echo "💎 Installing: {{gem}}"
+    @gem install --user-install {{gem}}
+
+remove-gem gem:
+    @echo "🗑️  Removing: {{gem}}"
+    @gem uninstall {{gem}}
+
+# Update RubyGems itself
+update-rubygems:
+    @echo "🔄 Updating RubyGems..."
+    @gem update --system --user-install
+
+# Show gem paths
+paths:
+    @echo "📁 Gem paths:"
+    @gem env | grep -E "(GEM PATHS|EXECUTABLE DIRECTORY)"
+
+# Install bundler if missing
+install-bundler:
+    @echo "📦 Installing bundler..."
+    @gem install --user-install bundler

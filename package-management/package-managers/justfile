@@ -1,0 +1,107 @@
+#!/usr/bin/env just --justfile
+# Package Manager Hub
+# Quick access to individual package manager commands
+
+set shell := ["bash", "-uc"]
+
+# Default: show available package managers
+default:
+    @echo "📦 Package Manager Hub"
+    @echo ""
+    @echo "🎯 Quick Access to Package Managers:"
+    @echo "  just brew              # Enter Homebrew (macOS/Linux)"
+    @echo "  just npm               # Enter NPM (Node.js)"  
+    @echo "  just pip               # Enter Pip (Python)"
+    @echo "  just apt               # Enter APT (Ubuntu/Debian)"
+    @echo "  just pacman            # Enter Pacman (Arch Linux)"
+    @echo "  just scoop             # Enter Scoop (Windows)"
+    @echo "  just choco             # Enter Chocolatey (Windows)"
+    @echo "  just cargo             # Enter Cargo (Rust)"
+    @echo "  just gem               # Enter RubyGems (Ruby)"
+    @echo ""
+    @echo "💡 Each command opens a focused shell for that package manager"
+    @echo "   Type 'just' in each shell to see available commands"
+    @echo "   Type 'exit' to return to this hub"
+
+# Enter Homebrew shell
+brew:
+    @echo "🍺 Entering Homebrew package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd brew && exec $SHELL
+
+# Enter NPM shell  
+npm:
+    @echo "📦 Entering NPM package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd npm && exec $SHELL
+
+# Enter Pip shell
+pip:
+    @echo "🐍 Entering Pip package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd pip && exec $SHELL
+
+# Enter APT shell
+apt:
+    @echo "📦 Entering APT package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd apt && exec $SHELL
+
+# Enter Pacman shell
+pacman:
+    @echo "📦 Entering Pacman package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd pacman && exec $SHELL
+
+# Enter Scoop shell
+scoop:
+    @echo "🪣 Entering Scoop package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd scoop && exec $SHELL
+
+# Enter Chocolatey shell
+choco:
+    @echo "🍫 Entering Chocolatey package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd choco && exec $SHELL
+
+# Enter Cargo shell
+cargo:
+    @echo "🦀 Entering Cargo package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd cargo && exec $SHELL
+
+# Enter RubyGems shell
+gem:
+    @echo "💎 Entering RubyGems package manager..."
+    @echo "Type 'just' to see commands, 'exit' to return"
+    @echo ""
+    @cd gem && exec $SHELL
+
+# Direct command execution (bypass modal interface)
+brew-install package:
+    @cd brew && just install-package {{package}}
+
+npm-install package:
+    @cd npm && just install-package {{package}}
+
+pip-install package:
+    @cd pip && just install-package {{package}}
+
+# Quick status across all available package managers
+status:
+    @echo "📊 Package Manager Status"
+    @echo ""
+    @if command -v brew >/dev/null 2>&1; then echo "🍺 Homebrew: ✅ Available"; else echo "🍺 Homebrew: ❌ Not installed"; fi
+    @if command -v npm >/dev/null 2>&1; then echo "📦 NPM: ✅ Available"; else echo "📦 NPM: ❌ Not installed"; fi
+    @if command -v pip3 >/dev/null 2>&1; then echo "🐍 Pip: ✅ Available"; else echo "🐍 Pip: ❌ Not installed"; fi
+    @if command -v apt >/dev/null 2>&1; then echo "📦 APT: ✅ Available"; else echo "📦 APT: ❌ Not available"; fi
+    @if command -v pacman >/dev/null 2>&1; then echo "📦 Pacman: ✅ Available"; else echo "📦 Pacman: ❌ Not available"; fi

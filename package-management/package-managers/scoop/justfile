@@ -1,0 +1,134 @@
+#!/usr/bin/env just --justfile
+# Scoop Package Manager Commands (Windows)
+# Documentation and execution for scoop operations
+# Scoop is the Windows package manager that's clean and reliable
+
+set shell := ["bash", "-uc"]
+
+# Default: show available commands
+default:
+    @echo "🪣 Scoop Package Manager (Windows)"
+    @echo ""
+    @echo "📦 Basic Operations:"
+    @echo "  just install           # Install packages from current machine class"
+    @echo "  just check             # Check for outdated packages"
+    @echo "  just upgrade           # Upgrade all packages"
+    @echo "  just clean             # Clean up caches and old versions"
+    @echo ""
+    @echo "📋 Information:"
+    @echo "  just list              # List installed packages"
+    @echo "  just search <package>  # Search for packages"
+    @echo "  just info <package>    # Get package information"
+    @echo ""
+    @echo "🔧 Advanced:"
+    @echo "  just export            # Export current packages to scoopfile.json"
+    @echo "  just doctor            # Run scoop checkup"
+    @echo "  just buckets           # List available buckets"
+    @echo "  just add-bucket <name> # Add a bucket"
+    @echo ""
+    @echo "💡 Scoop Tips:"
+    @echo "  - Installs to ~/scoop by default (no admin needed)"
+    @echo "  - Use 'extras' bucket for GUI apps"
+    @echo "  - Use 'main' bucket for CLI tools"
+    @echo "  - Run from WSL or MSYS2 bash shell"
+
+# Install packages from current machine class
+install:
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        scoopfile="$(pwd)/../../machines/$DOTFILES_MACHINE_CLASS/scoop/scoopfile.json"; \
+        if [[ -f "$scoopfile" ]]; then \
+            echo "🪣 Installing packages from: $scoopfile"; \
+            scoop import "$scoopfile"; \
+        else \
+            echo "❌ No scoopfile.json found for machine class: $DOTFILES_MACHINE_CLASS"; \
+        fi; \
+    else \
+        echo "❌ Configuration not found. Run: just configure"; \
+    fi
+
+# Check for outdated packages
+check:
+    @echo "🔍 Checking for outdated packages..."
+    @scoop status
+
+# Upgrade all packages
+upgrade:
+    @echo "🔄 Upgrading all packages..."
+    @scoop update '*'
+    @echo "✅ Upgrade complete"
+
+# Clean up caches and old versions
+clean:
+    @echo "🧹 Cleaning scoop..."
+    @scoop cleanup '*'
+    @scoop cache rm '*'
+    @echo "✅ Cleanup complete"
+
+# List installed packages
+list:
+    @echo "🪣 Installed packages:"
+    @scoop list
+
+# Search for packages
+search package:
+    @echo "🔍 Searching for: {{package}}"
+    @scoop search {{package}}
+
+# Get package information
+info package:
+    @echo "ℹ️  Information for: {{package}}"
+    @scoop info {{package}}
+
+# Export current packages
+export:
+    @echo "📦 Exporting current packages..."
+    @scoop export > scoopfile.json
+    @echo "✅ Exported to ./scoopfile.json"
+    @echo ""
+    @echo "💡 To use this export:"
+    @echo "  scoop import scoopfile.json"
+
+# Run scoop checkup
+doctor:
+    @echo "🏥 Running scoop checkup..."
+    @scoop checkup
+
+# List available buckets
+buckets:
+    @echo "🪣 Available buckets:"
+    @scoop bucket known
+
+# Add a bucket
+add-bucket name:
+    @echo "➕ Adding bucket: {{name}}"
+    @scoop bucket add {{name}}
+
+# Common package operations
+install-package package:
+    @echo "🪣 Installing: {{package}}"
+    @scoop install {{package}}
+
+remove-package package:
+    @echo "🗑️  Removing: {{package}}"
+    @scoop uninstall {{package}}
+
+# Update scoop itself
+update-scoop:
+    @echo "🔄 Updating scoop..."
+    @scoop update
+
+# Install from extras bucket
+install-from-extras package:
+    @echo "📱 Installing from extras bucket: {{package}}"
+    @scoop install extras/{{package}}
+
+# Show app manifests (useful for troubleshooting)
+show-manifest package:
+    @echo "📄 Manifest for: {{package}}"
+    @scoop cat {{package}}
+
+# List current buckets
+list-buckets:
+    @echo "🪣 Current buckets:"
+    @scoop bucket list
