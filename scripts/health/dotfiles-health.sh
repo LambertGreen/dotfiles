@@ -340,7 +340,7 @@ _check_package_health() {
         return
     fi
 
-    local machine_dir="$DOTFILES_DIR/package-management/machines/$DOTFILES_MACHINE_CLASS"
+    local machine_dir="$DOTFILES_DIR/machine-classes/$DOTFILES_MACHINE_CLASS"
     if [[ ! -d "$machine_dir" ]]; then
         $log_output "  • ⚠️  Machine class directory not found: $machine_dir"
         WARNINGS+=("Machine class directory not found")

@@ -51,7 +51,7 @@ log_verbose "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
 log_verbose "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
 
 # Use stow.txt file from machine class directory (single source of truth)
-STOW_FILE="package-management/machines/${DOTFILES_MACHINE_CLASS}/stow/stow.txt"
+STOW_FILE="machine-classes/${DOTFILES_MACHINE_CLASS}/stow/stow.txt"
 log_output "📂 Stowing configurations using machine class stow.txt..."
 log_verbose "Using stow file: ${STOW_FILE}"
 

@@ -95,13 +95,7 @@ stow-wsl-work-ubuntu:
 
 # Windows ARM64 development (MSYS2 pacman + scoop)
 stow-windows-arm64-dev:
-    @echo "🪟 Stowing desktop_dev_windows_arm64 configs..."
-    @just _stow-common-developer
-    @just _stow-windows
-
-# Windows x64 development (MSYS2 pacman + scoop)
-stow-windows-x64-dev:
-    @echo "🪟 Stowing desktop_dev_windows_x64 configs..."
+    @echo "🪟 Stowing vm_dev_windows_arm64 configs..."
     @just _stow-common-developer
     @just _stow-windows
 

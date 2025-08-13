@@ -45,10 +45,6 @@ default:
     @echo "  just show-config       - Show dotfiles and machine class configuration"
     @echo "  just show-logs         - Show recent package management logs"
     @echo ""
-    @echo "⚙️  Advanced (Fine-grained Control):"
-    @echo "  just shell-into-package-manager-hub - Enter package manager hub (per-PM commands)"
-    @echo "    Individual justfiles for brew, npm, pip, scoop, choco, etc."
-    @echo ""
     @echo "🛠️  Project Development & Testing:"
     @echo "  just testing           - Enter testing sub-shell (Docker test commands)"
     @echo "  just test-arch         - Quick test Arch configuration"
@@ -78,7 +74,22 @@ install-packages:
 
 # Install packages requiring sudo (Docker Desktop, etc.)
 install-packages-sudo:
-    @cd package-management && just install-brew-sudo
+    #!/usr/bin/env bash
+    set -euo pipefail
+    machine_class_file="${HOME}/.dotfiles.env"
+    if [[ ! -f "${machine_class_file}" ]]; then
+        echo "Machine class not configured. Run: just configure"
+        exit 1
+    fi
+    source "${machine_class_file}"
+    brewfile_sudo="machine-classes/${DOTFILES_MACHINE_CLASS}/brew/Brewfile.casks-sudo"
+    if [[ -f "${brewfile_sudo}" ]]; then
+        echo "Installing sudo-required casks (you will be prompted for password)..."
+        echo "$ brew bundle install --file=\"${brewfile_sudo}\""
+        brew bundle install --file="${brewfile_sudo}"
+    else
+        echo "No sudo-required Brewfile found at: ${brewfile_sudo}"
+    fi
 
 # Check for available package updates
 check-packages:
@@ -94,27 +105,17 @@ export-packages:
 
 # Show recent package management logs
 show-logs:
-    @cd package-management && just show-logs
+    @echo "Recent package management logs:"
+    @ls -lt logs/package-*.log 2>/dev/null | head -10 || echo "No package logs found"
 
 # Show most recent package management log
 show-logs-last:
-    @cd package-management && just show-last-log
+    @if ls logs/package-*.log >/dev/null 2>&1; then \
+        tail -100 `ls -t logs/package-*.log | head -1`; \
+    else \
+        echo "No package logs found"; \
+    fi
 
-# Enter package manager hub (focused per-PM commands)
-shell-into-package-manager-hub:
-    @echo "📦 Entering package manager hub..."
-    @echo "Each package manager has its own focused commands and documentation"
-    @echo ""
-    @echo "Available package managers:"
-    @echo "  just brew    - Homebrew commands (install, upgrade, clean, etc.)"
-    @echo "  just npm     - NPM commands (global packages)"
-    @echo "  just pip     - Python pip commands"
-    @echo "  just scoop   - Windows Scoop commands"
-    @echo "  just choco   - Windows Chocolatey commands"
-    @echo ""
-    @echo "💡 Each PM has documented commands for complex syntax (e.g., choco vs scoop)"
-    @echo ""
-    @cd package-management/package-managers && exec $SHELL
 
 
 # Opens a sub-shell with testing and validation tools
@@ -156,7 +157,11 @@ show-config:
     fi
     @source "$HOME/.dotfiles.env" && echo "📊 Current Configuration:" && echo "  Platform: $DOTFILES_PLATFORM" && echo "  Machine class: $DOTFILES_MACHINE_CLASS"
     @echo "  Machine class configuration:"
-    @cd package-management && just show-config
+    @if [[ -f ~/.dotfiles.env ]]; then \
+        source ~/.dotfiles.env; \
+        echo "    Location: machine-classes/${DOTFILES_MACHINE_CLASS}/"; \
+        echo "    Package managers: ${DOTFILES_PACKAGE_MANAGERS:-not set}"; \
+    fi
 
 # List broken symlinks (dry run)
 cleanup-broken-links-dry-run:

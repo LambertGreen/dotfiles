@@ -31,8 +31,8 @@ FROM base AS configure-arch-essential
 COPY --chown=user:user configure.sh ./
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
 # Copy only package manager configs needed for configure (not stow configs)
-COPY --chown=user:user package-management/machines/docker_essential_arch/pacman/ ./package-management/machines/docker_essential_arch/pacman/
-COPY --chown=user:user package-management/machines/docker_essential_arch/brew/ ./package-management/machines/docker_essential_arch/brew/
+COPY --chown=user:user machine-classes/docker_essential_arch/pacman/ ./machine-classes/docker_essential_arch/pacman/
+COPY --chown=user:user machine-classes/docker_essential_arch/brew/ ./machine-classes/docker_essential_arch/brew/
 
 # Set fast timeout for Docker and pre-select machine class
 ENV DOTFILES_PROMPT_TIMEOUT=3
@@ -64,7 +64,7 @@ COPY --chown=user:user justfile ./
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
 # Copy stow configuration for this machine class
-COPY --chown=user:user package-management/machines/docker_essential_arch/stow/ ./package-management/machines/docker_essential_arch/stow/
+COPY --chown=user:user machine-classes/docker_essential_arch/stow/ ./machine-classes/docker_essential_arch/stow/
 
 # Remove default shell files that conflict with stow
 RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
@@ -77,12 +77,12 @@ RUN just stow
 FROM stow-arch-essential AS install-arch-essential
 
 # Copy only package management files needed for install stage
-COPY --chown=user:user package-management/machines/docker_essential_arch/pacman/ ./package-management/machines/docker_essential_arch/pacman/
-COPY --chown=user:user package-management/machines/docker_essential_arch/brew/ ./package-management/machines/docker_essential_arch/brew/
+COPY --chown=user:user machine-classes/docker_essential_arch/pacman/ ./machine-classes/docker_essential_arch/pacman/
+COPY --chown=user:user machine-classes/docker_essential_arch/brew/ ./machine-classes/docker_essential_arch/brew/
 COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 # Create expected directory structure for scripts
-RUN mkdir -p ./package-management/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./package-management/scripts/
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
 # Install packages - real user command
 RUN just install-packages
@@ -107,7 +107,7 @@ FROM base AS configure-arch-developer
 # Copy only configuration script and machine definitions for better caching
 COPY --chown=user:user configure.sh ./
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
-COPY --chown=user:user package-management/machines/ ./package-management/machines/
+COPY --chown=user:user machine-classes/ ./machine-classes/
 
 # Set fast timeout for Docker and pre-select machine class
 ENV DOTFILES_PROMPT_TIMEOUT=3
@@ -144,11 +144,11 @@ RUN just stow
 FROM stow-arch-developer AS install-arch-developer
 
 # Copy package management system
-COPY --chown=user:user package-management/ ./package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
 COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 # Create expected directory structure for scripts
-RUN mkdir -p ./package-management/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./package-management/scripts/
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
 # Install packages - real user command
 RUN just install-packages
@@ -170,7 +170,7 @@ FROM base AS configure-arch-gui
 # Copy only configuration script and machine definitions for better caching
 COPY --chown=user:user configure.sh ./
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
-COPY --chown=user:user package-management/machines/ ./package-management/machines/
+COPY --chown=user:user machine-classes/ ./machine-classes/
 
 # Set fast timeout for Docker and pre-select machine class
 ENV DOTFILES_PROMPT_TIMEOUT=3
@@ -207,11 +207,11 @@ RUN just stow
 FROM stow-arch-gui AS install-arch-gui
 
 # Copy package management system
-COPY --chown=user:user package-management/ ./package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
 COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 # Create expected directory structure for scripts
-RUN mkdir -p ./package-management/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./package-management/scripts/
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
 # Install packages - real user command
 RUN just install-packages

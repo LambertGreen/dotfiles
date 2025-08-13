@@ -5,8 +5,7 @@ set -euo pipefail
 
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-PACKAGE_MANAGEMENT_DIR="${DOTFILES_ROOT}/package-management"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 LOG_DIR="${DOTFILES_ROOT}/logs"
 LOG_FILE="${LOG_DIR}/package-import-$(date +%Y%m%d-%H%M%S).log"
 
@@ -70,7 +69,7 @@ log_command() {
 }
 
 # Source interactive prompts library after basic functions are defined
-source "${PACKAGE_MANAGEMENT_DIR}/scripts/interactive-prompts.sh"
+source "${DOTFILES_ROOT}/scripts/package-management/interactive-prompts.sh"
 
 # Execute command with logging
 execute_with_log() {

@@ -19,8 +19,7 @@ Install Emacs 30+ on all systems using the best available package manager per pl
 - **docker_developer_arch**: Pacman `emacs` (30+) - Arch repos usually have latest
 
 ### Windows
-- **desktop_dev_windows_arm64**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
-- **desktop_dev_windows_x64**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
+- **vm_dev_windows_arm64**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
 
 ## Package Manager Priority
 

@@ -243,7 +243,7 @@ get_package_manager_descriptions() {
     shift
     local pm_list=("$@")
     
-    local machines_dir="${PACKAGE_MANAGEMENT_DIR}/machines/${machine_class}"
+    local machines_dir="${MACHINES_DIR}/${machine_class}"
     local descriptions=()
     
     for pm in "${pm_list[@]}"; do

@@ -166,8 +166,8 @@ fi
 
 # Configure machine class
 MACHINE_CLASS=""
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 
 if [[ -n "$EXISTING_MACHINE_CLASS" ]]; then
     echo "📋 Current machine class: $EXISTING_MACHINE_CLASS"
@@ -260,11 +260,9 @@ if [[ -n "$MACHINE_CLASS" ]]; then
     echo ""
     
     # Source the interactive prompts library
-    PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
     source "scripts/package-management/interactive-prompts.sh"
     
     # Find available package managers for this machine class
-    MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
     MACHINE_DIR="${MACHINES_DIR}/${MACHINE_CLASS}"
     
     if [[ -d "$MACHINE_DIR" ]]; then
