@@ -76,7 +76,7 @@ brew "tree"
 brew "unixodbc"
 brew "wget"
 brew "cartr/qt4/pyqt@4"
-brew "d12frosted/emacs-plus/emacs-plus@28", args: ["with-debug", "with-elrumo2-icon", "with-native-comp"]
+brew "d12frosted/emacs-plus/emacs-plus@30", args: ["with-debug", "with-elrumo2-icon", "with-native-comp"]
 cask "adoptopenjdk8"
 cask "amethyst"
 cask "appcleaner"

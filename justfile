@@ -182,7 +182,7 @@ stow:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
+    @bash -c 'source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"'
 
 
 

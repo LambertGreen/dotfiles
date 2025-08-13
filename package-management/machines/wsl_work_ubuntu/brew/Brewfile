@@ -10,7 +10,7 @@ brew "cmake"
 brew "curl"
 brew "dust"
 brew "editorconfig"
-brew "emacs"
+brew "emacs"  # Homebrew Linux typically provides 30+
 brew "fswatch"
 brew "fzf"
 brew "gradle"

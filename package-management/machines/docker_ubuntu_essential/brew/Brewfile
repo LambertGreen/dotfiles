@@ -1,0 +1,4 @@
+# Ubuntu Docker Essential - Homebrew packages  
+# Use Homebrew for packages that need recent versions
+
+brew "emacs"  # Get Emacs 30+ from Homebrew (apt has old version)

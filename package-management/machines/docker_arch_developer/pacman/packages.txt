@@ -1,0 +1,41 @@
+# Arch Docker Developer - Pacman packages
+# Based on legacy exports and development needs
+
+# Essential tools (from essential tier)
+base-devel
+curl
+git
+stow
+sudo
+vim
+wget
+zsh
+
+# Development tools
+emacs  # Arch typically has 30+ in main repos
+neovim
+tmux
+tree
+fd
+ripgrep
+htop
+jq
+unzip
+zip
+
+# Development dependencies
+python
+python-pip
+nodejs
+npm
+ruby
+
+# Editor dependencies for LSP/tree-sitter
+cmake
+pkg-config
+jansson
+
+# Development utilities
+make
+gcc
+gdb

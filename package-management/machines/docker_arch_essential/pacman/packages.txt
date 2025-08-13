@@ -1,0 +1,8 @@
+base-devel
+curl
+git
+stow
+sudo
+vim
+wget
+zsh

@@ -1,80 +1,166 @@
 #!/usr/bin/env just
 # -*- mode: just -*-
 
-# Configuration-aware dotfiles stowing using new directory structure
-# Uses ~/.dotfiles.env to determine which configs to stow
+# Machine class-aware dotfiles stowing
+# Executable documentation for what gets stowed per machine class
 
 _default:
-    @echo "🔗 Configuration-Aware Stowing"
+    @echo "🔗 Machine Class-Aware Stowing"
+    @echo ""
+    @echo "Examples:"
+    @echo "  just stow-laptop-personal-mac"
+    @echo "  just stow-laptop-work-mac"
+    @echo "  just stow-docker-ubuntu-essential"
     @echo ""
     @just --list
 
 # =============================================================================
-# PLATFORM-AWARE STOWING
+# DOCKER MACHINE CLASSES
 # =============================================================================
 
-# 🏛️ Arch Linux stowing
-arch *args:
-    @echo "🏛️ Arch Linux stowing..."
-    @just _stow-platform "arch" "{{ args }}"
+# Docker Arch Linux essential (pacman + homebrew)
+stow-docker-arch-essential:
+    @echo "🏛️ Stowing docker_arch_essential configs..."
+    @just _stow-common-essential
+    @just _stow-linux
 
-# 🐧 Ubuntu Linux stowing
-ubuntu *args:
-    @echo "🐧 Ubuntu Linux stowing..."
-    @just _stow-platform "ubuntu" "{{ args }}"
+# Docker Arch Linux developer (pacman + AUR + homebrew + npm + pip)
+stow-docker-arch-developer:
+    @echo "🏛️ Stowing docker_arch_developer configs..."
+    @just _stow-common-developer
+    @just _stow-linux
 
-# 🍎 macOS stowing
-osx *args:
-    @echo "🍎 macOS stowing..."
-    @just _stow-platform "osx" "{{ args }}"
+# Docker Ubuntu essential (apt + homebrew)
+stow-docker-ubuntu-essential:
+    @echo "🐧 Stowing docker_ubuntu_essential configs..."
+    @just _stow-common-essential
+    @just _stow-linux
 
-# 🪟 Windows stowing
-win *args:
-    @echo "🪟 Windows stowing..."
-    @just _stow-platform "win" "{{ args }}"
+# Docker Ubuntu developer (apt + homebrew + npm + pip)
+stow-docker-ubuntu-developer:
+    @echo "🐧 Stowing docker_ubuntu_developer configs..."
+    @just _stow-common-developer
+    @just _stow-linux
 
 # =============================================================================
-# INTERNAL HELPERS
+# LAPTOP MACHINE CLASSES
 # =============================================================================
 
-# Internal helper for platform-specific stowing
+# Personal Mac laptop (brew + mas + npm + pip + gem)
+stow-laptop-personal-mac:
+    @echo "🍎 Stowing laptop_personal_mac configs..."
+    @just _stow-common-developer
+    @just _stow-personal
+    @just _stow-osx
+
+# Work Mac laptop (brew + npm + pip)
+stow-laptop-work-mac:
+    @echo "🍎 Stowing laptop_work_mac configs..."
+    @just _stow-common-developer
+    @just _stow-work
+    @just _stow-osx
+
+# =============================================================================
+# DESKTOP MACHINE CLASSES
+# =============================================================================
+
+# Gaming Windows desktop
+stow-desktop-gaming-win:
+    @echo "🪟 Stowing desktop_gaming_win configs..."
+    @just _stow-common-developer
+    @just _stow-gaming
+    @just _stow-windows
+
+# Home Ubuntu desktop
+stow-desktop-home-ubuntu:
+    @echo "🐧 Stowing desktop_home_ubuntu configs..."
+    @just _stow-common-developer
+    @just _stow-personal
+    @just _stow-linux
+
+# =============================================================================
+# WSL MACHINE CLASSES
+# =============================================================================
+
+# Work Ubuntu WSL (apt + homebrew + npm + pip)
+stow-wsl-work-ubuntu:
+    @echo "🐧 Stowing wsl_work_ubuntu configs..."
+    @just _stow-common-developer
+    @just _stow-work
+    @just _stow-linux
+
+# =============================================================================
+# WINDOWS MACHINE CLASSES
+# =============================================================================
+
+# Windows ARM64 development (MSYS2 pacman + scoop)
+stow-windows-arm64-dev:
+    @echo "🪟 Stowing windows_arm64_dev configs..."
+    @just _stow-common-developer
+    @just _stow-windows
+
+# Windows x64 development (MSYS2 pacman + scoop)
+stow-windows-x64-dev:
+    @echo "🪟 Stowing windows_x64_dev configs..."
+    @just _stow-common-developer
+    @just _stow-windows
+
+# =============================================================================
+# CONFIGURATION PROFILES
+# =============================================================================
+
+# Essential common configs (shell, git, basic tools, terminal)
 [private]
-_stow-platform platform args:
-    @if [ "{{ args }}" = "stow-basic" ]; then \
-        echo "🔗 Stowing basic {{ platform }} configs using new structure..."; \
-        just _stow-configs "{{ platform }}"; \
-    else \
-        echo "❌ Only 'stow-basic' is supported with new structure"; \
-        echo "💡 Use main 'just stow' command for configuration-aware stowing"; \
-        exit 1; \
+_stow-common-essential:
+    cd common && stow --dotfiles --target="$HOME" git git_my shell tmux vim wezterm spelling
+
+# Developer common configs (essential + dev tools + terminal)
+[private]
+_stow-common-developer:
+    cd common && stow --dotfiles --target="$HOME" git git_my shell tmux vim wezterm spelling ripgrep
+
+# Personal machine additions
+[private]
+_stow-personal:
+    @echo "📱 Adding personal configs..."
+    # Add personal-specific configs if needed
+
+# Work machine additions
+[private]
+_stow-work:
+    @echo "💼 Adding work configs..."
+    # Add work-specific configs if needed
+
+# Gaming machine additions
+[private]
+_stow-gaming:
+    @echo "🎮 Adding gaming configs..."
+    # Add gaming-specific configs if needed
+
+# =============================================================================
+# PLATFORM-SPECIFIC CONFIGURATIONS
+# =============================================================================
+
+# macOS platform configs
+[private]
+_stow-osx:
+    @if [ -d "../osx_only" ]; then \
+        echo "🔗 Stowing macOS-specific configs..."; \
+        cd ../osx_only && stow --dotfiles --target="$HOME" *; \
     fi
 
-# Internal helper to stow configs based on platform
+# Linux platform configs
 [private]
-_stow-configs platform:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    
-    echo "🔗 Stowing common configs..."
-    cd common && stow *
-    
-    case "{{ platform }}" in
-        "osx")
-            echo "🔗 Stowing macOS-specific configs..."
-            cd ../osx_only && stow *
-            ;;
-        "ubuntu"|"arch")
-            echo "🔗 Stowing Linux-specific configs..."
-            cd ../linux_only && stow *
-            ;;
-        "win")
-            echo "🔗 Stowing Windows-specific configs..."
-            cd ../windows_only && stow *
-            ;;
-        *)
-            echo "❌ Unknown platform: {{ platform }}"
-            exit 1
-            ;;
-    esac
-    
-    echo "✅ Stowing complete for {{ platform }}"
+_stow-linux:
+    @if [ -d "../linux_only" ]; then \
+        echo "🔗 Stowing Linux-specific configs..."; \
+        cd ../linux_only && stow --dotfiles --target="$HOME" *; \
+    fi
+
+# Windows platform configs
+[private]
+_stow-windows:
+    @if [ -d "../windows_only" ]; then \
+        echo "🔗 Stowing Windows-specific configs..."; \
+        cd ../windows_only && stow --dotfiles --target="$HOME" *; \
+    fi
