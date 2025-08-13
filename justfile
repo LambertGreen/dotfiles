@@ -116,66 +116,6 @@ shell-into-package-manager-hub:
     @echo ""
     @cd package-management/package-managers && exec $SHELL
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Legacy Commands (TOML-based system - deprecated)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Legacy package installation using TOML (deprecated - use packages-* commands)
-install:
-    @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
-    @echo "Falling back to TOML-based system..."
-    @echo ""
-    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
-        echo "❌ Configuration file missing. Run: just configure"; \
-        echo ""; \
-        echo "💡 This will set up your platform (osx/arch/ubuntu) and machine class."; \
-        exit 1; \
-    fi
-    @mkdir -p logs
-    @source "$HOME/.dotfiles.env" && echo "📦 Installing $DOTFILES_PLATFORM packages using TOML-based package management..."
-    @echo "📝 Logging to: logs/install-$(date +%Y%m%d-%H%M%S).log"
-    @echo "⚠️  DEPRECATED: Use 'just install-packages' for new native package management"
-    @echo "This will install packages using the new machine class system"
-    @echo ""
-    @./scripts/package-management/import.sh --install
-
-
-# Legacy update check (deprecated - use packages-* commands)
-update-check:
-    @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
-    @echo "Falling back to TOML-based system..."
-    @echo ""
-    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
-        echo "❌ Platform not configured. Run: just configure"; \
-        exit 1; \
-    fi
-    @source "$HOME/.dotfiles.env" && echo "🔍 Checking for $DOTFILES_PLATFORM package updates..."
-    @echo "⚠️  DEPRECATED: Use 'just check-packages' for new native package management"
-    @echo "This will check updates using the new machine class system"
-    @echo ""
-    @cd package-management && just update-check
-
-# Legacy upgrade command (deprecated - use packages-* commands)
-update-upgrade:
-    @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
-    @echo "Falling back to TOML-based system..."
-    @echo ""
-    @if [ ! -f "$HOME/.dotfiles.env" ]; then \
-        echo "❌ Platform not configured. Run: just configure"; \
-        exit 1; \
-    fi
-    @echo "⚠️  WARNING: This will upgrade all configured packages!"
-    @echo "Run 'just update-check' first to see what will be upgraded."
-    @echo ""
-    @bash -c 'read -p "Continue with upgrade? (y/N): " confirm; if [[ "$confirm" != [yY] && "$confirm" != [yY][eE][sS] ]]; then echo "Cancelled."; exit 1; fi'
-    @echo ""
-    @source "$HOME/.dotfiles.env" && echo "🔄 Upgrading $DOTFILES_PLATFORM packages..."
-    @echo "⚠️  DEPRECATED: Use 'just upgrade-packages' for new native package management"
-    @echo "This will update packages using the new machine class system"
-    @echo ""
-    @cd package-management && just update-all
-
-
 
 # Opens a sub-shell with testing and validation tools
 testing:
