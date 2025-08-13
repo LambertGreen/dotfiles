@@ -248,10 +248,10 @@ show_install_command() {
             fi
             ;;
         apt)
-            [[ -f "${pm_dir}/packages.txt" ]] && echo "  $ xargs -a \"${pm_dir}/packages.txt\" sudo apt-get install -y"
+            [[ -f "${pm_dir}/packages.txt" ]] && echo "  $ while read package; do sudo apt-get install -y \$package; done < \"${pm_dir}/packages.txt\""
             ;;
         pacman)
-            [[ -f "${pm_dir}/packages.txt" ]] && echo "  $ xargs -a \"${pm_dir}/packages.txt\" sudo pacman -S --needed --noconfirm"
+            [[ -f "${pm_dir}/packages.txt" ]] && echo "  $ while read package; do sudo pacman -S --needed --noconfirm \$package; done < \"${pm_dir}/packages.txt\""
             ;;
         pip)
             if [[ -f "${pm_dir}/requirements.txt" ]]; then
@@ -338,8 +338,18 @@ install_packages() {
             
         apt)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
-                local cmd="xargs -a \"${pm_dir}/packages.txt\" sudo apt-get install -y"
-                execute_with_log "${cmd}"
+                print_info "Installing APT packages (may require sudo)..."
+                # Use while loop instead of xargs for better Docker compatibility
+                while IFS= read -r package || [[ -n "$package" ]]; do
+                    # Skip empty lines and comments
+                    [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
+                    # Remove inline comments and trim trailing whitespace
+                    package="${package%%#*}"
+                    package="${package%"${package##*[![:space:]]}"}"
+                    [[ -z "$package" ]] && continue
+                    print_info "Installing apt package: $package"
+                    sudo apt-get install -y "$package"
+                done < "${pm_dir}/packages.txt"
             else
                 print_warning "No packages.txt found"
             fi
@@ -348,8 +358,17 @@ install_packages() {
         pacman)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 print_info "Installing Pacman packages (may require sudo)..."
-                # Pacman has --print flag for dry-run
-                xargs -a "${pm_dir}/packages.txt" sudo pacman -S --needed --noconfirm
+                # Use while loop instead of xargs for better Docker compatibility
+                while IFS= read -r package || [[ -n "$package" ]]; do
+                    # Skip empty lines and comments
+                    [[ -z "$package" || "$package" =~ ^[[:space:]]*# ]] && continue
+                    # Remove inline comments and trim trailing whitespace
+                    package="${package%%#*}"
+                    package="${package%"${package##*[![:space:]]}"}"
+                    [[ -z "$package" ]] && continue
+                    print_info "Installing pacman package: $package"
+                    sudo pacman -S --needed --noconfirm "$package"
+                done < "${pm_dir}/packages.txt"
             else
                 print_warning "No packages.txt found"
             fi

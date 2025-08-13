@@ -45,39 +45,39 @@ default:
 
 # Test Ubuntu essential machine class
 test-ubuntu-essential:
-    @echo "🧪 Testing docker_ubuntu_essential machine class..."
+    @echo "🧪 Testing docker_essential_ubuntu machine class..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "📝 Logging to test-ubuntu-essential-output.log"
-    just _test-machine-class docker_ubuntu_essential ubuntu 2>&1 | tee test-ubuntu-essential-output.log; \
+    just _test-machine-class docker_essential_ubuntu ubuntu 2>&1 | tee test-ubuntu-essential-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_ubuntu_essential test PASSED"; \
+        echo "✅ docker_essential_ubuntu test PASSED"; \
     else \
-        echo "❌ docker_ubuntu_essential test FAILED"; \
+        echo "❌ docker_essential_ubuntu test FAILED"; \
         echo "📄 Check test-ubuntu-essential-output.log for details"; \
     fi
 
 # Test Arch essential machine class
 test-arch-essential:
-    @echo "🧪 Testing docker_arch_essential machine class..."
+    @echo "🧪 Testing docker_essential_arch machine class..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "📝 Logging to test-arch-essential-output.log"
-    just _test-machine-class docker_arch_essential arch 2>&1 | tee test-arch-essential-output.log; \
+    just _test-machine-class docker_essential_arch arch 2>&1 | tee test-arch-essential-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_arch_essential test PASSED"; \
+        echo "✅ docker_essential_arch test PASSED"; \
     else \
-        echo "❌ docker_arch_essential test FAILED"; \
+        echo "❌ docker_essential_arch test FAILED"; \
         echo "📄 Check test-arch-essential-output.log for details"; \
     fi
 
 # Interactive Ubuntu essential
 run-ubuntu-essential:
-    @echo "🐳 Running docker_ubuntu_essential interactive shell..."
-    just _run-machine-class docker_ubuntu_essential ubuntu
+    @echo "🐳 Running docker_essential_ubuntu interactive shell..."
+    just _run-machine-class docker_essential_ubuntu ubuntu
 
 # Interactive Arch essential
 run-arch-essential:
-    @echo "🐳 Running docker_arch_essential interactive shell..."
-    just _run-machine-class docker_arch_essential arch
+    @echo "🐳 Running docker_essential_arch interactive shell..."
+    just _run-machine-class docker_essential_arch arch
 
 # =============================================================================
 # Developer Tier - Multi-package manager testing
@@ -85,39 +85,39 @@ run-arch-essential:
 
 # Test Ubuntu developer machine class
 test-ubuntu-developer:
-    @echo "🧪 Testing docker_ubuntu_developer machine class..."
+    @echo "🧪 Testing docker_developer_ubuntu machine class..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "📝 Logging to test-ubuntu-developer-output.log"
-    just _test-machine-class docker_ubuntu_developer ubuntu 2>&1 | tee test-ubuntu-developer-output.log; \
+    just _test-machine-class docker_developer_ubuntu ubuntu 2>&1 | tee test-ubuntu-developer-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_ubuntu_developer test PASSED"; \
+        echo "✅ docker_developer_ubuntu test PASSED"; \
     else \
-        echo "❌ docker_ubuntu_developer test FAILED"; \
+        echo "❌ docker_developer_ubuntu test FAILED"; \
         echo "📄 Check test-ubuntu-developer-output.log for details"; \
     fi
 
 # Test Arch developer machine class
 test-arch-developer:
-    @echo "🧪 Testing docker_arch_developer machine class..."
+    @echo "🧪 Testing docker_developer_arch machine class..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     @echo "📝 Logging to test-arch-developer-output.log"
-    just _test-machine-class docker_arch_developer arch 2>&1 | tee test-arch-developer-output.log; \
+    just _test-machine-class docker_developer_arch arch 2>&1 | tee test-arch-developer-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_arch_developer test PASSED"; \
+        echo "✅ docker_developer_arch test PASSED"; \
     else \
-        echo "❌ docker_arch_developer test FAILED"; \
+        echo "❌ docker_developer_arch test FAILED"; \
         echo "📄 Check test-arch-developer-output.log for details"; \
     fi
 
 # Interactive Ubuntu developer
 run-ubuntu-developer:
-    @echo "🐳 Running docker_ubuntu_developer interactive shell..."
-    just _run-machine-class docker_ubuntu_developer ubuntu
+    @echo "🐳 Running docker_developer_ubuntu interactive shell..."
+    just _run-machine-class docker_developer_ubuntu ubuntu
 
 # Interactive Arch developer
 run-arch-developer:
-    @echo "🐳 Running docker_arch_developer interactive shell..."
-    just _run-machine-class docker_arch_developer arch
+    @echo "🐳 Running docker_developer_arch interactive shell..."
+    just _run-machine-class docker_developer_arch arch
 
 # =============================================================================
 # GUI Tier - Desktop environment validation

@@ -10,17 +10,17 @@ Install Emacs 30+ on all systems using the best available package manager per pl
 - **laptop_work_mac**: `pkryger/emacsmacport-exp/emacs-mac-exp@31` (Homebrew tap, latest version)
 
 ### Linux Ubuntu
-- **docker_ubuntu_essential**: Homebrew `emacs` (30+) - APT has old version
-- **docker_ubuntu_developer**: Homebrew `emacs` (30+) - APT has old version  
+- **docker_essential_ubuntu**: Homebrew `emacs` (30+) - APT has old version
+- **docker_developer_ubuntu**: Homebrew `emacs` (30+) - APT has old version  
 - **wsl_work_ubuntu**: Homebrew `emacs` (30+) - Consistent with other Ubuntu
 
 ### Linux Arch
-- **docker_arch_essential**: Homebrew `emacs` (30+) - Consistent experience
-- **docker_arch_developer**: Pacman `emacs` (30+) - Arch repos usually have latest
+- **docker_essential_arch**: Homebrew `emacs` (30+) - Consistent experience
+- **docker_developer_arch**: Pacman `emacs` (30+) - Arch repos usually have latest
 
 ### Windows
-- **windows_arm64_dev**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
-- **windows_x64_dev**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
+- **desktop_dev_windows_arm64**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
+- **desktop_dev_windows_x64**: MSYS2 pacman `mingw-w64-clang-aarch64-emacs` (29.4) - Need to check for 30+
 
 ## Package Manager Priority
 

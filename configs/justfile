@@ -20,25 +20,25 @@ _default:
 
 # Docker Arch Linux essential (pacman + homebrew)
 stow-docker-arch-essential:
-    @echo "🏛️ Stowing docker_arch_essential configs..."
+    @echo "🏛️ Stowing docker_essential_arch configs..."
     @just _stow-common-essential
     @just _stow-linux
 
 # Docker Arch Linux developer (pacman + AUR + homebrew + npm + pip)
 stow-docker-arch-developer:
-    @echo "🏛️ Stowing docker_arch_developer configs..."
+    @echo "🏛️ Stowing docker_developer_arch configs..."
     @just _stow-common-developer
     @just _stow-linux
 
 # Docker Ubuntu essential (apt + homebrew)
 stow-docker-ubuntu-essential:
-    @echo "🐧 Stowing docker_ubuntu_essential configs..."
+    @echo "🐧 Stowing docker_essential_ubuntu configs..."
     @just _stow-common-essential
     @just _stow-linux
 
 # Docker Ubuntu developer (apt + homebrew + npm + pip)
 stow-docker-ubuntu-developer:
-    @echo "🐧 Stowing docker_ubuntu_developer configs..."
+    @echo "🐧 Stowing docker_developer_ubuntu configs..."
     @just _stow-common-developer
     @just _stow-linux
 
@@ -95,13 +95,13 @@ stow-wsl-work-ubuntu:
 
 # Windows ARM64 development (MSYS2 pacman + scoop)
 stow-windows-arm64-dev:
-    @echo "🪟 Stowing windows_arm64_dev configs..."
+    @echo "🪟 Stowing desktop_dev_windows_arm64 configs..."
     @just _stow-common-developer
     @just _stow-windows
 
 # Windows x64 development (MSYS2 pacman + scoop)
 stow-windows-x64-dev:
-    @echo "🪟 Stowing windows_x64_dev configs..."
+    @echo "🪟 Stowing desktop_dev_windows_x64 configs..."
     @just _stow-common-developer
     @just _stow-windows
 
