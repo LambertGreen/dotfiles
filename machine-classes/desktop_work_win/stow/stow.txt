@@ -1,0 +1,26 @@
+# Windows Work Desktop Stow Configuration
+# Based on Windows work machine with scoop + chocolatey + winget + MSYS2
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+common/emacs
+common/nvim
+common/ripgrep
+common/fd
+
+# Work configs (work context)
+work/git_work
+
+# Platform-specific Windows configs
+windows_only/git_win
+windows_only/shell_msys2
+windows_only/autohotkey
+windows_only/clink
+windows_only/powershell_win
+windows_only/vscode_win
+windows_only/emacs_win_wsl
