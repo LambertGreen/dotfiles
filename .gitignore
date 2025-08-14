@@ -36,3 +36,7 @@ Keypirinha.history
 .runtime_testing/
 *.log
 logs/
+
+# Clink
+/configs/windows_only/clink/AppData/Local/clink/clink_history*
+/configs/windows_only/clink/AppData/Local/clink/clink_errorlevel*
