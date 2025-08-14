@@ -4,6 +4,7 @@
 # Essential tools (from essential tier)
 base-devel
 curl
+fastfetch
 git
 stow
 sudo

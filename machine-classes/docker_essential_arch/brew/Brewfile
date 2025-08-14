@@ -1,4 +1,5 @@
 # Arch Docker Essential - Homebrew packages
 # Use Homebrew for packages that need recent versions
 
-brew "emacs"  # Get Emacs 30+ from Homebrew
+brew "emacs"     # Get Emacs 30+ from Homebrew
+brew "fastfetch" # System info tool
