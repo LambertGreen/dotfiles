@@ -80,9 +80,20 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 RUN just stow
 
 # =============================================================================
+# SHELL SETUP STAGE - Initialize zsh environment with zinit
+# =============================================================================
+FROM stow-arch-essential AS shell-arch-essential
+
+# Switch to zsh login shell and let it auto-install zinit and plugins naturally
+# Stage 1: Install zinit (first zsh startup)
+RUN echo 'exit' | zsh -l -i
+# Stage 2: Install all plugins including async ones (second zsh startup with forced download)
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+
+# =============================================================================
 # INSTALL STAGE - Package installation
 # =============================================================================
-FROM stow-arch-essential AS install-arch-essential
+FROM shell-arch-essential AS install-arch-essential
 
 # Copy only package management files needed for install stage
 COPY --chown=user:user machine-classes/docker_essential_arch/pacman/ ./machine-classes/docker_essential_arch/pacman/
@@ -92,8 +103,8 @@ COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 RUN mkdir -p ./machine-classes/scripts/
 RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
-# Install packages - real user command
-RUN just install-packages
+# Install packages using configured shell environment
+RUN zsh -l -c 'just install-packages'
 
 # =============================================================================
 # FINAL STAGE: docker_essential_arch
@@ -102,8 +113,7 @@ RUN just install-packages
 FROM install-arch-essential AS docker_essential_arch
 
 # Final validation - real user commands
-RUN just check-health && \
-    just show-package-stats
+RUN zsh -l -c 'just check-health && just show-package-stats'
 
 # =============================================================================
 # MACHINE CLASS: docker_developer_arch
@@ -148,8 +158,17 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 # Deploy configurations - real user command
 RUN just stow
 
+# Shell setup stage for developer
+FROM stow-arch-developer AS shell-arch-developer
+
+# Switch to zsh login shell and let it auto-install zinit and plugins naturally
+# Stage 1: Install zinit (first zsh startup)
+RUN echo 'exit' | zsh -l -i
+# Stage 2: Install all plugins including async ones (second zsh startup with forced download)
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+
 # Install stage for developer
-FROM stow-arch-developer AS install-arch-developer
+FROM shell-arch-developer AS install-arch-developer
 
 # Copy package management system
 COPY --chown=user:user machine-classes/ ./machine-classes/
@@ -158,15 +177,14 @@ COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 RUN mkdir -p ./machine-classes/scripts/
 RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
-# Install packages - real user command
-RUN just install-packages
+# Install packages using configured shell environment
+RUN zsh -l -c 'just install-packages'
 
 # Final stage for developer
 FROM install-arch-developer AS docker_developer_arch
 
 # Final validation - real user commands
-RUN just check-health && \
-    just show-package-stats
+RUN zsh -l -c 'just check-health && just show-package-stats'
 
 # =============================================================================
 # MACHINE CLASS: docker_arch_gui
@@ -211,8 +229,17 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 # Deploy configurations - real user command
 RUN just stow
 
+# Shell setup stage for GUI
+FROM stow-arch-gui AS shell-arch-gui
+
+# Switch to zsh login shell and let it auto-install zinit and plugins naturally
+# Stage 1: Install zinit (first zsh startup)
+RUN echo 'exit' | zsh -l -i
+# Stage 2: Install all plugins including async ones (second zsh startup with forced download)
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+
 # Install stage for GUI
-FROM stow-arch-gui AS install-arch-gui
+FROM shell-arch-gui AS install-arch-gui
 
 # Copy package management system
 COPY --chown=user:user machine-classes/ ./machine-classes/
@@ -221,12 +248,11 @@ COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 RUN mkdir -p ./machine-classes/scripts/
 RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
-# Install packages - real user command
-RUN just install-packages
+# Install packages using configured shell environment
+RUN zsh -l -c 'just install-packages'
 
 # Final stage for GUI
 FROM install-arch-gui AS docker_arch_gui
 
 # Final validation - real user commands
-RUN just check-health && \
-    just show-package-stats
+RUN zsh -l -c 'just check-health && just show-package-stats'
