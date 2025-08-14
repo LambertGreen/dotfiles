@@ -364,6 +364,12 @@ _check_package_health() {
         fi
 
         local pm_name=$(basename "$pm_dir")
+        
+        # Skip stow directory - it's for configuration, not package management
+        if [[ "$pm_name" == "stow" ]]; then
+            continue
+        fi
+        
         $log_output "  • Checking $pm_name packages..."
 
         # Check if package manager is available

@@ -10,16 +10,24 @@ FROM ubuntu:22.04 AS base
 RUN apt-get update --quiet && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       sudo git openssh-client wget curl ca-certificates build-essential \
-      bash zsh && \
+      bash zsh locales && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
     usermod -aG sudo user && \
     echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    echo 'user:user' | chpasswd
+    echo 'user:user' | chpasswd && \
+    # Configure locale to avoid perl warnings
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
 
 USER user
 WORKDIR /home/user
+
+# Set locale environment variables
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANGUAGE=en_US:en
 
 # Set timezone from host system (fallback to UTC)
 ARG TZ
