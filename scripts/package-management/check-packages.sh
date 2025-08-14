@@ -86,8 +86,10 @@ if command -v apt >/dev/null 2>&1; then
         log_verbose "Running: apt list --upgradable"
         if upgradable_apt=$(apt list --upgradable 2>/dev/null | head -20); then
             # Remove header line and count actual packages
-            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l)
-            if [[ $upgradable_count -gt 0 ]]; then
+            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l | tr -d ' ')
+            # Strip any newlines or whitespace
+            upgradable_count="${upgradable_count//[$'\r\n']/}"
+            if [[ ${upgradable_count:-0} -gt 0 ]]; then
                 log_output "$upgradable_apt"
                 updates_found=true
                 log_verbose "APT updates available: $upgradable_count packages"
@@ -116,14 +118,18 @@ if command -v pip3 >/dev/null 2>&1; then
     log_verbose "Running: pip3 list --outdated"
     # Try user packages first, then global
     if outdated_pip=$(pip3 list --outdated --user 2>/dev/null | head -20); then
-        if [[ -n "$outdated_pip" ]] && [[ $(echo "$outdated_pip" | wc -l) -gt 2 ]]; then
+        pip_line_count=$(echo "$outdated_pip" | wc -l | tr -d ' ')
+        pip_line_count="${pip_line_count//[$'\r\n']/}"
+        if [[ -n "$outdated_pip" ]] && [[ ${pip_line_count:-0} -gt 2 ]]; then
             log_output "$outdated_pip"
             updates_found=true
             log_verbose "pip (user) updates available"
         else
             # Try global packages
             if outdated_pip_global=$(pip3 list --outdated 2>/dev/null | head -20); then
-                if [[ -n "$outdated_pip_global" ]] && [[ $(echo "$outdated_pip_global" | wc -l) -gt 2 ]]; then
+                pip_global_line_count=$(echo "$outdated_pip_global" | wc -l | tr -d ' ')
+                pip_global_line_count="${pip_global_line_count//[$'\r\n']/}"
+                if [[ -n "$outdated_pip_global" ]] && [[ ${pip_global_line_count:-0} -gt 2 ]]; then
                     log_output "$outdated_pip_global"
                     updates_found=true
                     log_verbose "pip (global) updates available"
