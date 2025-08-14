@@ -340,7 +340,7 @@ _check_package_health() {
         return
     fi
 
-    local machine_dir="$DOTFILES_DIR/package-management/machines/$DOTFILES_MACHINE_CLASS"
+    local machine_dir="$DOTFILES_DIR/machine-classes/$DOTFILES_MACHINE_CLASS"
     if [[ ! -d "$machine_dir" ]]; then
         $log_output "  • ⚠️  Machine class directory not found: $machine_dir"
         WARNINGS+=("Machine class directory not found")
@@ -364,6 +364,12 @@ _check_package_health() {
         fi
 
         local pm_name=$(basename "$pm_dir")
+        
+        # Skip stow directory - it's for configuration, not package management
+        if [[ "$pm_name" == "stow" ]]; then
+            continue
+        fi
+        
         $log_output "  • Checking $pm_name packages..."
 
         # Check if package manager is available
@@ -380,7 +386,10 @@ _check_package_health() {
                     # Count packages in Brewfile
                     local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
                     local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
-                    local total_brewfile=$((brew_count + cask_count))
+                    # Strip any newlines or carriage returns from grep output
+                    brew_count="${brew_count//[$'\r\n']/}"
+                    cask_count="${cask_count//[$'\r\n']/}"
+                    local total_brewfile=$((${brew_count:-0} + ${cask_count:-0}))
                     
                     # Get system info
                     local brew_info=$(brew --version 2>/dev/null | head -n 1)
@@ -499,6 +508,8 @@ _check_package_health() {
                 if [[ -f "$pm_dir/Gemfile" ]]; then
                     # Count gems in Gemfile
                     local gem_count=$(grep -c "^gem " "$pm_dir/Gemfile" 2>/dev/null || echo 0)
+                    # Strip any newlines or carriage returns from grep output
+                    gem_count="${gem_count//[$'\r\n']/}"
                     
                     if command -v gem >/dev/null 2>&1; then
                         # Get Ruby and gem info

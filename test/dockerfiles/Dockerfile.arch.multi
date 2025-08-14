@@ -1,8 +1,8 @@
-# Multi-stage Dockerfile for Arch dotfiles testing
-# Tests complete workflow: configure → bootstrap → stow → install → update
+# Multi-stage Dockerfile for Arch dotfiles
+# Docker as a valid Linux runtime on non-Linux machines
 
 # =============================================================================
-# BASE STAGE - Common system setup for all Arch tests
+# BASE STAGE - Common system setup for all Arch containers
 # =============================================================================
 FROM --platform=linux/amd64 archlinux:latest AS base
 
@@ -10,366 +10,223 @@ FROM --platform=linux/amd64 archlinux:latest AS base
 RUN pacman -Syu --noconfirm && \
     pacman -S --noconfirm git curl wget sudo base-devel tzdata zsh && \
     useradd -m -G wheel -s /bin/bash user && \
-    echo 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+    echo 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    # Set locale to avoid perl warnings
+    echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && \
+    locale-gen
 
 USER user
 WORKDIR /home/user
+
+# Set locale environment variables
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANGUAGE=en_US:en
 
 # Set timezone from host system (fallback to UTC)
 ARG TZ
 ENV TZ=${TZ:-UTC}
 RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 
-# Copy only essential files first for better caching
 WORKDIR /home/user/dotfiles
 
 # =============================================================================
-# CONFIGURE STAGE - Interactive configuration
+# CONFIGURE STAGE - Configuration with efficient caching
 # =============================================================================
-FROM base AS configure
-# Copy only configuration script for configure stage
+FROM base AS configure-arch-essential
+
+# Copy only configuration script for better caching
 COPY --chown=user:user configure.sh ./
-RUN echo "=== CONFIGURE STAGE ===" && \
-    echo "🕐 Configure start time: $(date)" && \
-    rm -f ~/.dotfiles.env && \
-    printf "2\n1\n1\ny\n" | ./configure.sh --no-autodetect && \
-    echo "📋 Generated configuration:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
-    grep -q "# Selected: min-cli" ~/.dotfiles.env && \
-    echo "✅ Configuration verified!" && \
-    echo "🕐 Configure end time: $(date)"
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+# Copy only package manager configs needed for configure (not stow configs)
+COPY --chown=user:user machine-classes/docker_essential_arch/pacman/ ./machine-classes/docker_essential_arch/pacman/
+COPY --chown=user:user machine-classes/docker_essential_arch/brew/ ./machine-classes/docker_essential_arch/brew/
+
+# Set fast timeout for Docker and pre-select machine class
+ENV DOTFILES_PROMPT_TIMEOUT=3
+ENV DOTFILES_MACHINE_CLASS=docker_essential_arch
+
+# Configure - real user command with fast timeout
+RUN ./configure.sh
 
 # =============================================================================
-# BOOTSTRAP STAGE - Tool installation
+# BOOTSTRAP STAGE - Install core tools
 # =============================================================================
-# Tier 1: min-cli configuration
-FROM base AS configure-min-cli
-# Copy only configuration script for configure stage
-COPY --chown=user:user configure.sh ./
-RUN echo "=== CONFIGURE min-cli STAGE ===" && \
-    echo "🕐 Configure start time: $(date)" && \
-    rm -f ~/.dotfiles.env && \
-    printf "2\n1\n1\ny\n" | ./configure.sh --no-autodetect && \
-    echo "📋 Generated configuration:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
-    grep -q "# Selected: min-cli" ~/.dotfiles.env && \
-    echo "✅ Configuration verified!" && \
-    echo "🕐 Configure end time: $(date)"
+FROM configure-arch-essential AS bootstrap-arch-essential
 
-# Tier 2: mid-cli configuration
-FROM base AS configure-mid-cli
-# Copy only configuration script for configure stage
-COPY --chown=user:user configure.sh ./
-RUN echo "=== CONFIGURE mid-cli STAGE ===" && \
-    echo "🕐 Configure start time: $(date)" && \
-    rm -f ~/.dotfiles.env && \
-    printf "2\n1\n2\ny\n" | ./configure.sh --no-autodetect && \
-    echo "📋 Generated configuration:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
-    grep -q "# Selected: mid-cli" ~/.dotfiles.env && \
-    echo "✅ Configuration verified!" && \
-    echo "🕐 Configure end time: $(date)"
-
-# Tier 3: mid-dev configuration
-FROM base AS configure-mid-dev
-# Copy only configuration script for configure stage
-COPY --chown=user:user configure.sh ./
-RUN echo "=== CONFIGURE mid-dev STAGE ===" && \
-    echo "🕐 Configure start time: $(date)" && \
-    rm -f ~/.dotfiles.env && \
-    printf "2\n1\n3\ny\n" | ./configure.sh --no-autodetect && \
-    echo "📋 Generated configuration:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
-    grep -q "# Selected: mid-dev" ~/.dotfiles.env && \
-    echo "✅ Configuration verified!" && \
-    echo "🕐 Configure end time: $(date)"
-
-# Tier 4: max-dev configuration
-FROM base AS configure-max-dev
-# Copy only configuration script for configure stage
-COPY --chown=user:user configure.sh ./
-RUN echo "=== CONFIGURE max-dev STAGE ===" && \
-    echo "🕐 Configure start time: $(date)" && \
-    rm -f ~/.dotfiles.env && \
-    printf "2\n1\n4\ny\n" | ./configure.sh --no-autodetect && \
-    echo "📋 Generated configuration:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Verifying configuration..." && \
-    grep -q "DOTFILES_PLATFORM=arch" ~/.dotfiles.env && \
-    grep -q "# Selected: max-dev" ~/.dotfiles.env && \
-    echo "✅ Configuration verified!" && \
-    echo "🕐 Configure end time: $(date)"
-
-FROM configure-min-cli AS bootstrap-min-cli
-# Copy bootstrap files and health check tools
+# Copy only bootstrap files for caching
 COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user bootstrap/ ./bootstrap/
-COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
-RUN echo "=== BOOTSTRAP min-cli STAGE ===" && \
-    echo "🕐 Bootstrap start time: $(date)" && \
-    echo "🔧 Running actual bootstrap script for system parity..." && \
-    ./bootstrap.sh && \
-    echo "🏥 Health check after bootstrap:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
-    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
-    which stow && stow --version && \
-    which just && just --version && \
-    which python3 && python3 --version && \
-    echo "✅ Bootstrap complete!" && \
-    echo "🕐 Bootstrap end time: $(date)"
+COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
 
-FROM configure-mid-cli AS bootstrap-mid-cli
-# Copy bootstrap files and health check tools
-COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user bootstrap/ ./bootstrap/
-COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
-RUN echo "=== BOOTSTRAP mid-cli STAGE ===" && \
-    echo "🕐 Bootstrap start time: $(date)" && \
-    echo "🔧 Running actual bootstrap script for system parity..." && \
-    ./bootstrap.sh && \
-    echo "🏥 Health check after bootstrap:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
-    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
-    which stow && stow --version && \
-    which just && just --version && \
-    which python3 && python3 --version && \
-    echo "✅ Bootstrap complete!" && \
-    echo "🕐 Bootstrap end time: $(date)"
-
-FROM configure-mid-dev AS bootstrap-mid-dev
-# Copy bootstrap files and health check tools
-COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user bootstrap/ ./bootstrap/
-COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
-RUN echo "=== BOOTSTRAP mid-dev STAGE ===" && \
-    echo "🕐 Bootstrap start time: $(date)" && \
-    echo "🔧 Running actual bootstrap script for system parity..." && \
-    ./bootstrap.sh && \
-    echo "🏥 Health check after bootstrap:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
-    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
-    which stow && stow --version && \
-    which just && just --version && \
-    which python3 && python3 --version && \
-    echo "✅ Bootstrap complete!" && \
-    echo "🕐 Bootstrap end time: $(date)"
-
-FROM configure-max-dev AS bootstrap-max-dev
-# Copy bootstrap files and health check tools
-COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user bootstrap/ ./bootstrap/
-COPY --chown=user:user tools/dotfiles-health/ ./tools/dotfiles-health/
-RUN echo "=== BOOTSTRAP max-dev STAGE ===" && \
-    echo "🕐 Bootstrap start time: $(date)" && \
-    echo "🔧 Running actual bootstrap script for system parity..." && \
-    ./bootstrap.sh && \
-    echo "🏥 Health check after bootstrap:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Empty system after bootstrap is expected' && \
-    echo "🔍 Verifying tools installed by bootstrap scripts..." && \
-    which stow && stow --version && \
-    which just && just --version && \
-    which python3 && python3 --version && \
-    echo "✅ Bootstrap complete!" && \
-    echo "🕐 Bootstrap end time: $(date)"
+# Bootstrap - real user command  
+RUN ./bootstrap.sh
 
 # =============================================================================
-# STOW STAGE - Config deployment
+# STOW STAGE - Deploy configurations
 # =============================================================================
-FROM bootstrap-min-cli AS stow-min-cli
-# Copy configuration files and package management scripts for stowing
+FROM bootstrap-arch-essential AS stow-arch-essential
+
+# Copy configuration files for stowing
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== STOW min-cli STAGE ===" && \
-    echo "🔍 Validating min-cli configuration before stow:" && \
-    cat ~/.dotfiles.env && \
-    echo "🔍 Asserting expected min-cli config values..." && \
-    grep -q "DOTFILES_CLI_UTILS=true" ~/.dotfiles.env && \
-    grep -q "DOTFILES_CLI_UTILS_HEAVY=false" ~/.dotfiles.env && \
-    grep -q "DOTFILES_CLI_EDITORS=false" ~/.dotfiles.env && \
-    grep -q "DOTFILES_DEV_ENV=false" ~/.dotfiles.env && \
-    echo "✅ min-cli configuration validated!" && \
-    echo "🧹 Removing default shell files that conflict with stow..." && \
-    rm -f ~/.bash_profile ~/.bashrc && \
-    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
-    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
-    echo "🔍 Checking what symlinks were created:" && \
-    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
-    echo "🏥 Health check after stow:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
-    echo "✅ Stow complete!"
+COPY --chown=user:user scripts/health/ ./scripts/health/
+COPY --chown=user:user scripts/stow/ ./scripts/stow/
+# Copy stow configuration for this machine class
+COPY --chown=user:user machine-classes/docker_essential_arch/stow/ ./machine-classes/docker_essential_arch/stow/
 
-FROM bootstrap-mid-cli AS stow-mid-cli
-# Copy configuration files and package management scripts for stowing
-COPY --chown=user:user configs/ ./configs/
-COPY --chown=user:user justfile ./
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== STOW mid-cli STAGE ===" && \
-    echo "🔍 Showing configuration before stow:" && \
-    cat ~/.dotfiles.env && \
-    echo "🧹 Removing default shell files that conflict with stow..." && \
-    rm -f ~/.bash_profile ~/.bashrc && \
-    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
-    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
-    echo "🔍 Checking what symlinks were created:" && \
-    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
-    echo "🏥 Health check after stow:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
-    echo "✅ Stow complete!"
-
-FROM bootstrap-mid-dev AS stow-mid-dev
-# Copy configuration files and package management scripts for stowing
-COPY --chown=user:user configs/ ./configs/
-COPY --chown=user:user justfile ./
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== STOW mid-dev STAGE ===" && \
-    echo "🔍 Showing configuration before stow:" && \
-    cat ~/.dotfiles.env && \
-    echo "🧹 Removing default shell files that conflict with stow..." && \
-    rm -f ~/.bash_profile ~/.bashrc && \
-    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
-    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
-    echo "🔍 Checking what symlinks were created:" && \
-    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
-    echo "🏥 Health check after stow:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
-    echo "✅ Stow complete!"
-
-FROM bootstrap-max-dev AS stow-max-dev
-# Copy configuration files and package management scripts for stowing
-COPY --chown=user:user configs/ ./configs/
-COPY --chown=user:user justfile ./
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== STOW max-dev STAGE ===" && \
-    echo "🔍 Showing configuration before stow:" && \
-    cat ~/.dotfiles.env && \
-    echo "🧹 Removing default shell files that conflict with stow..." && \
-    rm -f ~/.bash_profile ~/.bashrc && \
-    # New approach: Manual stow for essential configs (legacy just stow deprecated) &&
-    cd configs/common && stow --dotfiles --target=~ git shell tmux vim 2>/dev/null || echo 'Some stow configs may not apply in minimal environment' && cd ../.. && \
-    echo "🔍 Checking what symlinks were created:" && \
-    find /home/user -maxdepth 2 -type l | head -10 || echo "No symlinks found" && \
-    echo "🏥 Health check after stow:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" || echo '⚠️  Health check after stow - some configs may not create visible symlinks' && \
-    echo "✅ Stow complete!"
+# Remove default shell files that conflict with stow
+RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
+# Deploy configurations - real user command
+RUN just stow
 
 # =============================================================================
 # INSTALL STAGE - Package installation
 # =============================================================================
-FROM stow-min-cli AS install-min-cli
-# Copy complete package management system
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== INSTALL min-cli STAGE ===" && \
-    echo "📊 Setting up machine class for Docker test:" && \
-    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
-    echo "📊 Showing configuration:" && \
-    just show-packages-config && \
-    echo "📦 Previewing packages..." && \
-    just preview-packages && \
-    echo "📦 Installing packages..." && \
-    just install-packages && \
-    echo "🏥 Health check after install:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
-    echo "✅ Install complete!"
+FROM stow-arch-essential AS install-arch-essential
 
-FROM stow-mid-cli AS install-mid-cli
-# Copy package management tools
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== INSTALL mid-cli STAGE ===" && \
-    echo "📊 Setting up machine class for Docker test:" && \
-    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
-    echo "📊 Showing configuration:" && \
-    just show-packages-config && \
-    echo "📦 Previewing packages..." && \
-    just preview-packages && \
-    echo "📦 Installing packages..." && \
-    just install-packages && \
-    echo "🏥 Health check after install:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
-    echo "✅ Install complete!"
+# Copy only package management files needed for install stage
+COPY --chown=user:user machine-classes/docker_essential_arch/pacman/ ./machine-classes/docker_essential_arch/pacman/
+COPY --chown=user:user machine-classes/docker_essential_arch/brew/ ./machine-classes/docker_essential_arch/brew/
+COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
+# Create expected directory structure for scripts
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 
-FROM stow-mid-dev AS install-mid-dev
-# Copy package management tools
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== INSTALL mid-dev STAGE ===" && \
-    echo "📊 Setting up machine class for Docker test:" && \
-    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
-    echo "📊 Showing configuration:" && \
-    just show-packages-config && \
-    echo "📦 Previewing packages..." && \
-    just preview-packages && \
-    echo "📦 Installing packages..." && \
-    just install-packages && \
-    echo "🏥 Health check after install:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
-    echo "✅ Install complete!"
-
-FROM stow-max-dev AS install-max-dev
-# Copy package management tools
-COPY --chown=user:user package-management/ ./package-management/
-RUN echo "=== INSTALL max-dev STAGE ===" && \
-    echo "📊 Setting up machine class for Docker test:" && \
-    echo "DOTFILES_MACHINE_CLASS=docker_test_arch" > ~/.dotfiles.machine.class.env && \
-    echo "📊 Showing configuration:" && \
-    just show-packages-config && \
-    echo "📦 Previewing packages..." && \
-    just preview-packages && \
-    echo "📦 Installing packages..." && \
-    just install-packages && \
-    echo "🏥 Health check after install:" && \
-    bash -c "set -a && source ~/.dotfiles.env 2>/dev/null && set +a && bash tools/dotfiles-health/dotfiles-health.sh" && \
-    echo "✅ Install complete!"
+# Install packages - real user command
+RUN just install-packages
 
 # =============================================================================
-# UPDATE STAGE - Complete workflow
+# FINAL STAGE: docker_essential_arch
+# Minimal Arch system with pacman + homebrew for emacs 30+
 # =============================================================================
-FROM install-min-cli AS update-min-cli
-RUN echo "=== UPDATE min-cli STAGE ===" && \
-    echo "🔄 Checking for package updates..." && \
-    just update-packages-check && \
-    echo "🏥 Final health check:" && \
-    just check-health && \
-    echo "🧪 Verifying installed packages:" && \
-    which git stow && \
-    echo "✅ Arch min-cli workflow complete!"
+FROM install-arch-essential AS docker_essential_arch
 
-FROM install-mid-cli AS update-mid-cli
-RUN echo "=== UPDATE mid-cli STAGE ===" && \
-    echo "🔄 Checking for package updates..." && \
-    just update-packages-check && \
-    echo "🏥 Final health check:" && \
-    just check-health && \
-    echo "🧪 Verifying installed packages:" && \
-    which git stow && \
-    echo "✅ Arch mid-cli workflow complete!"
+# Final validation - real user commands
+RUN just check-health && \
+    just show-package-stats
 
-FROM install-mid-dev AS update-mid-dev
-RUN echo "=== UPDATE mid-dev STAGE ===" && \
-    echo "🔄 Checking for package updates..." && \
-    just update-packages-check && \
-    echo "🏥 Final health check:" && \
-    just check-health && \
-    echo "🧪 Verifying installed packages:" && \
-    which git stow && \
-    echo "✅ Arch mid-dev workflow complete!"
+# =============================================================================
+# MACHINE CLASS: docker_developer_arch
+# Development environment with pacman + AUR/yay + homebrew + pip + npm
+# =============================================================================
+# Configure stage for developer
+FROM base AS configure-arch-developer
 
-FROM install-max-dev AS update-max-dev
-RUN echo "=== UPDATE max-dev STAGE ===" && \
-    echo "🔄 Checking for package updates..." && \
-    just update-packages-check && \
-    echo "🏥 Final health check:" && \
-    just check-health && \
-    echo "🧪 Verifying installed packages:" && \
-    which git stow && \
-    echo "✅ Arch max-dev workflow complete!"
+# Copy only configuration script and machine definitions for better caching
+COPY --chown=user:user configure.sh ./
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
 
-# Legacy compatibility targets
-FROM update-min-cli AS update-basic
+# Set fast timeout for Docker and pre-select machine class
+ENV DOTFILES_PROMPT_TIMEOUT=3
+ENV DOTFILES_MACHINE_CLASS=docker_developer_arch
+
+# Configure - real user command with fast timeout
+RUN ./configure.sh
+
+# Bootstrap stage for developer
+FROM configure-arch-developer AS bootstrap-arch-developer
+
+# Copy only bootstrap files for caching
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
+
+# Bootstrap - real user command  
+RUN ./bootstrap.sh
+
+# Stow stage for developer
+FROM bootstrap-arch-developer AS stow-arch-developer
+
+# Copy configuration files for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user scripts/health/ ./scripts/health/
+COPY --chown=user:user scripts/stow/ ./scripts/stow/
+
+# Remove default shell files that conflict with stow
+RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
+# Deploy configurations - real user command
+RUN just stow
+
+# Install stage for developer
+FROM stow-arch-developer AS install-arch-developer
+
+# Copy package management system
+COPY --chown=user:user machine-classes/ ./machine-classes/
+COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
+# Create expected directory structure for scripts
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
+
+# Install packages - real user command
+RUN just install-packages
+
+# Final stage for developer
+FROM install-arch-developer AS docker_developer_arch
+
+# Final validation - real user commands
+RUN just check-health && \
+    just show-package-stats
+
+# =============================================================================
+# MACHINE CLASS: docker_arch_gui
+# Full desktop environment (validation only)
+# =============================================================================
+# Configure stage for GUI
+FROM base AS configure-arch-gui
+
+# Copy only configuration script and machine definitions for better caching
+COPY --chown=user:user configure.sh ./
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
+
+# Set fast timeout for Docker and pre-select machine class
+ENV DOTFILES_PROMPT_TIMEOUT=3
+ENV DOTFILES_MACHINE_CLASS=docker_arch_gui
+
+# Configure - real user command with fast timeout
+RUN ./configure.sh
+
+# Bootstrap stage for GUI
+FROM configure-arch-gui AS bootstrap-arch-gui
+
+# Copy only bootstrap files for caching
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
+
+# Bootstrap - real user command  
+RUN ./bootstrap.sh
+
+# Stow stage for GUI
+FROM bootstrap-arch-gui AS stow-arch-gui
+
+# Copy configuration files for stowing
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user scripts/health/ ./scripts/health/
+COPY --chown=user:user scripts/stow/ ./scripts/stow/
+
+# Remove default shell files that conflict with stow
+RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
+# Deploy configurations - real user command
+RUN just stow
+
+# Install stage for GUI
+FROM stow-arch-gui AS install-arch-gui
+
+# Copy package management system
+COPY --chown=user:user machine-classes/ ./machine-classes/
+COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
+# Create expected directory structure for scripts
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
+
+# Install packages - real user command
+RUN just install-packages
+
+# Final stage for GUI
+FROM install-arch-gui AS docker_arch_gui
+
+# Final validation - real user commands
+RUN just check-health && \
+    just show-package-stats

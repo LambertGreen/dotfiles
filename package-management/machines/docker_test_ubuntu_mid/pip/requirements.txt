@@ -1,5 +1,0 @@
-black
-ipython
-isort
-pyflakes
-pytest

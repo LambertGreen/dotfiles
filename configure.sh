@@ -34,6 +34,28 @@ log_verbose() {
     echo "$1" >> "${LOG_FILE}"
 }
 
+# Function to handle prompts with timeout and defaults
+prompt_with_timeout() {
+    local prompt="$1"
+    local default="$2"
+    local variable_name="$3"
+    
+    if read -t $PROMPT_TIMEOUT -p "$prompt" "$variable_name"; then
+        # User provided input within timeout
+        if [[ -z "${!variable_name}" ]]; then
+            declare -g "$variable_name"="$default"
+        fi
+    else
+        # Timeout occurred, use default
+        declare -g "$variable_name"="$default"
+        echo "$default"
+        log_verbose "Timeout after ${PROMPT_TIMEOUT}s, using default: $default"
+    fi
+}
+
+# Configurable prompt timeout - 15s for users, can be overridden for Docker
+PROMPT_TIMEOUT=${DOTFILES_PROMPT_TIMEOUT:-15}
+
 # Parse command line arguments
 AUTODETECT=true
 while [[ $# -gt 0 ]]; do
@@ -58,7 +80,7 @@ if [ -f ~/.dotfiles.env ]; then
     echo "📋 Current configuration found:"
     cat ~/.dotfiles.env
     echo ""
-    read -p "Reconfigure? (y/N): " reconfigure
+    prompt_with_timeout "Reconfigure? (y/N): " "N" reconfigure
     if [[ ! "$reconfigure" =~ ^[Yy]$ ]]; then
         echo "✅ Using existing configuration"
         exit 0
@@ -98,7 +120,7 @@ fi
 
 # Platform selection
 if [ "$AUTODETECT" = true ] && [ "$DETECTED_PLATFORM" != "unknown" ] && [ "$DETECTED_PLATFORM" != "linux" ]; then
-    read -p "Use detected platform ($DETECTED_PLATFORM)? (Y/n): " use_detected
+    prompt_with_timeout "Use detected platform ($DETECTED_PLATFORM)? (Y/n): " "Y" use_detected
     if [[ "$use_detected" =~ ^[Nn]$ ]]; then
         AUTODETECT=false
     else
@@ -119,7 +141,7 @@ if [ "${PLATFORM:-}" = "" ]; then
         echo "💡 Linux detected but distribution unclear. Choose the closest match:"
     fi
 
-    read -p "Select platform (1-4): " platform_choice
+    prompt_with_timeout "Select platform (1-4): " "3" platform_choice
 
     case $platform_choice in
         1) PLATFORM="osx" ;;
@@ -144,17 +166,23 @@ fi
 
 # Configure machine class
 MACHINE_CLASS=""
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 
 if [[ -n "$EXISTING_MACHINE_CLASS" ]]; then
     echo "📋 Current machine class: $EXISTING_MACHINE_CLASS"
-    read -p "Change machine class? (y/N): " change_class
+    prompt_with_timeout "Change machine class? (y/N): " "N" change_class
     if [[ "$change_class" =~ ^[Yy]$ ]]; then
         MACHINE_CLASS=""  # Will prompt for new one below
     else
         MACHINE_CLASS="$EXISTING_MACHINE_CLASS"
     fi
+fi
+
+# Check if machine class is pre-set (for Docker)
+if [[ -n "${DOTFILES_MACHINE_CLASS:-}" ]]; then
+    MACHINE_CLASS="$DOTFILES_MACHINE_CLASS"
+    echo "🤖 Using pre-set machine class: $MACHINE_CLASS"
 fi
 
 if [[ -z "$MACHINE_CLASS" ]]; then
@@ -202,7 +230,7 @@ if [[ -z "$MACHINE_CLASS" ]]; then
     # Get user selection
     selection=""
     while true; do
-        read -p "Select machine class (1-${#machines[@]}): " selection
+        prompt_with_timeout "Select machine class (1-${#machines[@]}): " "1" selection
         
         # Validate selection
         if [[ "${selection}" =~ ^[0-9]+$ ]] && (( selection >= 1 && selection <= ${#machines[@]} )); then
@@ -232,11 +260,9 @@ if [[ -n "$MACHINE_CLASS" ]]; then
     echo ""
     
     # Source the interactive prompts library
-    PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/package-management" && pwd)"
-    source "${PACKAGE_MANAGEMENT_DIR}/scripts/interactive-prompts.sh"
+    source "scripts/package-management/interactive-prompts.sh"
     
     # Find available package managers for this machine class
-    MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
     MACHINE_DIR="${MACHINES_DIR}/${MACHINE_CLASS}"
     
     if [[ -d "$MACHINE_DIR" ]]; then

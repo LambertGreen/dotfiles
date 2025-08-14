@@ -1,0 +1,24 @@
+# WSL Work Ubuntu Stow Configuration
+# Work development environment on Windows WSL2
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+common/emacs
+common/nvim
+common/ripgrep
+common/fd
+
+# Personal configs (still needed for basic personal git identity)
+my/git_my
+
+# Work-specific configs
+work/git_work
+
+# Platform-specific Linux configs
+linux_only/git_linux
+linux_only/shell_linux

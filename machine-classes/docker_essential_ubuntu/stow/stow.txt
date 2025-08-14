@@ -1,0 +1,17 @@
+# Docker Ubuntu Essential Stow Configuration
+# Essential configs for minimal Ubuntu Docker environment
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+
+# Personal configs (git_my moved to my/ for consistency)
+my/git_my
+
+# Platform-specific Linux configs
+linux_only/git_linux
+linux_only/shell_linux

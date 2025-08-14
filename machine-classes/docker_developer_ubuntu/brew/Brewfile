@@ -1,0 +1,4 @@
+# Ubuntu Docker Developer - Homebrew packages
+# Use Homebrew for emacs to get version 30+
+
+brew "emacs"

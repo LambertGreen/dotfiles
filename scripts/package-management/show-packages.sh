@@ -4,8 +4,8 @@
 set -euo pipefail
 
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/package-management"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 
 # Load configuration
 if [[ ! -f "${MACHINE_CLASS_ENV}" ]]; then

@@ -1,0 +1,24 @@
+# Personal Mac Laptop Stow Configuration
+# Full personal development environment
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+common/emacs
+common/nvim
+common/ripgrep
+common/fd
+
+# Personal configs
+my/git_my
+
+# Platform-specific macOS configs
+osx_only/git_osx
+osx_only/shell_osx
+osx_only/hammerspoon
+osx_only/karabiner
+osx_only/raycast_osx

@@ -25,8 +25,8 @@ else
     MACHINE_CLASS_ENV="${HOME}/.dotfiles.machine.class.env"
 fi
 
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/package-management"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 
 # Color output
 RED='\033[0;31m'

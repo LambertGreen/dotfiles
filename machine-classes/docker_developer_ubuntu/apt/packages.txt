@@ -1,0 +1,39 @@
+# Ubuntu Docker Developer - APT packages
+# Based on legacy exports and common development needs
+
+# Essential tools (from essential tier)
+build-essential
+curl
+git
+stow
+sudo
+vim
+wget
+zsh
+
+# Development tools
+# emacs - Use Homebrew instead (apt has old version, Homebrew has 30+)
+neovim
+tmux
+tree
+fd-find
+ripgrep
+htop
+jq
+unzip
+zip
+
+# Development dependencies
+python3
+python3-pip
+python3-venv
+nodejs
+npm
+ruby
+ruby-dev
+
+# Editor dependencies for LSP/tree-sitter
+cmake
+pkg-config
+libjansson4
+libjansson-dev

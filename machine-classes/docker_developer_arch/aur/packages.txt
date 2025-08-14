@@ -1,0 +1,11 @@
+# Arch Docker Developer - AUR packages
+# Modern alternatives and additional tools
+
+# Modern CLI tools
+bat
+exa
+zoxide
+starship
+
+# Development tools
+tree-sitter-cli

@@ -1,0 +1,22 @@
+# Gaming Windows Desktop Stow Configuration
+# Full gaming desktop with scoop + chocolatey + MSYS2
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+common/emacs
+common/nvim
+common/ripgrep
+common/fd
+
+# Personal configs (gaming is personal context)
+my/git_my
+
+# Platform-specific Windows configs
+windows_only/git_windows
+windows_only/shell_windows
+windows_only/autohotkey

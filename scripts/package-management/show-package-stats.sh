@@ -4,8 +4,8 @@
 set -euo pipefail
 
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
-PACKAGE_MANAGEMENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/package-management"
-MACHINES_DIR="${PACKAGE_MANAGEMENT_DIR}/machines"
+DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
 
 # Load configuration
 if [[ ! -f "${MACHINE_CLASS_ENV}" ]]; then
@@ -41,54 +41,65 @@ for pm_dir in "${MACHINE_DIR}"/*; do
         case "${pm_name}" in
             brew)
                 if [[ -f "${pm_dir}/Brewfile" ]]; then
-                    formulae=$(grep -c '^brew ' "${pm_dir}/Brewfile" 2>/dev/null || echo 0)
-                    casks=$(grep -c '^cask ' "${pm_dir}/Brewfile" 2>/dev/null || echo 0)
-                    mas=$(grep -c '^mas ' "${pm_dir}/Brewfile" 2>/dev/null || echo 0)
-                    taps=$(grep -c '^tap ' "${pm_dir}/Brewfile" 2>/dev/null || echo 0)
+                    formulae=$(grep -c '^brew ' "${pm_dir}/Brewfile" 2>/dev/null || echo "0")
+                    casks=$(grep -c '^cask ' "${pm_dir}/Brewfile" 2>/dev/null || echo "0")
+                    mas=$(grep -c '^mas ' "${pm_dir}/Brewfile" 2>/dev/null || echo "0")
+                    taps=$(grep -c '^tap ' "${pm_dir}/Brewfile" 2>/dev/null || echo "0")
+                    # Ensure no newlines in variables
+                    formulae="${formulae//[$'\r\n']/}"
+                    casks="${casks//[$'\r\n']/}"
+                    mas="${mas//[$'\r\n']/}"
+                    taps="${taps//[$'\r\n']/}"
                     echo "🍺 Homebrew: ${formulae} formulae, ${casks} casks, ${mas} Mac App Store, ${taps} taps"
-                    total_packages=$((total_packages + formulae + casks + mas))
+                    total_packages=$((total_packages + ${formulae:-0} + ${casks:-0} + ${mas:-0}))
                 fi
                 ;;
             pip)
                 if [[ -f "${pm_dir}/requirements.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/requirements.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/requirements.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "🐍 Python (pip): ${count} packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             npm)
                 if [[ -f "${pm_dir}/packages.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "📦 NPM: ${count} global packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             apt)
                 if [[ -f "${pm_dir}/packages.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "📦 APT: ${count} packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             pacman)
                 if [[ -f "${pm_dir}/packages.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "📦 Pacman: ${count} packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             cargo)
                 if [[ -f "${pm_dir}/packages.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "🦀 Cargo: ${count} packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             gem)
                 if [[ -f "${pm_dir}/Gemfile" ]]; then
-                    count=$(grep -c '^gem ' "${pm_dir}/Gemfile" 2>/dev/null || echo 0)
+                    count=$(grep -c '^gem ' "${pm_dir}/Gemfile" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "💎 RubyGems: ${count} gems"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
             scoop)
@@ -98,9 +109,10 @@ for pm_dir in "${MACHINE_DIR}"/*; do
                 ;;
             choco)
                 if [[ -f "${pm_dir}/packages.txt" ]]; then
-                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo 0)
+                    count=$(grep -c . "${pm_dir}/packages.txt" 2>/dev/null || echo "0")
+                    count="${count//[$'\r\n']/}"
                     echo "🍫 Chocolatey: ${count} packages"
-                    total_packages=$((total_packages + count))
+                    total_packages=$((total_packages + ${count:-0}))
                 fi
                 ;;
         esac
@@ -111,5 +123,5 @@ echo ""
 echo "📊 Total: ${total_packages} packages across all package managers"
 echo ""
 echo "💡 To view package details:"
-echo "  just shell-into-package-manager-hub  # Enter package manager hub"
-echo "  cd package-management/machines/${DOTFILES_MACHINE_CLASS}  # View raw files"
+echo "  just show-packages  # View detailed package lists"
+echo "  cd machine-classes/${DOTFILES_MACHINE_CLASS}  # View raw files"

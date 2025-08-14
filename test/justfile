@@ -1,230 +1,212 @@
-# Testing workflows for dotfiles - Tiered Testing Approach
+# Testing workflows for dotfiles - Machine Class Based Testing
 
 # Default test platform
 test_platform := env_var_or_default("DOTFILES_TEST_PLATFORM", "arch")
 
-# Legacy variable for backward compatibility (deprecated)
-test_level := "basic"
-
-# Available platforms and tiers
+# Available platforms and machine classes
 docker_platforms := "arch ubuntu"
-docker_tiers := "min-cli mid-cli mid-dev max-dev"
+docker_machine_classes := "essential developer gui"
 
 # Show test help
 default:
-    @echo "🧪 Dotfiles Testing - Tiered Approach"
+    @echo "🧪 Dotfiles Testing - Machine Class Based"
     @echo ""
-    @echo "Tiered Test Commands (Recommended):"
-    @echo "  just test-min-cli [platform]    - Minimal CLI tools (Tier 1)"
-    @echo "  just test-mid-cli [platform]    - Extended CLI tools (Tier 2)"  
-    @echo "  just test-mid-dev [platform]    - Development environment (Tier 3)"
-    @echo "  just test-max-dev [platform]    - Complete development (Tier 4)"
+    @echo "Essential Tier (minimal system):"
+    @echo "  just test-ubuntu-essential      - Ubuntu with apt only"
+    @echo "  just test-arch-essential        - Arch with pacman only"
+    @echo ""
+    @echo "Developer Tier (multi-PM):"
+    @echo "  just test-ubuntu-developer      - Ubuntu with apt + pip + npm"
+    @echo "  just test-arch-developer        - Arch with pacman + AUR + pip + npm"
+    @echo ""
+    @echo "GUI Tier (desktop validation):"
+    @echo "  just test-ubuntu-gui            - Ubuntu with desktop packages"
+    @echo "  just test-arch-gui              - Arch with desktop packages"
     @echo ""
     @echo "Interactive Testing:"
-    @echo "  just test-run-min-cli [platform] - Interactive shell for min-cli"
-    @echo "  just test-run-mid-cli [platform] - Interactive shell for mid-cli"
-    @echo "  just test-run-mid-dev [platform] - Interactive shell for mid-dev"
-    @echo "  just test-run-max-dev [platform] - Interactive shell for max-dev"
+    @echo "  just run-ubuntu-essential       - Interactive shell"
+    @echo "  just run-arch-essential         - Interactive shell"
+    @echo "  just run-ubuntu-developer       - Interactive shell"
+    @echo "  just run-arch-developer         - Interactive shell"
+    @echo ""
+    @echo "Batch Testing:"
+    @echo "  just test-all-ubuntu            - All Ubuntu tiers"
+    @echo "  just test-all-arch              - All Arch tiers"
+    @echo "  just test-all                   - Everything"
     @echo ""
     @echo "Log Management:"
-    @echo "  just show-last-log               - Show most recent test output"
+    @echo "  just show-last-log              - Show most recent test output"
     @echo "  just list-logs                  - List all available logs"
     @echo "  just show-log <filename>        - Show specific log file"
-    @echo ""
-    @echo "Available:"
-    @echo "  Platforms: {{docker_platforms}}"
-    @echo "  Tiers: {{docker_tiers}}"
-    @echo "  Default Platform: {{test_platform}}"
 
 # =============================================================================
-# Tiered Test Recipes - Main Testing Interface
+# Essential Tier - Minimal system testing
 # =============================================================================
 
-# Tier 1: Minimal CLI tools only
-test-min-cli platform=test_platform:
-    @echo "🧪 Testing min-cli tier on {{platform}}..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-min-cli-{{platform}}-output.log"
-    just _test-tier-impl min-cli {{platform}} 2>&1 | tee test-min-cli-{{platform}}-output.log; \
+# Test Ubuntu essential machine class
+test-ubuntu-essential:
+    @echo "🧪 Testing docker_essential_ubuntu machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-ubuntu-essential-output.log"
+    just _test-machine-class docker_essential_ubuntu ubuntu 2>&1 | tee test-ubuntu-essential-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ min-cli {{platform}} test PASSED"; \
+        echo "✅ docker_essential_ubuntu test PASSED"; \
     else \
-        echo "❌ min-cli {{platform}} test FAILED"; \
-        echo "📄 Check test-min-cli-{{platform}}-output.log for details"; \
+        echo "❌ docker_essential_ubuntu test FAILED"; \
+        echo "📄 Check test-ubuntu-essential-output.log for details"; \
     fi
 
-# Tier 2: Extended CLI tools
-test-mid-cli platform=test_platform:
-    @echo "🧪 Testing mid-cli tier on {{platform}}..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-mid-cli-{{platform}}-output.log"
-    just _test-tier-impl mid-cli {{platform}} 2>&1 | tee test-mid-cli-{{platform}}-output.log; \
+# Test Arch essential machine class
+test-arch-essential:
+    @echo "🧪 Testing docker_essential_arch machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-arch-essential-output.log"
+    just _test-machine-class docker_essential_arch arch 2>&1 | tee test-arch-essential-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ mid-cli {{platform}} test PASSED"; \
+        echo "✅ docker_essential_arch test PASSED"; \
     else \
-        echo "❌ mid-cli {{platform}} test FAILED"; \
-        echo "📄 Check test-mid-cli-{{platform}}-output.log for details"; \
+        echo "❌ docker_essential_arch test FAILED"; \
+        echo "📄 Check test-arch-essential-output.log for details"; \
     fi
 
-# Tier 3: Development environment (multi-PM testing begins)
-test-mid-dev platform=test_platform:
-    @echo "🧪 Testing mid-dev tier on {{platform}}..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-mid-dev-{{platform}}-output.log"
-    just _test-tier-impl mid-dev {{platform}} 2>&1 | tee test-mid-dev-{{platform}}-output.log; \
+# Interactive Ubuntu essential
+run-ubuntu-essential:
+    @echo "🐳 Running docker_essential_ubuntu interactive shell..."
+    just _run-machine-class docker_essential_ubuntu ubuntu
+
+# Interactive Arch essential
+run-arch-essential:
+    @echo "🐳 Running docker_essential_arch interactive shell..."
+    just _run-machine-class docker_essential_arch arch
+
+# =============================================================================
+# Developer Tier - Multi-package manager testing
+# =============================================================================
+
+# Test Ubuntu developer machine class
+test-ubuntu-developer:
+    @echo "🧪 Testing docker_developer_ubuntu machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-ubuntu-developer-output.log"
+    just _test-machine-class docker_developer_ubuntu ubuntu 2>&1 | tee test-ubuntu-developer-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ mid-dev {{platform}} test PASSED"; \
+        echo "✅ docker_developer_ubuntu test PASSED"; \
     else \
-        echo "❌ mid-dev {{platform}} test FAILED"; \
-        echo "📄 Check test-mid-dev-{{platform}}-output.log for details"; \
+        echo "❌ docker_developer_ubuntu test FAILED"; \
+        echo "📄 Check test-ubuntu-developer-output.log for details"; \
     fi
 
-# Tier 4: Complete development environment (full multi-PM validation)
-test-max-dev platform=test_platform:
-    @echo "🧪 Testing max-dev tier on {{platform}}..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-max-dev-{{platform}}-output.log"
-    just _test-tier-impl max-dev {{platform}} 2>&1 | tee test-max-dev-{{platform}}-output.log; \
+# Test Arch developer machine class
+test-arch-developer:
+    @echo "🧪 Testing docker_developer_arch machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-arch-developer-output.log"
+    just _test-machine-class docker_developer_arch arch 2>&1 | tee test-arch-developer-output.log; \
     if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ max-dev {{platform}} test PASSED"; \
+        echo "✅ docker_developer_arch test PASSED"; \
     else \
-        echo "❌ max-dev {{platform}} test FAILED"; \
-        echo "📄 Check test-max-dev-{{platform}}-output.log for details"; \
+        echo "❌ docker_developer_arch test FAILED"; \
+        echo "📄 Check test-arch-developer-output.log for details"; \
     fi
 
-# Interactive testing for tiers
-test-run-min-cli platform=test_platform:
-    @echo "🐳 Running min-cli interactive shell on {{platform}}..."
-    just _test-tier-interactive min-cli {{platform}}
+# Interactive Ubuntu developer
+run-ubuntu-developer:
+    @echo "🐳 Running docker_developer_ubuntu interactive shell..."
+    just _run-machine-class docker_developer_ubuntu ubuntu
 
-test-run-mid-cli platform=test_platform:
-    @echo "🐳 Running mid-cli interactive shell on {{platform}}..."
-    just _test-tier-interactive mid-cli {{platform}}
+# Interactive Arch developer
+run-arch-developer:
+    @echo "🐳 Running docker_developer_arch interactive shell..."
+    just _run-machine-class docker_developer_arch arch
 
-test-run-mid-dev platform=test_platform:
-    @echo "🐳 Running mid-dev interactive shell on {{platform}}..."
-    just _test-tier-interactive mid-dev {{platform}}
+# =============================================================================
+# GUI Tier - Desktop environment validation
+# =============================================================================
 
-test-run-max-dev platform=test_platform:
-    @echo "🐳 Running max-dev interactive shell on {{platform}}..."
-    just _test-tier-interactive max-dev {{platform}}
+# Test Ubuntu GUI machine class
+test-ubuntu-gui:
+    @echo "🧪 Testing docker_ubuntu_gui machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-ubuntu-gui-output.log"
+    just _test-machine-class docker_ubuntu_gui ubuntu 2>&1 | tee test-ubuntu-gui-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ docker_ubuntu_gui test PASSED"; \
+    else \
+        echo "❌ docker_ubuntu_gui test FAILED"; \
+        echo "📄 Check test-ubuntu-gui-output.log for details"; \
+    fi
+
+# Test Arch GUI machine class
+test-arch-gui:
+    @echo "🧪 Testing docker_arch_gui machine class..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "📝 Logging to test-arch-gui-output.log"
+    just _test-machine-class docker_arch_gui arch 2>&1 | tee test-arch-gui-output.log; \
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
+        echo "✅ docker_arch_gui test PASSED"; \
+    else \
+        echo "❌ docker_arch_gui test FAILED"; \
+        echo "📄 Check test-arch-gui-output.log for details"; \
+    fi
+
+# Interactive Ubuntu GUI
+run-ubuntu-gui:
+    @echo "🐳 Running docker_ubuntu_gui interactive shell..."
+    just _run-machine-class docker_ubuntu_gui ubuntu
+
+# Interactive Arch GUI
+run-arch-gui:
+    @echo "🐳 Running docker_arch_gui interactive shell..."
+    just _run-machine-class docker_arch_gui arch
+
+# =============================================================================
+# Batch Testing
+# =============================================================================
+
+# Test all Ubuntu tiers
+test-all-ubuntu:
+    @echo "🧪 Testing all Ubuntu tiers..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    just test-ubuntu-essential
+    just test-ubuntu-developer
+    just test-ubuntu-gui
+
+# Test all Arch tiers
+test-all-arch:
+    @echo "🧪 Testing all Arch tiers..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    just test-arch-essential
+    just test-arch-developer
+    just test-arch-gui
+
+# Test everything
+test-all:
+    @echo "🧪 Testing all platforms and tiers..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    just test-all-ubuntu
+    just test-all-arch
 
 # =============================================================================
 # Implementation Helpers
 # =============================================================================
 
-# Helper: Build and run tier test
-_test-tier-impl tier platform:
-    @echo "🔨 Building Docker image for {{tier}} {{platform}}..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{tier}} -t dotfiles-test-{{tier}}-{{platform}} .
+# Helper: Build and run machine class test
+_test-machine-class machine_class platform:
+    @echo "🔨 Building Docker image for {{machine_class}}..."
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
     @echo "🚀 Running test container..."
-    docker run --rm dotfiles-test-{{tier}}-{{platform}}
+    docker run --rm dotfiles-test-{{machine_class}}
 
-# Helper: Interactive tier testing
-_test-tier-interactive tier platform:
-    @echo "Building image to update stage first..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target update-{{tier}} -t dotfiles-test-{{tier}}-{{platform}} .
+# Helper: Interactive machine class testing  
+_run-machine-class machine_class platform:
+    @echo "Building image to {{machine_class}} stage first..."
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
-    docker run -it --rm dotfiles-test-{{tier}}-{{platform}}
+    docker run -it --rm dotfiles-test-{{machine_class}}
 
 # =============================================================================
-# Legacy Support (will be removed)
+# Log Management
 # =============================================================================
-
-# Test through install stage (complete workflow) - DEPRECATED
-@test-install level=test_level platform=test_platform:
-    echo "⚠️  test-install is deprecated - legacy level system no longer supported"
-    echo "💡 Use tiered tests instead:"
-    echo "  just test-min-cli {{platform}}  # Basic CLI tools"
-    echo "  just test-mid-cli {{platform}}  # Extended CLI tools"
-    echo "  just test-mid-dev {{platform}}  # Development environment"
-    echo "  just test-max-dev {{platform}}  # Complete development tools"
-    @exit 1
-
-# Test through stow stage only - DEPRECATED
-@test-stow level=test_level platform=test_platform:
-    echo "⚠️  test-stow is deprecated - legacy level system no longer supported"
-    echo "💡 Use tiered interactive tests to explore stow stage:"
-    echo "  just test-run-min-cli {{platform}}  # Interactive shell at min-cli tier"
-    @exit 1
-
-# Test through update stage (complete workflow) - DEPRECATED
-@test-update level=test_level platform=test_platform:
-    echo "⚠️  test-update is deprecated - legacy level system no longer supported"
-    echo "💡 Use tiered tests instead:"
-    echo "  just test-min-cli {{platform}}  # Basic CLI tools"
-    echo "  just test-mid-cli {{platform}}  # Extended CLI tools"
-    echo "  just test-mid-dev {{platform}}  # Development environment"
-    echo "  just test-max-dev {{platform}}  # Complete development tools"
-    @exit 1
-
-# Run interactive shell after update stage - DEPRECATED
-test-run level=test_level platform=test_platform:
-    @echo "⚠️  test-run is deprecated - legacy level system no longer supported"
-    @echo "💡 Use tiered interactive tests instead:"
-    @echo "  just test-run-min-cli {{platform}}  # Interactive min-cli environment"
-    @echo "  just test-run-mid-cli {{platform}}  # Interactive mid-cli environment"
-    @echo "  just test-run-mid-dev {{platform}}  # Interactive mid-dev environment"
-    @echo "  just test-run-max-dev {{platform}}  # Interactive max-dev environment"
-    @exit 1
-
-# Backward compatibility alias - DEPRECATED
-test level=test_level platform=test_platform:
-    @echo "⚠️  Generic 'test' command is deprecated"
-    @echo "💡 Use specific tiered tests instead:"
-    @echo "  just test-min-cli {{platform}}  # Minimal CLI setup"
-    @echo "  just test-mid-cli {{platform}}  # Extended CLI setup"
-    @echo "  just test-mid-dev {{platform}}  # Development environment"
-    @echo "  just test-max-dev {{platform}}  # Complete development"
-    @exit 1
-
-# Helper: Test through install stage (complete workflow) - BROKEN
-test-install-local level platform:
-    @echo "❌ test-install-local is broken - targets install-{{level}} don't exist"
-    @echo "💡 Available targets: install-min-cli, install-mid-cli, install-mid-dev, install-max-dev"
-    @exit 1
-
-# Helper: Test through stow stage only - BROKEN
-test-stow-local level platform:
-    @echo "❌ test-stow-local is broken - targets stow-{{level}} don't exist"
-    @echo "💡 Available targets: stow-min-cli, stow-mid-cli, stow-mid-dev, stow-max-dev"
-    @exit 1
-
-# Helper: Test through update stage (complete workflow) - BROKEN  
-test-update-local level platform:
-    @echo "❌ test-update-local is broken - targets update-{{level}} don't exist"
-    @echo "💡 Available targets: update-min-cli, update-mid-cli, update-mid-dev, update-max-dev"
-    @exit 1
-
-# Test configure only (configuration generation) - BROKEN
-test-configure level platform:
-    @echo "❌ test-configure is broken - single 'configure' target is legacy"
-    @echo "💡 Available targets: configure-min-cli, configure-mid-cli, configure-mid-dev, configure-max-dev"
-    @exit 1
-
-# Test bootstrap only (no package installation) - BROKEN
-test-bootstrap level platform:
-    @echo "❌ test-bootstrap is broken - targets bootstrap-{{level}} don't exist"
-    @echo "💡 Available targets: bootstrap-min-cli, bootstrap-mid-cli, bootstrap-mid-dev, bootstrap-max-dev"
-    @exit 1
-
-# Test with GitHub (full integration test) - BROKEN: no single-platform dockerfiles exist
-test-remote platform:
-    @echo "❌ test-remote is broken - no single-platform dockerfiles exist"
-    @echo "💡 Use tiered tests instead: just test-min-cli {{platform}}"
-    @exit 1
-
-
-
-
-# Show git status
-@status:
-    echo "📊 Repository Status"
-    echo "━━━━━━━━━━━━━━━━━━━━"
-    cd .. && git status --short
-    echo ""
-    echo "📦 Submodules:"
-    cd .. && git submodule status
 
 # Show the most recent test log
 @show-last-log:
@@ -244,8 +226,35 @@ test-remote platform:
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     tail -100 {{file}}
 
+# =============================================================================
+# Utility Commands
+# =============================================================================
+
+# Show git status
+@status:
+    echo "📊 Repository Status"
+    echo "━━━━━━━━━━━━━━━━━━━━"
+    cd .. && git status --short
+    echo ""
+    echo "📦 Submodules:"
+    cd .. && git submodule status
+
 # Update submodules
 update:
     cd .. && git submodule update --init --recursive
 
+# Clean up test logs
+clean-logs:
+    @echo "🧹 Cleaning up test logs..."
+    rm -f *-output.log
+    @echo "✅ Test logs cleaned"
 
+# Clean up Docker images
+clean-docker:
+    @echo "🧹 Cleaning up Docker test images..."
+    docker images | grep dotfiles-test | awk '{print $3}' | xargs -r docker rmi -f
+    @echo "✅ Docker images cleaned"
+
+# Clean everything
+clean: clean-logs clean-docker
+    @echo "✅ All test artifacts cleaned"

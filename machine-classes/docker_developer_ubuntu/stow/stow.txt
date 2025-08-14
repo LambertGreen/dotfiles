@@ -1,0 +1,21 @@
+# Docker Ubuntu Developer Stow Configuration
+# Development environment with apt + homebrew + npm + pip
+
+# Common configs (truly universal)
+common/git
+common/shell
+common/tmux
+common/vim
+common/wezterm
+common/spelling
+common/emacs
+common/nvim
+common/ripgrep
+common/fd
+
+# Personal configs (git_my moved to my/ for consistency)
+my/git_my
+
+# Platform-specific Linux configs
+linux_only/git_linux
+linux_only/shell_linux

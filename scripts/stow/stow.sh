@@ -50,62 +50,44 @@ log_verbose "Loaded configuration from ~/.dotfiles.env"
 log_verbose "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
 log_verbose "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
 
-# Stow common configurations
-log_output "📂 Stowing common configurations..."
-log_verbose "Changing to configs/common directory"
-cd configs/common
+# Use stow.txt file from machine class directory (single source of truth)
+STOW_FILE="machine-classes/${DOTFILES_MACHINE_CLASS}/stow/stow.txt"
+log_output "📂 Stowing configurations using machine class stow.txt..."
+log_verbose "Using stow file: ${STOW_FILE}"
 
-log_verbose "Running: stow --dotfiles --target=$HOME git shell tmux vim"
-if stow --dotfiles --target="$HOME" git shell tmux vim 2>>"${LOG_FILE}"; then
-    log_verbose "Common stow completed successfully"
-else
-    log_verbose "Some common configs may not have applied (exit code: $?)"
-    log_output "⚠️  Some configs may not apply"
+if [ ! -f "${STOW_FILE}" ]; then
+    log_output "❌ Stow configuration file not found: ${STOW_FILE}"
+    exit 1
 fi
 
-cd ../..
+# Read stow.txt and process each line
+cd configs
+while IFS= read -r stow_entry; do
+    # Skip empty lines and comments
+    [[ -z "$stow_entry" || "$stow_entry" =~ ^[[:space:]]*# ]] && continue
+    
+    # Extract directory and package name
+    stow_dir=$(dirname "$stow_entry")
+    stow_package=$(basename "$stow_entry")
+    
+    log_verbose "Stowing: $stow_entry (dir: $stow_dir, package: $stow_package)"
+    
+    if [ -d "$stow_dir/$stow_package" ]; then
+        cd "$stow_dir"
+        if stow --dotfiles --target="$HOME" "$stow_package" 2>>"${LOG_FILE}"; then
+            log_verbose "Successfully stowed: $stow_entry"
+        else
+            log_verbose "Failed to stow: $stow_entry (exit code: $?)"
+            log_output "⚠️  Some configs may not apply"
+        fi
+        cd - >/dev/null
+    else
+        log_verbose "Directory not found, skipping: $stow_dir/$stow_package"
+    fi
+done < "../${STOW_FILE}"
+
+cd ..
 log_verbose "Returned to root directory"
-
-# Stow platform-specific configurations
-log_output "📂 Stowing platform-specific configurations..."
-
-case "$PLATFORM" in
-    osx)
-        if [ -d "configs/osx_only" ]; then
-            log_verbose "Found osx_only directory, stowing macOS configs"
-            cd configs/osx_only
-            log_verbose "Running: stow --dotfiles --target=$HOME *"
-            if stow --dotfiles --target="$HOME" * 2>>"${LOG_FILE}"; then
-                log_verbose "macOS stow completed successfully"
-            else
-                log_verbose "Some macOS configs may not have applied (exit code: $?)"
-                log_output "⚠️  Some osx configs may not apply"
-            fi
-            cd ../..
-        else
-            log_verbose "No osx_only directory found"
-        fi
-        ;;
-    ubuntu|arch)
-        if [ -d "configs/linux_only" ]; then
-            log_verbose "Found linux_only directory, stowing Linux configs"
-            cd configs/linux_only
-            log_verbose "Running: stow --dotfiles --target=$HOME *"
-            if stow --dotfiles --target="$HOME" * 2>>"${LOG_FILE}"; then
-                log_verbose "Linux stow completed successfully"
-            else
-                log_verbose "Some Linux configs may not have applied (exit code: $?)"
-                log_output "⚠️  Some linux configs may not apply"
-            fi
-            cd ../..
-        else
-            log_verbose "No linux_only directory found"
-        fi
-        ;;
-    *)
-        log_output "⚠️  Unknown platform: $PLATFORM"
-        ;;
-esac
 
 log_output ""
 log_output "✅ Stow operation completed (GNU Stow only reports errors)"
