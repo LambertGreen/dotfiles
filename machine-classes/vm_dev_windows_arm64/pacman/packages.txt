@@ -11,6 +11,8 @@ mingw-w64-clang-aarch64-eza 0.19.0-1
 mingw-w64-clang-aarch64-fastfetch 2.21.1-1
 mingw-w64-clang-aarch64-fd 10.1.0-1
 mingw-w64-clang-aarch64-gnupg 2.4.5-1
+mingw-w64-clang-aarch64-lua51 5.1.5-1
+mingw-w64-clang-aarch64-luarocks 3.11.0-1
 mingw-w64-clang-aarch64-neovim 0.9.5-5
 mingw-w64-clang-aarch64-oh-my-posh 23.4.0-1
 mingw-w64-clang-aarch64-ripgrep 14.1.0-2

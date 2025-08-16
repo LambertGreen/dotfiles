@@ -36,6 +36,10 @@ cmake
 pkg-config
 jansson
 
+# Lua dependencies for neovim plugins (lazy.nvim/luarocks)
+lua51
+luarocks
+
 # Development utilities
 make
 gcc

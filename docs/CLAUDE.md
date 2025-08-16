@@ -46,7 +46,8 @@ This is a unified cross-platform package management system (think "better Topgra
   - **Arch Linux**: pacman + AUR (via yay) + npm/pip/gem
   - **Ubuntu**: apt + npm/pip/gem
   - **Windows**: scoop + chocolatey + MSYS2/pacman
-- **Future**: App-specific managers (zinit, elpaca, lazy.nvim, cargo, pipx)
+- **Implemented**: zinit (Zsh plugin management)
+- **Future**: elpaca (Emacs), lazy.nvim (Neovim), cargo (Rust), pipx (Python CLI tools)
 - **Two-step updates**: `just update-check` → `just update-upgrade`
 
 ## Common Commands
@@ -225,7 +226,7 @@ These can be completed in future sessions as needed:
 - 🔄 Test max-dev tier on Ubuntu (validates complete Ubuntu workflow)
 
 ### Future Vision (Low Priority)
-- App-specific package managers integration (zinit, elpaca, lazy.nvim)
+- App-specific package managers: zinit ✅ implemented, elpaca and lazy.nvim planned
 - Complete unified package management across all package managers
 - True multi-package-manager coordination and conflict resolution
 

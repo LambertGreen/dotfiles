@@ -54,7 +54,7 @@ updates_found=false
 if command -v brew >/dev/null 2>&1; then
     log_output "=== Homebrew ==="
     checked_pms+=("brew")
-    
+
     log_verbose "Running: brew outdated"
     if outdated_brew=$(brew outdated 2>&1); then
         if [[ -n "$outdated_brew" ]]; then
@@ -78,11 +78,11 @@ fi
 if command -v apt >/dev/null 2>&1; then
     log_output "=== APT ==="
     checked_pms+=("apt")
-    
+
     log_verbose "Running: sudo apt update (suppressing output)"
     if sudo apt update >/dev/null 2>&1; then
         log_verbose "apt update completed successfully"
-        
+
         log_verbose "Running: apt list --upgradable"
         if upgradable_apt=$(apt list --upgradable 2>/dev/null | head -20); then
             # Remove header line and count actual packages
@@ -114,7 +114,7 @@ fi
 if command -v pip3 >/dev/null 2>&1; then
     log_output "=== Python (pip) ==="
     checked_pms+=("pip")
-    
+
     log_verbose "Running: pip3 list --outdated"
     # Try user packages first, then global
     if outdated_pip=$(pip3 list --outdated --user 2>/dev/null | head -20); then
@@ -155,7 +155,7 @@ fi
 if command -v npm >/dev/null 2>&1; then
     log_output "=== Node.js (npm) ==="
     checked_pms+=("npm")
-    
+
     log_verbose "Running: npm outdated -g"
     if outdated_npm=$(npm outdated -g 2>/dev/null); then
         if [[ -n "$outdated_npm" ]]; then
@@ -175,6 +175,41 @@ else
     log_verbose "npm not available"
 fi
 
+# Check zinit (Zsh plugins)
+if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
+    log_output "=== Zinit (Zsh plugins) ==="
+    checked_pms+=("zinit")
+
+    log_verbose "Running: zinit list in zsh context"
+    # Check if zinit has any plugins that can be updated
+    # We use a timeout since zinit commands can hang if zsh config is broken
+    if zinit_status=$(timeout 30 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit times | head -20' 2>/dev/null); then
+        if [[ -n "$zinit_status" ]]; then
+            # Count number of plugins loaded
+            plugin_count=$(echo "$zinit_status" | wc -l | tr -d ' ')
+            plugin_count="${plugin_count//[$'\r\n']/}"
+            if [[ ${plugin_count:-0} -gt 0 ]]; then
+                log_output "Found $plugin_count zinit plugins (updates available via 'zinit update --all')"
+                updates_found=true
+                log_verbose "zinit plugins available for update"
+                log_verbose "$zinit_status"
+            else
+                log_output "No zinit plugins found"
+                log_verbose "No zinit plugins"
+            fi
+        else
+            log_output "No zinit plugins found or zinit not properly initialized"
+            log_verbose "zinit times returned empty"
+        fi
+    else
+        log_output "Error checking zinit status (timeout or initialization issue)"
+        log_verbose "zinit check timed out or failed"
+    fi
+    log_output ""
+else
+    log_verbose "zinit not available (zsh missing or ~/.zinit/bin/zinit.zsh not found)"
+fi
+
 # Summary
 log_output "📊 Update Check Summary"
 log_output "======================="
@@ -183,7 +218,7 @@ if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers found"
 else
     log_output "✅ Checked package managers: ${checked_pms[*]}"
-    
+
     if [[ "$updates_found" == true ]]; then
         log_output "📦 Updates available - run 'just upgrade-packages' to install"
     else

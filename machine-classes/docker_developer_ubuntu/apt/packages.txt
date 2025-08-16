@@ -37,3 +37,7 @@ cmake
 pkg-config
 libjansson4
 libjansson-dev
+
+# Lua dependencies for neovim plugins (lazy.nvim/luarocks)
+lua5.1
+luarocks

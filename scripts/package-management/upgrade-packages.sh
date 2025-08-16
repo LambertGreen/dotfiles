@@ -82,7 +82,7 @@ if grep -q "Homebrew updates available" "$LATEST_CHECK_LOG" || grep -q "outdated
     log_verbose "Found brew updates in check log"
 fi
 
-# Check for pip updates  
+# Check for pip updates
 if grep -q "pip.*updates available" "$LATEST_CHECK_LOG"; then
     AVAILABLE_UPGRADES+=("pip")
     if pip_packages=$(grep -A 10 "Package.*Version.*Latest" "$LATEST_CHECK_LOG" | grep -v "Package\|------" | head -5); then
@@ -100,6 +100,17 @@ if grep -q "npm.*updates available" "$LATEST_CHECK_LOG"; then
     AVAILABLE_UPGRADES+=("npm")
     PM_DESCRIPTIONS+=("npm (Node.js) - global packages available for upgrade")
     log_verbose "Found npm updates in check log"
+fi
+
+# Check for zinit updates
+if grep -q "zinit.*plugins.*updates available" "$LATEST_CHECK_LOG" || grep -q "Found.*zinit plugins" "$LATEST_CHECK_LOG"; then
+    AVAILABLE_UPGRADES+=("zinit")
+    if plugin_info=$(grep "Found.*zinit plugins" "$LATEST_CHECK_LOG" | head -1); then
+        PM_DESCRIPTIONS+=("zinit (Zsh plugins) - $plugin_info")
+    else
+        PM_DESCRIPTIONS+=("zinit (Zsh plugins) - plugins available for upgrade")
+    fi
+    log_verbose "Found zinit updates in check log"
 fi
 
 # Check for apt updates
@@ -142,7 +153,7 @@ read -t 15 -r user_input || user_input=""
 if [[ -n "$user_input" ]]; then
     log_output "Excluding selected package managers..."
     excluded_numbers=($user_input)
-    
+
     for i in "${!AVAILABLE_UPGRADES[@]}"; do
         excluded=false
         for num in "${excluded_numbers[@]}"; do
@@ -173,7 +184,7 @@ log_output ""
 # Execute upgrades
 for pm in "${SELECTED_PMS[@]}"; do
     log_output "=== Upgrading $pm ==="
-    
+
     case "$pm" in
         brew)
             log_verbose "Running: brew upgrade"
@@ -183,7 +194,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Homebrew upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
         pip)
             log_verbose "Upgrading pip packages based on check results"
             # Extract package names from the check log and upgrade them
@@ -194,7 +205,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
                     pip_flags="--user --break-system-packages"
                 fi
-                
+
                 echo "$pip_packages" | while read -r package; do
                     if [[ -n "$package" ]]; then
                         log_verbose "Running: ${pip_cmd} install ${pip_flags} --upgrade $package"
@@ -209,7 +220,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Could not extract pip package names from check log"
             fi
             ;;
-            
+
         npm)
             log_verbose "Running: npm update -g"
             if npm update -g 2>&1 | tee -a "${LOG_FILE}"; then
@@ -218,7 +229,20 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  NPM upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
+        zinit)
+            log_verbose "Running: zinit update --all in zsh context"
+            # Use timeout to prevent hanging and run in proper zsh context
+            if timeout 120 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit update --all' 2>&1 | tee -a "${LOG_FILE}"; then
+                log_output "✅ Zinit plugins updated"
+                # Also run cclear to clean up and recompile
+                log_verbose "Running: zinit cclear (cleanup and recompile)"
+                timeout 60 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit cclear' 2>&1 | tee -a "${LOG_FILE}" || true
+            else
+                log_output "⚠️  Zinit update had issues (exit code: $?)"
+            fi
+            ;;
+
         apt)
             log_verbose "Running: sudo apt upgrade -y"
             log_output "Note: APT upgrade requires sudo permissions"
@@ -228,12 +252,12 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  APT upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
         *)
             log_output "⚠️  Unknown package manager: $pm"
             ;;
     esac
-    
+
     log_output ""
 done
 
