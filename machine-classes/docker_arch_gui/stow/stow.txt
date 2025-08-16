@@ -1,5 +1,5 @@
-# Docker Arch Developer Stow Configuration
-# Development environment with pacman + AUR/yay + homebrew + pip + npm
+# Docker Arch GUI Stow Configuration  
+# Desktop validation environment for Arch Linux
 
 # Common configs (truly universal)
 git_common
@@ -23,9 +23,10 @@ lldb_common
 email_common
 nix_common
 
-# Personal configs
+# Personal configs (basic git identity)
 git_my
 
 # Platform-specific Linux configs
 git_linux
 shell_linux
+gnupg_linux

@@ -2,21 +2,36 @@
 # Full gaming desktop with scoop + chocolatey + MSYS2
 
 # Common configs (truly universal)
-common/git
-common/shell
-common/tmux
-common/vim
-common/wezterm
-common/spelling
-common/emacs
-common/nvim
-common/ripgrep
-common/fd
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
 
 # Personal configs (gaming is personal context)
-my/git_my
+git_my
 
 # Platform-specific Windows configs
-windows_only/git_windows
-windows_only/shell_windows
-windows_only/autohotkey
+git_win
+shell_msys2
+autohotkey
+WindowsCommand
+WindowsPowerShell
+powershell_win
+clink
+mintty

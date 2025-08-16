@@ -160,10 +160,15 @@ _categorize_symlinks() {
     
     # First, find broken symlinks pointing to dotfiles directory (filtered)
     _find_broken_symlinks true
-    BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
-    for link in "${BROKEN_LINKS[@]}"; do
-        ERRORS+=("Broken symlink: $link")
-    done
+    # Safely copy array, handling empty case
+    if [[ ${#FOUND_BROKEN_SYMLINKS[@]} -gt 0 ]]; then
+        BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
+        for link in "${BROKEN_LINKS[@]}"; do
+            ERRORS+=("Broken symlink: $link")
+        done
+    else
+        BROKEN_LINKS=()
+    fi
     
     # Now categorize non-broken symlinks that point to dotfiles
     # Use same search locations as _find_broken_symlinks for consistency
@@ -181,9 +186,11 @@ _categorize_symlinks() {
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
-                for broken in "${BROKEN_LINKS[@]}"; do
-                    [[ "$link" == "$broken" ]] && is_broken=true && break
-                done
+                if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+                    for broken in "${BROKEN_LINKS[@]}"; do
+                        [[ "$link" == "$broken" ]] && is_broken=true && break
+                    done
+                fi
                 [[ "$is_broken" == "true" ]] && continue
                 
                 # Only process symlinks that point to dotfiles
@@ -230,9 +237,11 @@ _categorize_symlinks() {
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
-                for broken in "${BROKEN_LINKS[@]}"; do
-                    [[ "$link" == "$broken" ]] && is_broken=true && break
-                done
+                if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+                    for broken in "${BROKEN_LINKS[@]}"; do
+                        [[ "$link" == "$broken" ]] && is_broken=true && break
+                    done
+                fi
                 [[ "$is_broken" == "true" ]] && continue
                 
                 # Only process symlinks that point to dotfiles

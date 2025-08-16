@@ -1,10 +1,10 @@
-# Multi-stage Dockerfile for Ubuntu dotfiles
+# Multi-stage Dockerfile for Ubuntu dotfiles - Modular Architecture
 # Docker as a valid Linux runtime on non-Linux machines
 
 # =============================================================================
-# BASE STAGE - Common system setup for all Ubuntu containers
+# SHARED BASE STAGE - Common system setup for all Ubuntu containers
 # =============================================================================
-FROM ubuntu:22.04 AS base
+FROM ubuntu:22.04 AS ubuntu-base
 
 # Install only minimal system requirements, then use real bootstrap scripts
 RUN apt-get update --quiet && \
@@ -37,111 +37,28 @@ RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 WORKDIR /home/user/dotfiles
 
 # =============================================================================
-# CONFIGURE STAGE - Configuration with efficient caching
+# SHARED CONFIGURE STAGE - Configuration with efficient caching
 # =============================================================================
-FROM base AS configure-ubuntu-essential
+FROM ubuntu-base AS ubuntu-configure
+ARG MACHINE_CLASS
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 
 # Copy only configuration script for better caching
 COPY --chown=user:user configure.sh ./
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
-# Copy only package manager configs needed for configure (not stow configs)
-COPY --chown=user:user machine-classes/docker_essential_ubuntu/apt/ ./machine-classes/docker_essential_ubuntu/apt/
-COPY --chown=user:user machine-classes/docker_essential_ubuntu/brew/ ./machine-classes/docker_essential_ubuntu/brew/
-
-# Set fast timeout for Docker and pre-select machine class
-ENV DOTFILES_PROMPT_TIMEOUT=3
-ENV DOTFILES_MACHINE_CLASS=docker_essential_ubuntu
-
-# Configure - real user command with fast timeout
-RUN ./configure.sh
-
-# =============================================================================
-# BOOTSTRAP STAGE - Install core tools
-# =============================================================================
-FROM configure-ubuntu-essential AS bootstrap-ubuntu-essential
-
-# Copy only bootstrap files for caching
-COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
-
-# Bootstrap - real user command  
-RUN ./bootstrap.sh
-
-# =============================================================================
-# STOW STAGE - Deploy configurations
-# =============================================================================
-FROM bootstrap-ubuntu-essential AS stow-ubuntu-essential
-
-# Copy configuration files for stowing
-COPY --chown=user:user configs/ ./configs/
-COPY --chown=user:user justfile ./
-COPY --chown=user:user scripts/health/ ./scripts/health/
-COPY --chown=user:user scripts/stow/ ./scripts/stow/
-# Copy stow configuration for this machine class
-COPY --chown=user:user machine-classes/docker_essential_ubuntu/stow/ ./machine-classes/docker_essential_ubuntu/stow/
-
-# Remove default shell files that conflict with stow
-RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
-# Deploy configurations - real user command
-RUN just stow
-
-# =============================================================================
-# SHELL SETUP STAGE - Initialize zsh environment with zinit
-# =============================================================================
-FROM stow-ubuntu-essential AS shell-ubuntu-essential
-
-# Switch to zsh login shell and let it auto-install zinit and plugins naturally
-# Stage 1: Install zinit (first zsh startup)
-RUN echo 'exit' | zsh -l -i
-# Stage 2: Install all plugins including async ones (second zsh startup with forced download)
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
-
-# =============================================================================
-# INSTALL STAGE - Package installation
-# =============================================================================
-FROM shell-ubuntu-essential AS install-ubuntu-essential
-
-# Copy only package management files needed for install stage
-COPY --chown=user:user machine-classes/docker_essential_ubuntu/apt/ ./machine-classes/docker_essential_ubuntu/apt/
-COPY --chown=user:user machine-classes/docker_essential_ubuntu/brew/ ./machine-classes/docker_essential_ubuntu/brew/
-COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
-# Create expected directory structure for scripts
-RUN mkdir -p ./machine-classes/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
-
-# Install packages using configured shell environment
-RUN zsh -l -c 'just install-packages'
-
-# =============================================================================
-# FINAL STAGE: docker_essential_ubuntu
-# Minimal Ubuntu system with apt + homebrew for emacs 30+
-# =============================================================================
-FROM install-ubuntu-essential AS docker_essential_ubuntu
-
-# Final validation - real user commands
-RUN zsh -l -c 'just check-health && just show-package-stats'
-
-# =============================================================================
-# MACHINE CLASS: docker_developer_ubuntu
-# Development environment with apt + homebrew + pip + npm
-# =============================================================================
-# Configure stage for developer
-FROM base AS configure-ubuntu-developer
-
-# Copy only configuration script and machine definitions for better caching
-COPY --chown=user:user configure.sh ./
-COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+# Copy all machine classes (configure script needs to validate the choice)
 COPY --chown=user:user machine-classes/ ./machine-classes/
 
 # Set fast timeout for Docker and pre-select machine class
 ENV DOTFILES_PROMPT_TIMEOUT=3
-ENV DOTFILES_MACHINE_CLASS=docker_developer_ubuntu
 
 # Configure - real user command with fast timeout
 RUN ./configure.sh
 
-# Bootstrap stage for developer
-FROM configure-ubuntu-developer AS bootstrap-ubuntu-developer
+# =============================================================================
+# SHARED BOOTSTRAP STAGE - Install core tools
+# =============================================================================
+FROM ubuntu-configure AS ubuntu-bootstrap
 
 # Copy only bootstrap files for caching
 COPY --chown=user:user bootstrap.sh ./
@@ -150,8 +67,10 @@ COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
 # Bootstrap - real user command  
 RUN ./bootstrap.sh
 
-# Stow stage for developer
-FROM bootstrap-ubuntu-developer AS stow-ubuntu-developer
+# =============================================================================
+# SHARED STOW STAGE - Deploy configurations
+# =============================================================================
+FROM ubuntu-bootstrap AS ubuntu-stow
 
 # Copy configuration files for stowing
 COPY --chown=user:user configs/ ./configs/
@@ -164,8 +83,10 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 # Deploy configurations - real user command
 RUN just stow
 
-# Shell setup stage for developer
-FROM stow-ubuntu-developer AS shell-ubuntu-developer
+# =============================================================================
+# SHARED SHELL SETUP STAGE - Initialize zsh environment with zinit
+# =============================================================================
+FROM ubuntu-stow AS ubuntu-shell
 
 # Switch to zsh login shell and let it auto-install zinit and plugins naturally
 # Stage 1: Install zinit (first zsh startup)
@@ -173,11 +94,12 @@ RUN echo 'exit' | zsh -l -i
 # Stage 2: Install all plugins including async ones (second zsh startup with forced download)
 RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
 
-# Install stage for developer
-FROM shell-ubuntu-developer AS install-ubuntu-developer
+# =============================================================================
+# SHARED INSTALL STAGE - Package installation
+# =============================================================================
+FROM ubuntu-shell AS ubuntu-install
 
 # Copy package management system
-COPY --chown=user:user machine-classes/ ./machine-classes/
 COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
 # Create expected directory structure for scripts
 RUN mkdir -p ./machine-classes/scripts/
@@ -186,79 +108,24 @@ RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scr
 # Install packages using configured shell environment
 RUN zsh -l -c 'just install-packages'
 
-# Final stage for developer
-FROM install-ubuntu-developer AS docker_developer_ubuntu
+# =============================================================================
+# MACHINE-SPECIFIC FINAL STAGES
+# =============================================================================
 
-# Final validation - real user commands
+# Essential Ubuntu - Minimal system with apt + homebrew for emacs 30+
+FROM ubuntu-install AS docker_essential_ubuntu
+ARG MACHINE_CLASS=docker_essential_ubuntu
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
-# =============================================================================
-# MACHINE CLASS: docker_ubuntu_gui
-# Full desktop environment (validation only)
-# =============================================================================
-# Configure stage for GUI
-FROM base AS configure-ubuntu-gui
+# Developer Ubuntu - Development environment with apt + homebrew + pip + npm  
+FROM ubuntu-install AS docker_developer_ubuntu
+ARG MACHINE_CLASS=docker_developer_ubuntu
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
 
-# Copy only configuration script and machine definitions for better caching
-COPY --chown=user:user configure.sh ./
-COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
-COPY --chown=user:user machine-classes/ ./machine-classes/
-
-# Set fast timeout for Docker and pre-select machine class
-ENV DOTFILES_PROMPT_TIMEOUT=3
-ENV DOTFILES_MACHINE_CLASS=docker_ubuntu_gui
-
-# Configure - real user command with fast timeout
-RUN ./configure.sh
-
-# Bootstrap stage for GUI
-FROM configure-ubuntu-gui AS bootstrap-ubuntu-gui
-
-# Copy only bootstrap files for caching
-COPY --chown=user:user bootstrap.sh ./
-COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
-
-# Bootstrap - real user command  
-RUN ./bootstrap.sh
-
-# Stow stage for GUI
-FROM bootstrap-ubuntu-gui AS stow-ubuntu-gui
-
-# Copy configuration files for stowing
-COPY --chown=user:user configs/ ./configs/
-COPY --chown=user:user justfile ./
-COPY --chown=user:user scripts/health/ ./scripts/health/
-COPY --chown=user:user scripts/stow/ ./scripts/stow/
-
-# Remove default shell files that conflict with stow
-RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
-# Deploy configurations - real user command
-RUN just stow
-
-# Shell setup stage for GUI
-FROM stow-ubuntu-gui AS shell-ubuntu-gui
-
-# Switch to zsh login shell and let it auto-install zinit and plugins naturally
-# Stage 1: Install zinit (first zsh startup)
-RUN echo 'exit' | zsh -l -i
-# Stage 2: Install all plugins including async ones (second zsh startup with forced download)
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
-
-# Install stage for GUI
-FROM shell-ubuntu-gui AS install-ubuntu-gui
-
-# Copy package management system
-COPY --chown=user:user machine-classes/ ./machine-classes/
-COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
-# Create expected directory structure for scripts
-RUN mkdir -p ./machine-classes/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
-
-# Install packages using configured shell environment
-RUN zsh -l -c 'just install-packages'
-
-# Final stage for GUI
-FROM install-ubuntu-gui AS docker_ubuntu_gui
-
-# Final validation - real user commands
+# GUI Ubuntu - Full desktop environment (validation only)
+FROM ubuntu-install AS docker_ubuntu_gui
+ARG MACHINE_CLASS=docker_ubuntu_gui
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'

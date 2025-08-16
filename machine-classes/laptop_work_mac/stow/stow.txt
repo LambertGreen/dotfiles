@@ -2,25 +2,45 @@
 # Work development environment with work-specific configs
 
 # Common configs (truly universal)
-common/git
-common/shell
-common/tmux
-common/vim
-common/wezterm
-common/spelling
-common/emacs
-common/nvim
-common/ripgrep
-common/fd
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
 
 # Personal configs (still needed for basic personal git identity)
-my/git_my
+git_my
 
 # Work-specific configs
-work/git_work
+git_work
 
 # Platform-specific macOS configs
-osx_only/git_osx
-osx_only/shell_osx
-osx_only/hammerspoon
-osx_only/karabiner
+git_osx
+shell_osx
+hammerspoon
+karabiner
+finicky
+gnupg_osx
+Xresources_osx
+osx_common
+alacritty_osx
+raycast_osx
+skhd
+yabai
+vscode_osx
+cursor_osx

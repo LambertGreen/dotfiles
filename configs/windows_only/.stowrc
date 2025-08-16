@@ -1,5 +1,0 @@
-# Stow configuration for Windows-only configs
-# Target home directory
---target=~
---dotfiles
---ignore='\.DS_Store'

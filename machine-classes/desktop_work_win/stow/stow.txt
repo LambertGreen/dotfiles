@@ -2,25 +2,43 @@
 # Based on Windows work machine with scoop + chocolatey + winget + MSYS2
 
 # Common configs (truly universal)
-common/git
-common/shell
-common/tmux
-common/vim
-common/wezterm
-common/spelling
-common/emacs
-common/nvim
-common/ripgrep
-common/fd
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
 
 # Work configs (work context)
-work/git_work
+git_work
 
 # Platform-specific Windows configs
-windows_only/git_win
-windows_only/shell_msys2
-windows_only/autohotkey
-windows_only/clink
-windows_only/powershell_win
-windows_only/vscode_win
-windows_only/emacs_win_wsl
+git_win
+shell_msys2
+autohotkey
+clink
+powershell_win
+vscode_win
+emacs_win_wsl
+WindowsCommand
+WindowsPowerShell
+alacritty_win
+cursor_win
+nvim_win
+vsvim
+mintty
+tmux_msys2

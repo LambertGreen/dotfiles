@@ -1,0 +1,171 @@
+# Multi-platform Dockerfile for dotfiles - Truly Shared Architecture
+# Single Dockerfile supporting Ubuntu and Arch with shared stages
+# Usage: 
+#   docker build --build-arg MACHINE_CLASS=docker_essential_ubuntu --target docker_essential_ubuntu
+#   docker build --build-arg MACHINE_CLASS=docker_essential_arch --target docker_essential_arch
+
+# =============================================================================
+# PLATFORM-SPECIFIC BASE IMAGES
+# =============================================================================
+
+FROM ubuntu:22.04 AS base-ubuntu
+# Install minimal system requirements for Ubuntu
+RUN apt-get update --quiet && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+      sudo git openssh-client wget curl ca-certificates build-essential \
+      bash zsh locales && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
+    usermod -aG sudo user && \
+    echo "user ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    echo 'user:user' | chpasswd && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
+
+FROM --platform=linux/amd64 archlinux:latest AS base-arch
+# Install minimal system requirements for Arch
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm git curl wget sudo base-devel tzdata zsh && \
+    useradd -m -G wheel -s /bin/bash user && \
+    echo 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
+    echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && \
+    locale-gen
+
+# =============================================================================
+# SHARED SETUP TEMPLATE - Common logic for both platforms
+# =============================================================================
+
+# Ubuntu setup path
+FROM base-ubuntu AS setup-ubuntu
+USER user
+WORKDIR /home/user
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US:en
+ARG TZ
+ENV TZ=${TZ:-UTC}
+RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
+WORKDIR /home/user/dotfiles
+
+# Arch setup path  
+FROM base-arch AS setup-arch
+USER user
+WORKDIR /home/user
+ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US:en
+ARG TZ
+ENV TZ=${TZ:-UTC}
+RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
+WORKDIR /home/user/dotfiles
+
+# =============================================================================
+# UBUNTU BUILD PATH - Uses ubuntu platform detection
+# =============================================================================
+
+FROM setup-ubuntu AS configure-ubuntu
+ARG MACHINE_CLASS
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+ENV DOTFILES_PLATFORM=ubuntu
+
+COPY --chown=user:user configure.sh ./
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
+
+ENV DOTFILES_PROMPT_TIMEOUT=3
+RUN ./configure.sh
+
+FROM configure-ubuntu AS bootstrap-ubuntu
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
+RUN ./bootstrap.sh
+
+FROM bootstrap-ubuntu AS stow-ubuntu
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user scripts/health/ ./scripts/health/
+COPY --chown=user:user scripts/stow/ ./scripts/stow/
+RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
+RUN just stow
+
+FROM stow-ubuntu AS shell-ubuntu
+RUN echo 'exit' | zsh -l -i
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+
+FROM shell-ubuntu AS install-ubuntu
+COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
+RUN zsh -l -c 'just install-packages'
+
+# =============================================================================
+# ARCH BUILD PATH - Uses arch platform detection
+# =============================================================================
+
+FROM setup-arch AS configure-arch
+ARG MACHINE_CLASS
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+ENV DOTFILES_PLATFORM=arch
+
+COPY --chown=user:user configure.sh ./
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh scripts/package-management/
+COPY --chown=user:user machine-classes/ ./machine-classes/
+
+ENV DOTFILES_PROMPT_TIMEOUT=3
+RUN ./configure.sh
+
+FROM configure-arch AS bootstrap-arch
+COPY --chown=user:user bootstrap.sh ./
+COPY --chown=user:user scripts/bootstrap/ ./scripts/bootstrap/
+RUN ./bootstrap.sh
+
+FROM bootstrap-arch AS stow-arch
+COPY --chown=user:user configs/ ./configs/
+COPY --chown=user:user justfile ./
+COPY --chown=user:user scripts/health/ ./scripts/health/
+COPY --chown=user:user scripts/stow/ ./scripts/stow/
+RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
+RUN just stow
+
+FROM stow-arch AS shell-arch
+RUN echo 'exit' | zsh -l -i
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+
+FROM shell-arch AS install-arch
+COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
+RUN mkdir -p ./machine-classes/scripts/
+RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
+RUN zsh -l -c 'just install-packages'
+
+# =============================================================================
+# FINAL MACHINE-SPECIFIC TARGETS
+# =============================================================================
+
+# Ubuntu machine classes
+FROM install-ubuntu AS docker_essential_ubuntu
+ARG MACHINE_CLASS=docker_essential_ubuntu
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM install-ubuntu AS docker_developer_ubuntu
+ARG MACHINE_CLASS=docker_developer_ubuntu
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM install-ubuntu AS docker_ubuntu_gui
+ARG MACHINE_CLASS=docker_ubuntu_gui
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+# Arch machine classes
+FROM install-arch AS docker_essential_arch
+ARG MACHINE_CLASS=docker_essential_arch
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM install-arch AS docker_developer_arch
+ARG MACHINE_CLASS=docker_developer_arch
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM install-arch AS docker_arch_gui
+ARG MACHINE_CLASS=docker_arch_gui
+ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+RUN zsh -l -c 'just check-health && just show-package-stats'

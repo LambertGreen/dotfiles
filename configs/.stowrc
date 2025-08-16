@@ -1,4 +1,5 @@
--t ~
---dot
---no-folding
+# Stow configuration for common configs
+# Target home directory for legacy path support
+--target=~
+--dotfiles
 --ignore='\.DS_Store'

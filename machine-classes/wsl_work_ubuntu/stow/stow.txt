@@ -2,23 +2,35 @@
 # Work development environment on Windows WSL2
 
 # Common configs (truly universal)
-common/git
-common/shell
-common/tmux
-common/vim
-common/wezterm
-common/spelling
-common/emacs
-common/nvim
-common/ripgrep
-common/fd
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
 
 # Personal configs (still needed for basic personal git identity)
-my/git_my
+git_my
 
 # Work-specific configs
-work/git_work
+git_work
 
 # Platform-specific Linux configs
-linux_only/git_linux
-linux_only/shell_linux
+git_linux
+shell_linux
+gnupg_linux
+win_wsl
