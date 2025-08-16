@@ -21,6 +21,7 @@ fd
 ripgrep
 htop
 jq
+pstree
 unzip
 zip
 

@@ -3,3 +3,4 @@
 
 brew "emacs"     # Get Emacs 30+ from Homebrew
 brew "fastfetch" # System info tool
+brew "pstree"    # Process tree visualization

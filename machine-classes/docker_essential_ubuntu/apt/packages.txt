@@ -1,6 +1,7 @@
 build-essential
 curl
 git
+pstree
 stow
 sudo
 vim

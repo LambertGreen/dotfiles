@@ -15,6 +15,7 @@ mingw-w64-clang-aarch64-lua51 5.1.5-1
 mingw-w64-clang-aarch64-luarocks 3.11.0-1
 mingw-w64-clang-aarch64-neovim 0.9.5-5
 mingw-w64-clang-aarch64-oh-my-posh 23.4.0-1
+mingw-w64-clang-aarch64-pstree 2.39-4
 mingw-w64-clang-aarch64-ripgrep 14.1.0-2
 mingw-w64-clang-aarch64-zoxide 0.9.4-1
 mingw-w64-x86_64-fzf 0.54.0-1
