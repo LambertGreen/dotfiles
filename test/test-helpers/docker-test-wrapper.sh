@@ -5,8 +5,9 @@ set -euo pipefail
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-TEST_LOGS_DIR="${PROJECT_ROOT}/test-logs"
+TEST_DIR_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$TEST_DIR_ROOT/.." && pwd)"
+TEST_LOGS_DIR="${TEST_DIR_ROOT}/test-logs"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 # Colors for output
@@ -42,7 +43,7 @@ mkdir -p "$TEST_DIR"
 # Step 1: Run the actual test
 print_color "$YELLOW" "📦 Step 1: Running Docker test..."
 TEST_OUTPUT="${TEST_DIR}/docker-build-output.log"
-if cd "$PROJECT_ROOT" && just _test-machine-class "$MACHINE_CLASS" "$PLATFORM" 2>&1 | tee "$TEST_OUTPUT"; then
+if cd "$TEST_DIR_ROOT" && just _test-machine-class "$MACHINE_CLASS" "$PLATFORM" 2>&1 | tee "$TEST_OUTPUT"; then
     BUILD_SUCCESS=true
     print_color "$GREEN" "✅ Docker build succeeded"
 else
