@@ -29,9 +29,15 @@ default:
     @echo "  just install-packages-sudo - Install packages requiring sudo (Docker Desktop, etc.)"
     @echo ""
     @echo "🔄 Maintenance (Regular Updates):"
-    @echo "  just check-packages    - Check for available package updates"
-    @echo "  just upgrade-packages  - Upgrade all packages"
-    @echo "  just export-packages   - Update machine class with currently installed packages"
+    @echo "  just check-packages      - Check system packages (brew, apt, pip, npm)"
+    @echo "  just upgrade-packages    - Upgrade system packages"
+    @echo "  just check-dev-packages  - Check dev packages (zsh, emacs, neovim, cargo, pipx)"
+    @echo "  just upgrade-dev-packages - Upgrade dev packages"
+    @echo "  just init-dev-packages    - Initialize dev packages (first-time setup)"
+    @echo "  just verify-dev-package-install - Verify dev package installation"
+    @echo "  just check-all-packages   - Check both system and dev packages"
+    @echo "  just upgrade-all-packages - Upgrade both system and dev packages"
+    @echo "  just export-packages     - Update machine class with currently installed packages"
     @echo ""
     @echo "🏥 Health Check & Troubleshooting:"
     @echo "  just check-health      - Validate system health (auto-logs)"
@@ -91,13 +97,45 @@ install-packages-sudo:
         echo "No sudo-required Brewfile found at: ${brewfile_sudo}"
     fi
 
-# Check for available package updates
+# Check for available package updates (system packages)
 check-packages:
     @./scripts/package-management/check-packages.sh
 
-# Upgrade all packages
+# Upgrade all packages (system packages)
 upgrade-packages:
     @./scripts/package-management/upgrade-packages.sh
+
+# Check for available dev package updates (zsh, emacs, neovim, cargo, pipx)
+check-dev-packages:
+    @./scripts/package-management/check-dev-packages.sh
+
+# Upgrade dev packages (zsh, emacs, neovim, cargo, pipx)
+upgrade-dev-packages:
+    @./scripts/package-management/upgrade-dev-packages.sh
+
+# Initialize dev packages (first-time setup)
+init-dev-packages:
+    @./scripts/package-management/init-dev-packages.sh
+
+# Verify dev package installation completed successfully
+verify-dev-package-install:
+    @./scripts/package-management/verify-dev-package-install.sh
+
+# Check all packages (system + dev)
+check-all-packages:
+    @echo "🔍 Checking system packages..."
+    @./scripts/package-management/check-packages.sh
+    @echo ""
+    @echo "🔍 Checking dev packages..."
+    @./scripts/package-management/check-dev-packages.sh
+
+# Upgrade all packages (system + dev)
+upgrade-all-packages:
+    @echo "🔄 Upgrading system packages..."
+    @./scripts/package-management/upgrade-packages.sh
+    @echo ""
+    @echo "🔄 Upgrading dev packages..."
+    @./scripts/package-management/upgrade-dev-packages.sh
 
 # Export current system packages and update machine class
 export-packages:

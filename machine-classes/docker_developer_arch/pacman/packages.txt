@@ -4,7 +4,6 @@
 # Essential tools (from essential tier)
 base-devel
 curl
-fastfetch
 git
 stow
 sudo
@@ -21,7 +20,7 @@ fd
 ripgrep
 htop
 jq
-pstree
+psmisc
 unzip
 zip
 

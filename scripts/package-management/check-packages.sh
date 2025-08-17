@@ -175,41 +175,6 @@ else
     log_verbose "npm not available"
 fi
 
-# Check zinit (Zsh plugins)
-if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
-    log_output "=== Zinit (Zsh plugins) ==="
-    checked_pms+=("zinit")
-
-    log_verbose "Running: zinit list in zsh context"
-    # Check if zinit has any plugins that can be updated
-    # We use a timeout since zinit commands can hang if zsh config is broken
-    if zinit_status=$(timeout 30 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit times | head -20' 2>/dev/null); then
-        if [[ -n "$zinit_status" ]]; then
-            # Count number of plugins loaded
-            plugin_count=$(echo "$zinit_status" | wc -l | tr -d ' ')
-            plugin_count="${plugin_count//[$'\r\n']/}"
-            if [[ ${plugin_count:-0} -gt 0 ]]; then
-                log_output "Found $plugin_count zinit plugins (updates available via 'zinit update --all')"
-                updates_found=true
-                log_verbose "zinit plugins available for update"
-                log_verbose "$zinit_status"
-            else
-                log_output "No zinit plugins found"
-                log_verbose "No zinit plugins"
-            fi
-        else
-            log_output "No zinit plugins found or zinit not properly initialized"
-            log_verbose "zinit times returned empty"
-        fi
-    else
-        log_output "Error checking zinit status (timeout or initialization issue)"
-        log_verbose "zinit check timed out or failed"
-    fi
-    log_output ""
-else
-    log_verbose "zinit not available (zsh missing or ~/.zinit/bin/zinit.zsh not found)"
-fi
-
 # Summary
 log_output "📊 Update Check Summary"
 log_output "======================="

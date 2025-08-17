@@ -20,7 +20,7 @@ fd-find
 ripgrep
 htop
 jq
-pstree
+psmisc
 unzip
 zip
 

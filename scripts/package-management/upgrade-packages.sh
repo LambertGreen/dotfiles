@@ -102,16 +102,6 @@ if grep -q "npm.*updates available" "$LATEST_CHECK_LOG"; then
     log_verbose "Found npm updates in check log"
 fi
 
-# Check for zinit updates
-if grep -q "zinit.*plugins.*updates available" "$LATEST_CHECK_LOG" || grep -q "Found.*zinit plugins" "$LATEST_CHECK_LOG"; then
-    AVAILABLE_UPGRADES+=("zinit")
-    if plugin_info=$(grep "Found.*zinit plugins" "$LATEST_CHECK_LOG" | head -1); then
-        PM_DESCRIPTIONS+=("zinit (Zsh plugins) - $plugin_info")
-    else
-        PM_DESCRIPTIONS+=("zinit (Zsh plugins) - plugins available for upgrade")
-    fi
-    log_verbose "Found zinit updates in check log"
-fi
 
 # Check for apt updates
 if grep -q "APT.*updates available" "$LATEST_CHECK_LOG" || grep -q "apt.*upgradable" "$LATEST_CHECK_LOG"; then
@@ -147,31 +137,26 @@ done
 log_output ""
 
 SELECTED_PMS=()
-log_output "Enter numbers to EXCLUDE (e.g., '1 3' to skip brew and apt) [timeout: 15s]:"
+log_output "Enter numbers to SELECT (e.g., '1 3' for brew+pip only, or ENTER for all) [timeout: 15s]:"
 read -t 15 -r user_input || user_input=""
 
 if [[ -n "$user_input" ]]; then
-    log_output "Excluding selected package managers..."
-    excluded_numbers=($user_input)
-
-    for i in "${!AVAILABLE_UPGRADES[@]}"; do
-        excluded=false
-        for num in "${excluded_numbers[@]}"; do
-            if [[ "$num" == "$((i+1))" ]]; then
-                excluded=true
-                log_output "  - Excluding: ${PM_DESCRIPTIONS[i]}"
-                break
-            fi
-        done
-        if [[ "$excluded" != true ]]; then
-            SELECTED_PMS+=("${AVAILABLE_UPGRADES[i]}")
+    log_output "Selecting specified package managers..."
+    selected_numbers=($user_input)
+    
+    for num in "${selected_numbers[@]}"; do
+        if [[ "$num" =~ ^[0-9]+$ ]] && [[ "$num" -ge 1 ]] && [[ "$num" -le ${#AVAILABLE_UPGRADES[@]} ]]; then
+            idx=$((num-1))
+            SELECTED_PMS+=("${AVAILABLE_UPGRADES[idx]}")
+            log_output "  - Selected: ${PM_DESCRIPTIONS[idx]}"
+        else
+            log_output "  - Invalid selection: $num (skipping)"
         fi
     done
 else
-    log_output "No exclusions specified, proceeding with all package managers..."
+    log_output "No input received, proceeding with all package managers..."
     SELECTED_PMS=("${AVAILABLE_UPGRADES[@]}")
 fi
-
 if [[ ${#SELECTED_PMS[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers selected for upgrade."
     exit 0
@@ -227,19 +212,6 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "✅ NPM global packages upgraded"
             else
                 log_output "⚠️  NPM upgrade had issues (exit code: $?)"
-            fi
-            ;;
-
-        zinit)
-            log_verbose "Running: zinit update --all in zsh context"
-            # Use timeout to prevent hanging and run in proper zsh context
-            if timeout 120 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit update --all' 2>&1 | tee -a "${LOG_FILE}"; then
-                log_output "✅ Zinit plugins updated"
-                # Also run cclear to clean up and recompile
-                log_verbose "Running: zinit cclear (cleanup and recompile)"
-                timeout 60 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit cclear' 2>&1 | tee -a "${LOG_FILE}" || true
-            else
-                log_output "⚠️  Zinit update had issues (exit code: $?)"
             fi
             ;;
 

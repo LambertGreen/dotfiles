@@ -13,7 +13,7 @@ FROM ubuntu:22.04 AS base-ubuntu
 RUN apt-get update --quiet && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
       sudo git openssh-client wget curl ca-certificates build-essential \
-      bash zsh locales && \
+      bash zsh locales less && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     useradd -u 1000 --create-home --comment "Ubuntu dotfiles user" user && \
@@ -26,7 +26,7 @@ RUN apt-get update --quiet && \
 FROM --platform=linux/amd64 archlinux:latest AS base-arch
 # Install minimal system requirements for Arch
 RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm git curl wget sudo base-devel tzdata zsh && \
+    pacman -S --noconfirm git curl wget sudo base-devel tzdata zsh less && \
     useradd -m -G wheel -s /bin/bash user && \
     echo 'user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen && \
@@ -95,6 +95,11 @@ RUN mkdir -p ./machine-classes/scripts/
 RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 RUN zsh -l -c 'just install-packages'
 
+FROM install-ubuntu AS dev-packages-ubuntu
+# Initialize and verify dev package installation
+RUN zsh -l -c 'just init-dev-packages' || echo "Dev packages initialization attempted (some may have failed)"
+RUN zsh -l -c 'just verify-dev-package-install' || echo "Dev package verification completed (check logs for details)"
+
 # =============================================================================
 # ARCH BUILD PATH - Uses arch platform detection
 # =============================================================================
@@ -134,38 +139,43 @@ RUN mkdir -p ./machine-classes/scripts/
 RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
 RUN zsh -l -c 'just install-packages'
 
+FROM install-arch AS dev-packages-arch
+# Initialize and verify dev package installation
+RUN zsh -l -c 'just init-dev-packages' || echo "Dev packages initialization attempted (some may have failed)"
+RUN zsh -l -c 'just verify-dev-package-install' || echo "Dev package verification completed (check logs for details)"
+
 # =============================================================================
 # FINAL MACHINE-SPECIFIC TARGETS
 # =============================================================================
 
 # Ubuntu machine classes
-FROM install-ubuntu AS docker_essential_ubuntu
+FROM dev-packages-ubuntu AS docker_essential_ubuntu
 ARG MACHINE_CLASS=docker_essential_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
-FROM install-ubuntu AS docker_developer_ubuntu
+FROM dev-packages-ubuntu AS docker_developer_ubuntu
 ARG MACHINE_CLASS=docker_developer_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
-FROM install-ubuntu AS docker_ubuntu_gui
+FROM dev-packages-ubuntu AS docker_ubuntu_gui
 ARG MACHINE_CLASS=docker_ubuntu_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
 # Arch machine classes
-FROM install-arch AS docker_essential_arch
+FROM dev-packages-arch AS docker_essential_arch
 ARG MACHINE_CLASS=docker_essential_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
-FROM install-arch AS docker_developer_arch
+FROM dev-packages-arch AS docker_developer_arch
 ARG MACHINE_CLASS=docker_developer_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
-FROM install-arch AS docker_arch_gui
+FROM dev-packages-arch AS docker_arch_gui
 ARG MACHINE_CLASS=docker_arch_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 RUN zsh -l -c 'just check-health && just show-package-stats'

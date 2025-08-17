@@ -1,8 +1,7 @@
 base-devel
 curl
-fastfetch
 git
-pstree
+psmisc
 stow
 sudo
 vim
