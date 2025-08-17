@@ -88,19 +88,16 @@ if command -v emacs >/dev/null 2>&1; then
         fi
     else
         log_verbose "Running: emacs initial bootstrap (elpaca will be installed and packages downloaded)"
-        # First time setup - run emacs to bootstrap elpaca, then use batch mode to ensure packages are installed
-        # Step 1: Bootstrap elpaca (this needs to be done interactively-ish)
-        if timeout 300 emacs --batch --eval "(progn (load-file \"~/.emacs.d/config/init-package-manager.el\") (message \"Elpaca bootstrap complete\"))" 2>&1 | tee -a "${LOG_FILE}"; then
-            # Step 2: Now load full config to install all packages
-            if timeout 300 emacs --batch -l ~/.emacs.d/init.el --eval "(message \"Package installation complete\")" 2>&1 | tee -a "${LOG_FILE}"; then
-                log_output "✅ Emacs package initialization completed"
-                initialized_pms+=("emacs")
-            else
-                log_output "❌ Emacs package installation failed"
-                failed_pms+=("emacs")
-            fi
+        # First time setup - load full config and wait for all packages to install
+        if timeout 600 emacs --batch --eval "(progn 
+            (load-file \"~/.emacs.d/init.el\") 
+            (message \"Loaded init.el, waiting for packages...\")
+            (elpaca-wait)
+            (message \"All packages installed!\"))" 2>&1 | tee -a "${LOG_FILE}"; then
+            log_output "✅ Emacs package initialization completed"
+            initialized_pms+=("emacs")
         else
-            log_output "❌ Emacs elpaca bootstrap failed"
+            log_output "❌ Emacs package initialization failed"
             failed_pms+=("emacs")
         fi
     fi

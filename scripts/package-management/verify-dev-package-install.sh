@@ -55,26 +55,24 @@ failed_pms=()
 if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
     log_output "=== Verifying Zsh (zinit plugins) ==="
     
-    log_verbose "Running: zinit list to verify plugin installation"
-    if zinit_plugins=$(timeout 30 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit list' 2>/dev/null); then
-        if [[ -n "$zinit_plugins" ]]; then
-            plugin_count=$(echo "$zinit_plugins" | wc -l | tr -d ' ')
-            plugin_count="${plugin_count//[$'\r\n']/}"
-            if [[ ${plugin_count:-0} -gt 0 ]]; then
-                log_output "✅ Zsh: $plugin_count plugins successfully installed"
-                verified_pms+=("zsh")
-                log_verbose "zinit plugins found:"
-                log_verbose "$zinit_plugins"
-            else
-                log_output "❌ Zsh: No plugins found after installation"
-                failed_pms+=("zsh")
-            fi
+    log_verbose "Running: direct zinit plugins directory check to verify plugin installation"
+    # Check zinit plugins directory directly instead of using 'zinit list' which can hang
+    plugins_dir="$HOME/.zinit/plugins"
+    if [[ -d "$plugins_dir" ]]; then
+        plugin_count=$(find "$plugins_dir" -maxdepth 1 -type d 2>/dev/null | wc -l | tr -d ' ')
+        # Subtract 1 for the plugins directory itself
+        plugin_count=$((plugin_count - 1))
+        if [[ ${plugin_count:-0} -gt 0 ]]; then
+            log_output "✅ Zsh: $plugin_count plugins successfully installed"
+            verified_pms+=("zsh")
+            log_verbose "zinit plugins found in directory:"
+            log_verbose "$(find "$plugins_dir" -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | grep -v '^plugins$' || echo 'none')"
         else
-            log_output "❌ Zsh: zinit list returned empty"
+            log_output "❌ Zsh: No plugins found in plugins directory"
             failed_pms+=("zsh")
         fi
     else
-        log_output "❌ Zsh: Failed to verify plugin installation (timeout or error)"
+        log_output "❌ Zsh: zinit plugins directory not found"
         failed_pms+=("zsh")
     fi
     log_output ""

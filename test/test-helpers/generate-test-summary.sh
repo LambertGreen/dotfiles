@@ -42,19 +42,20 @@ cat <<EOF
 **Machine Class:** $MACHINE_CLASS  
 **Platform:** $PLATFORM  
 **Build Status:** $(if [[ "$BUILD_SUCCESS" == "true" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)  
+**Test Duration:** $(if [[ -f "$TEST_DIR/docker-build-output.log" ]]; then echo "$(stat -f %Sm -t '%H:%M:%S' "$TEST_DIR/docker-build-output.log" 2>/dev/null || echo 'unknown')"; else echo "unknown"; fi)
 
 ---
 
 ## 📊 Package Installation Summary
 
+### Dev Package Verification
+
 EOF
 
 # Check for package installation results
-if [[ -f "$TEST_DIR/logs/verify-dev-package-install"*.log ]]; then
-    VERIFY_LOG=$(ls -t "$TEST_DIR/logs/verify-dev-package-install"*.log | head -1)
-    
-    echo "### Dev Package Verification"
-    echo ""
+VERIFY_LOG_PATTERN="$TEST_DIR/logs/verify-dev-package-install"*.log
+if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
+    VERIFY_LOG=$(ls -t $VERIFY_LOG_PATTERN | head -1)
     
     # Extract verification results
     EMACS_RESULT=$(extract_value "$VERIFY_LOG" "Emacs:.*packages")
@@ -90,6 +91,9 @@ if [[ -f "$TEST_DIR/logs/verify-dev-package-install"*.log ]]; then
             echo "| **Zsh (zinit)** | ❌ | Verification failed |"
         fi
     fi
+    echo ""
+else
+    echo "*No dev package verification log found*"
     echo ""
 fi
 
