@@ -87,16 +87,13 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 RUN just stow
 
 FROM stow-ubuntu AS shell-ubuntu
-# Force synchronous loading for Docker builds - no async delays
-ENV ZINIT_DISABLE_TURBO=1
-# Stage 1: Install zinit (first zsh startup)
+# Iterative shell loading to reach steady state (all plugins downloaded)
 RUN echo 'exit' | zsh -l -i
-# Stage 2: Download and install all plugins synchronously
-RUN echo 'zinit update --all && echo "Plugins downloaded" && exit' | zsh -l -i
-# Stage 3: Compile all plugins and setup completions
-RUN echo 'zinit compile --all && zinit cclear && zinit cdreplay -q && echo "Plugins compiled and completions ready" && exit' | zsh -l -i
-# Stage 4: Final verification and timing measurement
-RUN echo 'zinit times && echo "Shell setup complete - minimal async work remaining" && exit' | zsh -l -i
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+# Additional iterations to trigger all conditional/dependent plugins
+RUN echo 'exit' | zsh -l -i
+RUN echo 'exit' | zsh -l -i
+RUN echo 'exit' | zsh -l -i
 
 FROM shell-ubuntu AS install-ubuntu
 # Copy shared package management utilities first (changes least frequently)
@@ -172,16 +169,13 @@ RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || tru
 RUN just stow
 
 FROM stow-arch AS shell-arch
-# Force synchronous loading for Docker builds - no async delays
-ENV ZINIT_DISABLE_TURBO=1
-# Stage 1: Install zinit (first zsh startup)
+# Iterative shell loading to reach steady state (all plugins downloaded)
 RUN echo 'exit' | zsh -l -i
-# Stage 2: Download and install all plugins synchronously
-RUN echo 'zinit update --all && echo "Plugins downloaded" && exit' | zsh -l -i
-# Stage 3: Compile all plugins and setup completions
-RUN echo 'zinit compile --all && zinit cclear && zinit cdreplay -q && echo "Plugins compiled and completions ready" && exit' | zsh -l -i
-# Stage 4: Final verification and timing measurement
-RUN echo 'zinit times && echo "Shell setup complete - minimal async work remaining" && exit' | zsh -l -i
+RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+# Additional iterations to trigger all conditional/dependent plugins
+RUN echo 'exit' | zsh -l -i
+RUN echo 'exit' | zsh -l -i
+RUN echo 'exit' | zsh -l -i
 
 FROM shell-arch AS install-arch
 # Copy shared package management utilities first (changes least frequently)
