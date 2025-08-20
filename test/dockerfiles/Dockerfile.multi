@@ -82,23 +82,64 @@ COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
+COPY --chown=user:user scripts/show-config.sh ./scripts/
 RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
 RUN just stow
 
 FROM stow-ubuntu AS shell-ubuntu
+# Force synchronous loading for Docker builds - no async delays
+ENV ZINIT_DISABLE_TURBO=1
+# Stage 1: Install zinit (first zsh startup)
 RUN echo 'exit' | zsh -l -i
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+# Stage 2: Download and install all plugins synchronously
+RUN echo 'zinit update --all && echo "Plugins downloaded" && exit' | zsh -l -i
+# Stage 3: Compile all plugins and setup completions
+RUN echo 'zinit compile --all && zinit cclear && zinit cdreplay -q && echo "Plugins compiled and completions ready" && exit' | zsh -l -i
+# Stage 4: Final verification and timing measurement
+RUN echo 'zinit times && echo "Shell setup complete - minimal async work remaining" && exit' | zsh -l -i
 
 FROM shell-ubuntu AS install-ubuntu
-COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
-RUN mkdir -p ./machine-classes/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
-RUN zsh -l -c 'just install-packages'
+# Copy shared package management utilities first (changes least frequently)
+COPY --chown=user:user scripts/package-management/shared/ ./scripts/package-management/shared/
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scripts/package-management/
 
-FROM install-ubuntu AS dev-packages-ubuntu
-# Initialize and verify dev package installation
-RUN zsh -l -c 'just init-dev-packages' || echo "Dev packages initialization attempted (some may have failed)"
-RUN zsh -l -c 'just verify-dev-package-install' || echo "Dev package verification completed (check logs for details)"
+# Install system packages with granular caching per package manager
+FROM install-ubuntu AS install-apt-ubuntu
+COPY --chown=user:user scripts/package-management/apt/ ./scripts/package-management/apt/
+RUN ./scripts/package-management/apt/install-apt-packages.sh || true
+
+FROM install-apt-ubuntu AS install-brew-ubuntu  
+COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
+RUN ./scripts/package-management/brew/install-brew-packages.sh || true
+
+FROM install-brew-ubuntu AS install-pip-ubuntu
+COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
+RUN ./scripts/package-management/pip/install-pip-packages.sh || true
+
+FROM install-pip-ubuntu AS install-npm-ubuntu
+COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
+RUN ./scripts/package-management/npm/install-npm-packages.sh || true
+
+FROM install-npm-ubuntu AS install-gem-ubuntu
+COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
+RUN ./scripts/package-management/gem/install-gem-packages.sh || true
+
+FROM install-gem-ubuntu AS install-system-ubuntu
+
+# Install dev packages with granular caching per package manager
+FROM install-system-ubuntu AS install-emacs-ubuntu
+COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
+RUN ./scripts/package-management/emacs/init-emacs-packages.sh || true
+
+FROM install-emacs-ubuntu AS install-neovim-ubuntu
+COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
+RUN ./scripts/package-management/neovim/init-neovim-packages.sh || true
+
+FROM install-neovim-ubuntu AS install-zsh-ubuntu
+COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
+RUN ./scripts/package-management/zsh/init-zsh-packages.sh || true
+
+FROM install-zsh-ubuntu AS dev-packages-ubuntu
 
 # =============================================================================
 # ARCH BUILD PATH - Uses arch platform detection
@@ -126,23 +167,64 @@ COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
+COPY --chown=user:user scripts/show-config.sh ./scripts/
 RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
 RUN just stow
 
 FROM stow-arch AS shell-arch
+# Force synchronous loading for Docker builds - no async delays
+ENV ZINIT_DISABLE_TURBO=1
+# Stage 1: Install zinit (first zsh startup)
 RUN echo 'exit' | zsh -l -i
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
+# Stage 2: Download and install all plugins synchronously
+RUN echo 'zinit update --all && echo "Plugins downloaded" && exit' | zsh -l -i
+# Stage 3: Compile all plugins and setup completions
+RUN echo 'zinit compile --all && zinit cclear && zinit cdreplay -q && echo "Plugins compiled and completions ready" && exit' | zsh -l -i
+# Stage 4: Final verification and timing measurement
+RUN echo 'zinit times && echo "Shell setup complete - minimal async work remaining" && exit' | zsh -l -i
 
 FROM shell-arch AS install-arch
-COPY --chown=user:user scripts/package-management/ ./scripts/package-management/
-RUN mkdir -p ./machine-classes/scripts/
-RUN cp ./scripts/package-management/interactive-prompts.sh ./machine-classes/scripts/
-RUN zsh -l -c 'just install-packages'
+# Copy shared package management utilities first (changes least frequently)
+COPY --chown=user:user scripts/package-management/shared/ ./scripts/package-management/shared/
+COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scripts/package-management/
 
-FROM install-arch AS dev-packages-arch
-# Initialize and verify dev package installation
-RUN zsh -l -c 'just init-dev-packages' || echo "Dev packages initialization attempted (some may have failed)"
-RUN zsh -l -c 'just verify-dev-package-install' || echo "Dev package verification completed (check logs for details)"
+# Install system packages with granular caching per package manager
+FROM install-arch AS install-pacman-arch
+COPY --chown=user:user scripts/package-management/pacman/ ./scripts/package-management/pacman/
+RUN ./scripts/package-management/pacman/install-pacman-packages.sh || true
+
+FROM install-pacman-arch AS install-pip-arch
+COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
+RUN ./scripts/package-management/pip/install-pip-packages.sh || true
+
+FROM install-pip-arch AS install-npm-arch
+COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
+RUN ./scripts/package-management/npm/install-npm-packages.sh || true
+
+FROM install-npm-arch AS install-gem-arch
+COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
+RUN ./scripts/package-management/gem/install-gem-packages.sh || true
+
+FROM install-gem-arch AS install-cargo-arch
+COPY --chown=user:user scripts/package-management/cargo/ ./scripts/package-management/cargo/
+RUN ./scripts/package-management/cargo/install-cargo-packages.sh || true
+
+FROM install-cargo-arch AS install-system-arch
+
+# Install dev packages with granular caching per package manager  
+FROM install-system-arch AS install-emacs-arch
+COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
+RUN ./scripts/package-management/emacs/init-emacs-packages.sh || true
+
+FROM install-emacs-arch AS install-neovim-arch
+COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
+RUN ./scripts/package-management/neovim/init-neovim-packages.sh || true
+
+FROM install-neovim-arch AS install-zsh-arch
+COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
+RUN ./scripts/package-management/zsh/init-zsh-packages.sh || true
+
+FROM install-zsh-arch AS dev-packages-arch
 
 # =============================================================================
 # FINAL MACHINE-SPECIFIC TARGETS
@@ -152,30 +234,66 @@ RUN zsh -l -c 'just verify-dev-package-install' || echo "Dev package verificatio
 FROM dev-packages-ubuntu AS docker_essential_ubuntu
 ARG MACHINE_CLASS=docker_essential_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 FROM dev-packages-ubuntu AS docker_developer_ubuntu
 ARG MACHINE_CLASS=docker_developer_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 FROM dev-packages-ubuntu AS docker_ubuntu_gui
 ARG MACHINE_CLASS=docker_ubuntu_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 # Arch machine classes
 FROM dev-packages-arch AS docker_essential_arch
 ARG MACHINE_CLASS=docker_essential_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 FROM dev-packages-arch AS docker_developer_arch
 ARG MACHINE_CLASS=docker_developer_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 FROM dev-packages-arch AS docker_arch_gui
 ARG MACHINE_CLASS=docker_arch_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
-RUN zsh -l -c 'just check-health && just show-package-stats'
+# Copy all remaining package management scripts for final stage
+COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
+RUN chmod +x ./scripts/package-management/*.sh
+# Copy machine class definitions last (touching these invalidates check/upgrade testing)
+COPY --chown=user:user machine-classes/ ./machine-classes/
+# Test package checking and health
+RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'

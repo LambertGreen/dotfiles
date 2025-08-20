@@ -102,24 +102,27 @@ lgreen_setup_zinit() {
     (( ${+_comps} )) && _comps[zinit]=_zinit
 }
 lgreen_setup_plugins() {
-    # Ice it up?
-    #unset ZPLUGIN_ICE
-    export ZPLUGIN_ICE=1
+    # Ice it up? - Disable for Docker environments to avoid async delays
+    if [[ -n "$ZINIT_DISABLE_TURBO" ]]; then
+        unset ZPLUGIN_ICE
+    else
+        export ZPLUGIN_ICE=1
+    fi
 
 # ** Plugin::OMZ
     zinit for \
         OMZ::lib/history.zsh \
 
 # ** Plugin::completions
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid blockf
+    [ -n "$ZPLUGIN_ICE" ] && [ -z "$ZINIT_DISABLE_TURBO" ] && zinit ice wait"0" lucid blockf
     zinit light zsh-users/zsh-completions
 
 # ** Plugin::autosuggestions
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
+    [ -n "$ZPLUGIN_ICE" ] && [ -z "$ZINIT_DISABLE_TURBO" ] && zinit ice wait"0" lucid atload"_zsh_autosuggest_start"
     zinit light zsh-users/zsh-autosuggestions
 
 # ** Plugin::fast-syntax-highlighting
-    [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
+    [ -n "$ZPLUGIN_ICE" ] && [ -z "$ZINIT_DISABLE_TURBO" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma-continuum/fast-syntax-highlighting
 
 # ** Plugin::Direnv
@@ -142,7 +145,7 @@ lgreen_setup_plugins() {
     zinit light junegunn/fzf
 
 # ** Plugin::fzf-history-search
-    zinit ice lucid wait'0'
+    [ -z "$ZINIT_DISABLE_TURBO" ] && zinit ice lucid wait'0' || zinit ice lucid
     zinit light joshskidmore/zsh-fzf-history-search
 
 # ** Plugin::fzf-tab
