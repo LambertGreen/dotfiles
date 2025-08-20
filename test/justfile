@@ -12,22 +12,22 @@ default:
     @echo "🧪 Dotfiles Testing - Machine Class Based"
     @echo ""
     @echo "Essential Tier (minimal system):"
-    @echo "  just test-ubuntu-essential      - Ubuntu with apt only"
-    @echo "  just test-arch-essential        - Arch with pacman only"
+    @echo "  just test-essential-ubuntu      - Ubuntu with apt only"
+    @echo "  just test-essential-arch        - Arch with pacman only"
     @echo ""
     @echo "Developer Tier (multi-PM):"
-    @echo "  just test-ubuntu-developer      - Ubuntu with apt + pip + npm"
-    @echo "  just test-arch-developer        - Arch with pacman + AUR + pip + npm"
+    @echo "  just test-developer-ubuntu      - Ubuntu with apt + pip + npm"
+    @echo "  just test-developer-arch        - Arch with pacman + AUR + pip + npm"
     @echo ""
     @echo "GUI Tier (desktop validation):"
-    @echo "  just test-ubuntu-gui            - Ubuntu with desktop packages"
-    @echo "  just test-arch-gui              - Arch with desktop packages"
+    @echo "  just test-gui-ubuntu            - Ubuntu with desktop packages"
+    @echo "  just test-gui-arch              - Arch with desktop packages"
     @echo ""
     @echo "Interactive Testing:"
-    @echo "  just run-ubuntu-essential       - Interactive shell"
-    @echo "  just run-arch-essential         - Interactive shell"
-    @echo "  just run-ubuntu-developer       - Interactive shell"
-    @echo "  just run-arch-developer         - Interactive shell"
+    @echo "  just run-essential-ubuntu       - Interactive shell"
+    @echo "  just run-essential-arch         - Interactive shell"
+    @echo "  just run-developer-ubuntu       - Interactive shell"
+    @echo "  just run-developer-arch         - Interactive shell"
     @echo ""
     @echo "Batch Testing:"
     @echo "  just test-all-ubuntu            - All Ubuntu tiers"
@@ -45,20 +45,20 @@ default:
 # =============================================================================
 
 # Test Ubuntu essential machine class
-test-ubuntu-essential:
+test-essential-ubuntu:
     @./test-helpers/docker-test-wrapper.sh docker_essential_ubuntu ubuntu
 
 # Test Arch essential machine class
-test-arch-essential:
+test-essential-arch:
     @./test-helpers/docker-test-wrapper.sh docker_essential_arch arch
 
 # Interactive Ubuntu essential
-run-ubuntu-essential:
+run-essential-ubuntu:
     @echo "🐳 Running docker_essential_ubuntu interactive shell..."
     just _run-machine-class docker_essential_ubuntu ubuntu
 
 # Interactive Arch essential
-run-arch-essential:
+run-essential-arch:
     @echo "🐳 Running docker_essential_arch interactive shell..."
     just _run-machine-class docker_essential_arch arch
 
@@ -67,20 +67,20 @@ run-arch-essential:
 # =============================================================================
 
 # Test Ubuntu developer machine class
-test-ubuntu-developer:
+test-developer-ubuntu:
     @./test-helpers/docker-test-wrapper.sh docker_developer_ubuntu ubuntu
 
 # Test Arch developer machine class
-test-arch-developer:
+test-developer-arch:
     @./test-helpers/docker-test-wrapper.sh docker_developer_arch arch
 
 # Interactive Ubuntu developer
-run-ubuntu-developer:
+run-developer-ubuntu:
     @echo "🐳 Running docker_developer_ubuntu interactive shell..."
     just _run-machine-class docker_developer_ubuntu ubuntu
 
 # Interactive Arch developer
-run-arch-developer:
+run-developer-arch:
     @echo "🐳 Running docker_developer_arch interactive shell..."
     just _run-machine-class docker_developer_arch arch
 
@@ -89,20 +89,20 @@ run-arch-developer:
 # =============================================================================
 
 # Test Ubuntu GUI machine class
-test-ubuntu-gui:
+test-gui-ubuntu:
     @./test-helpers/docker-test-wrapper.sh docker_ubuntu_gui ubuntu
 
 # Test Arch GUI machine class
-test-arch-gui:
+test-gui-arch:
     @./test-helpers/docker-test-wrapper.sh docker_arch_gui arch
 
 # Interactive Ubuntu GUI
-run-ubuntu-gui:
+run-gui-ubuntu:
     @echo "🐳 Running docker_ubuntu_gui interactive shell..."
     just _run-machine-class docker_ubuntu_gui ubuntu
 
 # Interactive Arch GUI
-run-arch-gui:
+run-gui-arch:
     @echo "🐳 Running docker_arch_gui interactive shell..."
     just _run-machine-class docker_arch_gui arch
 
@@ -114,17 +114,17 @@ run-arch-gui:
 test-all-ubuntu:
     @echo "🧪 Testing all Ubuntu tiers..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    just test-ubuntu-essential
-    just test-ubuntu-developer
-    just test-ubuntu-gui
+    just test-essential-ubuntu
+    just test-developer-ubuntu
+    just test-gui-ubuntu
 
 # Test all Arch tiers
 test-all-arch:
     @echo "🧪 Testing all Arch tiers..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    just test-arch-essential
-    just test-arch-developer
-    just test-arch-gui
+    just test-essential-arch
+    just test-developer-arch
+    just test-gui-arch
 
 # Test everything
 test-all:
@@ -146,8 +146,13 @@ _test-machine-class machine_class platform:
 
 # Helper: Interactive machine class testing using shared Dockerfile
 _run-machine-class machine_class platform:
-    @echo "Building image to {{machine_class}} stage first ({{platform}} platform)..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
+    @echo "🔍 Checking for existing Docker image: dotfiles-test-{{machine_class}}"
+    @if ! docker image inspect dotfiles-test-{{machine_class}} >/dev/null 2>&1; then \
+        echo "🔨 Image dotfiles-test-{{machine_class}} not found, building it..."; \
+        just _test-machine-class {{machine_class}} {{platform}}; \
+    else \
+        echo "✅ Using existing image: dotfiles-test-{{machine_class}}"; \
+    fi
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
     docker run -it --rm dotfiles-test-{{machine_class}}
 

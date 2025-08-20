@@ -12,15 +12,7 @@ export DOTFILES_DIR := justfile_directory()
 default:
     @echo "🏠 Dotfiles Management System"
     @echo ""
-    @if [ -f "$HOME/.dotfiles.env" ]; then \
-        echo "📊 Current Configuration:"; \
-        echo "  Platform: `source $HOME/.dotfiles.env 2>/dev/null && echo $DOTFILES_PLATFORM`"; \
-        echo "  Machine class: `source $HOME/.dotfiles.env 2>/dev/null && echo $DOTFILES_MACHINE_CLASS`"; \
-        echo ""; \
-    else \
-        echo "⚠️  Not configured yet. Start with Fresh Setup below."; \
-        echo ""; \
-    fi
+    @./scripts/show-config.sh
     @echo "🚀 Fresh Setup (New Machine):"
     @echo "  just configure         - Interactive configuration (select machine class)"
     @echo "  just bootstrap         - Bootstrap system (install core tools like Python, Just)"
