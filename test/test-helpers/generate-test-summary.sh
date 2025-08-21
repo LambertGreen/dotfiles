@@ -52,8 +52,21 @@ cat <<EOF
 
 EOF
 
-# Check for package installation results
+# Check for both initialization and verification logs
+INIT_LOG_PATTERN="$TEST_DIR/logs/init-dev-packages"*.log
 VERIFY_LOG_PATTERN="$TEST_DIR/logs/verify-dev-package-install"*.log
+
+# Extract initialization timing if available
+if ls $INIT_LOG_PATTERN 1> /dev/null 2>&1; then
+    INIT_LOG=$(ls -t $INIT_LOG_PATTERN | head -1)
+    
+    # Extract initialization timing
+    EMACS_INIT_TIME=$(extract_value "$INIT_LOG" "Emacs.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
+    NVIM_INIT_TIME=$(extract_value "$INIT_LOG" "Neovim.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
+    ZSH_INIT_TIME=$(extract_value "$INIT_LOG" "Zsh.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
+fi
+
+# Check for package installation results
 if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
     VERIFY_LOG=$(ls -t $VERIFY_LOG_PATTERN | head -1)
     
@@ -62,33 +75,36 @@ if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
     NEOVIM_RESULT=$(extract_value "$VERIFY_LOG" "Neovim:.*plugins")
     ZSH_RESULT=$(extract_value "$VERIFY_LOG" "Zsh:.*")
     
-    echo "| Package Manager | Status | Details |"
-    echo "|-----------------|--------|---------|"
+    echo "| Package Manager | Status | Details | Init Time | Verify Time |"
+    echo "|-----------------|--------|---------|-----------|-------------|"
     
     if [[ -n "$EMACS_RESULT" ]]; then
         if echo "$EMACS_RESULT" | grep -q "✅"; then
             EMACS_COUNT=$(echo "$EMACS_RESULT" | grep -oE '[0-9]+' | head -1)
-            echo "| **Emacs (elpaca)** | ✅ | $EMACS_COUNT packages |"
+            EMACS_VERIFY_TIME=$(echo "$EMACS_RESULT" | grep -oE '\([^)]*[0-9]+s[^)]*\)' | tr -d '()' || echo "")
+            echo "| **Emacs (elpaca)** | ✅ | $EMACS_COUNT packages | ${EMACS_INIT_TIME:-n/a} | ${EMACS_VERIFY_TIME:-n/a} |"
         else
-            echo "| **Emacs (elpaca)** | ❌ | Installation failed |"
+            echo "| **Emacs (elpaca)** | ❌ | Installation failed | ${EMACS_INIT_TIME:-n/a} | n/a |"
         fi
     fi
     
     if [[ -n "$NEOVIM_RESULT" ]]; then
         if echo "$NEOVIM_RESULT" | grep -q "✅"; then
             NVIM_COUNT=$(echo "$NEOVIM_RESULT" | grep -oE '[0-9]+' | head -1)
-            echo "| **Neovim (lazy)** | ✅ | $NVIM_COUNT plugins |"
+            NVIM_VERIFY_TIME=$(echo "$NEOVIM_RESULT" | grep -oE '\([^)]*[0-9]+s[^)]*\)' | tr -d '()' || echo "")
+            echo "| **Neovim (lazy)** | ✅ | $NVIM_COUNT plugins | ${NVIM_INIT_TIME:-n/a} | ${NVIM_VERIFY_TIME:-n/a} |"
         else
-            echo "| **Neovim (lazy)** | ❌ | Installation failed |"
+            echo "| **Neovim (lazy)** | ❌ | Installation failed | ${NVIM_INIT_TIME:-n/a} | n/a |"
         fi
     fi
     
     if [[ -n "$ZSH_RESULT" ]]; then
         if echo "$ZSH_RESULT" | grep -q "✅"; then
             ZSH_COUNT=$(echo "$ZSH_RESULT" | grep -oE '[0-9]+' | head -1)
-            echo "| **Zsh (zinit)** | ✅ | $ZSH_COUNT plugins |"
+            ZSH_VERIFY_TIME=$(echo "$ZSH_RESULT" | grep -oE '\([^)]*[0-9]+s[^)]*\)' | tr -d '()' || echo "")
+            echo "| **Zsh (zinit)** | ✅ | $ZSH_COUNT plugins | ${ZSH_INIT_TIME:-n/a} | ${ZSH_VERIFY_TIME:-n/a} |"
         else
-            echo "| **Zsh (zinit)** | ❌ | Verification failed |"
+            echo "| **Zsh (zinit)** | ❌ | Verification failed | ${ZSH_INIT_TIME:-n/a} | n/a |"
         fi
     fi
     echo ""

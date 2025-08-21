@@ -18,9 +18,16 @@ fi
 echo "📥 Downloading and installing Homebrew..."
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Add to shell profile
-echo "🔧 Adding Homebrew to shell profile..."
-echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.profile
+# Add to shell profile for persistence across sessions
+echo "🔧 Adding Homebrew to shell profiles..."
+BREW_INIT='eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+
+# Add to multiple shell initialization files to ensure it's always available
+echo "$BREW_INIT" >> ~/.profile
+echo "$BREW_INIT" >> ~/.bashrc
+# Create .zshenv if it doesn't exist (sourced for all zsh invocations)
+touch ~/.zshenv
+echo "$BREW_INIT" >> ~/.zshenv
 
 # Source for current session
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"

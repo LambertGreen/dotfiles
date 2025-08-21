@@ -1,0 +1,9 @@
+build-essential
+curl
+git
+psmisc
+stow
+sudo
+vim
+wget
+zsh

@@ -86,7 +86,8 @@ if command -v apt >/dev/null 2>&1; then
         log_verbose "Running: apt list --upgradable"
         if upgradable_apt=$(apt list --upgradable 2>/dev/null | head -20); then
             # Remove header line and count actual packages
-            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l | tr -d ' ')
+            # Use || true to prevent grep from causing script exit when no matches
+            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l | tr -d ' ' || echo "0")
             # Strip any newlines or whitespace
             upgradable_count="${upgradable_count//[$'\r\n']/}"
             if [[ ${upgradable_count:-0} -gt 0 ]]; then

@@ -1,0 +1,29 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y sudo curl wget build-essential git zsh
+
+RUN useradd -m -s /bin/bash testuser && \
+    echo 'testuser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+WORKDIR /home/testuser
+USER testuser
+
+# Copy bootstrap scripts
+COPY --chown=testuser:testuser scripts/bootstrap/install-homebrew-linux.sh ./
+
+# Run bootstrap
+RUN bash install-homebrew-linux.sh
+
+# Test if brew is available in new shell
+RUN bash -c 'source ~/.bashrc && command -v brew && brew --version'
+
+# Copy package management scripts
+COPY --chown=testuser:testuser scripts/package-management/shared/init-environment.sh ./shared/
+COPY --chown=testuser:testuser scripts/package-management/shared/package-utils.sh ./shared/
+COPY --chown=testuser:testuser scripts/package-management/shared/common.sh ./shared/
+
+# Test our init-environment.sh script
+RUN bash -c 'source ./shared/init-environment.sh && command -v brew && brew --version'
+
+# Install fastfetch as final test
+RUN bash -c 'source ./shared/init-environment.sh && brew install fastfetch && fastfetch --version'

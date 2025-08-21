@@ -1,0 +1,6 @@
+# Ubuntu Docker Essential - Homebrew packages  
+# Use Homebrew for packages that need recent versions
+
+brew "emacs"     # Get Emacs 30+ from Homebrew (apt has old version)
+brew "fastfetch" # System info tool (not available in Ubuntu 22.04 apt)
+brew "pstree"    # Process tree visualization

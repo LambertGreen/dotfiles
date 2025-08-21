@@ -1,0 +1,8 @@
+{
+  "timestamp": "20250819-182208",
+  "machine_class": "docker_essential_ubuntu",
+  "platform": "ubuntu",
+  "build_success": true,
+  "test_directory": "/Users/lambert.green/dev/my/dotfiles/test/test-logs/docker_essential_ubuntu_20250819-182208",
+  "image_name": "dotfiles-test-docker_essential_ubuntu"
+}

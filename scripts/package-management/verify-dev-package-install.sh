@@ -55,6 +55,7 @@ failed_pms=()
 if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
     log_output "=== Verifying Zsh (zinit plugins) ==="
     
+    zsh_verify_start_time=$(date +%s)
     log_verbose "Running: direct zinit plugins directory check to verify plugin installation"
     # Check zinit plugins directory directly instead of using 'zinit list' which can hang
     plugins_dir="$HOME/.zinit/plugins"
@@ -63,16 +64,22 @@ if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
         # Subtract 1 for the plugins directory itself
         plugin_count=$((plugin_count - 1))
         if [[ ${plugin_count:-0} -gt 0 ]]; then
-            log_output "✅ Zsh: $plugin_count plugins successfully installed"
+            zsh_verify_end_time=$(date +%s)
+            zsh_verify_duration=$((zsh_verify_end_time - zsh_verify_start_time))
+            log_output "✅ Zsh: $plugin_count plugins successfully installed (verified in ${zsh_verify_duration}s)"
             verified_pms+=("zsh")
             log_verbose "zinit plugins found in directory:"
             log_verbose "$(find "$plugins_dir" -maxdepth 1 -type d -exec basename {} \; 2>/dev/null | grep -v '^plugins$' || echo 'none')"
         else
-            log_output "❌ Zsh: No plugins found in plugins directory"
+            zsh_verify_end_time=$(date +%s)
+            zsh_verify_duration=$((zsh_verify_end_time - zsh_verify_start_time))
+            log_output "❌ Zsh: No plugins found in plugins directory (verified in ${zsh_verify_duration}s)"
             failed_pms+=("zsh")
         fi
     else
-        log_output "❌ Zsh: zinit plugins directory not found"
+        zsh_verify_end_time=$(date +%s)
+        zsh_verify_duration=$((zsh_verify_end_time - zsh_verify_start_time))
+        log_output "❌ Zsh: zinit plugins directory not found (verified in ${zsh_verify_duration}s)"
         failed_pms+=("zsh")
     fi
     log_output ""
@@ -84,6 +91,7 @@ fi
 if command -v emacs >/dev/null 2>&1; then
     log_output "=== Verifying Emacs (elpaca packages) ==="
     
+    emacs_verify_start_time=$(date +%s)
     # Check if elpaca directory exists (indicates installation attempted)
     if [[ -d "$HOME/.emacs.d/elpaca" ]]; then
         log_verbose "Running: emacs elpaca package count verification"
@@ -92,19 +100,27 @@ if command -v emacs >/dev/null 2>&1; then
         if [[ -d "$builds_dir" ]]; then
             package_count=$(ls -1 "$builds_dir" 2>/dev/null | wc -l | tr -d ' ')
             if [[ ${package_count:-0} -gt 0 ]]; then
-                log_output "✅ Emacs: $package_count packages successfully installed"
+                emacs_verify_end_time=$(date +%s)
+                emacs_verify_duration=$((emacs_verify_end_time - emacs_verify_start_time))
+                log_output "✅ Emacs: $package_count packages successfully installed (verified in ${emacs_verify_duration}s)"
                 verified_pms+=("emacs")
                 log_verbose "emacs elpaca packages found in builds directory: $package_count"
             else
-                log_output "❌ Emacs: No packages found in builds directory"
+                emacs_verify_end_time=$(date +%s)
+                emacs_verify_duration=$((emacs_verify_end_time - emacs_verify_start_time))
+                log_output "❌ Emacs: No packages found in builds directory (verified in ${emacs_verify_duration}s)"
                 failed_pms+=("emacs")
             fi
         else
-            log_output "❌ Emacs: Elpaca builds directory not found"
+            emacs_verify_end_time=$(date +%s)
+            emacs_verify_duration=$((emacs_verify_end_time - emacs_verify_start_time))
+            log_output "❌ Emacs: Elpaca builds directory not found (verified in ${emacs_verify_duration}s)"
             failed_pms+=("emacs")
         fi
     else
-        log_output "❌ Emacs: elpaca directory not found (~/.emacs.d/elpaca missing)"
+        emacs_verify_end_time=$(date +%s)
+        emacs_verify_duration=$((emacs_verify_end_time - emacs_verify_start_time))
+        log_output "❌ Emacs: elpaca directory not found (~/.emacs.d/elpaca missing) (verified in ${emacs_verify_duration}s)"
         failed_pms+=("emacs")
     fi
     log_output ""
@@ -116,6 +132,7 @@ fi
 if command -v nvim >/dev/null 2>&1; then
     log_output "=== Verifying Neovim (lazy.nvim plugins) ==="
     
+    nvim_verify_start_time=$(date +%s)
     # Check if lazy.nvim data directory exists
     lazy_data_dir="$HOME/.local/share/nvim/lazy"
     if [[ -d "$lazy_data_dir" ]]; then
@@ -124,21 +141,29 @@ if command -v nvim >/dev/null 2>&1; then
         if plugin_dirs=$(ls -1 "$lazy_data_dir" 2>/dev/null | wc -l); then
             plugin_dirs="${plugin_dirs//[$'\r\n ']/}"
             if [[ ${plugin_dirs:-0} -gt 0 ]]; then
-                log_output "✅ Neovim: $plugin_dirs plugins successfully installed"
+                nvim_verify_end_time=$(date +%s)
+                nvim_verify_duration=$((nvim_verify_end_time - nvim_verify_start_time))
+                log_output "✅ Neovim: $plugin_dirs plugins successfully installed (verified in ${nvim_verify_duration}s)"
                 verified_pms+=("neovim")
                 log_verbose "neovim lazy plugins directory count: $plugin_dirs"
                 log_verbose "Installed plugins:"
                 log_verbose "$(ls -1 "$lazy_data_dir" 2>/dev/null || echo 'none')"
             else
-                log_output "❌ Neovim: No plugin directories found after installation"
+                nvim_verify_end_time=$(date +%s)
+                nvim_verify_duration=$((nvim_verify_end_time - nvim_verify_start_time))
+                log_output "❌ Neovim: No plugin directories found after installation (verified in ${nvim_verify_duration}s)"
                 failed_pms+=("neovim")
             fi
         else
-            log_output "❌ Neovim: Failed to count plugin directories"
+            nvim_verify_end_time=$(date +%s)
+            nvim_verify_duration=$((nvim_verify_end_time - nvim_verify_start_time))
+            log_output "❌ Neovim: Failed to count plugin directories (verified in ${nvim_verify_duration}s)"
             failed_pms+=("neovim")
         fi
     else
-        log_output "❌ Neovim: lazy.nvim data directory not found (~/.local/share/nvim/lazy missing)"
+        nvim_verify_end_time=$(date +%s)
+        nvim_verify_duration=$((nvim_verify_end_time - nvim_verify_start_time))
+        log_output "❌ Neovim: lazy.nvim data directory not found (~/.local/share/nvim/lazy missing) (verified in ${nvim_verify_duration}s)"
         failed_pms+=("neovim")
     fi
     log_output ""

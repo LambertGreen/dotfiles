@@ -55,15 +55,20 @@ failed_pms=()
 if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
     log_output "=== Initializing Zsh (zinit plugins) ==="
     
+    zsh_start_time=$(date +%s)
     log_verbose "Running: zinit update --all to trigger initial plugin installation"
     if timeout 300 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit update --all' 2>&1 | tee -a "${LOG_FILE}"; then
-        log_output "✅ Zsh plugin initialization completed"
         # Clean up and compile
         log_verbose "Running: zinit cclear for cleanup and compilation"
         timeout 120 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit cclear' 2>&1 | tee -a "${LOG_FILE}" || true
+        zsh_end_time=$(date +%s)
+        zsh_duration=$((zsh_end_time - zsh_start_time))
+        log_output "✅ Zsh plugin initialization completed (${zsh_duration}s)"
         initialized_pms+=("zsh")
     else
-        log_output "❌ Zsh plugin initialization failed"
+        zsh_end_time=$(date +%s)
+        zsh_duration=$((zsh_end_time - zsh_start_time))
+        log_output "❌ Zsh plugin initialization failed (${zsh_duration}s)"
         failed_pms+=("zsh")
     fi
     log_output ""
@@ -75,29 +80,70 @@ fi
 if command -v emacs >/dev/null 2>&1; then
     log_output "=== Initializing Emacs (elpaca packages) ==="
     
+    emacs_start_time=$(date +%s)
     # Check if elpaca is already installed
     if [[ -d "$HOME/.emacs.d/elpaca" ]]; then
         log_verbose "Running: emacs with DOTFILES_EMACS_UPDATE environment variable for package updates"
         # Elpaca already exists, use update mode
         if timeout 600 env DOTFILES_EMACS_UPDATE=1 emacs --batch -l ~/.emacs.d/init.el 2>&1 | tee -a "${LOG_FILE}"; then
-            log_output "✅ Emacs package initialization completed"
+            emacs_end_time=$(date +%s)
+            emacs_duration=$((emacs_end_time - emacs_start_time))
+            log_output "✅ Emacs package initialization completed (${emacs_duration}s)"
             initialized_pms+=("emacs")
         else
-            log_output "❌ Emacs package initialization failed"
+            emacs_end_time=$(date +%s)
+            emacs_duration=$((emacs_end_time - emacs_start_time))
+            log_output "❌ Emacs package initialization failed (${emacs_duration}s)"
             failed_pms+=("emacs")
         fi
     else
         log_verbose "Running: emacs initial bootstrap (elpaca will be installed and packages downloaded)"
         # First time setup - load full config and wait for all packages to install
-        if timeout 600 emacs --batch --eval "(progn 
+        # Use elpaca-log-buffer and progress reporting for better visibility
+        if timeout 900 emacs --batch --eval "(progn 
             (load-file \"~/.emacs.d/init.el\") 
             (message \"Loaded init.el, waiting for packages...\")
-            (elpaca-wait)
-            (message \"All packages installed!\"))" 2>&1 | tee -a "${LOG_FILE}"; then
-            log_output "✅ Emacs package initialization completed"
+            
+            ;; Enable more verbose elpaca output
+            (setq elpaca-verbosity 2)
+            (setq elpaca-log-level 'debug)
+            
+            ;; Add progress tracking
+            (defvar package-install-start-time (current-time))
+            (defun log-package-progress ()
+              (let ((elapsed (float-time (time-subtract (current-time) package-install-start-time))))
+                (message \"[PROGRESS] Elapsed: %.0fs, Queue size: %d\" 
+                         elapsed (length elpaca--queues))))
+            
+            ;; Set up periodic progress reporting
+            (run-with-timer 30 30 'log-package-progress)
+            
+            ;; Wait for packages with timeout handling
+            (let ((max-wait-time 840)) ;; 14 minutes
+              (condition-case err
+                (with-timeout (max-wait-time 
+                              (message \"[TIMEOUT] Package installation exceeded %d seconds\" max-wait-time)
+                              (message \"[DEBUG] Current elpaca queue status:\")
+                              (dolist (item elpaca--queues)
+                                (message \"[DEBUG] Queue item: %s\" item))
+                              (error \"Package installation timeout\"))
+                  (elpaca-wait)
+                  (message \"All packages installed successfully!\"))
+                (error 
+                 (message \"[ERROR] Package installation failed: %s\" err)
+                 (when (get-buffer elpaca-log-buffer-name)
+                   (message \"[DEBUG] Elpaca log buffer contents:\")
+                   (with-current-buffer (get-buffer elpaca-log-buffer-name)
+                     (message \"%s\" (buffer-string))))
+                 (signal (car err) (cdr err))))))" 2>&1 | tee -a "${LOG_FILE}"; then
+            emacs_end_time=$(date +%s)
+            emacs_duration=$((emacs_end_time - emacs_start_time))
+            log_output "✅ Emacs package initialization completed (${emacs_duration}s)"
             initialized_pms+=("emacs")
         else
-            log_output "❌ Emacs package initialization failed"
+            emacs_end_time=$(date +%s)
+            emacs_duration=$((emacs_end_time - emacs_start_time))
+            log_output "❌ Emacs package initialization failed (${emacs_duration}s)"
             failed_pms+=("emacs")
         fi
     fi
@@ -110,13 +156,18 @@ fi
 if command -v nvim >/dev/null 2>&1; then
     log_output "=== Initializing Neovim (lazy.nvim plugins) ==="
     
+    nvim_start_time=$(date +%s)
     log_verbose "Running: nvim headless with Lazy sync to trigger plugin installation"
     # Use Lazy! sync which forces a full synchronization
     if timeout 600 nvim --headless "+Lazy! sync" +qa 2>&1 | tee -a "${LOG_FILE}"; then
-        log_output "✅ Neovim plugin initialization completed"
+        nvim_end_time=$(date +%s)
+        nvim_duration=$((nvim_end_time - nvim_start_time))
+        log_output "✅ Neovim plugin initialization completed (${nvim_duration}s)"
         initialized_pms+=("neovim")
     else
-        log_output "❌ Neovim plugin initialization failed"
+        nvim_end_time=$(date +%s)
+        nvim_duration=$((nvim_end_time - nvim_start_time))
+        log_output "❌ Neovim plugin initialization failed (${nvim_duration}s)"
         failed_pms+=("neovim")
     fi
     log_output ""

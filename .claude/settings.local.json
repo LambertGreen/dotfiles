@@ -28,7 +28,18 @@
       "Bash(git submodule add:*)",
       "Bash(sed:*)",
       "Bash(just:*)",
-      "Bash(docker build:*)"
+      "Bash(docker build:*)",
+      "Bash(git add:*)",
+      "Bash(docker rmi:*)",
+      "Bash(true)",
+      "Bash(test:*)",
+      "Bash(touch:*)",
+      "Bash(docker system:*)",
+      "Bash(for combo in \"essential-ubuntu\" \"essential-arch\" \"developer-ubuntu\" \"developer-arch\")",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(/dev/null)",
+      "Bash(echo \"❌ $combo build/test failed\")"
     ],
     "deny": []
   }
