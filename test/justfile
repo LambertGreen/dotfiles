@@ -146,15 +146,10 @@ _test-machine-class machine_class platform:
 
 # Helper: Interactive machine class testing using shared Dockerfile
 _run-machine-class machine_class platform:
-    @echo "🔍 Checking for existing Docker image: dotfiles-test-{{machine_class}}"
-    @if ! docker image inspect dotfiles-test-{{machine_class}} >/dev/null 2>&1; then \
-        echo "🔨 Image dotfiles-test-{{machine_class}} not found, building it..."; \
-        just _test-machine-class {{machine_class}} {{platform}}; \
-    else \
-        echo "✅ Using existing image: dotfiles-test-{{machine_class}}"; \
-    fi
+    @echo "🔨 Building Docker image: dotfiles-test-{{machine_class}} (Docker will use cache if unchanged)..."
+    @cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
-    docker run -it --rm dotfiles-test-{{machine_class}}
+    docker run -it --rm dotfiles-test-{{machine_class}} zsh -l
 
 # =============================================================================
 # Log Management

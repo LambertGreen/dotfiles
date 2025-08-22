@@ -39,7 +39,10 @@
       "Bash(do)",
       "Bash(echo:*)",
       "Bash(/dev/null)",
-      "Bash(echo \"❌ $combo build/test failed\")"
+      "Bash(echo \"❌ $combo build/test failed\")",
+      "Bash(docker images:*)",
+      "Bash(docker image inspect:*)",
+      "Bash(docker ps:*)"
     ],
     "deny": []
   }

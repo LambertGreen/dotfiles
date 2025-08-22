@@ -488,5 +488,69 @@ if [[ -o interactive ]]; then
     lgreen_setup_running_inside_emacs_vterm
 fi
 
+# * Dotfiles API Functions
+lgreen_shell_status() {
+    local status="initializing"
+    local message=""
+    
+    if [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
+        if command -v zinit &>/dev/null; then
+            # Check if zinit is actually functional
+            if zinit list &>/dev/null 2>&1; then
+                local plugin_count=$(zinit list 2>/dev/null | wc -l | tr -d ' ')
+                if [[ ${plugin_count:-0} -gt 0 ]]; then
+                    status="ready"
+                    message="Shell ready: $plugin_count plugins loaded"
+                else
+                    status="loading"
+                    message="Shell loading: zinit installed, plugins loading"
+                fi
+            else
+                status="loading"
+                message="Shell loading: zinit initializing"
+            fi
+        else
+            status="installed"
+            message="Shell installed: plugin manager present but not loaded"
+        fi
+    else
+        status="not-installed"
+        message="Shell not configured: plugin manager missing"
+    fi
+    
+    echo "$message"
+    [[ "$status" = "ready" ]] && return 0 || return 1
+}
+
+lgreen_await_shell_ready() {
+    local timeout=${1:-30}
+    local elapsed=0
+    
+    while ! lgreen_shell_status &>/dev/null; do
+        sleep 1
+        elapsed=$((elapsed + 1))
+        if [[ $elapsed -ge $timeout ]]; then
+            echo "Timeout waiting for shell ready after ${timeout}s"
+            return 1
+        fi
+        echo -n "." >&2
+    done
+    echo "" >&2
+    
+    lgreen_shell_status
+    return 0
+}
+
+lgreen_ensure_plugins_updated() {
+    if command -v zinit &>/dev/null; then
+        zinit update --all
+        zinit cclear
+        echo "Plugins updated and compiled"
+        return 0
+    else
+        echo "Plugin manager not available"
+        return 1
+    fi
+}
 
 lgreen_conditionally_stop_profiler

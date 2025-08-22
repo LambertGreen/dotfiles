@@ -52,28 +52,40 @@ initialized_pms=()
 failed_pms=()
 
 # Initialize zsh (zinit plugins)
-if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
+if command -v zsh >/dev/null 2>&1; then
     log_output "=== Initializing Zsh (zinit plugins) ==="
     
     zsh_start_time=$(date +%s)
-    log_verbose "Running: zinit update --all to trigger initial plugin installation"
-    if timeout 300 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit update --all' 2>&1 | tee -a "${LOG_FILE}"; then
-        # Clean up and compile
-        log_verbose "Running: zinit cclear for cleanup and compilation"
-        timeout 120 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit cclear' 2>&1 | tee -a "${LOG_FILE}" || true
-        zsh_end_time=$(date +%s)
-        zsh_duration=$((zsh_end_time - zsh_start_time))
-        log_output "✅ Zsh plugin initialization completed (${zsh_duration}s)"
-        initialized_pms+=("zsh")
+    
+    # First, trigger the initial shell load (which may install zinit via timeout)
+    log_verbose "Running: initial zsh load to trigger plugin manager setup"
+    timeout 30 zsh -l -i -c 'exit' 2>&1 | tee -a "${LOG_FILE}" || true
+    
+    # Now use the dotfiles API to wait for ready state
+    log_verbose "Running: await shell ready using dotfiles API"
+    if timeout 60 zsh -l -i -c 'source ~/.zshrc && lgreen_await_shell_ready 45' 2>&1 | tee -a "${LOG_FILE}"; then
+        # Shell is ready, ensure plugins are updated
+        log_verbose "Running: ensure plugins updated using dotfiles API"
+        if timeout 300 zsh -l -i -c 'source ~/.zshrc && lgreen_ensure_plugins_updated' 2>&1 | tee -a "${LOG_FILE}"; then
+            zsh_end_time=$(date +%s)
+            zsh_duration=$((zsh_end_time - zsh_start_time))
+            log_output "✅ Zsh plugin initialization completed (${zsh_duration}s)"
+            initialized_pms+=("zsh")
+        else
+            zsh_end_time=$(date +%s)
+            zsh_duration=$((zsh_end_time - zsh_start_time))
+            log_output "⚠️ Zsh plugins may not be fully updated (${zsh_duration}s)"
+            initialized_pms+=("zsh")  # Still consider it initialized if shell is ready
+        fi
     else
         zsh_end_time=$(date +%s)
         zsh_duration=$((zsh_end_time - zsh_start_time))
-        log_output "❌ Zsh plugin initialization failed (${zsh_duration}s)"
+        log_output "❌ Zsh plugin initialization failed - shell not ready (${zsh_duration}s)"
         failed_pms+=("zsh")
     fi
     log_output ""
 else
-    log_verbose "zsh initialization skipped (zsh missing or ~/.zinit/bin/zinit.zsh not found)"
+    log_verbose "zsh initialization skipped (zsh not found)"
 fi
 
 # Initialize emacs (elpaca packages)

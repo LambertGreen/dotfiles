@@ -1,0 +1,8 @@
+{
+  "timestamp": "20250822-101759",
+  "machine_class": "docker_essential_arch",
+  "platform": "arch",
+  "build_success": true,
+  "test_directory": "/Users/lambert.green/dev/my/dotfiles/test/test-logs/docker_essential_arch_20250822-101759",
+  "image_name": "dotfiles-test-docker_essential_arch"
+}

@@ -1,0 +1,31 @@
+# Docker Arch Developer Stow Configuration
+# Development environment with pacman + AUR/yay + homebrew + pip + npm
+
+# Common configs (truly universal)
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
+
+# Personal configs
+git_my
+
+# Platform-specific Linux configs
+git_linux
+shell_linux

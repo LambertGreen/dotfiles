@@ -83,17 +83,13 @@ COPY --chown=user:user justfile ./
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
 COPY --chown=user:user scripts/show-config.sh ./scripts/
-RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
 RUN just stow
 
 FROM stow-ubuntu AS shell-ubuntu
-# Iterative shell loading to reach steady state (all plugins downloaded)
-RUN echo 'exit' | zsh -l -i
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
-# Additional iterations to trigger all conditional/dependent plugins
-RUN echo 'exit' | zsh -l -i
-RUN echo 'exit' | zsh -l -i
-RUN echo 'exit' | zsh -l -i
+# Use dotfiles API to initialize shell plugins
+COPY --chown=user:user scripts/package-management/init-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/verify-dev-package-install.sh ./scripts/package-management/
+RUN ./scripts/package-management/init-dev-packages.sh || true
 
 FROM shell-ubuntu AS install-ubuntu
 # Copy shared package management utilities first (changes least frequently)
@@ -165,17 +161,13 @@ COPY --chown=user:user justfile ./
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
 COPY --chown=user:user scripts/show-config.sh ./scripts/
-RUN rm -f /home/user/.bashrc /home/user/.bash_profile /home/user/.profile || true
 RUN just stow
 
 FROM stow-arch AS shell-arch
-# Iterative shell loading to reach steady state (all plugins downloaded)
-RUN echo 'exit' | zsh -l -i
-RUN echo 'zinit update --all && zinit cclear && echo "All plugins installed and compiled" && exit' | zsh -l -i
-# Additional iterations to trigger all conditional/dependent plugins
-RUN echo 'exit' | zsh -l -i
-RUN echo 'exit' | zsh -l -i
-RUN echo 'exit' | zsh -l -i
+# Use dotfiles API to initialize shell plugins
+COPY --chown=user:user scripts/package-management/init-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/verify-dev-package-install.sh ./scripts/package-management/
+RUN ./scripts/package-management/init-dev-packages.sh || true
 
 FROM shell-arch AS install-arch
 # Copy shared package management utilities first (changes least frequently)
