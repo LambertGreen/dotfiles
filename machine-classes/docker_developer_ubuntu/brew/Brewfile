@@ -5,3 +5,4 @@ brew "emacs"     # Get version 30+
 brew "neovim"    # Get version 0.11+ (apt only has 0.7-0.9)
 brew "fastfetch" # System info tool
 brew "pstree"    # Process tree visualization
+brew "eza"       # Modern ls replacement

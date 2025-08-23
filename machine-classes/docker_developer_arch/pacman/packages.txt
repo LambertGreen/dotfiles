@@ -45,3 +45,4 @@ luarocks
 make
 gcc
 gdb
+eza

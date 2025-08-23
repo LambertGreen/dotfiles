@@ -554,3 +554,6 @@ lgreen_ensure_plugins_updated() {
 }
 
 lgreen_conditionally_stop_profiler
+
+# Added by Windsurf
+export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
