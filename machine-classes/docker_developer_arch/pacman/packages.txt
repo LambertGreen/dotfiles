@@ -46,3 +46,7 @@ make
 gcc
 gdb
 eza
+bat
+vivid
+dust
+git-delta
