@@ -94,15 +94,6 @@ Check that everything is configured correctly:
 just check-health
 #+end_src
 
-** Alternative: Use Just Commands (if tools already installed)
-
-If you already have =just= installed, you can use the convenience commands:
-
-#+begin_src bash
-just configure  # Interactive setup
-just bootstrap  # Install tools
-just stow       # Deploy configs
-#+end_src
 
 * Package Management
 
@@ -259,28 +250,6 @@ just show-config
 - GUI applications may require admin access on some systems
 - Advanced window managers and system tools are in advanced categories for optional installation
 
-
-* Future Roadmap
-
-** Application-Specific Package Managers (In Development)
-
-The system is designed to eventually manage ALL package managers on your system:
-
-*** Shell Plugin Managers
-- **zinit** - ZSH plugin management integrated with update cycle
-- **fisher** - Fish shell plugin management (planned)
-
-*** Editor Package Managers
-- **elpaca** - Emacs package management (replacing straight.el)
-- **lazy.nvim** - Neovim plugin management
-- **vim-plug** - Vim plugin management (planned)
-
-*** Language-Specific Tooling
-- **cargo** - Rust packages and tools
-- **pipx** - Python applications in isolated environments
-- **go get** - Go tools and applications
-
-The goal is true unified package management - one command to update everything, with granular control when needed.
 
 * Contributing
 
