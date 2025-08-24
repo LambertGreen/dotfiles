@@ -3,7 +3,8 @@
 
 set -euo pipefail
 
-# Set up logging
+# Set up paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 LOG_DIR="${DOTFILES_ROOT}/logs"
 LOG_FILE="${LOG_DIR}/upgrade-packages-$(date +%Y%m%d-%H%M%S).log"
@@ -143,7 +144,7 @@ read -t 15 -r user_input || user_input=""
 if [[ -n "$user_input" ]]; then
     log_output "Selecting specified package managers..."
     selected_numbers=($user_input)
-    
+
     for num in "${selected_numbers[@]}"; do
         if [[ "$num" =~ ^[0-9]+$ ]] && [[ "$num" -ge 1 ]] && [[ "$num" -le ${#AVAILABLE_UPGRADES[@]} ]]; then
             idx=$((num-1))
@@ -172,8 +173,9 @@ for pm in "${SELECTED_PMS[@]}"; do
 
     case "$pm" in
         brew)
-            log_verbose "Running: brew upgrade"
-            if brew upgrade 2>&1 | tee -a "${LOG_FILE}"; then
+            log_verbose "Running Homebrew upgrade script"
+            # Use the new brew upgrade script for better control
+            if "${SCRIPT_DIR}/brew/upgrade-brew-packages.sh" all false 2>&1 | tee -a "${LOG_FILE}"; then
                 log_output "✅ Homebrew upgrade completed"
             else
                 log_output "⚠️  Homebrew upgrade had issues (exit code: $?)"

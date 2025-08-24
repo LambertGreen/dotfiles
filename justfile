@@ -60,7 +60,7 @@ default:
 show-package-list:
     @./scripts/package-management/show-packages.sh
 
-# Show package counts summary  
+# Show package counts summary
 show-package-stats:
     @./scripts/package-management/show-package-stats.sh
 
@@ -96,6 +96,19 @@ check-packages:
 # Upgrade all packages (system packages)
 upgrade-packages:
     @./scripts/package-management/upgrade-packages.sh
+
+# Upgrade Homebrew formulas only (no casks)
+upgrade-brew-formulas:
+    @./scripts/package-management/brew/upgrade-brew-packages.sh formulas false
+
+# Upgrade Homebrew casks only (GUI apps, may require admin password)
+upgrade-brew-casks:
+    @./scripts/package-management/brew/upgrade-brew-packages.sh casks false
+
+# Check outdated Homebrew casks
+check-brew-casks:
+    @echo "🍺 Checking outdated Homebrew casks..."
+    @brew outdated --cask --greedy --verbose
 
 # Check for available dev package updates (zsh, emacs, neovim, cargo, pipx)
 check-dev-packages:
