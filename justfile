@@ -23,6 +23,8 @@ default:
     @echo "🔄 Maintenance (Regular Updates):"
     @echo "  just check-packages      - Check system packages (brew, apt, pip, npm)"
     @echo "  just upgrade-packages    - Upgrade system packages"
+    @echo "  just check-packages-admin   - Check packages requiring admin (casks, system packages)"
+    @echo "  just upgrade-packages-admin - Upgrade packages requiring admin (may prompt for password)"
     @echo "  just check-dev-packages  - Check dev packages (zsh, emacs, neovim, cargo, pipx)"
     @echo "  just upgrade-dev-packages - Upgrade dev packages"
     @echo "  just init-dev-packages    - Initialize dev packages (first-time setup)"
@@ -36,6 +38,7 @@ default:
     @echo "  just check-health-verbose - Detailed health check output"
     @echo "  just cleanup-broken-links-dry-run - List broken symlinks"
     @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
+    @echo "  just kill-brew-processes - Kill stuck brew processes (use with caution)"
     @echo ""
     @echo "📊 Show Information:"
     @echo "  just show-package-list  - Show full list of packages (pipeable to pager)"
@@ -97,18 +100,33 @@ check-packages:
 upgrade-packages:
     @./scripts/package-management/upgrade-packages.sh
 
-# Upgrade Homebrew formulas only (no casks)
-upgrade-brew-formulas:
-    @./scripts/package-management/brew/upgrade-brew-packages.sh formulas false
+# Check packages requiring admin privileges
+check-packages-admin:
+    @echo "🔍 Checking packages requiring admin privileges..."
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🍺 Homebrew casks:"; \
+        brew outdated --cask --greedy --verbose; \
+        echo ""; \
+    fi
 
-# Upgrade Homebrew casks only (GUI apps, may require admin password)
-upgrade-brew-casks:
-    @./scripts/package-management/brew/upgrade-brew-packages.sh casks false
+# Upgrade packages requiring admin privileges
+upgrade-packages-admin:
+    @echo "🔐 Upgrading packages requiring admin privileges..."
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🍺 Upgrading Homebrew casks (may require password)..."; \
+        ./scripts/package-management/brew/upgrade-brew-packages.sh casks false; \
+    fi
 
-# Check outdated Homebrew casks
-check-brew-casks:
-    @echo "🍺 Checking outdated Homebrew casks..."
-    @brew outdated --cask --greedy --verbose
+# Kill stuck brew processes (use with caution)
+kill-brew-processes:
+    @echo "🔪 Finding stuck brew processes..."
+    @ps aux | grep -E "(brew|ruby.*brew)" | grep -v grep | head -10
+    @echo ""
+    @echo "⚠️  This will kill ALL brew processes. Continue? (Ctrl+C to cancel)"
+    @read -p "Press ENTER to continue: "
+    @pkill -f "brew" || echo "No brew processes found"
+    @pkill -f "ruby.*brew" || echo "No ruby brew processes found"
+    @echo "✅ Done. Wait a few seconds before running brew commands."
 
 # Check for available dev package updates (zsh, emacs, neovim, cargo, pipx)
 check-dev-packages:

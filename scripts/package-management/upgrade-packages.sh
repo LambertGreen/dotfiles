@@ -173,9 +173,9 @@ for pm in "${SELECTED_PMS[@]}"; do
 
     case "$pm" in
         brew)
-            log_verbose "Running Homebrew upgrade script"
-            # Use the new brew upgrade script for better control
-            if "${SCRIPT_DIR}/brew/upgrade-brew-packages.sh" all false 2>&1 | tee -a "${LOG_FILE}"; then
+            log_verbose "Running Homebrew upgrade script (formulas only)"
+            # Use the new brew upgrade script for formulas only (casks go through admin workflow)
+            if "${SCRIPT_DIR}/brew/upgrade-brew-packages.sh" formulas false 2>&1 | tee -a "${LOG_FILE}"; then
                 log_output "✅ Homebrew upgrade completed"
             else
                 log_output "⚠️  Homebrew upgrade had issues (exit code: $?)"

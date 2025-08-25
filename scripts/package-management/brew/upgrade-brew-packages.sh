@@ -95,8 +95,8 @@ upgrade_casks() {
         echo "$outdated"
         echo ""
 
-        log_warning "Note: Cask upgrades may require admin password"
-        log_warning "Some apps may lose their Dock position or permissions"
+        log_info "Note: Cask upgrades may require admin password"
+        log_info "Some apps may lose their Dock position or permissions"
 
         if [[ "$INTERACTIVE" == "true" ]]; then
             read -p "Proceed with cask upgrades? (y/N): " -n 1 -r
@@ -134,7 +134,7 @@ main() {
     if brew update; then
         log_success "Homebrew updated"
     else
-        log_warning "Homebrew update had issues, continuing anyway..."
+        log_info "Homebrew update had issues, continuing anyway..."
     fi
 
     echo ""
@@ -166,7 +166,7 @@ main() {
     if brew cleanup; then
         log_success "Cleanup completed"
     else
-        log_warning "Cleanup had issues"
+        log_info "Cleanup had issues"
     fi
 
     echo ""
