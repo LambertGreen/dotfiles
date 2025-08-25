@@ -42,7 +42,9 @@
       "Bash(echo \"❌ $combo build/test failed\")",
       "Bash(docker images:*)",
       "Bash(docker image inspect:*)",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(cd:*)",
+      "WebSearch"
     ],
     "deny": []
   }

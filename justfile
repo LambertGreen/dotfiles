@@ -14,37 +14,37 @@ default:
     @echo ""
     @./scripts/show-config.sh
     @echo "🚀 Fresh Setup (New Machine):"
-    @echo "  just configure         - Interactive configuration (select machine class)"
-    @echo "  just bootstrap         - Bootstrap system (install core tools like Python, Just)"
-    @echo "  just stow              - Deploy configuration files (dotfiles symlinks)"
-    @echo "  just install-packages  - Install all packages for this machine"
-    @echo "  just install-packages-sudo - Install packages requiring sudo (Docker Desktop, etc.)"
+    @echo "  just configure                      - Interactive configuration (select machine class)"
+    @echo "  just bootstrap                      - Bootstrap system (install core tools like Python, Just)"
+    @echo "  just stow                          - Deploy configuration files (dotfiles symlinks)"
+    @echo "  just install-packages              - Install packages (no admin required)"
+    @echo "  just install-packages-requires-admin - Install packages requiring admin (system integration, etc.)"
     @echo ""
-    @echo "🔄 Maintenance (Regular Updates):"
-    @echo "  just check-packages      - Check system packages (brew, apt, pip, npm)"
-    @echo "  just upgrade-packages    - Upgrade system packages"
-    @echo "  just check-packages-admin   - Check packages requiring admin (casks, system packages)"
-    @echo "  just upgrade-packages-admin - Upgrade packages requiring admin (may prompt for password)"
-    @echo "  just check-dev-packages  - Check dev packages (zsh, emacs, neovim, cargo, pipx)"
-    @echo "  just upgrade-dev-packages - Upgrade dev packages"
-    @echo "  just init-dev-packages    - Initialize dev packages (first-time setup)"
-    @echo "  just verify-dev-package-install - Verify dev package installation"
-    @echo "  just check-all-packages   - Check both system and dev packages"
-    @echo "  just upgrade-all-packages - Upgrade both system and dev packages"
-    @echo "  just export-packages     - Update machine class with currently installed packages"
+    @echo "📦 System Packages (brew, apt, pip, npm):"
+    @echo "  just check-packages                   - Check for available package updates"
+    @echo "  just upgrade-packages-non-admin       - Upgrade packages (no admin, fire-and-forget)"
+    @echo "  just upgrade-packages-requires-admin  - Upgrade packages (may prompt for password)"
+    @echo "  just upgrade-packages                 - Upgrade all packages (backwards compatible)"
+    @echo "  just export-packages                  - Update machine class with currently installed packages"
+    @echo ""
+    @echo "🛠️  App Level Packages (zsh, emacs, neovim, cargo, pipx):"
+    @echo "  just check-dev-packages               - Check dev packages for updates"
+    @echo "  just upgrade-dev-packages             - Upgrade dev packages"
+    @echo "  just init-dev-packages                - Initialize dev packages (first-time setup)"
+    @echo "  just verify-dev-package-install       - Verify dev package installation"
     @echo ""
     @echo "🏥 Health Check & Troubleshooting:"
-    @echo "  just check-health      - Validate system health (auto-logs)"
-    @echo "  just check-health-verbose - Detailed health check output"
-    @echo "  just cleanup-broken-links-dry-run - List broken symlinks"
-    @echo "  just cleanup-broken-links-remove  - Remove broken symlinks"
-    @echo "  just kill-brew-processes - Kill stuck brew processes (use with caution)"
+    @echo "  just check-health                     - Validate system health (auto-logs)"
+    @echo "  just check-health-verbose             - Detailed health check output"
+    @echo "  just cleanup-broken-links-dry-run     - List broken symlinks"
+    @echo "  just cleanup-broken-links-remove      - Remove broken symlinks"
+    @echo "  just kill-brew-processes              - Kill stuck brew processes (use with caution)"
     @echo ""
     @echo "📊 Show Information:"
-    @echo "  just show-package-list  - Show full list of packages (pipeable to pager)"
-    @echo "  just show-package-stats - Show package counts summary"
-    @echo "  just show-config       - Show dotfiles and machine class configuration"
-    @echo "  just show-logs         - Show recent package management logs"
+    @echo "  just show-package-list                - Show full list of packages (pipeable to pager)"
+    @echo "  just show-package-stats               - Show package counts summary"
+    @echo "  just show-config                      - Show dotfiles and machine class configuration"
+    @echo "  just show-logs                        - Show recent package management logs"
     @echo ""
     @echo "🛠️  Project Development & Testing:"
     @echo "  just testing           - Enter testing sub-shell (Docker test commands)"
@@ -67,14 +67,14 @@ show-package-list:
 show-package-stats:
     @./scripts/package-management/show-package-stats.sh
 
-# Install all packages (non-sudo)
+# Install packages (non-admin, fire-and-forget)
 install-packages:
     @./scripts/package-management/import.sh --install --interactive
     @echo ""
     @echo "📝 View log: just show-logs-last"
 
-# Install packages requiring sudo (Docker Desktop, etc.)
-install-packages-sudo:
+# Install packages requiring admin (system integration, services, etc.)
+install-packages-requires-admin:
     #!/usr/bin/env bash
     set -euo pipefail
     machine_class_file="${HOME}/.dotfiles.env"
@@ -83,38 +83,53 @@ install-packages-sudo:
         exit 1
     fi
     source "${machine_class_file}"
-    brewfile_sudo="machine-classes/${DOTFILES_MACHINE_CLASS}/brew/Brewfile.casks-sudo"
-    if [[ -f "${brewfile_sudo}" ]]; then
-        echo "Installing sudo-required casks (you will be prompted for password)..."
-        echo "$ brew bundle install --file=\"${brewfile_sudo}\""
-        brew bundle install --file="${brewfile_sudo}"
-    else
-        echo "No sudo-required Brewfile found at: ${brewfile_sudo}"
+    brew_dir="machine-classes/${DOTFILES_MACHINE_CLASS}/brew"
+
+    echo "🔐 Installing packages requiring admin privileges..."
+
+    # Install admin-required formulas
+    brewfile_formulas="${brew_dir}/Brewfile.formulas.requires_admin"
+    if [[ -f "${brewfile_formulas}" ]]; then
+        echo "📦 Installing admin-required formulas..."
+        brew bundle install --file="${brewfile_formulas}"
+    fi
+
+    # Install admin-required casks
+    brewfile_casks="${brew_dir}/Brewfile.casks.requires_admin"
+    if [[ -f "${brewfile_casks}" ]]; then
+        echo "📱 Installing admin-required casks..."
+        brew bundle install --file="${brewfile_casks}"
+    fi
+
+    if [[ ! -f "${brewfile_formulas}" && ! -f "${brewfile_casks}" ]]; then
+        echo "No admin-required Brewfiles found in: ${brew_dir}/"
     fi
 
 # Check for available package updates (system packages)
 check-packages:
     @./scripts/package-management/check-packages.sh
 
-# Upgrade all packages (system packages)
+# Upgrade all packages (backwards compatible - runs both non-admin and requires-admin)
 upgrade-packages:
-    @./scripts/package-management/upgrade-packages.sh
+    @echo "🔄 Running comprehensive package upgrade..."
+    @just upgrade-packages-non-admin
+    @echo ""
+    @just upgrade-packages-requires-admin
 
-# Check packages requiring admin privileges
-check-packages-admin:
-    @echo "🔍 Checking packages requiring admin privileges..."
+# Upgrade packages not requiring admin (fire-and-forget)
+upgrade-packages-non-admin:
+    @echo "🚀 Upgrading packages (no admin required)..."
     @if command -v brew >/dev/null 2>&1; then \
-        echo "🍺 Homebrew casks:"; \
-        brew outdated --cask --greedy --verbose; \
-        echo ""; \
+        echo "🍺 Upgrading Homebrew packages (admin packages are pinned/excluded)..."; \
+        ./scripts/package-management/brew/upgrade-brew-packages-v2.sh non_admin false; \
     fi
 
-# Upgrade packages requiring admin privileges
-upgrade-packages-admin:
+# Upgrade packages requiring admin privileges (supervised)
+upgrade-packages-requires-admin:
     @echo "🔐 Upgrading packages requiring admin privileges..."
     @if command -v brew >/dev/null 2>&1; then \
-        echo "🍺 Upgrading Homebrew casks (may require password)..."; \
-        ./scripts/package-management/brew/upgrade-brew-packages.sh casks false; \
+        echo "🍺 Upgrading admin-requiring packages (may require password)..."; \
+        ./scripts/package-management/brew/upgrade-brew-packages-v2.sh requires_admin false; \
     fi
 
 # Kill stuck brew processes (use with caution)
