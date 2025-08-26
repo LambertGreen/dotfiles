@@ -148,6 +148,137 @@ check_package_manager() {
     esac
 }
 
+# ============================================================================
+# CLASSIFIED BREWFILE SUPPORT (New System)
+# ============================================================================
+
+# Check if classified Brewfiles exist
+has_classified_brewfiles() {
+    local pm_dir="$1"
+    [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.mas" ]]
+}
+
+# Preview classified Brewfiles
+preview_classified_brewfiles() {
+    local pm_dir="$1"
+
+    echo "  📦 Classified package installation:"
+
+    # Non-admin formulas
+    if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]]; then
+        local count=$(grep -c '^brew ' "${pm_dir}/Brewfile.formulas.non_admin" 2>/dev/null || echo 0)
+        echo "    🚀 Non-admin formulas: ${count} packages (no password required)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^brew ' "${pm_dir}/Brewfile.formulas.non_admin" | sed 's/brew "\([^"]*\)".*/      - \1/' | head -5
+            [[ ${count} -gt 5 ]] && echo "      ... and $((count - 5)) more"
+        fi
+    fi
+
+    # Admin-required formulas
+    if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]]; then
+        local count=$(grep -c '^brew ' "${pm_dir}/Brewfile.formulas.requires_admin" 2>/dev/null || echo 0)
+        echo "    🔐 Admin-required formulas: ${count} packages (may require password)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^brew ' "${pm_dir}/Brewfile.formulas.requires_admin" | sed 's/brew "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Non-admin casks
+    if [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+        local count=$(grep -c '^cask ' "${pm_dir}/Brewfile.casks.non_admin" 2>/dev/null || echo 0)
+        echo "    📱 Non-admin casks: ${count} applications (no password required)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^cask ' "${pm_dir}/Brewfile.casks.non_admin" | sed 's/cask "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Admin-required casks
+    if [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+        local count=$(grep -c '^cask ' "${pm_dir}/Brewfile.casks.requires_admin" 2>/dev/null || echo 0)
+        echo "    🛡️  Admin-required casks: ${count} applications (may require password)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^cask ' "${pm_dir}/Brewfile.casks.requires_admin" | sed 's/cask "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Mac App Store
+    if [[ -f "${pm_dir}/Brewfile.mas" ]]; then
+        local count=$(grep -c '^mas ' "${pm_dir}/Brewfile.mas" 2>/dev/null || echo 0)
+        echo "    🏪 Mac App Store: ${count} applications (uses Apple ID)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^mas ' "${pm_dir}/Brewfile.mas" | sed 's/mas "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+}
+
+# Install classified Brewfiles
+install_classified_brewfiles() {
+    local pm_dir="$1"
+
+    echo "Installing packages using classified Brewfile system..."
+
+    # Install non-admin packages first (formulas + casks)
+    local has_non_admin=false
+    if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]] || [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+        has_non_admin=true
+        echo ""
+        print_info "🚀 Installing non-admin packages (no password required)..."
+
+        if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.formulas.non_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        if [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.casks.non_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        print_success "Non-admin packages installed"
+    fi
+
+    # Install Mac App Store apps (uses Apple ID, not admin)
+    if [[ -f "${pm_dir}/Brewfile.mas" ]]; then
+        echo ""
+        print_info "🏪 Installing Mac App Store applications..."
+        local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.mas\" --no-upgrade"
+        execute_with_log "${cmd}"
+        print_success "Mac App Store applications installed"
+    fi
+
+    # Install admin-required packages (may prompt for password)
+    local has_admin=false
+    if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]] || [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+        has_admin=true
+        echo ""
+        print_info "🔐 Installing admin-required packages (may prompt for password)..."
+
+        if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.formulas.requires_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        if [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.casks.requires_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        print_success "Admin-required packages installed"
+    fi
+
+    if [[ "$has_non_admin" == false && "$has_admin" == false ]]; then
+        print_warning "No classified Brewfiles found to install"
+    fi
+}
+
 # Preview what will be installed
 preview_packages() {
     local pm="$1"
@@ -157,7 +288,11 @@ preview_packages() {
 
     case "${pm}" in
         brew)
-            if [[ -f "${pm_dir}/Brewfile" ]]; then
+            # Check for new classified system first
+            if has_classified_brewfiles "${pm_dir}"; then
+                preview_classified_brewfiles "${pm_dir}"
+            elif [[ -f "${pm_dir}/Brewfile" ]]; then
+                print_warning "  📢 Using legacy Brewfile (consider migrating to classified system)"
                 # Check what's missing or outdated
                 echo "  Checking Brewfile status..."
                 if brew bundle check --file="${pm_dir}/Brewfile" >/dev/null 2>&1; then
@@ -177,7 +312,7 @@ preview_packages() {
                     fi
                 fi
             else
-                print_warning "  No Brewfile found"
+                print_warning "  No Brewfile or classified Brewfiles found"
             fi
             ;;
 
@@ -301,7 +436,11 @@ install_packages() {
 
     case "${pm}" in
         brew)
-            if [[ -f "${pm_dir}/Brewfile" ]]; then
+            # Check for new classified system first
+            if has_classified_brewfiles "${pm_dir}"; then
+                install_classified_brewfiles "${pm_dir}"
+            elif [[ -f "${pm_dir}/Brewfile" ]]; then
+                print_warning "📢 Using legacy Brewfile (consider migrating to classified system)"
                 # First check what's outdated before installing
                 print_info "Checking for Homebrew package updates..."
                 log_command "brew outdated"
@@ -334,7 +473,7 @@ install_packages() {
                     print_info "Run separately: just install-brew-sudo"
                 fi
             else
-                print_warning "No Brewfile found"
+                print_warning "No Brewfile or classified Brewfiles found"
             fi
             ;;
 

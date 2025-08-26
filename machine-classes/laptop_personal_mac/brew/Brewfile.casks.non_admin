@@ -22,4 +22,5 @@ cask "gimp"
 cask "font-iosevka-nerd-font"
 
 # System Enhancement
+cask "grandperspective"
 cask "mos"
