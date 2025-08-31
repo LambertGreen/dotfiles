@@ -39,6 +39,7 @@ Keypirinha.history
 
 # Test logs
 test/.logs/
+test/.docker-extracted-logs/
 
 # Clink
 /configs/windows_only/clink/AppData/Local/clink/clink_history*

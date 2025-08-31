@@ -26,14 +26,14 @@ initialize_tracking_arrays
 # Cargo installation function
 install_cargo_packages() {
     local config_dir=$(get_machine_config_dir "cargo")
-    
+
     if [[ ! -f "${config_dir}/packages.txt" ]]; then
         log_error "No packages.txt found in ${config_dir}"
         return 1
     fi
-    
+
     log_info "Installing Cargo packages..."
-    
+
     while IFS= read -r package; do
         [[ -z "${package}" || "${package}" =~ ^# ]] && continue
         log_info "Installing cargo package: $package"
@@ -42,7 +42,7 @@ install_cargo_packages() {
             return 1
         fi
     done < "${config_dir}/packages.txt"
-    
+
     return 0
 }
 
@@ -52,9 +52,9 @@ main() {
     log_output "=========================="
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output ""
-    
+
     execute_package_manager "cargo" "install_cargo_packages"
-    
+
     print_summary "Cargo Package Installation"
 }
 

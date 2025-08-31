@@ -26,17 +26,17 @@ initialize_tracking_arrays
 # Pacman installation function
 install_pacman_packages() {
     local config_dir=$(get_machine_config_dir "pacman")
-    
+
     if [[ ! -f "${config_dir}/packages.txt" ]]; then
         log_error "No packages.txt found in ${config_dir}"
         return 1
     fi
-    
+
     log_info "Installing Pacman packages (may require sudo)..."
-    
+
     # Update package database first
     sudo pacman -Sy
-    
+
     # Use while loop for better Docker compatibility
     while IFS= read -r package || [[ -n "$package" ]]; do
         # Skip empty lines and comments
@@ -45,14 +45,14 @@ install_pacman_packages() {
         package="${package%%#*}"
         package="${package%"${package##*[![:space:]]}"}"
         [[ -z "$package" ]] && continue
-        
+
         log_info "Installing pacman package: $package"
         if ! sudo pacman -S --needed --noconfirm "$package"; then
             log_error "Failed to install package: $package"
             return 1
         fi
     done < "${config_dir}/packages.txt"
-    
+
     return 0
 }
 
@@ -62,9 +62,9 @@ main() {
     log_output "==========================="
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output ""
-    
+
     execute_package_manager "pacman" "install_pacman_packages"
-    
+
     print_summary "Pacman Package Installation"
 }
 

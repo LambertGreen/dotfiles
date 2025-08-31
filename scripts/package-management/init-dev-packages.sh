@@ -54,13 +54,13 @@ failed_pms=()
 # Initialize zsh (zinit plugins)
 if command -v zsh >/dev/null 2>&1; then
     log_output "=== Initializing Zsh (zinit plugins) ==="
-    
+
     zsh_start_time=$(date +%s)
-    
+
     # First, trigger the initial shell load (which may install zinit via timeout)
     log_verbose "Running: initial zsh load to trigger plugin manager setup"
     timeout 30 zsh -l -i -c 'exit' 2>&1 | tee -a "${LOG_FILE}" || true
-    
+
     # Now use the dotfiles API to wait for ready state
     log_verbose "Running: await shell ready using dotfiles API"
     if timeout 60 zsh -l -i -c 'source ~/.zshrc && lgreen_await_shell_ready 45' 2>&1 | tee -a "${LOG_FILE}"; then
@@ -91,7 +91,7 @@ fi
 # Initialize emacs (elpaca packages)
 if command -v emacs >/dev/null 2>&1; then
     log_output "=== Initializing Emacs (elpaca packages) ==="
-    
+
     emacs_start_time=$(date +%s)
     # Check if elpaca is already installed
     if [[ -d "$HOME/.emacs.d/elpaca" ]]; then
@@ -112,28 +112,28 @@ if command -v emacs >/dev/null 2>&1; then
         log_verbose "Running: emacs initial bootstrap (elpaca will be installed and packages downloaded)"
         # First time setup - load full config and wait for all packages to install
         # Use elpaca-log-buffer and progress reporting for better visibility
-        if timeout 900 emacs --batch --eval "(progn 
-            (load-file \"~/.emacs.d/init.el\") 
+        if timeout 900 emacs --batch --eval "(progn
+            (load-file \"~/.emacs.d/init.el\")
             (message \"Loaded init.el, waiting for packages...\")
-            
+
             ;; Enable more verbose elpaca output
             (setq elpaca-verbosity 2)
             (setq elpaca-log-level 'debug)
-            
+
             ;; Add progress tracking
             (defvar package-install-start-time (current-time))
             (defun log-package-progress ()
               (let ((elapsed (float-time (time-subtract (current-time) package-install-start-time))))
-                (message \"[PROGRESS] Elapsed: %.0fs, Queue size: %d\" 
+                (message \"[PROGRESS] Elapsed: %.0fs, Queue size: %d\"
                          elapsed (length elpaca--queues))))
-            
+
             ;; Set up periodic progress reporting
             (run-with-timer 30 30 'log-package-progress)
-            
+
             ;; Wait for packages with timeout handling
             (let ((max-wait-time 840)) ;; 14 minutes
               (condition-case err
-                (with-timeout (max-wait-time 
+                (with-timeout (max-wait-time
                               (message \"[TIMEOUT] Package installation exceeded %d seconds\" max-wait-time)
                               (message \"[DEBUG] Current elpaca queue status:\")
                               (dolist (item elpaca--queues)
@@ -141,7 +141,7 @@ if command -v emacs >/dev/null 2>&1; then
                               (error \"Package installation timeout\"))
                   (elpaca-wait)
                   (message \"All packages installed successfully!\"))
-                (error 
+                (error
                  (message \"[ERROR] Package installation failed: %s\" err)
                  (when (get-buffer elpaca-log-buffer-name)
                    (message \"[DEBUG] Elpaca log buffer contents:\")
@@ -167,7 +167,7 @@ fi
 # Initialize neovim (lazy.nvim plugins)
 if command -v nvim >/dev/null 2>&1; then
     log_output "=== Initializing Neovim (lazy.nvim plugins) ==="
-    
+
     nvim_start_time=$(date +%s)
     log_verbose "Running: nvim headless with Lazy sync to trigger plugin installation"
     # Use Lazy! sync which forces a full synchronization

@@ -26,14 +26,14 @@ initialize_tracking_arrays
 # Gem installation function
 install_gem_packages() {
     local config_dir=$(get_machine_config_dir "gem")
-    
+
     if [[ ! -f "${config_dir}/Gemfile" ]]; then
         log_error "No Gemfile found in ${config_dir}"
         return 1
     fi
-    
+
     log_info "Installing Ruby gems..."
-    
+
     # Install bundler if not present
     if ! gem list bundler -i >/dev/null 2>&1; then
         log_info "Installing bundler..."
@@ -42,17 +42,17 @@ install_gem_packages() {
             return 1
         fi
     fi
-    
+
     # Change to config directory and install gems
     local current_dir=$(pwd)
     cd "${config_dir}"
-    
+
     if ! bundle install; then
         log_error "Failed to install gems from Gemfile"
         cd "${current_dir}"
         return 1
     fi
-    
+
     cd "${current_dir}"
     return 0
 }
@@ -63,9 +63,9 @@ main() {
     log_output "======================="
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output ""
-    
+
     execute_package_manager "gem" "install_gem_packages"
-    
+
     print_summary "Gem Package Installation"
 }
 

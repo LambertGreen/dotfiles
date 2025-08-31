@@ -65,17 +65,17 @@ cd configs
 while IFS= read -r stow_entry; do
     # Skip empty lines and comments
     [[ -z "$stow_entry" || "$stow_entry" =~ ^[[:space:]]*# ]] && continue
-    
+
     # With flat structure, stow_entry is the package name directly
     stow_package="$stow_entry"
-    
+
     log_verbose "Stowing: $stow_package"
-    
+
     # Backup conflicting shell files before stowing shell_common
     if [ "$stow_package" = "shell_common" ]; then
         for f in .bashrc .bash_profile .profile .zshenv .zprofile .zlogin .zshrc; do [ -f "$HOME/$f" ] && mv "$HOME/$f" "$HOME/$f.backup-$(date +%Y%m%d)" || true; done
     fi
-    
+
     if [ -d "$stow_package" ]; then
         if stow --dotfiles --target="$HOME" "$stow_package" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"

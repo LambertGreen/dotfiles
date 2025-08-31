@@ -26,46 +26,46 @@ initialize_tracking_arrays
 # Emacs package initialization function
 init_emacs_packages() {
     local emacs_dir="${HOME}/.emacs.d"
-    
+
     if [[ ! -d "$emacs_dir" ]]; then
         log_error "Emacs config directory not found: $emacs_dir"
         return 1
     fi
-    
+
     log_info "Checking if emacs packages already installed..."
     local elpaca_dir="${emacs_dir}/elpaca"
-    
+
     if [[ -d "$elpaca_dir" ]] && [[ -n "$(ls -A "$elpaca_dir/builds" 2>/dev/null)" ]]; then
         log_info "Emacs packages already installed, skipping initial setup"
         return 0
     fi
-    
+
     log_info "Running emacs initial bootstrap (elpaca will be installed and packages downloaded)"
-    
+
     # First time setup - load full config and wait for all packages to install
     # Use elpaca-log-buffer and progress reporting for better visibility
-    if timeout 900 emacs --batch --eval "(progn 
-        (load-file \"~/.emacs.d/init.el\") 
+    if timeout 900 emacs --batch --eval "(progn
+        (load-file \"~/.emacs.d/init.el\")
         (message \"Loaded init.el, waiting for packages...\")
-        
+
         ;; Enable more verbose elpaca output
         (setq elpaca-verbosity 2)
         (setq elpaca-log-level 'debug)
-        
+
         ;; Add progress tracking
         (defvar package-install-start-time (current-time))
         (defun log-package-progress ()
           (let ((elapsed (float-time (time-subtract (current-time) package-install-start-time))))
-            (message \"[PROGRESS] Elapsed: %.0fs, Queue size: %d\" 
+            (message \"[PROGRESS] Elapsed: %.0fs, Queue size: %d\"
                      elapsed (length elpaca--queues))))
-        
+
         ;; Set up periodic progress reporting
         (run-with-timer 30 30 'log-package-progress)
-        
+
         ;; Wait for packages with timeout handling
         (let ((max-wait-time 840)) ;; 14 minutes
           (condition-case err
-            (with-timeout (max-wait-time 
+            (with-timeout (max-wait-time
                           (message \"[TIMEOUT] Package installation exceeded %d seconds\" max-wait-time)
                           (message \"[DEBUG] Current elpaca queue status:\")
                           (dolist (item elpaca--queues)
@@ -73,7 +73,7 @@ init_emacs_packages() {
                           (error \"Package installation timeout\"))
               (elpaca-wait)
               (message \"All packages installed successfully!\"))
-            (error 
+            (error
              (message \"[ERROR] Package installation failed: %s\" err)
              (when (get-buffer elpaca-log-buffer-name)
                (message \"[DEBUG] Elpaca log buffer contents:\")
@@ -94,9 +94,9 @@ main() {
     log_output "============================"
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output ""
-    
+
     execute_package_manager "emacs" "init_emacs_packages"
-    
+
     print_summary "Emacs Package Initialization"
 }
 

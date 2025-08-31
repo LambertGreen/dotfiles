@@ -150,7 +150,7 @@ read -t 15 -r user_input || user_input=""
 if [[ -n "$user_input" ]]; then
     log_output "Selecting specified package managers..."
     selected_numbers=($user_input)
-    
+
     for num in "${selected_numbers[@]}"; do
         if [[ "$num" =~ ^[0-9]+$ ]] && [[ "$num" -ge 1 ]] && [[ "$num" -le ${#AVAILABLE_UPGRADES[@]} ]]; then
             idx=$((num-1))
@@ -177,7 +177,7 @@ log_output ""
 # Execute upgrades
 for pm in "${SELECTED_PMS[@]}"; do
     log_output "=== Upgrading $pm ==="
-    
+
     case "$pm" in
         zsh)
             log_verbose "Running: zinit update --all in zsh context"
@@ -191,7 +191,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Zsh plugin update had issues (exit code: $?)"
             fi
             ;;
-            
+
         emacs)
             log_verbose "Running: emacs with DOTFILES_EMACS_UPDATE environment variable for unattended update"
             if timeout 300 env DOTFILES_EMACS_UPDATE=1 emacs --batch -l ~/.emacs.d/init.el 2>&1 | tee -a "${LOG_FILE}"; then
@@ -200,7 +200,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Emacs package update had issues (exit code: $?)"
             fi
             ;;
-            
+
         neovim)
             log_verbose "Running: nvim lazy sync in headless mode"
             if timeout 300 nvim --headless "+Lazy! sync" +qa 2>&1 | tee -a "${LOG_FILE}"; then
@@ -209,7 +209,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Neovim plugin update had issues (exit code: $?)"
             fi
             ;;
-            
+
         cargo)
             log_verbose "Running: cargo install-update -a"
             if command -v cargo-install-update >/dev/null 2>&1; then
@@ -222,7 +222,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  cargo-install-update not found. Install with: cargo install cargo-update"
             fi
             ;;
-            
+
         pipx)
             log_verbose "Running: pipx upgrade-all"
             if timeout 300 pipx upgrade-all 2>&1 | tee -a "${LOG_FILE}"; then
@@ -231,12 +231,12 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Pipx tool update had issues (exit code: $?)"
             fi
             ;;
-            
+
         *)
             log_output "⚠️  Unknown dev package manager: $pm"
             ;;
     esac
-    
+
     log_output ""
 done
 

@@ -38,14 +38,14 @@ initialize_tracking_arrays
 install_from_file() {
     local package_file="$1"
     local level_name="$2"
-    
+
     if [[ ! -f "$package_file" ]]; then
         log_info "No $level_name packages file found at: $package_file"
         return 1
     fi
-    
+
     log_info "Installing $level_name packages from: $(basename "$package_file")"
-    
+
     # Check what's outdated before installing
     log_info "Checking for outdated packages..."
     if outdated_before=$(brew outdated 2>&1); then
@@ -54,7 +54,7 @@ install_from_file() {
             echo "$outdated_before" | head -10
         fi
     fi
-    
+
     # Install from package file
     if brew bundle install --file="$package_file" --no-upgrade; then
         log_success "$level_name packages installed successfully"
@@ -68,13 +68,13 @@ install_from_file() {
 # Main function
 main() {
     local config_dir=$(get_machine_config_dir "brew")
-    
+
     log_output "Homebrew Package Installation"
     log_output "============================="
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output "Package level: $PACKAGE_LEVEL"
     log_output ""
-    
+
     case "$PACKAGE_LEVEL" in
         user)
             install_from_file "$config_dir/packages.user" "user-level"
@@ -95,7 +95,7 @@ main() {
             exit 1
             ;;
     esac
-    
+
     print_summary "Homebrew Package Installation"
 }
 

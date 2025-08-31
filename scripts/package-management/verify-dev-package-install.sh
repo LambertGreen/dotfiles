@@ -54,7 +54,7 @@ failed_pms=()
 # Verify zsh (zinit plugins)
 if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
     log_output "=== Verifying Zsh (zinit plugins) ==="
-    
+
     zsh_verify_start_time=$(date +%s)
     log_verbose "Running: direct zinit plugins directory check to verify plugin installation"
     # Check zinit plugins directory directly instead of using 'zinit list' which can hang
@@ -90,7 +90,7 @@ fi
 # Verify emacs (elpaca packages)
 if command -v emacs >/dev/null 2>&1; then
     log_output "=== Verifying Emacs (elpaca packages) ==="
-    
+
     emacs_verify_start_time=$(date +%s)
     # Check if elpaca directory exists (indicates installation attempted)
     if [[ -d "$HOME/.emacs.d/elpaca" ]]; then
@@ -131,7 +131,7 @@ fi
 # Verify neovim (lazy.nvim plugins)
 if command -v nvim >/dev/null 2>&1; then
     log_output "=== Verifying Neovim (lazy.nvim plugins) ==="
-    
+
     nvim_verify_start_time=$(date +%s)
     # Check if lazy.nvim data directory exists
     lazy_data_dir="$HOME/.local/share/nvim/lazy"

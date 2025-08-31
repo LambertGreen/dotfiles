@@ -55,7 +55,7 @@ updates_found=false
 if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
     log_output "=== Zsh (plugins) ==="
     checked_pms+=("zsh")
-    
+
     log_verbose "Running: zinit list in zsh context"
     # Check if zinit has any plugins that can be updated
     # We use a timeout since zinit commands can hang if zsh config is broken
@@ -90,7 +90,7 @@ fi
 if command -v emacs >/dev/null 2>&1 && [[ -d "$HOME/.emacs.d/elpaca" ]]; then
     log_output "=== Emacs (packages) ==="
     checked_pms+=("emacs")
-    
+
     log_verbose "Running: emacs elpaca status check"
     # Check if elpaca has packages that can be updated
     if emacs_status=$(timeout 60 emacs --batch --eval "(progn (require 'elpaca) (message \"%d packages installed\" (length (elpaca--queued))))" 2>/dev/null | grep "packages installed" || echo ""); then
@@ -121,7 +121,7 @@ fi
 if command -v nvim >/dev/null 2>&1; then
     # Check if lazy.nvim is being used
     lazy_config_found=false
-    
+
     # Check common lazy.nvim config locations
     for config_path in "$HOME/.config/nvim/lua/config/lazy.lua" "$HOME/.config/nvim/init.lua" "$HOME/.config/nvim-lazy"; do
         if [[ -f "$config_path" ]] && grep -q "lazy" "$config_path" 2>/dev/null; then
@@ -129,11 +129,11 @@ if command -v nvim >/dev/null 2>&1; then
             break
         fi
     done
-    
+
     if [[ "$lazy_config_found" == true ]]; then
         log_output "=== Neovim (plugins) ==="
         checked_pms+=("neovim")
-        
+
         log_verbose "Running: nvim lazy status check"
         # Check if lazy.nvim has plugins that can be updated
         if nvim_status=$(timeout 30 nvim --headless -c "lua print(#require('lazy').plugins())" -c "qa" 2>/dev/null || echo ""); then
@@ -166,7 +166,7 @@ fi
 if command -v cargo >/dev/null 2>&1 && [[ -d "$HOME/.cargo/bin" ]]; then
     log_output "=== Cargo (Rust tools) ==="
     checked_pms+=("cargo")
-    
+
     log_verbose "Running: cargo install --list"
     # Check if cargo has installed tools
     if cargo_list=$(cargo install --list 2>/dev/null | grep -c '^[a-zA-Z]' || echo "0"); then
@@ -191,7 +191,7 @@ fi
 if command -v pipx >/dev/null 2>&1; then
     log_output "=== Pipx (Python tools) ==="
     checked_pms+=("pipx")
-    
+
     log_verbose "Running: pipx list"
     # Check if pipx has installed packages
     if pipx_list=$(pipx list --short 2>/dev/null | wc -l | tr -d ' '); then
@@ -221,7 +221,7 @@ if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No dev package managers found"
 else
     log_output "✅ Checked dev package managers: ${checked_pms[*]}"
-    
+
     if [[ "$updates_found" == true ]]; then
         log_output "📦 Updates available - run 'just upgrade-dev-packages' to install"
     else
