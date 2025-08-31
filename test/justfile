@@ -19,6 +19,7 @@ default:
     @echo "  just test-developer-ubuntu      - Ubuntu with apt + pip + npm"
     @echo "  just test-developer-arch        - Arch with pacman + AUR + pip + npm"
     @echo ""
+    @echo ""
     @echo "GUI Tier (desktop validation):"
     @echo "  just test-gui-ubuntu            - Ubuntu with desktop packages"
     @echo "  just test-gui-arch              - Arch with desktop packages"

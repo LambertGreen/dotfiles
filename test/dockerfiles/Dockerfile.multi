@@ -103,7 +103,11 @@ RUN ./scripts/package-management/apt/install-apt-packages.sh || true
 
 FROM install-apt-ubuntu AS install-brew-ubuntu  
 COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
-RUN ./scripts/package-management/brew/install-brew-packages.sh || true
+COPY --chown=user:user justfile ./
+# Test actual user entry point for proper integration testing
+RUN just install-packages-user || true
+# Also install admin packages to test the full system
+RUN just install-packages-admin || true
 
 FROM install-brew-ubuntu AS install-pip-ubuntu
 COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/

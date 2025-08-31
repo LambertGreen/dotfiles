@@ -1,8 +1,0 @@
-{
-  "timestamp": "20250818-104805",
-  "machine_class": "docker_developer_ubuntu",
-  "platform": "ubuntu",
-  "build_success": false,
-  "test_directory": "/Users/lambert.green/dev/my/dotfiles/test/test-logs/docker_developer_ubuntu_20250818-104805",
-  "image_name": "dotfiles-test-docker_developer_ubuntu"
-}

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Brew package installation script
+# Brew package installation script v2 - Clean design with packages.user/admin
+# No legacy if/else blocks
 
 set -euo pipefail
 
@@ -23,68 +24,77 @@ source "${DOTFILES_ROOT}/scripts/package-management/shared/package-utils.sh"
 if [[ -f "${HOME}/.dotfiles.env" ]]; then
     source "${HOME}/.dotfiles.env"
 else
-    log_error "Machine class not configured. Run: ./package-management/scripts/configure-machine-class.sh"
+    log_error "Machine class not configured. Run: ./scripts/configure-machine-class.sh"
     exit 1
 fi
+
+# Parse arguments
+PACKAGE_LEVEL="${1:-user}"  # user, admin, or all
 
 # Initialize tracking
 initialize_tracking_arrays
 
-# Brew installation function
-install_brew_packages() {
-    local config_dir=$(get_machine_config_dir "brew")
+# Install packages from a specific file
+install_from_file() {
+    local package_file="$1"
+    local level_name="$2"
     
-    if [[ ! -f "${config_dir}/Brewfile" ]]; then
-        log_error "No Brewfile found in ${config_dir}"
+    if [[ ! -f "$package_file" ]]; then
+        log_info "No $level_name packages file found at: $package_file"
         return 1
     fi
     
-    log_info "Installing Homebrew packages..."
+    log_info "Installing $level_name packages from: $(basename "$package_file")"
     
     # Check what's outdated before installing
-    log_info "Checking for Homebrew package updates..."
+    log_info "Checking for outdated packages..."
     if outdated_before=$(brew outdated 2>&1); then
         if [[ -n "$outdated_before" ]]; then
             log_info "Outdated packages before install:"
             echo "$outdated_before" | head -10
-        else
-            log_info "No outdated packages before install"
         fi
     fi
     
-    # Install from Brewfile
-    if ! brew bundle install --file="${config_dir}/Brewfile" --no-upgrade; then
-        log_error "Failed to install packages from Brewfile"
+    # Install from package file
+    if brew bundle install --file="$package_file" --no-upgrade; then
+        log_success "$level_name packages installed successfully"
+        return 0
+    else
+        log_error "Some $level_name packages failed to install"
         return 1
     fi
-    
-    # Check what got installed/upgraded
-    if outdated_after=$(brew outdated 2>&1); then
-        if [[ -n "$outdated_after" ]]; then
-            log_info "Still outdated after install:"
-            echo "$outdated_after" | head -10
-        else
-            log_info "All packages up to date after install"
-        fi
-    fi
-    
-    # Check for sudo-required casks
-    if [[ -f "${config_dir}/Brewfile.casks-sudo" ]]; then
-        log_info "Sudo-required casks found in Brewfile.casks-sudo"
-        log_info "Run separately: just install-brew-sudo"
-    fi
-    
-    return 0
 }
 
-# Main execution
+# Main function
 main() {
+    local config_dir=$(get_machine_config_dir "brew")
+    
     log_output "Homebrew Package Installation"
     log_output "============================="
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
+    log_output "Package level: $PACKAGE_LEVEL"
     log_output ""
     
-    execute_package_manager "brew" "install_brew_packages"
+    case "$PACKAGE_LEVEL" in
+        user)
+            install_from_file "$config_dir/packages.user" "user-level"
+            ;;
+        admin)
+            log_info "Note: Admin packages may prompt for password on real systems"
+            install_from_file "$config_dir/packages.admin" "admin-level"
+            ;;
+        all)
+            install_from_file "$config_dir/packages.user" "user-level"
+            echo ""
+            log_info "Note: Admin packages may prompt for password on real systems"
+            install_from_file "$config_dir/packages.admin" "admin-level"
+            ;;
+        *)
+            log_error "Invalid package level: $PACKAGE_LEVEL"
+            log_error "Valid options: user, admin, all"
+            exit 1
+            ;;
+    esac
     
     print_summary "Homebrew Package Installation"
 }

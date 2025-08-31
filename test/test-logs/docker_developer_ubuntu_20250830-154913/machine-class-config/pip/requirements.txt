@@ -1,0 +1,21 @@
+# Ubuntu Docker Developer - Python packages
+# Based on legacy exports
+
+# Development tools
+black
+flake8
+mypy
+pylint
+pytest
+ipython
+jupyter
+
+# Language servers and development
+python-lsp-server
+debugpy
+
+# Utilities
+requests
+click
+rich
+pre-commit

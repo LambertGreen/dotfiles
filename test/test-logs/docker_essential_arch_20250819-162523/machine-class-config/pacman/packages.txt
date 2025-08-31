@@ -1,9 +1,0 @@
-base-devel
-curl
-git
-psmisc
-stow
-sudo
-vim
-wget
-zsh

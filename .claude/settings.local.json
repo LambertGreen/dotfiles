@@ -44,7 +44,13 @@
       "Bash(docker image inspect:*)",
       "Bash(docker ps:*)",
       "Bash(cd:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(rm:*)",
+      "Bash(brew search:*)",
+      "Bash(brew list:*)",
+      "Bash(brew:*)",
+      "Bash(cat:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
