@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_ROOT="$(cd "$TEST_DIR_ROOT/.." && pwd)"
-TEST_LOGS_DIR="${TEST_DIR_ROOT}/test-logs"
+TEST_LOGS_DIR="${TEST_DIR_ROOT}/.logs"
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 
 # Colors for output
@@ -63,14 +63,14 @@ if [[ -n "$CONTAINER_ID" ]]; then
     else
         print_color "$YELLOW" "⚠️  No logs directory found in container"
     fi
-    
+
     # Extract machine class configs
     if docker cp "$CONTAINER_ID:/home/user/dotfiles/machine-classes/${MACHINE_CLASS}" "$TEST_DIR/machine-class-config" 2>/dev/null; then
         print_color "$GREEN" "✅ Machine class config extracted"
     else
         print_color "$YELLOW" "⚠️  Machine class config not found"
     fi
-    
+
     # Clean up container
     docker rm "$CONTAINER_ID" > /dev/null
 else

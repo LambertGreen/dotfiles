@@ -158,15 +158,15 @@ _run-machine-class machine_class platform:
 
 # Show the latest test summary
 @show-test-summary:
-    @if [ -d "test-logs" ]; then \
-        latest=$(ls -t test-logs/*/test-summary.md 2>/dev/null | head -1); \
+    @if [ -d "test/.logs" ]; then \
+        latest=$(ls -t test/.logs/*/test-summary.md 2>/dev/null | head -1); \
         if [ -n "$$latest" ]; then \
             cat "$$latest"; \
         else \
             echo "No test summaries found"; \
         fi \
     else \
-        echo "No test-logs directory found"; \
+        echo "No test/.logs directory found"; \
     fi
 
 # Show the most recent test log

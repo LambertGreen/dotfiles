@@ -6,7 +6,7 @@ set -euo pipefail
 # Set up paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/upgrade-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist

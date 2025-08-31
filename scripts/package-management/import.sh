@@ -6,7 +6,7 @@ set -euo pipefail
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/package-import-$(date +%Y%m%d-%H%M%S).log"
 
 # Default to dry-run for safety

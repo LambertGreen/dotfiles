@@ -51,7 +51,7 @@ default:
     @echo "  just test-arch         - Quick test Arch configuration"
     @echo "  just test-ubuntu       - Quick test Ubuntu configuration"
     @echo ""
-    @echo "📁 Logs: logs/ directory - cleanup with: trash logs"
+    @echo "📁 Logs: .logs/ directory - cleanup with: trash logs"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Package Management - Primary Interface
@@ -155,12 +155,12 @@ export-packages:
 # Show recent package management logs
 show-logs:
     @echo "Recent package management logs:"
-    @ls -lt logs/package-*.log 2>/dev/null | head -10 || echo "No package logs found"
+    @ls -lt .logs/package-*.log 2>/dev/null | head -10 || echo "No package logs found"
 
 # Show most recent package management log
 show-logs-last:
-    @if ls logs/package-*.log >/dev/null 2>&1; then \
-        tail -100 `ls -t logs/package-*.log | head -1`; \
+    @if ls .logs/package-*.log >/dev/null 2>&1; then \
+        tail -100 `ls -t .logs/package-*.log | head -1`; \
     else \
         echo "No package logs found"; \
     fi
@@ -185,11 +185,11 @@ test-ubuntu: (test-platform "ubuntu")
 
 # Validate system health (auto-logs)
 check-health:
-    @just _check-health-with-log "logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
+    @just _check-health-with-log ".logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
 
 # Health check with verbose output
 check-health-verbose:
-    @just _check-health-with-log "logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
+    @just _check-health-with-log ".logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
 
 # Internal helper for health checks with logging
 [private]

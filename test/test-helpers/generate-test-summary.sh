@@ -38,10 +38,10 @@ extract_value() {
 cat <<EOF
 # Docker Test Summary Report
 
-**Test Date:** $(date '+%Y-%m-%d %H:%M:%S')  
-**Machine Class:** $MACHINE_CLASS  
-**Platform:** $PLATFORM  
-**Build Status:** $(if [[ "$BUILD_SUCCESS" == "true" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)  
+**Test Date:** $(date '+%Y-%m-%d %H:%M:%S')
+**Machine Class:** $MACHINE_CLASS
+**Platform:** $PLATFORM
+**Build Status:** $(if [[ "$BUILD_SUCCESS" == "true" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)
 **Test Duration:** $(if [[ -f "$TEST_DIR/docker-build-output.log" ]]; then echo "$(stat -f %Sm -t '%H:%M:%S' "$TEST_DIR/docker-build-output.log" 2>/dev/null || echo 'unknown')"; else echo "unknown"; fi)
 
 ---
@@ -59,7 +59,7 @@ VERIFY_LOG_PATTERN="$TEST_DIR/logs/verify-dev-package-install"*.log
 # Extract initialization timing if available
 if ls $INIT_LOG_PATTERN 1> /dev/null 2>&1; then
     INIT_LOG=$(ls -t $INIT_LOG_PATTERN | head -1)
-    
+
     # Extract initialization timing
     EMACS_INIT_TIME=$(extract_value "$INIT_LOG" "Emacs.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
     NVIM_INIT_TIME=$(extract_value "$INIT_LOG" "Neovim.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
@@ -69,15 +69,15 @@ fi
 # Check for package installation results
 if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
     VERIFY_LOG=$(ls -t $VERIFY_LOG_PATTERN | head -1)
-    
+
     # Extract verification results
     EMACS_RESULT=$(extract_value "$VERIFY_LOG" "Emacs:.*packages")
     NEOVIM_RESULT=$(extract_value "$VERIFY_LOG" "Neovim:.*plugins")
     ZSH_RESULT=$(extract_value "$VERIFY_LOG" "Zsh:.*")
-    
+
     echo "| Package Manager | Status | Details | Init Time | Verify Time |"
     echo "|-----------------|--------|---------|-----------|-------------|"
-    
+
     if [[ -n "$EMACS_RESULT" ]]; then
         if echo "$EMACS_RESULT" | grep -q "✅"; then
             EMACS_COUNT=$(echo "$EMACS_RESULT" | grep -oE '[0-9]+' | head -1)
@@ -87,7 +87,7 @@ if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
             echo "| **Emacs (elpaca)** | ❌ | Installation failed | ${EMACS_INIT_TIME:-n/a} | n/a |"
         fi
     fi
-    
+
     if [[ -n "$NEOVIM_RESULT" ]]; then
         if echo "$NEOVIM_RESULT" | grep -q "✅"; then
             NVIM_COUNT=$(echo "$NEOVIM_RESULT" | grep -oE '[0-9]+' | head -1)
@@ -97,7 +97,7 @@ if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
             echo "| **Neovim (lazy)** | ❌ | Installation failed | ${NVIM_INIT_TIME:-n/a} | n/a |"
         fi
     fi
-    
+
     if [[ -n "$ZSH_RESULT" ]]; then
         if echo "$ZSH_RESULT" | grep -q "✅"; then
             ZSH_COUNT=$(echo "$ZSH_RESULT" | grep -oE '[0-9]+' | head -1)
@@ -120,7 +120,7 @@ echo ""
 if [[ -d "$TEST_DIR/machine-class-config" ]]; then
     echo "| Package Manager | Count |"
     echo "|-----------------|-------|"
-    
+
     for pm_dir in "$TEST_DIR/machine-class-config"/*; do
         if [[ -d "$pm_dir" ]]; then
             PM_NAME=$(basename "$pm_dir")
@@ -155,7 +155,7 @@ echo ""
 
 if [[ -f "$TEST_DIR/logs/health-check"*.log ]]; then
     HEALTH_LOG=$(ls -t "$TEST_DIR/logs/health-check"*.log | head -1)
-    
+
     # Extract health status
     HEALTH_STATUS=$(extract_value "$HEALTH_LOG" "Status:.*")
     if [[ -n "$HEALTH_STATUS" ]]; then
@@ -164,7 +164,7 @@ if [[ -f "$TEST_DIR/logs/health-check"*.log ]]; then
         echo "Status: ⚠️ Unknown"
     fi
     echo ""
-    
+
     # Extract symlink info
     SYMLINK_INFO=$(grep -A 3 "Configuration Statistics" "$HEALTH_LOG" 2>/dev/null || echo "")
     if [[ -n "$SYMLINK_INFO" ]]; then
@@ -267,7 +267,7 @@ else
 fi
 
 echo "2. View detailed logs: \`ls -la $TEST_DIR/logs/\`"
-echo "3. Compare with previous test: \`diff -u test-logs/*/test-summary.md | head -50\`"
+echo "3. Compare with previous test: \`diff -u .logs/*/test-summary.md | head -50\`"
 echo ""
 
 echo "---"

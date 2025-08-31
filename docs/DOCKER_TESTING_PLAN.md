@@ -12,7 +12,7 @@ Redesign Docker testing to use realistic machine classes that validate both pack
 - **Tests**: Bootstrap → Configure → Stow → Basic health check
 - **Packages**: ~8-15 core system tools
 
-### **Developer Tier** 
+### **Developer Tier**
 - **Purpose**: Full CLI development environment with multi-PM
 - **Package Managers**: Native + pip + npm + modern Emacs source
 - **Tests**: Essential + Package installation + Multi-PM validation + Emacs config
@@ -114,7 +114,7 @@ package-management/machines/
 - **Fast Execution**: Optimize for CI/testing speed
 
 #### **Logging and Observability**
-- **Centralized Logs**: All outputs go to `/home/user/dotfiles/logs/`
+- **Centralized Logs**: All outputs go to `/home/user/dotfiles/.logs/`
 - **Persistent Logs**: Logs survive container execution
 - **Structured Output**: Clear stage completion markers
 - **Debugging**: Final image contains complete execution history
@@ -246,15 +246,15 @@ just configure             # Use defaults
 ### **Logging Requirements**
 ```bash
 # All scripts must log to standardized locations
-/home/user/dotfiles/logs/configure-YYYYMMDD-HHMMSS.log
-/home/user/dotfiles/logs/bootstrap-YYYYMMDD-HHMMSS.log  
-/home/user/dotfiles/logs/stow-YYYYMMDD-HHMMSS.log
-/home/user/dotfiles/logs/install-packages-YYYYMMDD-HHMMSS.log
-/home/user/dotfiles/logs/health-check-YYYYMMDD-HHMMSS.log
+/home/user/dotfiles/.logs/configure-YYYYMMDD-HHMMSS.log
+/home/user/dotfiles/.logs/bootstrap-YYYYMMDD-HHMMSS.log  
+/home/user/dotfiles/.logs/stow-YYYYMMDD-HHMMSS.log
+/home/user/dotfiles/.logs/install-packages-YYYYMMDD-HHMMSS.log
+/home/user/dotfiles/.logs/health-check-YYYYMMDD-HHMMSS.log
 
 # Docker logs should be accessible via:
 docker run -it dotfiles-test-docker_test_ubuntu_essential bash
-# Then: ls -la /home/user/dotfiles/logs/
+# Then: ls -la /home/user/dotfiles/.logs/
 ```
 
 ### **Staged Dockerfile Structure**
@@ -278,7 +278,7 @@ docker run -it dotfiles-test-docker_test_ubuntu_essential bash
 
 ### **Success Criteria**
 - ✅ Each stage can be tested independently
-- ✅ Final container has complete logs in `/home/user/dotfiles/logs/`  
+- ✅ Final container has complete logs in `/home/user/dotfiles/.logs/`  
 - ✅ Commands match real user experience
 - ✅ No interactive prompts in Docker
 - ✅ All three tiers work on both Ubuntu and Arch

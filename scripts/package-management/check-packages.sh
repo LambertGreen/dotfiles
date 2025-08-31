@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/check-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
