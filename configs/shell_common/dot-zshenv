@@ -3,3 +3,25 @@
 
 export LANG=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
+
+# User-local package directories
+# npm global packages - user directory
+if [[ -d "$HOME/.local/npm/bin" ]]; then
+    export PATH="$HOME/.local/npm/bin:$PATH"
+fi
+
+# pipx installed packages - user directory
+export PIPX_HOME="$HOME/.local/pipx"
+export PIPX_BIN_DIR="$HOME/.local/pipx/bin"
+if [[ -d "$HOME/.local/pipx/bin" ]]; then
+    export PATH="$HOME/.local/pipx/bin:$PATH"
+fi
+
+# gem user install directory
+if command -v ruby >/dev/null 2>&1 && command -v gem >/dev/null 2>&1; then
+    GEM_HOME="$(ruby -r rubygems -e 'puts Gem.user_dir')"
+    if [[ -d "$GEM_HOME/bin" ]]; then
+        export PATH="$GEM_HOME/bin:$PATH"
+        export GEM_HOME
+    fi
+fi
