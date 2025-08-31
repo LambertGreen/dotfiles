@@ -1,0 +1,7 @@
+# Admin-level packages for Docker testing
+# In Docker these won't actually prompt for password, but we can test the logic
+
+# Simulated admin packages (in real systems these might need privileges)
+# Using simpler packages that will actually install in Docker
+brew "htop"    # System monitoring tool (sometimes requires admin)
+brew "ncdu"    # Disk usage analyzer (sometimes requires admin for system dirs)

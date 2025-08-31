@@ -1,0 +1,15 @@
+# User-level packages for Docker testing (no admin required)
+# These should install without sudo prompts
+
+# Basic CLI tools
+brew "git"
+brew "stow"
+brew "tmux"
+brew "vim"
+brew "wget"
+brew "curl"
+brew "jq"
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "tree"

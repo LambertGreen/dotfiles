@@ -1,0 +1,22 @@
+# User-level packages for Docker developer tier testing (no admin required)
+# These should install without sudo prompts
+
+# Basic CLI tools
+brew "git"
+brew "stow"
+brew "curl"
+brew "jq"
+brew "tree"
+brew "htop"
+
+# Development tools (restored from original Brewfile migration)
+brew "emacs"     # Get version 30+ (apt has old version)
+brew "neovim"    # Get version 0.11+ (apt only has 0.7-0.9)
+brew "fastfetch" # System info tool (not in Ubuntu 22.04 repos)
+brew "pstree"    # Process tree visualization
+brew "eza"       # Modern ls replacement
+brew "bat"       # Better cat with syntax highlighting
+brew "fd"        # Better find (supplement old apt fd-find)
+brew "vivid"     # LS_COLORS theme generator
+brew "dust"      # Disk usage analyzer
+brew "git-delta" # Better git diff viewer
