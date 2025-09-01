@@ -1,6 +1,6 @@
 # Multi-platform Dockerfile for dotfiles - Truly Shared Architecture
 # Single Dockerfile supporting Ubuntu and Arch with shared stages
-# Usage: 
+# Usage:
 #   docker build --build-arg MACHINE_CLASS=docker_essential_ubuntu --target docker_essential_ubuntu
 #   docker build --build-arg MACHINE_CLASS=docker_essential_arch --target docker_essential_arch
 
@@ -41,16 +41,18 @@ FROM base-ubuntu AS setup-ubuntu
 USER user
 WORKDIR /home/user
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US:en
+ENV TERM=xterm-256color
 ARG TZ
 ENV TZ=${TZ:-UTC}
 RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
 WORKDIR /home/user/dotfiles
 
-# Arch setup path  
+# Arch setup path
 FROM base-arch AS setup-arch
 USER user
 WORKDIR /home/user
 ENV LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 LANGUAGE=en_US:en
+ENV TERM=xterm-256color
 ARG TZ
 ENV TZ=${TZ:-UTC}
 RUN sudo ln -sf /usr/share/zoneinfo/$TZ /etc/localtime
@@ -96,47 +98,51 @@ FROM shell-ubuntu AS install-ubuntu
 COPY --chown=user:user scripts/package-management/shared/ ./scripts/package-management/shared/
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scripts/package-management/
 
-# Install system packages with granular caching per package manager
-FROM install-ubuntu AS install-apt-ubuntu
-COPY --chown=user:user scripts/package-management/apt/ ./scripts/package-management/apt/
-RUN ./scripts/package-management/apt/install-apt-packages.sh || true
+# =============================================================================
+# SYSTEM PACKAGE INSTALLATION STAGE
+# Uses new orchestration scripts for proper dependency ordering
+# =============================================================================
 
-FROM install-apt-ubuntu AS install-brew-ubuntu  
+FROM install-ubuntu AS system-packages-ubuntu
+# Copy orchestration scripts
+COPY --chown=user:user scripts/package-management/install-system-packages.sh ./scripts/package-management/
+# Copy all system package manager scripts
+COPY --chown=user:user scripts/package-management/apt/ ./scripts/package-management/apt/
 COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
 COPY --chown=user:user justfile ./
-# Test actual user entry point for proper integration testing
-RUN just install-packages-user || true
-# Also install admin packages to test the full system
-RUN just install-packages-admin || true
+# Install system packages (admin then user)
+RUN just install-system-packages || true
 
-FROM install-brew-ubuntu AS install-pip-ubuntu
+# =============================================================================
+# DEV PACKAGE INSTALLATION STAGE
+# Language package managers (npm, pip, cargo, gem)
+# =============================================================================
+
+FROM system-packages-ubuntu AS dev-packages-ubuntu
+# Copy dev orchestration script
+COPY --chown=user:user scripts/package-management/install-dev-packages.sh ./scripts/package-management/
+# Copy all dev package manager scripts
 COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
-RUN ./scripts/package-management/pip/install-pip-packages.sh || true
-
-FROM install-pip-ubuntu AS install-npm-ubuntu
 COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
-RUN ./scripts/package-management/npm/install-npm-packages.sh || true
-
-FROM install-npm-ubuntu AS install-gem-ubuntu
 COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
-RUN ./scripts/package-management/gem/install-gem-packages.sh || true
+COPY --chown=user:user scripts/package-management/cargo/ ./scripts/package-management/cargo/
+# Install dev packages
+RUN just install-dev-packages || true
 
-FROM install-gem-ubuntu AS install-system-ubuntu
+# =============================================================================
+# APP PACKAGE INSTALLATION STAGE
+# Application package managers (zinit, elpaca, lazy.nvim)
+# =============================================================================
 
-# Install dev packages with granular caching per package manager
-FROM install-system-ubuntu AS install-emacs-ubuntu
+FROM dev-packages-ubuntu AS app-packages-ubuntu
+# Copy app orchestration script
+COPY --chown=user:user scripts/package-management/install-app-packages.sh ./scripts/package-management/
+# Copy all app package manager scripts
 COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
-RUN ./scripts/package-management/emacs/init-emacs-packages.sh || true
-
-FROM install-emacs-ubuntu AS install-neovim-ubuntu
 COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
-RUN ./scripts/package-management/neovim/init-neovim-packages.sh || true
-
-FROM install-neovim-ubuntu AS install-zsh-ubuntu
 COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
-RUN ./scripts/package-management/zsh/init-zsh-packages.sh || true
-
-FROM install-zsh-ubuntu AS dev-packages-ubuntu
+# Install app packages
+RUN just install-app-packages || true
 
 # =============================================================================
 # ARCH BUILD PATH - Uses arch platform detection
@@ -178,50 +184,58 @@ FROM shell-arch AS install-arch
 COPY --chown=user:user scripts/package-management/shared/ ./scripts/package-management/shared/
 COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scripts/package-management/
 
-# Install system packages with granular caching per package manager
-FROM install-arch AS install-pacman-arch
+# =============================================================================
+# SYSTEM PACKAGE INSTALLATION STAGE
+# Uses new orchestration scripts for proper dependency ordering
+# =============================================================================
+
+FROM install-arch AS system-packages-arch
+# Copy orchestration scripts
+COPY --chown=user:user scripts/package-management/install-system-packages.sh ./scripts/package-management/
+# Copy all system package manager scripts
 COPY --chown=user:user scripts/package-management/pacman/ ./scripts/package-management/pacman/
-RUN ./scripts/package-management/pacman/install-pacman-packages.sh || true
+COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
+COPY --chown=user:user justfile ./
+# Install system packages (admin then user)
+RUN just install-system-packages || true
 
-FROM install-pacman-arch AS install-pip-arch
+# =============================================================================
+# DEV PACKAGE INSTALLATION STAGE
+# Language package managers (npm, pip, cargo, gem)
+# =============================================================================
+
+FROM system-packages-arch AS dev-packages-arch
+# Copy dev orchestration script
+COPY --chown=user:user scripts/package-management/install-dev-packages.sh ./scripts/package-management/
+# Copy all dev package manager scripts
 COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
-RUN ./scripts/package-management/pip/install-pip-packages.sh || true
-
-FROM install-pip-arch AS install-npm-arch
 COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
-RUN ./scripts/package-management/npm/install-npm-packages.sh || true
-
-FROM install-npm-arch AS install-gem-arch
 COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
-RUN ./scripts/package-management/gem/install-gem-packages.sh || true
-
-FROM install-gem-arch AS install-cargo-arch
 COPY --chown=user:user scripts/package-management/cargo/ ./scripts/package-management/cargo/
-RUN ./scripts/package-management/cargo/install-cargo-packages.sh || true
+# Install dev packages
+RUN just install-dev-packages || true
 
-FROM install-cargo-arch AS install-system-arch
+# =============================================================================
+# APP PACKAGE INSTALLATION STAGE
+# Application package managers (zinit, elpaca, lazy.nvim)
+# =============================================================================
 
-# Install dev packages with granular caching per package manager  
-FROM install-system-arch AS install-emacs-arch
+FROM dev-packages-arch AS app-packages-arch
+# Copy app orchestration script
+COPY --chown=user:user scripts/package-management/install-app-packages.sh ./scripts/package-management/
+# Copy all app package manager scripts
 COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
-RUN ./scripts/package-management/emacs/init-emacs-packages.sh || true
-
-FROM install-emacs-arch AS install-neovim-arch
 COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
-RUN ./scripts/package-management/neovim/init-neovim-packages.sh || true
-
-FROM install-neovim-arch AS install-zsh-arch
 COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
-RUN ./scripts/package-management/zsh/init-zsh-packages.sh || true
-
-FROM install-zsh-arch AS dev-packages-arch
+# Install app packages
+RUN just install-app-packages || true
 
 # =============================================================================
 # FINAL MACHINE-SPECIFIC TARGETS
 # =============================================================================
 
 # Ubuntu machine classes
-FROM dev-packages-ubuntu AS docker_essential_ubuntu
+FROM app-packages-ubuntu AS docker_essential_ubuntu
 ARG MACHINE_CLASS=docker_essential_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -232,7 +246,7 @@ COPY --chown=user:user machine-classes/ ./machine-classes/
 # Test package checking and health
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
-FROM dev-packages-ubuntu AS docker_developer_ubuntu
+FROM app-packages-ubuntu AS docker_developer_ubuntu
 ARG MACHINE_CLASS=docker_developer_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -243,7 +257,7 @@ COPY --chown=user:user machine-classes/ ./machine-classes/
 # Test package checking and health
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
-FROM dev-packages-ubuntu AS docker_ubuntu_gui
+FROM app-packages-ubuntu AS docker_ubuntu_gui
 ARG MACHINE_CLASS=docker_ubuntu_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -255,7 +269,7 @@ COPY --chown=user:user machine-classes/ ./machine-classes/
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
 # Arch machine classes
-FROM dev-packages-arch AS docker_essential_arch
+FROM app-packages-arch AS docker_essential_arch
 ARG MACHINE_CLASS=docker_essential_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -266,7 +280,7 @@ COPY --chown=user:user machine-classes/ ./machine-classes/
 # Test package checking and health
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
-FROM dev-packages-arch AS docker_developer_arch
+FROM app-packages-arch AS docker_developer_arch
 ARG MACHINE_CLASS=docker_developer_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -277,7 +291,7 @@ COPY --chown=user:user machine-classes/ ./machine-classes/
 # Test package checking and health
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
 
-FROM dev-packages-arch AS docker_arch_gui
+FROM app-packages-arch AS docker_arch_gui
 ARG MACHINE_CLASS=docker_arch_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
 # Copy all remaining package management scripts for final stage
@@ -287,3 +301,55 @@ RUN chmod +x ./scripts/package-management/*.sh
 COPY --chown=user:user machine-classes/ ./machine-classes/
 # Test package checking and health
 RUN zsh -l -c 'just check-health && just check-packages && just show-package-stats'
+
+# =============================================================================
+# MAINTENANCE WORKFLOW TEST STAGES
+# Tests check+upgrade cycle using cached registry state
+# Triggered by touching local files to break Docker cache
+# =============================================================================
+
+# Ubuntu maintenance workflows
+FROM docker_essential_ubuntu AS maintenance-ubuntu
+# Copy check/upgrade scripts (changes to these files will break cache here)
+COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
+# Test maintenance workflow: check then upgrade (using cached registries)
+RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
+RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM docker_developer_ubuntu AS maintenance-dev-ubuntu
+# Copy check/upgrade scripts (changes to these files will break cache here)
+COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
+# Test maintenance workflow: check then upgrade (using cached registries)
+RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
+RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+# Arch maintenance workflows
+FROM docker_essential_arch AS maintenance-arch
+# Copy check/upgrade scripts (changes to these files will break cache here)
+COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
+# Test maintenance workflow: check then upgrade (using cached registries)
+RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
+RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
+RUN zsh -l -c 'just check-health && just show-package-stats'
+
+FROM docker_developer_arch AS maintenance-dev-arch
+# Copy check/upgrade scripts (changes to these files will break cache here)
+COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
+COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
+# Test maintenance workflow: check then upgrade (using cached registries)
+RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
+RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
+RUN zsh -l -c 'just check-health && just show-package-stats'

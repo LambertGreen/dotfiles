@@ -11,43 +11,36 @@ docker_machine_classes := "essential developer gui"
 default:
     @echo "🧪 Dotfiles Testing - Machine Class Based"
     @echo ""
-    @echo "Essential Tier (minimal system):"
-    @echo "  just test-essential-ubuntu      - Ubuntu with apt only"
-    @echo "  just test-essential-arch        - Arch with pacman only"
+    @echo "🔨 Build & Test Commands:"
+    @echo "  just test-essential-ubuntu      - Test minimal Ubuntu setup"
+    @echo "  just test-essential-arch        - Test minimal Arch setup"
+    @echo "  just test-developer-ubuntu      - Test full Ubuntu development setup"
+    @echo "  just test-developer-arch        - Test full Arch development setup"
+    @echo "  just test-gui-ubuntu            - Test Ubuntu desktop packages"
+    @echo "  just test-gui-arch              - Test Arch desktop packages"
     @echo ""
-    @echo "Developer Tier (multi-PM):"
-    @echo "  just test-developer-ubuntu      - Ubuntu with apt + pip + npm"
-    @echo "  just test-developer-arch        - Arch with pacman + AUR + pip + npm"
+    @echo "🐚 Interactive Testing:"
+    @echo "  just run-essential-ubuntu       - Interactive Ubuntu shell"
+    @echo "  just run-essential-arch         - Interactive Arch shell"
+    @echo "  just run-developer-ubuntu       - Interactive Ubuntu dev shell"
+    @echo "  just run-developer-arch         - Interactive Arch dev shell"
     @echo ""
+    @echo "📦 Batch Testing:"
+    @echo "  just test-all-ubuntu            - Test all Ubuntu machine classes"
+    @echo "  just test-all-arch              - Test all Arch machine classes"
+    @echo "  just test-all                   - Test everything"
     @echo ""
-    @echo "GUI Tier (desktop validation):"
-    @echo "  just test-gui-ubuntu            - Ubuntu with desktop packages"
-    @echo "  just test-gui-arch              - Arch with desktop packages"
-    @echo ""
-    @echo "Interactive Testing:"
-    @echo "  just run-essential-ubuntu       - Interactive shell"
-    @echo "  just run-essential-arch         - Interactive shell"
-    @echo "  just run-developer-ubuntu       - Interactive shell"
-    @echo ""
-    @echo "Four-Stage Architecture Testing:"
-    @echo "  just test-four-stage-check      - Test registry update stage"
-    @echo "  just test-four-stage-admin      - Test system-admin stage"
-    @echo "  just test-four-stage-user       - Test system-user stage"
-    @echo "  just test-four-stage-dev        - Test dev packages stage"
-    @echo "  just test-four-stage-app        - Test app packages stage"
-    @echo "  just test-four-stage-all        - Test complete flow"
-    @echo "  just run-developer-arch         - Interactive shell"
-    @echo ""
-    @echo "Batch Testing:"
-    @echo "  just test-all-ubuntu            - All Ubuntu tiers"
-    @echo "  just test-all-arch              - All Arch tiers"
-    @echo "  just test-all                   - Everything"
-    @echo ""
-    @echo "Log Management:"
+    @echo "📋 Log Management:"
     @echo "  just show-test-summary          - Show latest test summary"
     @echo "  just show-last-log              - Show most recent test output"
     @echo "  just list-logs                  - List all available logs"
     @echo "  just show-log <filename>        - Show specific log file"
+    @echo ""
+    @echo "🧹 Cache Management:"
+    @echo "  just clear-docker-cache         - Clear Docker build cache (force fresh rebuild)"
+    @echo "  just clean-logs                 - Move test log directories to trash"
+    @echo "  just clean-docker               - Remove dotfiles test images"
+    @echo "  just clean                      - Clean logs + images"
 
 # =============================================================================
 # Essential Tier - Minimal system testing
@@ -214,15 +207,30 @@ update:
 
 # Clean up test logs
 clean-logs:
-    @echo "🧹 Cleaning up test logs..."
-    rm -f *-output.log
-    @echo "✅ Test logs cleaned"
+    @echo "🧹 Cleaning up test log directories..."
+    @if ls -d .logs/*/ >/dev/null 2>&1; then \
+        trash .logs/*/; \
+        echo "✅ Test log directories moved to trash"; \
+    else \
+        echo "✅ No test log directories to clean"; \
+    fi
+    @if ls *-output.log >/dev/null 2>&1; then \
+        trash *-output.log; \
+        echo "✅ Individual log files moved to trash"; \
+    fi
 
 # Clean up Docker images
 clean-docker:
     @echo "🧹 Cleaning up Docker test images..."
     docker images | grep dotfiles-test | awk '{print $3}' | xargs -r docker rmi -f
     @echo "✅ Docker images cleaned"
+
+# Clear Docker build cache (forces complete rebuild from scratch)
+clear-docker-cache:
+    @echo "🧹 Clearing Docker build cache..."
+    @echo "This will force complete rebuilds - no cached layers will be used"
+    @docker builder prune -f
+    @echo "✅ Docker build cache cleared"
 
 # Clean everything
 clean: clean-logs clean-docker

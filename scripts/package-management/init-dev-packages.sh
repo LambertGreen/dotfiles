@@ -58,30 +58,50 @@ if command -v zsh >/dev/null 2>&1; then
     zsh_start_time=$(date +%s)
 
     # First, trigger the initial shell load (which may install zinit via timeout)
-    log_verbose "Running: initial zsh load to trigger plugin manager setup"
+    log_verbose "[INFO] Running initial zsh load to trigger plugin manager setup"
     timeout 30 zsh -l -i -c 'exit' 2>&1 | tee -a "${LOG_FILE}" || true
 
-    # Now use the dotfiles API to wait for ready state
-    log_verbose "Running: await shell ready using dotfiles API"
-    if timeout 60 zsh -l -i -c 'source ~/.zshrc && lgreen_await_shell_ready 45' 2>&1 | tee -a "${LOG_FILE}"; then
-        # Shell is ready, ensure plugins are updated
-        log_verbose "Running: ensure plugins updated using dotfiles API"
-        if timeout 300 zsh -l -i -c 'source ~/.zshrc && lgreen_ensure_plugins_updated' 2>&1 | tee -a "${LOG_FILE}"; then
+    # Wait for zinit to fully initialize after installation
+    log_verbose "[INFO] Waiting for zinit to initialize..."
+    sleep 3
+
+    # Check actual zinit status instead of using shell inference
+    log_verbose "[INFO] Checking zinit installation and plugin status"
+    
+    # Try to get plugin count directly (more reliable than command -v zinit)
+    if plugin_count=$(zsh -l -i -c 'zinit list' 2>/dev/null | wc -l | tr -d ' ' 2>/dev/null); then
+        if [[ ${plugin_count:-0} -gt 0 ]]; then
             zsh_end_time=$(date +%s)
             zsh_duration=$((zsh_end_time - zsh_start_time))
-            log_output "✅ Zsh plugin initialization completed (${zsh_duration}s)"
+            log_output "[SUCCESS] Zsh plugin initialization completed - ${plugin_count} plugins loaded (${zsh_duration}s)"
+            initialized_pms+=("zsh")
+        else
+            # Check if zinit directory exists as fallback
+            if [[ -d "$HOME/.zinit" ]]; then
+                zsh_end_time=$(date +%s)
+                zsh_duration=$((zsh_end_time - zsh_start_time))
+                log_output "[INFO] Zinit installed but no plugins listed yet (${zsh_duration}s)"
+                initialized_pms+=("zsh")
+            else
+                zsh_end_time=$(date +%s)
+                zsh_duration=$((zsh_end_time - zsh_start_time))
+                log_output "[ERROR] Zinit installed but no plugins loaded (${zsh_duration}s)"
+                failed_pms+=("zsh")
+            fi
+        fi
+    else
+        # Check if zinit directory exists as fallback
+        if [[ -d "$HOME/.zinit" ]]; then
+            zsh_end_time=$(date +%s)
+            zsh_duration=$((zsh_end_time - zsh_start_time))
+            log_output "[INFO] Zinit installed but cannot query plugin status (${zsh_duration}s)"
             initialized_pms+=("zsh")
         else
             zsh_end_time=$(date +%s)
             zsh_duration=$((zsh_end_time - zsh_start_time))
-            log_output "⚠️ Zsh plugins may not be fully updated (${zsh_duration}s)"
-            initialized_pms+=("zsh")  # Still consider it initialized if shell is ready
+            log_output "[ERROR] Zinit not installed or not available (${zsh_duration}s)"
+            failed_pms+=("zsh")
         fi
-    else
-        zsh_end_time=$(date +%s)
-        zsh_duration=$((zsh_end_time - zsh_start_time))
-        log_output "❌ Zsh plugin initialization failed - shell not ready (${zsh_duration}s)"
-        failed_pms+=("zsh")
     fi
     log_output ""
 else
@@ -100,12 +120,12 @@ if command -v emacs >/dev/null 2>&1; then
         if timeout 600 env DOTFILES_EMACS_UPDATE=1 emacs --batch -l ~/.emacs.d/init.el 2>&1 | tee -a "${LOG_FILE}"; then
             emacs_end_time=$(date +%s)
             emacs_duration=$((emacs_end_time - emacs_start_time))
-            log_output "✅ Emacs package initialization completed (${emacs_duration}s)"
+            log_output "[SUCCESS] Emacs package initialization completed (${emacs_duration}s)"
             initialized_pms+=("emacs")
         else
             emacs_end_time=$(date +%s)
             emacs_duration=$((emacs_end_time - emacs_start_time))
-            log_output "❌ Emacs package initialization failed (${emacs_duration}s)"
+            log_output "[ERROR] Emacs package initialization failed (${emacs_duration}s)"
             failed_pms+=("emacs")
         fi
     else
@@ -150,12 +170,12 @@ if command -v emacs >/dev/null 2>&1; then
                  (signal (car err) (cdr err))))))" 2>&1 | tee -a "${LOG_FILE}"; then
             emacs_end_time=$(date +%s)
             emacs_duration=$((emacs_end_time - emacs_start_time))
-            log_output "✅ Emacs package initialization completed (${emacs_duration}s)"
+            log_output "[SUCCESS] Emacs package initialization completed (${emacs_duration}s)"
             initialized_pms+=("emacs")
         else
             emacs_end_time=$(date +%s)
             emacs_duration=$((emacs_end_time - emacs_start_time))
-            log_output "❌ Emacs package initialization failed (${emacs_duration}s)"
+            log_output "[ERROR] Emacs package initialization failed (${emacs_duration}s)"
             failed_pms+=("emacs")
         fi
     fi
@@ -174,7 +194,7 @@ if command -v nvim >/dev/null 2>&1; then
     if timeout 600 nvim --headless "+Lazy! sync" +qa 2>&1 | tee -a "${LOG_FILE}"; then
         nvim_end_time=$(date +%s)
         nvim_duration=$((nvim_end_time - nvim_start_time))
-        log_output "✅ Neovim plugin initialization completed (${nvim_duration}s)"
+        log_output "[SUCCESS] Neovim plugin initialization completed (${nvim_duration}s)"
         initialized_pms+=("neovim")
     else
         nvim_end_time=$(date +%s)
@@ -192,11 +212,11 @@ log_output "📊 Dev Package Initialization Summary"
 log_output "===================================="
 
 if [[ ${#initialized_pms[@]} -gt 0 ]]; then
-    log_output "✅ Successfully initialized: ${initialized_pms[*]}"
+    log_output "[SUCCESS] Successfully initialized: ${initialized_pms[*]}"
 fi
 
 if [[ ${#failed_pms[@]} -gt 0 ]]; then
-    log_output "❌ Failed initialization: ${failed_pms[*]}"
+    log_output "[ERROR] Failed initialization: ${failed_pms[*]}"
 else
     log_output "🎉 All available dev package managers initialized successfully!"
 fi
