@@ -20,3 +20,4 @@ brew "fd"        # Better find (supplement old apt fd-find)
 brew "vivid"     # LS_COLORS theme generator
 brew "dust"      # Disk usage analyzer
 brew "git-delta" # Better git diff viewer
+brew "tldr"      # Simplified man pages with examples

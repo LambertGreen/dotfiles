@@ -50,3 +50,4 @@ bat
 vivid
 dust
 git-delta
+tldr

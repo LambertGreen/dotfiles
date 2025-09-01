@@ -24,6 +24,7 @@ just
 ripgrep
 tree-sitter
 zoxide
+tldr
 
 # Terminal and shell
 wezterm
