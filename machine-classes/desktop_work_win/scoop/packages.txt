@@ -38,6 +38,7 @@ ripgrep
 tesseract
 tldr
 unzip
+vivid
 wezterm
 windirstat
 zoxide

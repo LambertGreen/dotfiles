@@ -9,3 +9,4 @@ vim
 wget
 zsh
 tldr
+vivid

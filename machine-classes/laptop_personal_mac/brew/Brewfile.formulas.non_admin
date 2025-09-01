@@ -43,6 +43,7 @@ brew "stow"
 brew "tldr"
 brew "tmux"
 brew "tree"
+brew "vivid"
 brew "wget"
 
 # Language Support
