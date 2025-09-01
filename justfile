@@ -67,43 +67,108 @@ show-package-list:
 show-package-stats:
     @./scripts/package-management/show-package-stats.sh
 
-# Install user-level packages (fire-and-forget, no admin required)
-install-packages-user:
-    @echo "🚀 Installing user-level packages..."
-    @./scripts/package-management/brew/install-brew-packages.sh user
+# Install all packages (system, dev, and app packages)
+install-packages:
+    @echo "📦 Installing all packages for current machine class..."
+    @just install-system-packages
+    @echo ""
+    @just install-dev-packages
+    @echo ""
+    @just install-app-packages
+    @echo ""
+    @echo "✅ Package installation complete"
+
+# Install system packages (both admin and user levels)
+install-system-packages:
+    @echo "🖥️ Installing system packages..."
+    @./scripts/package-management/install-system-packages.sh
     @echo "📝 View log: just show-logs-last"
 
-# Install admin-level packages (may prompt for password)
-install-packages-admin:
-    @echo "🔐 Installing admin-level packages..."
+# Install admin-level system packages (may prompt for password)
+install-system-packages-admin:
+    @echo "🔐 Installing admin-level system packages..."
     @./scripts/package-management/brew/install-brew-packages.sh admin
 
-# Check for available package updates (system packages)
-check-packages:
-    @./scripts/package-management/check-packages.sh
+# Install user-level system packages (no admin required)
+install-system-packages-user:
+    @echo "🚀 Installing user-level system packages..."
+    @./scripts/package-management/brew/install-brew-packages.sh user
 
-# Upgrade all packages (both user and admin levels)
+# Install development language packages (npm, pip, cargo, gem)
+install-dev-packages:
+    @echo "🔧 Installing development packages..."
+    @./scripts/package-management/install-dev-packages.sh
+
+# Install application packages (zinit, elpaca, lazy.nvim)
+install-app-packages:
+    @echo "📱 Installing application packages..."
+    @./scripts/package-management/install-app-packages.sh
+
+# Check for available package updates (all packages - updates registries)
+check-packages:
+    @echo "🔍 Checking for updates across all package types..."
+    @just check-system-packages
+    @echo ""
+    @just check-dev-packages
+    @echo ""
+    @just check-app-packages
+
+# Check for system package updates (updates OS package registries)
+check-system-packages:
+    @echo "🖥️ Checking system packages..."
+    @./scripts/package-management/check-system-packages.sh
+
+# Check for dev package updates (updates language package registries)
+check-dev-packages:
+    @echo "🔧 Checking development packages..."
+    @./scripts/package-management/check-dev-packages.sh
+
+# Check for app package updates (checks application package managers)
+check-app-packages:
+    @echo "📱 Checking application packages..."
+    @echo "TODO: Implement check-app-packages.sh"
+
+# Upgrade all packages (system, dev, and app - uses cached registries)
 upgrade-packages:
     @echo "🔄 Running comprehensive package upgrade..."
-    @just upgrade-packages-user
+    @just upgrade-system-packages
     @echo ""
-    @just upgrade-packages-admin
+    @just upgrade-dev-packages
+    @echo ""
+    @just upgrade-app-packages
 
-# Upgrade user-level packages (fire-and-forget, no admin required)
-upgrade-packages-user:
-    @echo "🚀 Upgrading user-level packages..."
-    @if command -v brew >/dev/null 2>&1; then \
-        echo "🍺 Upgrading Homebrew user packages..."; \
-        ./scripts/package-management/brew/upgrade-brew-packages-v3.sh user false; \
-    fi
+# Upgrade system packages (both admin and user levels)
+upgrade-system-packages:
+    @echo "🖥️ Upgrading system packages..."
+    @just upgrade-system-packages-admin
+    @echo ""
+    @just upgrade-system-packages-user
 
-# Upgrade admin-level packages (supervised, may prompt for password)
-upgrade-packages-admin:
-    @echo "🔐 Upgrading admin-level packages..."
+# Upgrade admin-level system packages (may prompt for password)
+upgrade-system-packages-admin:
+    @echo "🔐 Upgrading admin-level system packages..."
     @if command -v brew >/dev/null 2>&1; then \
         echo "🍺 Upgrading Homebrew admin packages (may require password)..."; \
-        ./scripts/package-management/brew/upgrade-brew-packages-v3.sh admin false; \
+        ./scripts/package-management/brew/upgrade-brew-packages.sh admin false; \
     fi
+
+# Upgrade user-level system packages (no admin required)
+upgrade-system-packages-user:
+    @echo "🚀 Upgrading user-level system packages..."
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🍺 Upgrading Homebrew user packages..."; \
+        ./scripts/package-management/brew/upgrade-brew-packages.sh user false; \
+    fi
+
+# Upgrade development language packages (npm, pip, cargo, gem)
+upgrade-dev-packages:
+    @echo "🔧 Upgrading development packages..."
+    @./scripts/package-management/upgrade-dev-packages.sh
+
+# Upgrade application packages (zinit, elpaca, lazy.nvim)
+upgrade-app-packages:
+    @echo "📱 Upgrading application packages..."
+    @echo "TODO: Create upgrade-app-packages.sh script"
 
 # Kill stuck brew processes (use with caution)
 kill-brew-processes:
@@ -128,25 +193,22 @@ upgrade-dev-packages:
 init-dev-packages:
     @./scripts/package-management/init-dev-packages.sh
 
+# Install dev packages (alias for init-dev-packages)
+install-dev-packages: init-dev-packages
+
 # Verify dev package installation completed successfully
 verify-dev-package-install:
     @./scripts/package-management/verify-dev-package-install.sh
 
-# Check all packages (system + dev)
-check-all-packages:
-    @echo "🔍 Checking system packages..."
+# Check system packages only (without dev packages)
+check-packages-system-only:
     @./scripts/package-management/check-packages.sh
-    @echo ""
-    @echo "🔍 Checking dev packages..."
-    @./scripts/package-management/check-dev-packages.sh
 
-# Upgrade all packages (system + dev)
-upgrade-all-packages:
-    @echo "🔄 Upgrading system packages..."
-    @./scripts/package-management/upgrade-packages.sh
+# Upgrade system packages only (without dev packages)
+upgrade-packages-system-only:
+    @just upgrade-packages-user
     @echo ""
-    @echo "🔄 Upgrading dev packages..."
-    @./scripts/package-management/upgrade-dev-packages.sh
+    @just upgrade-packages-admin
 
 # Export current system packages and update machine class
 export-packages:

@@ -66,9 +66,9 @@ main() {
     log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
     log_output ""
 
-    # Update Homebrew first
-    log_info "Updating Homebrew..."
-    brew update || log_info "Homebrew update had issues, continuing anyway..."
+    # NOTE: We do NOT update Homebrew here
+    # Registry updates should only happen via check-system-packages
+    log_info "Using existing Homebrew registry state..."
 
     case "$PACKAGE_LEVEL" in
         user)

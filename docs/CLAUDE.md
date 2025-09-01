@@ -109,6 +109,68 @@ just show-logs-last         # View most recent operation log
 - **Future**: elpaca (Emacs), lazy.nvim (Neovim), cargo (Rust), pipx (Python CLI tools)
 - **Two-step updates**: `just update-check` → `just update-upgrade`
 
+## Docker Testing Design
+
+### Testing Philosophy
+Docker tests validate **outcomes** not **implementation details**. The test interface remains stable (e.g., `just test-developer-ubuntu`) while the internal implementation can change. Tests ensure the system meets its goals regardless of how it achieves them.
+
+### Docker Cache Strategy
+Each Dockerfile stage only COPYs the files it needs, creating a cache hierarchy:
+
+```dockerfile
+# Stage 1: Configure - only needs configure script
+COPY configure.sh machine-classes/
+RUN ./configure.sh
+
+# Stage 2: Bootstrap - only needs bootstrap scripts  
+COPY bootstrap.sh scripts/bootstrap/
+RUN ./bootstrap.sh
+
+# Stage 3: Install - needs package scripts
+COPY scripts/package-management/
+RUN just install-packages
+```
+
+**Benefits:**
+- Changing package scripts doesn't invalidate configure/bootstrap cache
+- Fast iterative development on specific stages
+- Realistic testing of both install and upgrade workflows
+
+### Testing Workflows
+
+#### Initial Install Test
+Tests what new users experience:
+```bash
+just test-developer-ubuntu  # Full build, all stages
+```
+
+#### Maintenance Workflow Test  
+Tests the update cycle with registry caching:
+```bash
+# First run the install test (builds cache)
+just test-developer-ubuntu
+
+# Touch a local file to break Docker cache at COPY layer
+touch machine-classes/docker_developer_ubuntu/brew/packages.user
+
+# Test maintenance stages rebuild, earlier stages stay cached
+just test-developer-ubuntu-maintenance
+```
+
+**Key Insight:** The `touch` command is run LOCALLY (outside Docker) on a file that gets COPYd. This breaks Docker's cache for that COPY layer and all subsequent layers, forcing rebuild of maintenance stages while keeping earlier stages cached.
+
+### Registry Update Separation
+- **Only `check-*` commands update registries** (brew update, apt update)
+- **`install-*` and `upgrade-*` NEVER update registries**
+- Initial install gets fresh registries from bootstrap
+- Maintenance workflow explicitly separates check (update registries) from upgrade (use cached state)
+
+This design enables:
+1. Check for updates on Friday
+2. Review changes over weekend
+3. Upgrade on Monday when ready to debug
+4. No surprise changes between check and upgrade
+
 ## Common Commands
 
 ### System Maintenance (using Just)
