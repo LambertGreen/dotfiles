@@ -39,6 +39,7 @@ log_output ""
 
 # Load configuration if available
 if [[ -f ~/.dotfiles.env ]]; then
+    # shellcheck source=/dev/null
     source ~/.dotfiles.env
     log_verbose "Loaded configuration from ~/.dotfiles.env"
     log_verbose "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
@@ -67,7 +68,7 @@ if command -v zsh >/dev/null 2>&1; then
 
     # Check actual zinit status instead of using shell inference
     log_verbose "[INFO] Checking zinit installation and plugin status"
-    
+
     # Try to get plugin count directly (more reliable than command -v zinit)
     if plugin_count=$(zsh -l -i -c 'zinit list' 2>/dev/null | wc -l | tr -d ' ' 2>/dev/null); then
         if [[ ${plugin_count:-0} -gt 0 ]]; then
