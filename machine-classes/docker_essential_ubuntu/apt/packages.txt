@@ -1,6 +1,8 @@
 build-essential
 curl
+fastfetch
 git
+psmisc
 stow
 sudo
 vim

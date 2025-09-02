@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/export-packages-$(date +%Y%m%d-%H%M%S).log"
 PACKAGE_MANAGEMENT_DIR="${DOTFILES_ROOT}/package-management"
 
@@ -110,7 +110,7 @@ export_errors=()
 if command -v brew >/dev/null 2>&1; then
     log_output "🍺 Exporting Homebrew packages (manually installed only)..."
     mkdir -p "${EXPORT_DIR}/brew"
-    
+
     # Use brew leaves and brew list --cask to get only manually installed packages
     # brew leaves = formulae with no dependents (manually installed)
     # brew list --cask = all casks (casks don't have dependencies like formulae)
@@ -138,14 +138,14 @@ if command -v brew >/dev/null 2>&1; then
             done
         fi
     } > "${EXPORT_DIR}/brew/Brewfile" 2>>"${LOG_FILE}"
-    
+
     if [[ -f "${EXPORT_DIR}/brew/Brewfile" ]]; then
         # Count what we exported
         formulae=$(grep -c '^brew ' "${EXPORT_DIR}/brew/Brewfile" 2>/dev/null || echo 0)
         casks=$(grep -c '^cask ' "${EXPORT_DIR}/brew/Brewfile" 2>/dev/null || echo 0)
         taps=$(grep -c '^tap ' "${EXPORT_DIR}/brew/Brewfile" 2>/dev/null || echo 0)
         mas=$(grep -c '^mas ' "${EXPORT_DIR}/brew/Brewfile" 2>/dev/null || echo 0)
-        
+
         log_output "✅ Homebrew exported: ${formulae} formulae, ${casks} casks, ${taps} taps, ${mas} Mac App Store"
         exported_pms+=("brew")
         log_verbose "Homebrew export successful"
@@ -162,13 +162,13 @@ fi
 if command -v pip3 >/dev/null 2>&1; then
     log_output "🐍 Exporting Python packages (user-installed only)..."
     mkdir -p "${EXPORT_DIR}/pip"
-    
+
     pip_cmd="pip3"
     pip_flags="--user"
     if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
         pip_flags="--user"
     fi
-    
+
     # Use pip list --user to get only user-installed packages (not system/brew)
     # Then filter out common dependencies that are auto-installed
     if ${pip_cmd} list ${pip_flags} --format=freeze 2>>"${LOG_FILE}" | \
@@ -191,12 +191,12 @@ fi
 if command -v npm >/dev/null 2>&1; then
     log_output "📦 Exporting NPM global packages..."
     mkdir -p "${EXPORT_DIR}/npm"
-    
+
     if npm list -g --depth=0 --parseable 2>/dev/null | grep -v "/npm$" | sed 's/.*\///' > "${EXPORT_DIR}/npm/packages.txt"; then
         # Remove empty lines and npm itself
         sed -i.bak '/^$/d' "${EXPORT_DIR}/npm/packages.txt" 2>/dev/null || true
         rm -f "${EXPORT_DIR}/npm/packages.txt.bak" 2>/dev/null || true
-        
+
         npm_count=$(grep -c . "${EXPORT_DIR}/npm/packages.txt" 2>/dev/null || echo 0)
         log_output "✅ NPM packages exported: ${npm_count} global packages"
         exported_pms+=("npm")
@@ -229,7 +229,7 @@ fi
 if [[ "$UPDATE_CURRENT" == true ]] && [[ -n "${DOTFILES_MACHINE_CLASS:-}" ]]; then
     log_output ""
     log_output "🔍 Before vs After Comparison:"
-    
+
     # Show what we had vs what we have now
     for pm in "${exported_pms[@]}"; do
         case "$pm" in
@@ -254,7 +254,7 @@ if [[ "$UPDATE_CURRENT" == true ]] && [[ -n "${DOTFILES_MACHINE_CLASS:-}" ]]; th
                 ;;
         esac
     done
-    
+
     log_output ""
     log_output "🎯 Machine class ${DOTFILES_MACHINE_CLASS} updated with current system packages!"
     log_output ""

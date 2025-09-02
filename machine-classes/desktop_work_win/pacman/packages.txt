@@ -210,7 +210,7 @@ msys2-launcher
 msys2-runtime
 nano
 ncurses
-neofetch
+mingw-w64-x86_64-fastfetch
 nettle
 openssh
 openssl

@@ -5,7 +5,7 @@ set -euo pipefail
 
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/check-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
@@ -54,7 +54,7 @@ updates_found=false
 if command -v brew >/dev/null 2>&1; then
     log_output "=== Homebrew ==="
     checked_pms+=("brew")
-    
+
     log_verbose "Running: brew outdated"
     if outdated_brew=$(brew outdated 2>&1); then
         if [[ -n "$outdated_brew" ]]; then
@@ -78,15 +78,16 @@ fi
 if command -v apt >/dev/null 2>&1; then
     log_output "=== APT ==="
     checked_pms+=("apt")
-    
+
     log_verbose "Running: sudo apt update (suppressing output)"
     if sudo apt update >/dev/null 2>&1; then
         log_verbose "apt update completed successfully"
-        
+
         log_verbose "Running: apt list --upgradable"
         if upgradable_apt=$(apt list --upgradable 2>/dev/null | head -20); then
             # Remove header line and count actual packages
-            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l | tr -d ' ')
+            # Use || true to prevent grep from causing script exit when no matches
+            upgradable_count=$(echo "$upgradable_apt" | grep -v "^Listing" | wc -l | tr -d ' ' || echo "0")
             # Strip any newlines or whitespace
             upgradable_count="${upgradable_count//[$'\r\n']/}"
             if [[ ${upgradable_count:-0} -gt 0 ]]; then
@@ -114,7 +115,7 @@ fi
 if command -v pip3 >/dev/null 2>&1; then
     log_output "=== Python (pip) ==="
     checked_pms+=("pip")
-    
+
     log_verbose "Running: pip3 list --outdated"
     # Try user packages first, then global
     if outdated_pip=$(pip3 list --outdated --user 2>/dev/null | head -20); then
@@ -155,7 +156,7 @@ fi
 if command -v npm >/dev/null 2>&1; then
     log_output "=== Node.js (npm) ==="
     checked_pms+=("npm")
-    
+
     log_verbose "Running: npm outdated -g"
     if outdated_npm=$(npm outdated -g 2>/dev/null); then
         if [[ -n "$outdated_npm" ]]; then
@@ -183,7 +184,7 @@ if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers found"
 else
     log_output "✅ Checked package managers: ${checked_pms[*]}"
-    
+
     if [[ "$updates_found" == true ]]; then
         log_output "📦 Updates available - run 'just upgrade-packages' to install"
     else

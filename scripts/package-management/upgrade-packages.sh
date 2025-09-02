@@ -3,9 +3,10 @@
 
 set -euo pipefail
 
-# Set up logging
+# Set up paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/upgrade-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
@@ -82,7 +83,7 @@ if grep -q "Homebrew updates available" "$LATEST_CHECK_LOG" || grep -q "outdated
     log_verbose "Found brew updates in check log"
 fi
 
-# Check for pip updates  
+# Check for pip updates
 if grep -q "pip.*updates available" "$LATEST_CHECK_LOG"; then
     AVAILABLE_UPGRADES+=("pip")
     if pip_packages=$(grep -A 10 "Package.*Version.*Latest" "$LATEST_CHECK_LOG" | grep -v "Package\|------" | head -5); then
@@ -101,6 +102,7 @@ if grep -q "npm.*updates available" "$LATEST_CHECK_LOG"; then
     PM_DESCRIPTIONS+=("npm (Node.js) - global packages available for upgrade")
     log_verbose "Found npm updates in check log"
 fi
+
 
 # Check for apt updates
 if grep -q "APT.*updates available" "$LATEST_CHECK_LOG" || grep -q "apt.*upgradable" "$LATEST_CHECK_LOG"; then
@@ -136,31 +138,26 @@ done
 log_output ""
 
 SELECTED_PMS=()
-log_output "Enter numbers to EXCLUDE (e.g., '1 3' to skip brew and apt) [timeout: 15s]:"
+log_output "Enter numbers to SELECT (e.g., '1 3' for brew+pip only, or ENTER for all) [timeout: 15s]:"
 read -t 15 -r user_input || user_input=""
 
 if [[ -n "$user_input" ]]; then
-    log_output "Excluding selected package managers..."
-    excluded_numbers=($user_input)
-    
-    for i in "${!AVAILABLE_UPGRADES[@]}"; do
-        excluded=false
-        for num in "${excluded_numbers[@]}"; do
-            if [[ "$num" == "$((i+1))" ]]; then
-                excluded=true
-                log_output "  - Excluding: ${PM_DESCRIPTIONS[i]}"
-                break
-            fi
-        done
-        if [[ "$excluded" != true ]]; then
-            SELECTED_PMS+=("${AVAILABLE_UPGRADES[i]}")
+    log_output "Selecting specified package managers..."
+    selected_numbers=($user_input)
+
+    for num in "${selected_numbers[@]}"; do
+        if [[ "$num" =~ ^[0-9]+$ ]] && [[ "$num" -ge 1 ]] && [[ "$num" -le ${#AVAILABLE_UPGRADES[@]} ]]; then
+            idx=$((num-1))
+            SELECTED_PMS+=("${AVAILABLE_UPGRADES[idx]}")
+            log_output "  - Selected: ${PM_DESCRIPTIONS[idx]}"
+        else
+            log_output "  - Invalid selection: $num (skipping)"
         fi
     done
 else
-    log_output "No exclusions specified, proceeding with all package managers..."
+    log_output "No input received, proceeding with all package managers..."
     SELECTED_PMS=("${AVAILABLE_UPGRADES[@]}")
 fi
-
 if [[ ${#SELECTED_PMS[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers selected for upgrade."
     exit 0
@@ -173,17 +170,18 @@ log_output ""
 # Execute upgrades
 for pm in "${SELECTED_PMS[@]}"; do
     log_output "=== Upgrading $pm ==="
-    
+
     case "$pm" in
         brew)
-            log_verbose "Running: brew upgrade"
-            if brew upgrade 2>&1 | tee -a "${LOG_FILE}"; then
+            log_verbose "Running Homebrew upgrade script (formulas only)"
+            # Use the new brew upgrade script for formulas only (casks go through admin workflow)
+            if "${SCRIPT_DIR}/brew/upgrade-brew-packages.sh" formulas false 2>&1 | tee -a "${LOG_FILE}"; then
                 log_output "✅ Homebrew upgrade completed"
             else
                 log_output "⚠️  Homebrew upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
         pip)
             log_verbose "Upgrading pip packages based on check results"
             # Extract package names from the check log and upgrade them
@@ -194,7 +192,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
                     pip_flags="--user --break-system-packages"
                 fi
-                
+
                 echo "$pip_packages" | while read -r package; do
                     if [[ -n "$package" ]]; then
                         log_verbose "Running: ${pip_cmd} install ${pip_flags} --upgrade $package"
@@ -209,7 +207,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  Could not extract pip package names from check log"
             fi
             ;;
-            
+
         npm)
             log_verbose "Running: npm update -g"
             if npm update -g 2>&1 | tee -a "${LOG_FILE}"; then
@@ -218,7 +216,7 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  NPM upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
         apt)
             log_verbose "Running: sudo apt upgrade -y"
             log_output "Note: APT upgrade requires sudo permissions"
@@ -228,12 +226,12 @@ for pm in "${SELECTED_PMS[@]}"; do
                 log_output "⚠️  APT upgrade had issues (exit code: $?)"
             fi
             ;;
-            
+
         *)
             log_output "⚠️  Unknown package manager: $pm"
             ;;
     esac
-    
+
     log_output ""
 done
 

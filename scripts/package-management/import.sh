@@ -6,7 +6,7 @@ set -euo pipefail
 MACHINE_CLASS_ENV="${HOME}/.dotfiles.env"
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MACHINES_DIR="${DOTFILES_ROOT}/machine-classes"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/package-import-$(date +%Y%m%d-%H%M%S).log"
 
 # Default to dry-run for safety
@@ -75,7 +75,7 @@ source "${DOTFILES_ROOT}/scripts/package-management/interactive-prompts.sh"
 execute_with_log() {
     local cmd="$1"
     log_command "${cmd}"
-    
+
     # Execute and capture output
     if eval "${cmd}" >> "${LOG_FILE}" 2>&1; then
         echo "[SUCCESS] Command completed successfully" >> "${LOG_FILE}"
@@ -95,19 +95,19 @@ load_machine_class() {
         print_error "Machine class not configured. Run: ./package-management/scripts/configure-machine-class.sh"
         exit 1
     fi
-    
+
     if [[ -z "${DOTFILES_MACHINE_CLASS:-}" ]]; then
         print_error "DOTFILES_MACHINE_CLASS not set in ${MACHINE_CLASS_ENV}"
         exit 1
     fi
-    
+
     echo "${DOTFILES_MACHINE_CLASS}"
 }
 
 # Check if package manager is available
 check_package_manager() {
     local pm="$1"
-    
+
     case "${pm}" in
         brew)
             command -v brew >/dev/null 2>&1
@@ -148,16 +148,151 @@ check_package_manager() {
     esac
 }
 
+# ============================================================================
+# CLASSIFIED BREWFILE SUPPORT (New System)
+# ============================================================================
+
+# Check if classified Brewfiles exist
+has_classified_brewfiles() {
+    local pm_dir="$1"
+    [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]] || \
+    [[ -f "${pm_dir}/Brewfile.mas" ]]
+}
+
+# Preview classified Brewfiles
+preview_classified_brewfiles() {
+    local pm_dir="$1"
+
+    echo "  📦 Classified package installation:"
+
+    # Non-admin formulas
+    if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]]; then
+        local count=$(grep -c '^brew ' "${pm_dir}/Brewfile.formulas.non_admin" 2>/dev/null || echo 0)
+        echo "    🚀 Non-admin formulas: ${count} packages (no password required)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^brew ' "${pm_dir}/Brewfile.formulas.non_admin" | sed 's/brew "\([^"]*\)".*/      - \1/' | head -5
+            [[ ${count} -gt 5 ]] && echo "      ... and $((count - 5)) more"
+        fi
+    fi
+
+    # Admin-required formulas
+    if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]]; then
+        local count=$(grep -c '^brew ' "${pm_dir}/Brewfile.formulas.requires_admin" 2>/dev/null || echo 0)
+        echo "    🔐 Admin-required formulas: ${count} packages (may require password)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^brew ' "${pm_dir}/Brewfile.formulas.requires_admin" | sed 's/brew "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Non-admin casks
+    if [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+        local count=$(grep -c '^cask ' "${pm_dir}/Brewfile.casks.non_admin" 2>/dev/null || echo 0)
+        echo "    📱 Non-admin casks: ${count} applications (no password required)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^cask ' "${pm_dir}/Brewfile.casks.non_admin" | sed 's/cask "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Admin-required casks
+    if [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+        local count=$(grep -c '^cask ' "${pm_dir}/Brewfile.casks.requires_admin" 2>/dev/null || echo 0)
+        echo "    🛡️  Admin-required casks: ${count} applications (may require password)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^cask ' "${pm_dir}/Brewfile.casks.requires_admin" | sed 's/cask "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+
+    # Mac App Store
+    if [[ -f "${pm_dir}/Brewfile.mas" ]]; then
+        local count=$(grep -c '^mas ' "${pm_dir}/Brewfile.mas" 2>/dev/null || echo 0)
+        echo "    🏪 Mac App Store: ${count} applications (uses Apple ID)"
+        if [[ ${count} -gt 0 ]]; then
+            grep '^mas ' "${pm_dir}/Brewfile.mas" | sed 's/mas "\([^"]*\)".*/      - \1/' | head -3
+            [[ ${count} -gt 3 ]] && echo "      ... and $((count - 3)) more"
+        fi
+    fi
+}
+
+# Install classified Brewfiles
+install_classified_brewfiles() {
+    local pm_dir="$1"
+
+    echo "Installing packages using classified Brewfile system..."
+
+    # Install non-admin packages first (formulas + casks)
+    local has_non_admin=false
+    if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]] || [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+        has_non_admin=true
+        echo ""
+        print_info "🚀 Installing non-admin packages (no password required)..."
+
+        if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.formulas.non_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        if [[ -f "${pm_dir}/Brewfile.casks.non_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.casks.non_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        print_success "Non-admin packages installed"
+    fi
+
+    # Install Mac App Store apps (uses Apple ID, not admin)
+    if [[ -f "${pm_dir}/Brewfile.mas" ]]; then
+        echo ""
+        print_info "🏪 Installing Mac App Store applications..."
+        local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.mas\" --no-upgrade"
+        execute_with_log "${cmd}"
+        print_success "Mac App Store applications installed"
+    fi
+
+    # Install admin-required packages (may prompt for password)
+    local has_admin=false
+    if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]] || [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+        has_admin=true
+        echo ""
+        print_info "🔐 Installing admin-required packages (may prompt for password)..."
+
+        if [[ -f "${pm_dir}/Brewfile.formulas.requires_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.formulas.requires_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        if [[ -f "${pm_dir}/Brewfile.casks.requires_admin" ]]; then
+            local cmd="brew bundle install --file=\"${pm_dir}/Brewfile.casks.requires_admin\" --no-upgrade"
+            execute_with_log "${cmd}"
+        fi
+
+        print_success "Admin-required packages installed"
+    fi
+
+    if [[ "$has_non_admin" == false && "$has_admin" == false ]]; then
+        print_warning "No classified Brewfiles found to install"
+    fi
+}
+
 # Preview what will be installed
 preview_packages() {
     local pm="$1"
     local pm_dir="$2"
-    
+
     print_info "Packages to install via ${GREEN}${pm}${NC}:"
-    
+
     case "${pm}" in
         brew)
-            if [[ -f "${pm_dir}/Brewfile" ]]; then
+            # Check for new classified system first
+            if has_classified_brewfiles "${pm_dir}"; then
+                preview_classified_brewfiles "${pm_dir}"
+            elif [[ -f "${pm_dir}/Brewfile" ]]; then
+                print_warning "  📢 Using legacy Brewfile (consider migrating to classified system)"
                 # Check what's missing or outdated
                 echo "  Checking Brewfile status..."
                 if brew bundle check --file="${pm_dir}/Brewfile" >/dev/null 2>&1; then
@@ -168,7 +303,7 @@ preview_packages() {
                     grep '^brew ' "${pm_dir}/Brewfile" 2>/dev/null | sed 's/brew "\(.*\)".*/    - \1/' | head -10
                     local brew_count=$(grep -c '^brew ' "${pm_dir}/Brewfile" 2>/dev/null || echo 0)
                     [[ ${brew_count} -gt 10 ]] && echo "    ... and $((brew_count - 10)) more formulae"
-                    
+
                     if grep -q '^cask ' "${pm_dir}/Brewfile" 2>/dev/null; then
                         echo "  Casks:"
                         grep '^cask ' "${pm_dir}/Brewfile" | sed 's/cask "\(.*\)".*/    - \1/' | head -5
@@ -177,10 +312,10 @@ preview_packages() {
                     fi
                 fi
             else
-                print_warning "  No Brewfile found"
+                print_warning "  No Brewfile or classified Brewfiles found"
             fi
             ;;
-            
+
         apt|pacman)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 local packages=$(grep -v '^#' "${pm_dir}/packages.txt" | grep -v '^$' | head -20)
@@ -191,7 +326,7 @@ preview_packages() {
                 print_warning "  No packages.txt found"
             fi
             ;;
-            
+
         pip)
             if [[ -f "${pm_dir}/requirements.txt" ]]; then
                 local packages=$(grep -v '^#' "${pm_dir}/requirements.txt" | grep -v '^$' | head -15)
@@ -202,7 +337,7 @@ preview_packages() {
                 print_warning "  No requirements.txt found"
             fi
             ;;
-            
+
         npm)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 local packages=$(grep -v '^#' "${pm_dir}/packages.txt" | grep -v '^$' | head -15)
@@ -213,7 +348,7 @@ preview_packages() {
                 print_warning "  No packages.txt found"
             fi
             ;;
-            
+
         gem)
             if [[ -f "${pm_dir}/Gemfile" ]]; then
                 local gems=$(grep "^gem " "${pm_dir}/Gemfile" | sed "s/gem '\(.*\)'.*/    - \1/" | head -10)
@@ -224,7 +359,7 @@ preview_packages() {
                 print_warning "  No Gemfile found"
             fi
             ;;
-            
+
         *)
             print_warning "  Preview not implemented for ${pm}"
             ;;
@@ -236,7 +371,7 @@ preview_packages() {
 show_install_command() {
     local pm="$1"
     local pm_dir="$2"
-    
+
     case "${pm}" in
         brew)
             if [[ -f "${pm_dir}/Brewfile" ]]; then
@@ -280,11 +415,14 @@ show_install_command() {
 install_packages() {
     local pm="$1"
     local pm_dir="$2"
-    
+
+    # Capture start time for this package manager
+    local pm_start_time=$(date +%s)
+
     if [[ "${DRY_RUN}" == true ]]; then
         print_dry_run "Would install ${pm} packages from ${pm_dir}"
         preview_packages "${pm}" "${pm_dir}"
-        
+
         # Show commands in verbose dry-run mode
         if [[ "${VERBOSE}" == true ]]; then
             echo ""
@@ -293,12 +431,16 @@ install_packages() {
         fi
         return 0
     fi
-    
+
     print_info "Installing ${pm} packages..."
-    
+
     case "${pm}" in
         brew)
-            if [[ -f "${pm_dir}/Brewfile" ]]; then
+            # Check for new classified system first
+            if has_classified_brewfiles "${pm_dir}"; then
+                install_classified_brewfiles "${pm_dir}"
+            elif [[ -f "${pm_dir}/Brewfile" ]]; then
+                print_warning "📢 Using legacy Brewfile (consider migrating to classified system)"
                 # First check what's outdated before installing
                 print_info "Checking for Homebrew package updates..."
                 log_command "brew outdated"
@@ -310,10 +452,10 @@ install_packages() {
                         echo "[PRE-INSTALL] No outdated packages before install" >> "${LOG_FILE}"
                     fi
                 fi
-                
+
                 local cmd="brew bundle install --file=\"${pm_dir}/Brewfile\" --no-upgrade"
                 execute_with_log "${cmd}"
-                
+
                 # Check what got installed/upgraded
                 log_command "brew outdated (post-install)"
                 if outdated_after=$(brew outdated 2>&1); then
@@ -324,17 +466,17 @@ install_packages() {
                         echo "[POST-INSTALL] All packages up to date after install" >> "${LOG_FILE}"
                     fi
                 fi
-                
+
                 # Check for sudo-required casks
                 if [[ -f "${pm_dir}/Brewfile.casks-sudo" ]]; then
                     print_warning "Sudo-required casks found in Brewfile.casks-sudo"
                     print_info "Run separately: just install-brew-sudo"
                 fi
             else
-                print_warning "No Brewfile found"
+                print_warning "No Brewfile or classified Brewfiles found"
             fi
             ;;
-            
+
         apt)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 print_info "Installing APT packages (may require sudo)..."
@@ -353,7 +495,7 @@ install_packages() {
                 print_warning "No packages.txt found"
             fi
             ;;
-            
+
         pacman)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 print_info "Installing Pacman packages (may require sudo)..."
@@ -372,7 +514,7 @@ install_packages() {
                 print_warning "No packages.txt found"
             fi
             ;;
-            
+
         pip)
             if [[ -f "${pm_dir}/requirements.txt" ]]; then
                 local pip_cmd="pip3"
@@ -382,7 +524,7 @@ install_packages() {
                 if [[ "$OSTYPE" == "darwin"* ]] && command -v brew >/dev/null 2>&1; then
                     pip_flags="--user --break-system-packages"
                 fi
-                
+
                 # Check what's outdated before installing
                 print_info "Checking for pip package updates..."
                 log_command "${pip_cmd} list --outdated"
@@ -394,10 +536,10 @@ install_packages() {
                         echo "[PRE-INSTALL] No outdated pip packages before install" >> "${LOG_FILE}"
                     fi
                 fi
-                
+
                 local cmd="${pip_cmd} install ${pip_flags} -r \"${pm_dir}/requirements.txt\""
                 execute_with_log "${cmd}"
-                
+
                 # Check what's still outdated after installing
                 log_command "${pip_cmd} list --outdated (post-install)"
                 if outdated_pip_after=$(${pip_cmd} list --outdated --user 2>/dev/null || ${pip_cmd} list --outdated 2>/dev/null); then
@@ -412,7 +554,7 @@ install_packages() {
                 print_warning "No requirements.txt found"
             fi
             ;;
-            
+
         npm)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 while IFS= read -r package; do
@@ -423,12 +565,12 @@ install_packages() {
                 print_warning "No packages.txt found"
             fi
             ;;
-            
+
         gem)
             if [[ -f "${pm_dir}/Gemfile" ]]; then
                 # Install bundler if not present
                 gem list bundler -i >/dev/null 2>&1 || gem install --no-document bundler
-                
+
                 cd "${pm_dir}"
                 bundle install
                 cd - >/dev/null
@@ -436,7 +578,7 @@ install_packages() {
                 print_warning "No Gemfile found"
             fi
             ;;
-            
+
         cargo)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 while IFS= read -r package; do
@@ -447,7 +589,7 @@ install_packages() {
                 print_warning "No packages.txt found"
             fi
             ;;
-            
+
         scoop)
             if [[ -f "${pm_dir}/scoopfile.json" ]]; then
                 scoop import "${pm_dir}/scoopfile.json"
@@ -455,7 +597,7 @@ install_packages() {
                 print_warning "No scoopfile.json found"
             fi
             ;;
-            
+
         choco)
             if [[ -f "${pm_dir}/packages.config" ]]; then
                 # Chocolatey has --whatif flag for dry-run
@@ -464,7 +606,7 @@ install_packages() {
                 print_warning "No packages.config found"
             fi
             ;;
-            
+
         winget)
             if [[ -f "${pm_dir}/packages.json" ]]; then
                 winget import --import-file "${pm_dir}/packages.json"
@@ -472,7 +614,7 @@ install_packages() {
                 print_warning "No packages.json found"
             fi
             ;;
-            
+
         snap)
             if [[ -f "${pm_dir}/packages.txt" ]]; then
                 while IFS= read -r package; do
@@ -483,18 +625,24 @@ install_packages() {
                 print_warning "No packages.txt found"
             fi
             ;;
-            
+
         *)
             print_warning "Unknown package manager: ${pm}"
             ;;
     esac
+
+    # Calculate and display timing for this package manager
+    local pm_end_time=$(date +%s)
+    local pm_duration=$((pm_end_time - pm_start_time))
+    echo "Package manager ${pm} completed in ${pm_duration}s" >> "${LOG_FILE}"
+    print_info "${pm} installation completed (${pm_duration}s)"
 }
 
 # Determine package manager order based on OS
 get_package_manager_order() {
     local machine_class="$1"
     local os=$(echo "${machine_class}" | cut -d'_' -f3)
-    
+
     case "${os}" in
         mac)
             echo "brew pip npm gem cargo"
@@ -519,38 +667,38 @@ get_package_manager_order() {
 main() {
     local machine_class=$(load_machine_class)
     local machine_dir="${MACHINES_DIR}/${machine_class}"
-    
+
     if [[ ! -d "${machine_dir}" ]]; then
         print_error "Machine class directory not found: ${machine_dir}"
         exit 1
     fi
-    
+
     print_info "Machine class: ${GREEN}${machine_class}${NC}"
-    
+
     if [[ "${DRY_RUN}" == true ]]; then
         print_dry_run "Preview mode - no packages will be installed"
     fi
     echo ""
-    
+
     # Get package manager order
     local pm_order=$(get_package_manager_order "${machine_class}")
-    
+
     # Track what we'll install
     local available_pms=()
     local unavailable_pms=()
     local configured_pms=()
-    
+
     # Check what's available and configured
     for pm in ${pm_order}; do
         local pm_dir="${machine_dir}/${pm}"
-        
+
         # Skip if no config for this PM
         if [[ ! -d "${pm_dir}" ]]; then
             continue
         fi
-        
+
         configured_pms+=("${pm}")
-        
+
         # Check if PM is available
         if check_package_manager "${pm}"; then
             available_pms+=("${pm}")
@@ -558,7 +706,7 @@ main() {
             unavailable_pms+=("${pm}")
         fi
     done
-    
+
     # Show summary
     print_info "Package managers configured: ${configured_pms[*]}"
     if [[ ${#available_pms[@]} -gt 0 ]]; then
@@ -568,13 +716,13 @@ main() {
         print_warning "Not available on this system: ${unavailable_pms[*]}"
     fi
     echo ""
-    
+
     # Interactive package manager selection if requested
     local selected_pms=("${available_pms[@]}")
     if [[ "${INTERACTIVE}" == true ]] && [[ ${#available_pms[@]} -gt 0 ]]; then
         print_header "📦 Interactive Package Manager Selection"
         echo ""
-        
+
         # Get descriptions with package counts
         local pm_descriptions=()
         for pm in "${available_pms[@]}"; do
@@ -602,21 +750,21 @@ main() {
             esac
             pm_descriptions+=("$desc")
         done
-        
+
         # Display the numbered list
         display_numbered_list "Package managers to install:" "${pm_descriptions[@]}"
-        
+
         # Prompt for exclusions
         echo -e "${YELLOW}Enter numbers to EXCLUDE (e.g., '2' to skip pip)${NC}"
         echo -ne "${BLUE}[timeout: 15s]${NC}: "
-        
+
         local user_input=""
         if read -t 15 -r user_input; then
             if [[ -n "$user_input" ]]; then
                 # Parse excluded numbers and filter PMs
                 local excluded_nums=()
                 read -ra excluded_nums <<< "$user_input"
-                
+
                 local final_pms=()
                 local i=1
                 for pm in "${available_pms[@]}"; do
@@ -638,25 +786,25 @@ main() {
         else
             print_warning "No input received within 15s, proceeding with all package managers..."
         fi
-        
+
         if [[ ${#selected_pms[@]} -eq 0 ]]; then
             print_warning "No package managers selected, exiting..."
             return 0
         fi
-        
+
         print_info "Selected package managers: ${selected_pms[*]}"
         echo ""
     fi
-    
+
     # Install packages in order
     for pm in ${pm_order}; do
         local pm_dir="${machine_dir}/${pm}"
-        
+
         # Skip if no config for this PM
         if [[ ! -d "${pm_dir}" ]]; then
             continue
         fi
-        
+
         # Skip if not in selected PMs (interactive mode)
         if [[ "${INTERACTIVE}" == true ]]; then
             local pm_selected=false
@@ -670,12 +818,12 @@ main() {
                 continue
             fi
         fi
-        
+
         # Check if PM is available
         if check_package_manager "${pm}"; then
             install_packages "${pm}" "${pm_dir}"
             if [[ "${DRY_RUN}" == false ]]; then
-                print_success "${pm} packages installed"
+                # Success message with timing is now printed inside install_packages
                 echo ""
             fi
         else
@@ -685,20 +833,20 @@ main() {
             fi
         fi
     done
-    
+
     # Summary
     echo ""
     if [[ "${DRY_RUN}" == false ]]; then
         print_success "Package import complete!"
-        
+
         if [[ ${#available_pms[@]} -gt 0 ]]; then
             print_info "Installed from: ${available_pms[*]}"
         fi
-        
+
         if [[ ${#unavailable_pms[@]} -gt 0 ]]; then
             print_warning "Skipped (not available): ${unavailable_pms[*]}"
         fi
-        
+
         print_info "Full log available at: ${LOG_FILE}"
     else
         echo "[DRY-RUN] Session logged to: ${LOG_FILE}" >> "${LOG_FILE}"
@@ -768,19 +916,19 @@ if [[ -n "${SPECIFIC_PM}" ]]; then
     machine_class=$(load_machine_class)
     machine_dir="${MACHINES_DIR}/${machine_class}"
     pm_dir="${machine_dir}/${SPECIFIC_PM}"
-    
+
     print_info "Machine class: ${GREEN}${machine_class}${NC}"
-    
+
     if [[ "${DRY_RUN}" == true ]]; then
         print_dry_run "Preview mode for ${SPECIFIC_PM}"
     fi
     echo ""
-    
+
     if [[ ! -d "${pm_dir}" ]]; then
         print_error "No configuration for ${SPECIFIC_PM} in machine class ${machine_class}"
         exit 1
     fi
-    
+
     if check_package_manager "${SPECIFIC_PM}"; then
         install_packages "${SPECIFIC_PM}" "${pm_dir}"
         if [[ "${DRY_RUN}" == false ]]; then

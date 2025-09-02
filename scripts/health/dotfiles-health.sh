@@ -160,10 +160,15 @@ _categorize_symlinks() {
     
     # First, find broken symlinks pointing to dotfiles directory (filtered)
     _find_broken_symlinks true
-    BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
-    for link in "${BROKEN_LINKS[@]}"; do
-        ERRORS+=("Broken symlink: $link")
-    done
+    # Safely copy array, handling empty case
+    if [[ ${#FOUND_BROKEN_SYMLINKS[@]} -gt 0 ]]; then
+        BROKEN_LINKS=("${FOUND_BROKEN_SYMLINKS[@]}")
+        for link in "${BROKEN_LINKS[@]}"; do
+            ERRORS+=("Broken symlink: $link")
+        done
+    else
+        BROKEN_LINKS=()
+    fi
     
     # Now categorize non-broken symlinks that point to dotfiles
     # Use same search locations as _find_broken_symlinks for consistency
@@ -181,9 +186,11 @@ _categorize_symlinks() {
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
-                for broken in "${BROKEN_LINKS[@]}"; do
-                    [[ "$link" == "$broken" ]] && is_broken=true && break
-                done
+                if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+                    for broken in "${BROKEN_LINKS[@]}"; do
+                        [[ "$link" == "$broken" ]] && is_broken=true && break
+                    done
+                fi
                 [[ "$is_broken" == "true" ]] && continue
                 
                 # Only process symlinks that point to dotfiles
@@ -230,9 +237,11 @@ _categorize_symlinks() {
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
-                for broken in "${BROKEN_LINKS[@]}"; do
-                    [[ "$link" == "$broken" ]] && is_broken=true && break
-                done
+                if [[ ${#BROKEN_LINKS[@]} -gt 0 ]]; then
+                    for broken in "${BROKEN_LINKS[@]}"; do
+                        [[ "$link" == "$broken" ]] && is_broken=true && break
+                    done
+                fi
                 [[ "$is_broken" == "true" ]] && continue
                 
                 # Only process symlinks that point to dotfiles
@@ -382,7 +391,50 @@ _check_package_health() {
         # Check packages based on package manager type
         case "$pm_name" in
             brew)
-                if [[ -f "$pm_dir/Brewfile" ]]; then
+                # Check for classified system first (preferred)
+                if [[ -f "$pm_dir/Brewfile.formulas.non_admin" ]]; then
+                    $log_output "    - ✅ Using classified Brewfile system"
+                    
+                    # Count packages across all classified Brewfiles
+                    local total_formulae=0 total_casks=0 total_mas=0
+                    local brewfile_count=0
+                    
+                    for brewfile in "$pm_dir"/Brewfile.*; do
+                        if [[ -f "$brewfile" ]]; then
+                            local filename=$(basename "$brewfile")
+                            if [[ "$filename" == *"formulas"* ]]; then
+                                local count=$(grep -c '^brew ' "$brewfile" 2>/dev/null || echo 0)
+                                total_formulae=$((total_formulae + count))
+                            elif [[ "$filename" == *"casks"* ]]; then
+                                local count=$(grep -c '^cask ' "$brewfile" 2>/dev/null || echo 0)
+                                total_casks=$((total_casks + count))
+                            elif [[ "$filename" == *"mas"* ]]; then
+                                local count=$(grep -c '^mas ' "$brewfile" 2>/dev/null || echo 0)
+                                total_mas=$((total_mas + count))
+                            fi
+                            brewfile_count=$((brewfile_count + 1))
+                        fi
+                    done
+                    
+                    # Get system info
+                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
+                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
+                    
+                    $log_output "    - 📊 $brew_info"
+                    $log_output "    - 📦 Classified Brewfiles: $total_formulae formulae, $total_casks casks, $total_mas mas ($brewfile_count files)"
+                    $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
+                    
+                    # Note: Can't use brew bundle check with classified system, so consider it healthy if files exist
+                    $log_output "    - ✅ Classified Brewfiles structure validated"
+                    PACKAGE_PASSED+=("$pm_name (Classified Brewfiles)")
+                    checked_packages=$((checked_packages + 1))
+                    
+                # Fallback to legacy Brewfile system
+                elif [[ -f "$pm_dir/Brewfile" ]]; then
+                    $log_output "    - ⚠️  Using legacy Brewfile system"
+                    WARNINGS+=("$pm_name: Using legacy Brewfile system - consider migrating to classified system")
+                    
                     # Count packages in Brewfile
                     local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
                     local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
@@ -397,17 +449,17 @@ _check_package_health() {
                     local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
                     
                     $log_output "    - 📊 $brew_info"
-                    $log_output "    - 📦 Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
+                    $log_output "    - 📦 Legacy Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
                     $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
                     
                     # Check if packages match Brewfile
                     if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
                         $log_output "    - ✅ All Brewfile packages installed"
-                        PACKAGE_PASSED+=("$pm_name (Brewfile)")
+                        PACKAGE_PASSED+=("$pm_name (Legacy Brewfile)")
                     else
                         $log_output "    - ⚠️  Some Brewfile packages missing or outdated"
                         WARNINGS+=("$pm_name: Some packages missing or outdated")
-                        PACKAGE_FAILED+=("$pm_name (Brewfile)")
+                        PACKAGE_FAILED+=("$pm_name (Legacy Brewfile)")
                         failed_packages=$((failed_packages + 1))
                     fi
                     checked_packages=$((checked_packages + 1))

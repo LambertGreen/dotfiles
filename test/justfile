@@ -11,71 +11,56 @@ docker_machine_classes := "essential developer gui"
 default:
     @echo "🧪 Dotfiles Testing - Machine Class Based"
     @echo ""
-    @echo "Essential Tier (minimal system):"
-    @echo "  just test-ubuntu-essential      - Ubuntu with apt only"
-    @echo "  just test-arch-essential        - Arch with pacman only"
+    @echo "🔨 Build & Test Commands:"
+    @echo "  just test-essential-ubuntu      - Test minimal Ubuntu setup"
+    @echo "  just test-essential-arch        - Test minimal Arch setup"
+    @echo "  just test-developer-ubuntu      - Test full Ubuntu development setup"
+    @echo "  just test-developer-arch        - Test full Arch development setup"
+    @echo "  just test-gui-ubuntu            - Test Ubuntu desktop packages"
+    @echo "  just test-gui-arch              - Test Arch desktop packages"
     @echo ""
-    @echo "Developer Tier (multi-PM):"
-    @echo "  just test-ubuntu-developer      - Ubuntu with apt + pip + npm"
-    @echo "  just test-arch-developer        - Arch with pacman + AUR + pip + npm"
+    @echo "🐚 Interactive Testing:"
+    @echo "  just run-essential-ubuntu       - Interactive Ubuntu shell"
+    @echo "  just run-essential-arch         - Interactive Arch shell"
+    @echo "  just run-developer-ubuntu       - Interactive Ubuntu dev shell"
+    @echo "  just run-developer-arch         - Interactive Arch dev shell"
     @echo ""
-    @echo "GUI Tier (desktop validation):"
-    @echo "  just test-ubuntu-gui            - Ubuntu with desktop packages"
-    @echo "  just test-arch-gui              - Arch with desktop packages"
+    @echo "📦 Batch Testing:"
+    @echo "  just test-all-ubuntu            - Test all Ubuntu machine classes"
+    @echo "  just test-all-arch              - Test all Arch machine classes"
+    @echo "  just test-all                   - Test everything"
     @echo ""
-    @echo "Interactive Testing:"
-    @echo "  just run-ubuntu-essential       - Interactive shell"
-    @echo "  just run-arch-essential         - Interactive shell"
-    @echo "  just run-ubuntu-developer       - Interactive shell"
-    @echo "  just run-arch-developer         - Interactive shell"
-    @echo ""
-    @echo "Batch Testing:"
-    @echo "  just test-all-ubuntu            - All Ubuntu tiers"
-    @echo "  just test-all-arch              - All Arch tiers"
-    @echo "  just test-all                   - Everything"
-    @echo ""
-    @echo "Log Management:"
+    @echo "📋 Log Management:"
+    @echo "  just show-test-summary          - Show latest test summary"
     @echo "  just show-last-log              - Show most recent test output"
     @echo "  just list-logs                  - List all available logs"
     @echo "  just show-log <filename>        - Show specific log file"
+    @echo ""
+    @echo "🧹 Cache Management:"
+    @echo "  just clear-docker-cache         - Clear Docker build cache (force fresh rebuild)"
+    @echo "  just clean-logs                 - Move test log directories to trash"
+    @echo "  just clean-docker               - Remove dotfiles test images"
+    @echo "  just clean                      - Clean logs + images"
 
 # =============================================================================
 # Essential Tier - Minimal system testing
 # =============================================================================
 
 # Test Ubuntu essential machine class
-test-ubuntu-essential:
-    @echo "🧪 Testing docker_essential_ubuntu machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-ubuntu-essential-output.log"
-    just _test-machine-class docker_essential_ubuntu ubuntu 2>&1 | tee test-ubuntu-essential-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_essential_ubuntu test PASSED"; \
-    else \
-        echo "❌ docker_essential_ubuntu test FAILED"; \
-        echo "📄 Check test-ubuntu-essential-output.log for details"; \
-    fi
+test-essential-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_essential_ubuntu ubuntu
 
 # Test Arch essential machine class
-test-arch-essential:
-    @echo "🧪 Testing docker_essential_arch machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-arch-essential-output.log"
-    just _test-machine-class docker_essential_arch arch 2>&1 | tee test-arch-essential-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_essential_arch test PASSED"; \
-    else \
-        echo "❌ docker_essential_arch test FAILED"; \
-        echo "📄 Check test-arch-essential-output.log for details"; \
-    fi
+test-essential-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_essential_arch arch
 
 # Interactive Ubuntu essential
-run-ubuntu-essential:
+run-essential-ubuntu:
     @echo "🐳 Running docker_essential_ubuntu interactive shell..."
     just _run-machine-class docker_essential_ubuntu ubuntu
 
 # Interactive Arch essential
-run-arch-essential:
+run-essential-arch:
     @echo "🐳 Running docker_essential_arch interactive shell..."
     just _run-machine-class docker_essential_arch arch
 
@@ -84,38 +69,20 @@ run-arch-essential:
 # =============================================================================
 
 # Test Ubuntu developer machine class
-test-ubuntu-developer:
-    @echo "🧪 Testing docker_developer_ubuntu machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-ubuntu-developer-output.log"
-    just _test-machine-class docker_developer_ubuntu ubuntu 2>&1 | tee test-ubuntu-developer-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_developer_ubuntu test PASSED"; \
-    else \
-        echo "❌ docker_developer_ubuntu test FAILED"; \
-        echo "📄 Check test-ubuntu-developer-output.log for details"; \
-    fi
+test-developer-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_developer_ubuntu ubuntu
 
 # Test Arch developer machine class
-test-arch-developer:
-    @echo "🧪 Testing docker_developer_arch machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-arch-developer-output.log"
-    just _test-machine-class docker_developer_arch arch 2>&1 | tee test-arch-developer-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_developer_arch test PASSED"; \
-    else \
-        echo "❌ docker_developer_arch test FAILED"; \
-        echo "📄 Check test-arch-developer-output.log for details"; \
-    fi
+test-developer-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_developer_arch arch
 
 # Interactive Ubuntu developer
-run-ubuntu-developer:
+run-developer-ubuntu:
     @echo "🐳 Running docker_developer_ubuntu interactive shell..."
     just _run-machine-class docker_developer_ubuntu ubuntu
 
 # Interactive Arch developer
-run-arch-developer:
+run-developer-arch:
     @echo "🐳 Running docker_developer_arch interactive shell..."
     just _run-machine-class docker_developer_arch arch
 
@@ -124,38 +91,20 @@ run-arch-developer:
 # =============================================================================
 
 # Test Ubuntu GUI machine class
-test-ubuntu-gui:
-    @echo "🧪 Testing docker_ubuntu_gui machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-ubuntu-gui-output.log"
-    just _test-machine-class docker_ubuntu_gui ubuntu 2>&1 | tee test-ubuntu-gui-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_ubuntu_gui test PASSED"; \
-    else \
-        echo "❌ docker_ubuntu_gui test FAILED"; \
-        echo "📄 Check test-ubuntu-gui-output.log for details"; \
-    fi
+test-gui-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_ubuntu_gui ubuntu
 
 # Test Arch GUI machine class
-test-arch-gui:
-    @echo "🧪 Testing docker_arch_gui machine class..."
-    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    @echo "📝 Logging to test-arch-gui-output.log"
-    just _test-machine-class docker_arch_gui arch 2>&1 | tee test-arch-gui-output.log; \
-    if [ ${PIPESTATUS[0]} -eq 0 ]; then \
-        echo "✅ docker_arch_gui test PASSED"; \
-    else \
-        echo "❌ docker_arch_gui test FAILED"; \
-        echo "📄 Check test-arch-gui-output.log for details"; \
-    fi
+test-gui-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_arch_gui arch
 
 # Interactive Ubuntu GUI
-run-ubuntu-gui:
+run-gui-ubuntu:
     @echo "🐳 Running docker_ubuntu_gui interactive shell..."
     just _run-machine-class docker_ubuntu_gui ubuntu
 
 # Interactive Arch GUI
-run-arch-gui:
+run-gui-arch:
     @echo "🐳 Running docker_arch_gui interactive shell..."
     just _run-machine-class docker_arch_gui arch
 
@@ -167,17 +116,17 @@ run-arch-gui:
 test-all-ubuntu:
     @echo "🧪 Testing all Ubuntu tiers..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    just test-ubuntu-essential
-    just test-ubuntu-developer
-    just test-ubuntu-gui
+    just test-essential-ubuntu
+    just test-developer-ubuntu
+    just test-gui-ubuntu
 
 # Test all Arch tiers
 test-all-arch:
     @echo "🧪 Testing all Arch tiers..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    just test-arch-essential
-    just test-arch-developer
-    just test-arch-gui
+    just test-essential-arch
+    just test-developer-arch
+    just test-gui-arch
 
 # Test everything
 test-all:
@@ -190,23 +139,36 @@ test-all:
 # Implementation Helpers
 # =============================================================================
 
-# Helper: Build and run machine class test
+# Helper: Build and run machine class test using shared Dockerfile
 _test-machine-class machine_class platform:
-    @echo "🔨 Building Docker image for {{machine_class}}..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
+    @echo "🔨 Building Docker image for {{machine_class}} ({{platform}} platform)..."
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
     @echo "🚀 Running test container..."
     docker run --rm dotfiles-test-{{machine_class}}
 
-# Helper: Interactive machine class testing  
+# Helper: Interactive machine class testing using shared Dockerfile
 _run-machine-class machine_class platform:
-    @echo "Building image to {{machine_class}} stage first..."
-    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") -f test/dockerfiles/Dockerfile.{{platform}}.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
+    @echo "🔨 Building Docker image: dotfiles-test-{{machine_class}} (Docker will use cache if unchanged)..."
+    @cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
     @echo "🚀 Starting interactive shell (type 'exit' to return)..."
-    docker run -it --rm dotfiles-test-{{machine_class}}
+    docker run -it --rm dotfiles-test-{{machine_class}} zsh -l
 
 # =============================================================================
 # Log Management
 # =============================================================================
+
+# Show the latest test summary
+@show-test-summary:
+    @if [ -d "test/.logs" ]; then \
+        latest=$(ls -t test/.logs/*/test-summary.md 2>/dev/null | head -1); \
+        if [ -n "$$latest" ]; then \
+            cat "$$latest"; \
+        else \
+            echo "No test summaries found"; \
+        fi \
+    else \
+        echo "No test/.logs directory found"; \
+    fi
 
 # Show the most recent test log
 @show-last-log:
@@ -245,15 +207,30 @@ update:
 
 # Clean up test logs
 clean-logs:
-    @echo "🧹 Cleaning up test logs..."
-    rm -f *-output.log
-    @echo "✅ Test logs cleaned"
+    @echo "🧹 Cleaning up test log directories..."
+    @if ls -d .logs/*/ >/dev/null 2>&1; then \
+        trash .logs/*/; \
+        echo "✅ Test log directories moved to trash"; \
+    else \
+        echo "✅ No test log directories to clean"; \
+    fi
+    @if ls *-output.log >/dev/null 2>&1; then \
+        trash *-output.log; \
+        echo "✅ Individual log files moved to trash"; \
+    fi
 
 # Clean up Docker images
 clean-docker:
     @echo "🧹 Cleaning up Docker test images..."
     docker images | grep dotfiles-test | awk '{print $3}' | xargs -r docker rmi -f
     @echo "✅ Docker images cleaned"
+
+# Clear Docker build cache (forces complete rebuild from scratch)
+clear-docker-cache:
+    @echo "🧹 Clearing Docker build cache..."
+    @echo "This will force complete rebuilds - no cached layers will be used"
+    @docker builder prune -f
+    @echo "✅ Docker build cache cleared"
 
 # Clean everything
 clean: clean-logs clean-docker

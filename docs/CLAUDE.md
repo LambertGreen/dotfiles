@@ -6,6 +6,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a unified cross-platform package management system (think "better Topgrade") combined with dotfiles management. It provides a single interface to manage packages across multiple package managers while also handling system configuration through GNU Stow.
 
+### Project Goals
+**Primary Goal**: Interactive commands (based on `just`) to manage dotfiles and install/update packages
+**Secondary Goal**: Partner effectively with AI for project development/maintenance
+
+### Meta-Project Challenge
+This project has existed for 387+ commits across multiple years. A core challenge is enabling effective AI assistant handoffs - allowing different AI instances to quickly understand the project state, execute core workflows, and provide consistent help without rebuilding context from scratch each time.
+
+## 🚀 AI Assistant Quick Start
+
+### Essential Context
+- **This is a mature, stable project** - focus on *executing workflows* not *understanding architecture*
+- **The system works** - troubleshoot and fix issues as needed, but validate through end-user interface
+- **Use the `just` interface** - all operations should go through documented commands
+- **Prove success with E2E testing** - final validation must be through actual user workflows
+
+### Core Workflows
+
+#### 1. Test the System (Docker-based validation)
+```bash
+just test-developer-ubuntu    # Full test of user + admin package installation
+just test-essential-arch      # Minimal system test
+```
+**Expected outcome**: Build succeeds, packages install, health check passes
+**Success indicators**: Look for "✅ SUCCESS" and non-zero package counts in test output
+
+#### 2. Package Management (Real system)
+```bash
+just install-packages-user    # Install user-level packages (safe, no sudo)
+just install-packages-admin   # Install admin packages (may prompt for password)
+just upgrade-packages-user    # Update user packages
+just check-packages           # Check for available updates
+```
+**Expected outcome**: Packages install/upgrade, brew bundle completes successfully
+**Success indicators**: "SUCCESS" messages, package counts increase/update
+
+#### 3. Configuration Deployment
+```bash
+just configure               # Interactive machine class selection
+just stow                   # Deploy dotfiles via symlinks
+just check-health           # Verify system health
+```
+**Expected outcome**: Dotfiles symlinked, no broken links, "HEALTHY" status
+
+#### 4. Verification Commands
+```bash
+just show-package-stats     # Display installed package counts
+just show-logs-last         # View most recent operation log
+```
+
+### AI Assistant Operating Principles
+1. **Fix issues as needed** - troubleshoot problems, update configs, resolve dependencies
+2. **But validate through user interface** - final proof of success must be via `just` commands
+3. **Focus on E2E outcomes** - did the complete workflow succeed from user perspective?
+4. **Use logs for evidence** - grep relevant log files for proof of success
+5. **Simple command invocation** - prefer `just command-name` over complex implementations
+
+### Critical Requirement
+**All final validation must be through actual end-user workflows** - no shortcuts like `docker run` or manual package checks. If you fix something, prove it works by running the actual `just test-*` or `just install-*` commands that users would run.
+
 ## Key Architecture
 
 ### Core Architectural Principles
@@ -46,8 +105,71 @@ This is a unified cross-platform package management system (think "better Topgra
   - **Arch Linux**: pacman + AUR (via yay) + npm/pip/gem
   - **Ubuntu**: apt + npm/pip/gem
   - **Windows**: scoop + chocolatey + MSYS2/pacman
-- **Future**: App-specific managers (zinit, elpaca, lazy.nvim, cargo, pipx)
+- **Implemented**: zinit (Zsh plugin management)
+- **Future**: elpaca (Emacs), lazy.nvim (Neovim), cargo (Rust), pipx (Python CLI tools)
 - **Two-step updates**: `just update-check` → `just update-upgrade`
+
+## Docker Testing Design
+
+### Testing Philosophy
+Docker tests validate **outcomes** not **implementation details**. The test interface remains stable (e.g., `just test-developer-ubuntu`) while the internal implementation can change. Tests ensure the system meets its goals regardless of how it achieves them.
+
+### Docker Cache Strategy
+Each Dockerfile stage only COPYs the files it needs, creating a cache hierarchy:
+
+```dockerfile
+# Stage 1: Configure - only needs configure script
+COPY configure.sh machine-classes/
+RUN ./configure.sh
+
+# Stage 2: Bootstrap - only needs bootstrap scripts  
+COPY bootstrap.sh scripts/bootstrap/
+RUN ./bootstrap.sh
+
+# Stage 3: Install - needs package scripts
+COPY scripts/package-management/
+RUN just install-packages
+```
+
+**Benefits:**
+- Changing package scripts doesn't invalidate configure/bootstrap cache
+- Fast iterative development on specific stages
+- Realistic testing of both install and upgrade workflows
+
+### Testing Workflows
+
+#### Initial Install Test
+Tests what new users experience:
+```bash
+just test-developer-ubuntu  # Full build, all stages
+```
+
+#### Maintenance Workflow Test  
+Tests the update cycle with registry caching:
+```bash
+# First run the install test (builds cache)
+just test-developer-ubuntu
+
+# Touch a local file to break Docker cache at COPY layer
+touch machine-classes/docker_developer_ubuntu/brew/packages.user
+
+# Test maintenance stages rebuild, earlier stages stay cached
+just test-developer-ubuntu-maintenance
+```
+
+**Key Insight:** The `touch` command is run LOCALLY (outside Docker) on a file that gets COPYd. This breaks Docker's cache for that COPY layer and all subsequent layers, forcing rebuild of maintenance stages while keeping earlier stages cached.
+
+### Registry Update Separation
+- **Only `check-*` commands update registries** (brew update, apt update)
+- **`install-*` and `upgrade-*` NEVER update registries**
+- Initial install gets fresh registries from bootstrap
+- Maintenance workflow explicitly separates check (update registries) from upgrade (use cached state)
+
+This design enables:
+1. Check for updates on Friday
+2. Review changes over weekend
+3. Upgrade on Monday when ready to debug
+4. No surprise changes between check and upgrade
 
 ## Common Commands
 
@@ -225,7 +347,7 @@ These can be completed in future sessions as needed:
 - 🔄 Test max-dev tier on Ubuntu (validates complete Ubuntu workflow)
 
 ### Future Vision (Low Priority)
-- App-specific package managers integration (zinit, elpaca, lazy.nvim)
+- App-specific package managers: zinit ✅ implemented, elpaca and lazy.nvim planned
 - Complete unified package management across all package managers
 - True multi-package-manager coordination and conflict resolution
 

@@ -1,5 +1,0 @@
-# Ubuntu Docker Developer - Homebrew packages
-# Use Homebrew for packages needing recent versions
-
-brew "emacs"     # Get version 30+
-brew "fastfetch" # System info tool

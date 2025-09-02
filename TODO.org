@@ -1,7 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/5]
+** Open [0/6]
 *** TODO Install remaining missing packages via correct package managers
 **** Context
 After implementing pip package manager support, several packages still fail health checks.
@@ -49,6 +49,26 @@ Following the pip implementation pattern, add cargo support for Rust packages.
 **** Requirements [0/2]
 ***** [ ] Show mouse cursor
 ***** [ ] Zoom in/out
+
+*** TODO Implement Dotfiles API for emacs and neovim
+**** Context
+Following the successful implementation of the Dotfiles API architecture for zsh/zinit, extend this pattern to other app-based package managers to maintain consistent conversational configuration management.
+**** Implementation Requirements:
+***** Emacs API Functions:
+- =lgreen-emacs-status=: Query elpaca package manager state  
+- =lgreen-await-emacs-ready=: Wait for packages to finish loading
+- =lgreen-ensure-packages-updated=: Update all packages via elpaca
+***** Neovim API Functions:
+- =lgreen_nvim_status()=: Query lazy.nvim plugin manager state
+- =lgreen_await_nvim_ready(timeout)=: Wait for plugins to be ready
+- =lgreen_ensure_plugins_updated()=: Update all plugins via lazy.nvim
+**** Benefits:
+- Maintains conversational "May I help you?" user experience
+- Allows testing/automation to use dotfiles API instead of directly calling elpaca/lazy.nvim
+- Preserves the respectful, timeout-based auto-setup for interactive users
+- Enables swapping plugin managers without changing Docker/CI configuration
+**** Reference:
+See =docs/DOTFILES_API_ARCHITECTURE.md= for the architectural philosophy and implementation patterns.
 
 ** Completed [13/13]
 *** DONE Consider using =make= or =just= file for machine setup

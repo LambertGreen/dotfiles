@@ -52,7 +52,9 @@ brew "llvm"
 brew "markdown"
 brew "mas"
 brew "mono"
-brew "neofetch"
+brew "fastfetch"
+brew "lua@5.1"
+brew "luarocks"
 brew "neovim"
 brew "ninja"
 brew "node"
@@ -95,9 +97,8 @@ cask "virtualbox"
 cask "xquartz"
 mas "feedly", id: 865500966
 mas "GIPHY CAPTURE", id: 668208984
-mas "GrandPerspective", id: 1111570163
 mas "Kindle", id: 405399194
 mas "LinCastor Browser", id: 1037256618
-mas "Microsoft Remote Desktop", id: 1295203466
+mas "Windows App", id: 1295203466
 mas "Time Out", id: 402592703
 mas "Xcode", id: 497799835

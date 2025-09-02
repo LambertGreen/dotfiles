@@ -6,15 +6,14 @@
 
 * Introduction
 
-This is a comprehensive cross-platform dotfiles and unified package management system - think of it as a better, more flexible Topgrade. It provides a single interface to manage packages across multiple package managers, while also handling dotfiles deployment and system configuration.
+This is a cross-platform dotfiles and unified package management system - think of it as a better, more flexible =Topgrade=. It provides a single interface to manage packages across multiple package managers, while also handling dotfiles deployment and system configuration.
 
 ** Key Features
 
 - **Unified Package Management** - Single command updates packages across all your package managers:
   - System: brew/cask, pacman/AUR, apt, mas (Mac App Store)
-  - Languages: npm, pip, gem, cargo (coming soon)
-  - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (planned)
-- **Smart Configuration** - Tiered setup options from minimal CLI to full desktop
+  - Languages: npm, pip, gem, cargo
+  - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (neovim)
 - **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
 - **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
 - **Comprehensive Testing** - Docker validates multi-package-manager scenarios
@@ -24,15 +23,41 @@ This is a comprehensive cross-platform dotfiles and unified package management s
 - **GNU Stow** - Symlink management for dotfiles deployment
 - **Just** - Command runner for consistent cross-platform operations
 - **Docker** - Automated testing including multi-package-manager validation
-- **TOML** - Declarative package definitions by category and platform
+- **Machine Classes** - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
 * Quick Start
+
+** Quick Reference (for returning users)
+
+#+begin_src sh
+# Initial setup
+./configure.sh                   # Configure machine class
+./bootstrap.sh                   # Install essential tools
+just stow                        # Deploy dotfiles
+just install-packages            # Install all packages (system + dev)
+
+# Daily operations
+just check-packages              # Check all updates (system + dev)
+just upgrade-packages            # Upgrade everything (system + dev)
+just check-health                # Verify system health
+
+# Granular control - System packages
+just install-packages-user       # User packages only (no sudo)
+just install-packages-admin      # Admin packages only
+just upgrade-packages-user       # Upgrade user packages
+just upgrade-packages-admin      # Upgrade admin packages
+
+# Granular control - Dev packages
+just install-dev-packages        # Install dev packages (emacs, nvim, zsh)
+just check-dev-packages          # Check dev package updates
+just upgrade-dev-packages        # Upgrade dev packages only
+#+end_src
 
 ** 1. Clone the Repository
 
 Clone to =~/dev/my/dotfiles= (recommended path):
 
-#+begin_src bash
+#+begin_src sh
 mkdir -p ~/dev/my
 git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
 cd ~/dev/my/dotfiles
@@ -42,23 +67,21 @@ cd ~/dev/my/dotfiles
 
 Interactive configuration:
 
-#+begin_src bash
+#+begin_src sh
 ./configure.sh
 #+end_src
 
-The script will auto-detect your platform and offer to use it, or you can choose manually:
-- Platform: =arch=, =ubuntu=, =osx=, =msys2=
-- Configuration approach: 
-  - *Profile* (Recommended): Choose a pre-defined tier that matches your use case
-  - *Custom*: Select individual categories for specialized needs
+The script will auto-detect your platform and present available machine classes to choose from.
 
-Common tier selections:
-- *min-cli*: Servers, containers, minimal VMs
-- *mid-cli*: System administrators, terminal power users
-- *mid-dev*: Software developers (most common choice)
-- *max-dev*: Polyglot developers, DevOps engineers
-- *mid-gui*: Corporate workstations (work-appropriate apps)
-- *max-gui*: Personal workstations (unrestricted)
+Available machine classes include:
+- ~docker_essential_{arch|ubuntu}~: Minimal containers with basic CLI tools
+- ~docker_developer_{arch|ubuntu}~: Development containers with multiple package managers
+- ~laptop_personal_mac~: Personal MacBook with full development setup
+- ~laptop_work_mac~: Work MacBook with enterprise-appropriate tools
+- ~desktop_{gaming_win|home_ubuntu|work_win}~: Desktop systems with GUI applications
+- ~wsl_work_ubuntu~: Windows Subsystem for Linux development environment
+
+Each machine class defines specific package lists optimized for that use case.
 
 Configuration is saved to =.dotfiles.env= for future use.
 
@@ -66,7 +89,7 @@ Configuration is saved to =.dotfiles.env= for future use.
 
 Install essential tools and package managers:
 
-#+begin_src bash
+#+begin_src sh
 ./bootstrap.sh
 #+end_src
 
@@ -76,41 +99,56 @@ This reads your configuration and installs the appropriate tools (including =jus
 
 Deploy dotfiles using the stow system:
 
-#+begin_src bash
+#+begin_src sh
 just stow
 #+end_src
 
-** 5. Verify Setup
+** 5. Install Packages
+
+Install packages defined in your machine class:
+
+#+begin_src sh
+just install-packages         # Install everything (user, admin, and dev packages)
+
+# OR separately:
+just install-packages-user    # User packages only (no sudo required)
+just install-packages-admin   # Admin packages only (may prompt for password)
+just install-dev-packages     # Dev packages (Emacs, Neovim, Zsh plugins, etc.)
+#+end_src
+
+Note: `just install-packages` now includes development tool packages (Emacs, Neovim, Zsh plugins) automatically.
+
+** 6. Verify Setup
 
 Check that everything is configured correctly:
 
-#+begin_src bash
+#+begin_src sh
 just check-health
 #+end_src
 
-** Alternative: Use Just Commands (if tools already installed)
-
-If you already have =just= installed, you can use the convenience commands:
-
-#+begin_src bash
-just configure  # Interactive setup
-just bootstrap  # Install tools
-just stow       # Deploy configs
-#+end_src
 
 * Package Management
 
-After initial setup, the system provides environment-driven package management:
+After initial setup, the system provides environment-driven package management with user/admin separation:
 
 ** Package Installation
 
-Install packages using your configured platform and categories:
+Install packages for your machine class:
 
-#+begin_src bash
-just install    # Installs packages for your configured platform/categories
+#+begin_src sh
+# Install everything (recommended)
+just install-packages          # Installs user, admin, and dev packages
+
+# Or install separately:
+just install-packages-user     # System packages - no sudo required
+just install-packages-admin    # System packages - may prompt for password
+just install-dev-packages      # App packages - Emacs, Neovim, Zsh plugins
 #+end_src
 
-This uses your saved configuration (DOTFILES_PLATFORM and category flags) to install the appropriate packages.
+The system now integrates:
+- **System packages**: brew, apt, pacman, scoop (via user/admin split)
+- **Dev packages**: Emacs (elpaca), Neovim (lazy.nvim), Zsh (zinit), Cargo, pipx
+- All managed through a unified interface with `just install-packages`
 
 ** System Updates
 
@@ -118,252 +156,50 @@ Keep your system and packages up to date with a two-step process:
 
 *** Check for Available Updates
 
-First, update package manager registries and see what's available:
+First, see what updates are available:
 
-#+begin_src bash
-just update-check     # Refreshes package lists and shows available updates
+#+begin_src sh
+just check-packages     # Shows available updates for all packages
 #+end_src
 
 This is a safe, read-only operation that:
-- Updates package manager registries (brew update, apt update, etc.)
-- Shows which packages have newer versions available
+- Checks package manager registries for newer versions
+- Shows which packages have updates available
 - Does NOT install anything
 
 *** Upgrade Packages
 
 After reviewing available updates, upgrade when ready:
 
-#+begin_src bash
-just update-upgrade   # Actually upgrades all packages
+#+begin_src sh
+# Upgrade everything (recommended)
+just upgrade-packages
+
+# Or upgrade separately:
+just upgrade-packages-user    # User packages only
+just upgrade-packages-admin   # Admin packages only (may prompt for password)
 #+end_src
 
 This will:
-- Prompt for confirmation before proceeding
-- Upgrade all packages for your configured platform
+- Upgrade packages to their latest versions
 - Clean up old versions where appropriate
+- Admin upgrades may prompt for your password
 
-*** Platform-Specific Update Tools
+*** Development Package Updates
 
-For more granular control over updates:
+For application-specific package managers (Emacs, Neovim, Zsh plugins):
 
-#+begin_src bash
-just updates    # Opens platform-specific update sub-shell
+#+begin_src sh
+just check-dev-packages    # Check for updates in development tools
+just upgrade-dev-packages  # Upgrade development tool packages
 #+end_src
 
-This gives you access to individual update commands (brew-update, mas-update, etc.) for selective upgrading.
-
-* Configuration System
-
-The configuration system provides transparent, opt-in package management organized by functional categories.
-
-** Core Categories
-
-Always enabled for all configurations:
-- *basic-core*: Essential shell tools (vim, git, stow, tmux, just)
-
-** Base Categories
-
-*** CLI_EDITORS
-Primary command-line editors:
-- Neovim with configurations
-- Emacs (platform-specific variants)
-
-*** DEV_ENV
-Core development environment:
-- Python (pyenv, pip packages)
-- Node.js (npm packages)
-- Language servers and development tools
-
-*** CLI_UTILS
-Terminal productivity tools:
-- ripgrep, fd, htop
-- Development utilities (ctags, gdb, lldb)
-- Terminal multiplexers and shell enhancements
-
-*** GUI_APPS
-Desktop applications:
-- IDEs (JetBrains, VS Code)
-- Productivity tools (Alfred, Raycast on macOS)
-- Platform-specific GUI applications
-
-** Heavy Categories (Optional)
-
-*** CLI_EDITORS_HEAVY
-Additional editors and plugins:
-- Helix
-- Vim variants
-- Editor plugins and extensions
-
-*** DEV_ENV_HEAVY
-Extended development tools:
-- Additional language support (Rust, Go, Java)
-- Container tools
-- Advanced debugging tools
-
-*** CLI_UTILS_HEAVY
-Extended command-line tools:
-- Network utilities
-- System monitoring tools
-- Advanced shell utilities
-
-*** GUI_APPS_HEAVY
-Extended desktop applications:
-- Window managers (Yabai, Skhd)
-- Advanced productivity tools
-- Platform-specific utilities
-
-** Context Flags
-
-*** IS_PERSONAL_MACHINE
-Enables personal-use packages:
-- Entertainment applications
-- Personal productivity tools
-- Non-work related utilities
-
-*** IS_WORK_MACHINE
-Restricts to work-appropriate packages:
-- Filters out personal/entertainment apps
-- Ensures compliance with corporate policies
-- Work-focused productivity tools
-
-** Quick Configuration Options (Recommended)
-
-The configure script offers these pre-defined tiers that cover most common usage scenarios. While you can customize individual categories, these tiers are designed for typical real-world setups:
-
-*** min-cli
-- Environment Variables: 
-  - =CLI_UTILS=true=
-  - All other categories =false=
-- Description: Light CLI tools for basic shell usage
-- Use Case: Minimal setup, servers
-
-*** mid-cli
-- Environment Variables:
-  - =CLI_UTILS=true=
-  - =CLI_UTILS_HEAVY=true= (currently =_ADVANCED= until renamed)
-  - All other categories =false=
-- Description: Extended CLI utilities for power users
-- Use Case: Full command-line productivity
-
-*** mid-dev
-- Environment Variables:
-  - =CLI_EDITORS=true=
-  - =DEV_ENV=true=
-  - =CLI_EDITORS_HEAVY=false=
-  - =DEV_ENV_HEAVY=false=
-  - GUI categories =false=
-- Description: Standard development environment
-- Use Case: Most programming tasks
-
-*** max-dev
-- Environment Variables:
-  - =CLI_EDITORS=true=
-  - =CLI_EDITORS_HEAVY=true= (currently =_ADVANCED= until renamed)
-  - =DEV_ENV=true=
-  - =DEV_ENV_HEAVY=true= (currently =_ADVANCED= until renamed)
-  - GUI categories =false=
-- Description: Complete development environment
-- Use Case: Polyglot development, all tools
-
-*** mid-gui (Planned)
-- Environment Variables:
-  - Inherits from mid-dev
-  - =GUI_APPS=true=
-  - =GUI_APPS_HEAVY=false=
-  - =IS_WORK_MACHINE=true=
-  - =IS_PERSONAL_MACHINE=false=
-- Description: Work-appropriate desktop applications
-- Use Case: Corporate workstations
-
-*** max-gui
-- Environment Variables:
-  - Inherits from max-dev
-  - =GUI_APPS=true=
-  - =GUI_APPS_HEAVY=true= (currently =_ADVANCED= until renamed)
-  - =IS_PERSONAL_MACHINE=true=
-  - =IS_WORK_MACHINE=false=
-- Description: Complete personal desktop environment
-- Use Case: Personal workstations
-
-* Testing Strategy
-
-** Tiers Serve Dual Purposes
-
-*** Real-World Usage Patterns
-The configuration tiers aren't just for testing - they represent *common real-world usage patterns*:
-- Most users will choose one of these tiers as their actual configuration
-- Each tier is designed for a specific type of user or system
-- The tiers cover approximately 90% of typical use cases
-- Custom configuration remains available for specialized needs
-
-*** Efficient Testing
-Because these tiers represent actual usage patterns, our testing strategy:
-- Tests what people actually use in production
-- Uses cumulative tiers to avoid redundant testing
-- Validates real-world scenarios rather than arbitrary combinations
-- Docker tests run up to =max-dev= (GUI testing is manual only)
-
-** Test Tiers
-
-*** min-cli (Tier 1)
-- Categories: =CLI_UTILS=true
-- Purpose: Validate basic shell tools and core functionality
-- Platforms: arch, ubuntu
-
-*** mid-cli (Tier 2) 
-- Categories: =CLI_UTILS=true, =CLI_UTILS_HEAVY=true
-- Purpose: Validate extended CLI tools
-- Platforms: arch, ubuntu
-
-*** mid-dev (Tier 3)
-- Categories: Inherits all from mid-cli + =CLI_EDITORS=true, =DEV_ENV=true
-- Purpose: Validate development environment with standard tools
-- Platforms: arch, ubuntu
-- Package Managers: Begins testing multiple managers (system + language PMs)
-
-*** max-dev (Tier 4)
-- Categories: All CLI/DEV categories with =_HEAVY= variants enabled
-- Purpose: Validate complete development environment and multi-PM coordination
-- Platforms: arch, ubuntu  
-- Package Managers: Full validation - pacman/AUR, apt/PPA, npm, pip, gem
-
-*** mid-gui (Tier 5 - Manual Testing Only)
-- Categories: Inherits all from max-dev + =GUI_APPS=true, =IS_WORK_MACHINE=true
-- Purpose: Work-appropriate desktop environment
-- Platforms: osx (manual testing)
-
-*** max-gui (Tier 6 - Manual Testing Only)
-- Categories: Everything enabled + =IS_PERSONAL_MACHINE=true
-- Purpose: Complete personal desktop environment
-- Platforms: osx (manual testing)
-
-** Running Tests
-
-*** Docker Test Commands
-
-Test the tiered configurations using Docker:
-
-#+begin_src bash
-just test-min-cli arch    # Test minimal CLI on Arch
-just test-mid-cli ubuntu  # Test extended CLI on Ubuntu
-just test-mid-dev arch    # Test development setup on Arch
-just test-max-dev ubuntu  # Test full development on Ubuntu
-#+end_src
-
-*** Manual Testing
-
-GUI configurations must be tested on real systems:
-- Configure with =./configure.sh= and select appropriate tier
-- Run =just install= to install packages
-- Verify functionality manually
-
-*** Interactive Test Environment
-
-Enter the test environment to explore all testing options:
-
-#+begin_src bash
-just testing    # Opens test sub-shell with all test commands
-#+end_src
+This manages packages for:
+- Zsh plugins (via zinit)
+- Emacs packages (via elpaca)
+- Neovim plugins (via lazy.nvim)
+- Cargo packages (Rust tools)
+- pipx packages (Python CLI tools)
 
 * Platform-Specific Notes
 
@@ -389,7 +225,7 @@ just testing    # Opens test sub-shell with all test commands
 
 The health check tool validates your dotfiles setup:
 
-#+begin_src bash
+#+begin_src sh
 just check-health
 #+end_src
 
@@ -402,13 +238,13 @@ It reports:
 
 Preview what would be removed:
 
-#+begin_src bash
+#+begin_src sh
 just cleanup-broken-links
 #+end_src
 
 Actually remove broken links:
 
-#+begin_src bash
+#+begin_src sh
 just cleanup-broken-links --remove
 #+end_src
 
@@ -416,28 +252,32 @@ just cleanup-broken-links --remove
 
 ** Update Package Lists
 
-The configuration system manages packages via TOML files in `tools/package-management/package-definitions/`. To add new packages:
+The configuration system manages packages via machine class directories in `machine-classes/`. Each machine class contains package manager-specific files using native formats. To add new packages:
 
-1. Identify the appropriate category (cli-editors, cli-utils, dev-env, gui-apps)
-2. Edit the appropriate TOML file
-3. Add your package to the correct priority (p1 or p2) and package manager section
+1. Identify the appropriate machine class (e.g., `docker_developer_ubuntu`, `laptop_personal_mac`)
+2. Navigate to the appropriate package manager directory
+3. Edit the package manager's native format file
 
-Example:
-#+begin_src toml
-# In cli-utils.toml
-[osx.p1.brew]
-packages = [
-    "fd",
-    "ripgrep",
-    "your-new-package"  # Add here
-]
+Examples:
+#+begin_src sh
+# For Homebrew (macOS/Linux) - User packages (no sudo)
+echo 'brew "your-new-package"' >> machine-classes/laptop_work_mac/brew/packages.user
+
+# For Homebrew (macOS/Linux) - Admin packages (requires sudo)
+echo 'cask "your-gui-app"' >> machine-classes/laptop_work_mac/brew/packages.admin
+
+# For apt packages (Ubuntu)
+echo "your-new-package" >> machine-classes/docker_developer_ubuntu/apt/packages.txt
+
+# For pacman (Arch)
+echo "your-new-package" >> machine-classes/docker_developer_arch/pacman/packages.txt
 #+end_src
 
 ** Restow Configurations
 
 If you've modified configs, restow to update symlinks:
 
-#+begin_src bash
+#+begin_src sh
 just stow    # Uses your configured platform automatically
 #+end_src
 
@@ -445,7 +285,7 @@ just stow    # Uses your configured platform automatically
 
 View your current configuration settings:
 
-#+begin_src bash
+#+begin_src sh
 just show-config
 #+end_src
 
@@ -465,51 +305,13 @@ just show-config
 - GUI applications may require admin access on some systems
 - Advanced window managers and system tools are in advanced categories for optional installation
 
-* Project Structure
-
-#+begin_example
-dotfiles/
-├── bootstrap/           # System bootstrap scripts
-├── configs/            # Stow packages organized by tool
-│   ├── <tool>/        # Cross-platform configs
-│   └── <tool>_<os>/   # Platform-specific configs
-├── tools/             # Utility scripts and tools
-│   ├── dotfiles-health/   # Health check tool
-│   └── package-management/ # Configuration-based package management system
-├── test/              # Docker test infrastructure
-├── configure.sh       # Interactive configuration
-├── bootstrap.sh       # System bootstrap (works with both systems)
-└── justfile           # Environment-driven commands
-#+end_example
-
-* Future Roadmap
-
-** Application-Specific Package Managers (In Development)
-
-The system is designed to eventually manage ALL package managers on your system:
-
-*** Shell Plugin Managers
-- **zinit** - ZSH plugin management integrated with update cycle
-- **fisher** - Fish shell plugin management (planned)
-
-*** Editor Package Managers  
-- **elpaca** - Emacs package management (replacing straight.el)
-- **lazy.nvim** - Neovim plugin management
-- **vim-plug** - Vim plugin management (planned)
-
-*** Language-Specific Tooling
-- **cargo** - Rust packages and tools
-- **pipx** - Python applications in isolated environments
-- **go get** - Go tools and applications
-
-The goal is true unified package management - one command to update everything, with granular control when needed.
 
 * Contributing
 
 1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
-2. Test using Docker test infrastructure: `just test-mid-dev arch`
+2. Test using Docker test infrastructure: `cd test && just test-developer-arch`
 3. Run health check to verify changes: `just check-health`
-4. Update package definitions in `tools/package-management/package-definitions/` if adding new packages
+4. Update machine class package lists if adding new packages
 5. Submit PR with description of changes
 
 For more detailed information, see the comprehensive setup guide in [[file:README.old.org][README.old.org]].

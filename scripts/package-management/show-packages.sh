@@ -38,9 +38,24 @@ for pm_dir in "${MACHINE_DIR}"/*; do
         
         case "${pm_name}" in
             brew)
-                if [[ -f "${pm_dir}/Brewfile" ]]; then
-                    echo "🍺 Homebrew (Brewfile):"
-                    echo "--------------------"
+                # Check for classified system first (preferred)
+                if [[ -f "${pm_dir}/Brewfile.formulas.non_admin" ]]; then
+                    echo "🍺 Homebrew (Classified System):"
+                    echo "-------------------------------"
+                    
+                    for brewfile in "${pm_dir}"/Brewfile.*; do
+                        if [[ -f "${brewfile}" ]]; then
+                            basename_file=$(basename "${brewfile}")
+                            echo ""
+                            echo "📋 ${basename_file}:"
+                            cat "${brewfile}"
+                        fi
+                    done
+                    echo ""
+                # Fallback to legacy system
+                elif [[ -f "${pm_dir}/Brewfile" ]]; then
+                    echo "🍺 Homebrew (Legacy Brewfile):"
+                    echo "-----------------------------"
                     cat "${pm_dir}/Brewfile"
                     echo ""
                 fi
