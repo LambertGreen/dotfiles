@@ -24,7 +24,7 @@ Currently, package installation mixes operations that require administrative pri
 
 ## Proposed Architecture
 
-### Four-Way Explicit Classification Model
+### Explicit Classification Model
 
 Instead of assuming privilege requirements based on package manager type, we use **explicit classification** to give users granular control over admin usage and enable fire-and-forget updates for the majority of packages.
 

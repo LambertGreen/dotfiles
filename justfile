@@ -17,21 +17,31 @@ default:
     @echo "  just configure                      - Interactive configuration (select machine class)"
     @echo "  just bootstrap                      - Bootstrap system (install core tools like Python, Just)"
     @echo "  just stow                          - Deploy configuration files (dotfiles symlinks)"
-    @echo "  just install-packages-user         - Install user-level packages (no admin required)"
-    @echo "  just install-packages-admin        - Install admin-level packages (may prompt for password)"
+    @echo "  just install-packages              - Install all packages (system → dev → app)"
     @echo ""
-    @echo "📦 System Packages (brew, apt, pip, npm):"
-    @echo "  just check-packages                   - Check for available package updates"
-    @echo "  just upgrade-packages-user         - Upgrade user-level packages (fire-and-forget)"
-    @echo "  just upgrade-packages-admin        - Upgrade admin-level packages (may prompt for password)"
-    @echo "  just upgrade-packages                 - Upgrade all packages (backwards compatible)"
-    @echo "  just export-packages                  - Update machine class with currently installed packages"
+    @echo "📦 System Packages (brew, apt, pacman):"
+    @echo "  just install-system-packages       - Install system packages (admin → user)"
+    @echo "  just check-system-packages         - Check system packages for updates"
+    @echo "  just upgrade-system-packages       - Upgrade system packages"
+    @echo "  just install-system-packages-admin - Install admin packages (may prompt for password)"
+    @echo "  just install-system-packages-user  - Install user packages (no admin required)"
     @echo ""
-    @echo "🛠️  App Level Packages (zsh, emacs, neovim, cargo, pipx):"
-    @echo "  just check-dev-packages               - Check dev packages for updates"
-    @echo "  just upgrade-dev-packages             - Upgrade dev packages"
-    @echo "  just init-dev-packages                - Initialize dev packages (first-time setup)"
-    @echo "  just verify-dev-package-install       - Verify dev package installation"
+    @echo "🔧 Development Packages (npm, pip, cargo, gem):"
+    @echo "  just install-dev-packages          - Install development language packages"
+    @echo "  just check-dev-packages            - Check dev packages for updates"
+    @echo "  just upgrade-dev-packages          - Upgrade development packages"
+    @echo "  just init-dev-packages             - Initialize dev packages (first-time setup)"
+    @echo "  just verify-dev-package-install    - Verify dev package installation"
+    @echo ""
+    @echo "📱 Application Packages (zinit, elpaca, lazy.nvim):"
+    @echo "  just install-app-packages          - Install application package managers"
+    @echo "  just check-app-packages            - Check app packages for updates"
+    @echo "  just upgrade-app-packages          - Upgrade application packages"
+    @echo ""
+    @echo "🔄 Unified Package Operations:"
+    @echo "  just check-packages                - Check all packages for updates"
+    @echo "  just upgrade-packages              - Upgrade all packages"
+    @echo "  just export-packages               - Update machine class with installed packages"
     @echo ""
     @echo "🏥 Health Check & Troubleshooting:"
     @echo "  just check-health                     - Validate system health (auto-logs)"
@@ -126,7 +136,7 @@ check-dev-packages:
 # Check for app package updates (checks application package managers)
 check-app-packages:
     @echo "📱 Checking application packages..."
-    @echo "TODO: Implement check-app-packages.sh"
+    @./scripts/package-management/check-app-packages.sh
 
 # Upgrade all packages (system, dev, and app - uses cached registries)
 upgrade-packages:
@@ -140,9 +150,7 @@ upgrade-packages:
 # Upgrade system packages (both admin and user levels)
 upgrade-system-packages:
     @echo "🖥️ Upgrading system packages..."
-    @just upgrade-system-packages-admin
-    @echo ""
-    @just upgrade-system-packages-user
+    @./scripts/package-management/upgrade-system-packages.sh
 
 # Upgrade admin-level system packages (may prompt for password)
 upgrade-system-packages-admin:
@@ -168,7 +176,7 @@ upgrade-dev-packages:
 # Upgrade application packages (zinit, elpaca, lazy.nvim)
 upgrade-app-packages:
     @echo "📱 Upgrading application packages..."
-    @echo "TODO: Create upgrade-app-packages.sh script"
+    @./scripts/package-management/upgrade-app-packages.sh
 
 # Kill stuck brew processes (use with caution)
 kill-brew-processes:
@@ -181,20 +189,6 @@ kill-brew-processes:
     @pkill -f "ruby.*brew" || echo "No ruby brew processes found"
     @echo "✅ Done. Wait a few seconds before running brew commands."
 
-# Check for available dev package updates (zsh, emacs, neovim, cargo, pipx)
-check-dev-packages:
-    @./scripts/package-management/check-dev-packages.sh
-
-# Upgrade dev packages (zsh, emacs, neovim, cargo, pipx)
-upgrade-dev-packages:
-    @./scripts/package-management/upgrade-dev-packages.sh
-
-# Initialize dev packages (first-time setup)
-init-dev-packages:
-    @./scripts/package-management/init-dev-packages.sh
-
-# Install dev packages (alias for init-dev-packages)
-install-dev-packages: init-dev-packages
 
 # Verify dev package installation completed successfully
 verify-dev-package-install:
