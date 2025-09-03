@@ -1,88 +1,104 @@
 #!/usr/bin/env bash
 # Shared utilities for package manager initialization scripts
+# This is now a compatibility wrapper for the enhanced logging system
 
 set -euo pipefail
 
-# Default log configuration
-LOG_DIR="${LOG_DIR:-${HOME}/logs}"
+# Get script directory
+COMMON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_ROOT="${DOTFILES_ROOT:-$(cd "$COMMON_SCRIPT_DIR/../../.." && pwd)}"
+
+# Set default log configuration if not already set
+LOG_DIR="${LOG_DIR:-${DOTFILES_ROOT}/.logs}"
 LOG_FILE="${LOG_FILE:-${LOG_DIR}/dev-package-init-$(date +%Y%m%d-%H%M%S).log}"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Set LOG_PREFIX if not already set (use calling script name)
+if [[ -z "${LOG_PREFIX:-}" ]]; then
+    CALLING_SCRIPT="${BASH_SOURCE[1]:-unknown}"
+    SCRIPT_NAME="$(basename "$CALLING_SCRIPT" .sh)"
+    case "$SCRIPT_NAME" in
+        install-brew-packages) LOG_PREFIX="BREW-INSTALL" ;;
+        upgrade-brew-packages) LOG_PREFIX="BREW-UPGRADE" ;;
+        install-apt-packages) LOG_PREFIX="APT-INSTALL" ;;
+        install-pacman-packages) LOG_PREFIX="PACMAN-INSTALL" ;;
+        install-pip-packages) LOG_PREFIX="PIP-INSTALL" ;;
+        install-npm-packages) LOG_PREFIX="NPM-INSTALL" ;;
+        install-gem-packages) LOG_PREFIX="GEM-INSTALL" ;;
+        install-cargo-packages) LOG_PREFIX="CARGO-INSTALL" ;;
+        *) LOG_PREFIX="PKG-MGMT" ;;
+    esac
+fi
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+# Source the enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Logging functions
+# Initialize log if not already initialized
+if [[ ! -f "${LOG_FILE}" ]] || ! grep -q "Log Session Started" "${LOG_FILE}" 2>/dev/null; then
+    initialize_log "$(basename "${BASH_SOURCE[1]:-unknown}")"
+fi
+
+# For backward compatibility, provide wrapper functions that match old interface
+# but use new logging underneath
+
+# The old log_output function - map to log_info for generic output
 log_output() {
     local message="$1"
-    echo -e "${message}"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ${message}" >> "${LOG_FILE}"
-}
-
-log_verbose() {
-    local message="$1"
-    if [[ "${VERBOSE:-false}" == "true" ]]; then
-        echo -e "${CYAN}[VERBOSE]${NC} ${message}"
+    # Check for special markers and route appropriately
+    if [[ "$message" == *"✅"* ]] || [[ "$message" == *"Success"* ]]; then
+        log_success "$message"
+    elif [[ "$message" == *"⚠️"* ]] || [[ "$message" == *"Warning"* ]]; then
+        log_warn "$message"
+    elif [[ "$message" == *"❌"* ]] || [[ "$message" == *"ERROR"* ]] || [[ "$message" == *"Failed"* ]]; then
+        log_error "$message"
+    elif [[ "$message" == *"===="* ]]; then
+        # Section headers - just output without prefix
+        echo "$message"
+        echo "[$(get_timestamp)] [${LOG_PREFIX}] [OUTPUT] ${message}" >> "${LOG_FILE}"
+    elif [[ -z "$message" ]]; then
+        # Empty line
+        echo ""
+        echo "[$(get_timestamp)] [${LOG_PREFIX}] [OUTPUT] " >> "${LOG_FILE}"
+    else
+        log_info "$message"
     fi
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [VERBOSE] ${message}" >> "${LOG_FILE}"
 }
 
-log_error() {
-    local message="$1"
-    echo -e "${RED}[ERROR]${NC} ${message}" >&2
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ${message}" >> "${LOG_FILE}"
+# The old log_verbose is now log_debug
+log_verbose() {
+    log_debug "$1"
 }
 
-log_success() {
-    local message="$1"
-    echo -e "${GREEN}[SUCCESS]${NC} ${message}"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [SUCCESS] ${message}" >> "${LOG_FILE}"
-}
+# These already exist in logging.sh with same interface:
+# - log_error
+# - log_success
+# - log_info
+# - command_exists
 
-log_info() {
-    local message="$1"
-    echo -e "${BLUE}[INFO]${NC} ${message}"
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] ${message}" >> "${LOG_FILE}"
-}
-
-# Check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Initialize arrays for tracking
+# Initialize arrays for tracking (backward compatibility)
 initialize_tracking_arrays() {
     initialized_pms=()
     failed_pms=()
     skipped_pms=()
 }
 
-# Print summary
+# Print summary with enhanced formatting
 print_summary() {
     local script_name="$1"
-    
-    log_output ""
-    log_output "📊 ${script_name} Summary"
-    log_output "$(printf '=%.0s' {1..50})"
-    
+
+    log_section "${script_name} Summary"
+
     if [[ ${#initialized_pms[@]} -gt 0 ]]; then
         log_success "Successfully initialized: ${initialized_pms[*]}"
     fi
-    
+
     if [[ ${#failed_pms[@]} -gt 0 ]]; then
         log_error "Failed to initialize: ${failed_pms[*]}"
     fi
-    
+
     if [[ ${#skipped_pms[@]} -gt 0 ]]; then
         log_info "Skipped (not available): ${skipped_pms[*]}"
     fi
-    
+
     log_output ""
-    log_output "Full log available at: ${LOG_FILE}"
+    log_info "Full log available at: ${LOG_FILE}"
 }

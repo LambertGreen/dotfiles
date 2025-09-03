@@ -48,6 +48,13 @@ default:
     @echo "  just check-health-verbose             - Detailed health check output"
     @echo "  just cleanup-broken-links-dry-run     - List broken symlinks"
     @echo "  just cleanup-broken-links-remove      - Remove broken symlinks"
+    @echo ""
+    @echo "📊 Log Analysis:"
+    @echo "  just logs                             - List recent log files"
+    @echo "  just logs-summary                     - Show summary of latest log"
+    @echo "  just logs-errors                      - Show error messages from latest log"
+    @echo "  just logs-timing                      - Show timing analysis of latest log"
+    @echo "  just logs-view [file]                 - Interactive log viewer"
     @echo "  just kill-brew-processes              - Kill stuck brew processes (use with caution)"
     @echo ""
     @echo "📊 Show Information:"
@@ -295,6 +302,32 @@ stow:
     @bash -c 'source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"'
 
 
+
+# Log Analysis Commands
+
+# List recent log files
+logs:
+    @source ./scripts/package-management/shared/log-utils.sh && list_logs
+
+# Show summary of latest log
+logs-summary file="":
+    @source ./scripts/package-management/shared/log-utils.sh && log_summary {{file}}
+
+# Show error messages from latest log
+logs-errors file="":
+    @source ./scripts/package-management/shared/log-utils.sh && filter_by_level ERROR {{file}}
+
+# Show timing analysis of latest log
+logs-timing file="":
+    @source ./scripts/package-management/shared/log-utils.sh && log_timing {{file}}
+
+# Interactive log viewer
+logs-view file="":
+    @source ./scripts/package-management/shared/log-utils.sh && view_log {{file}}
+
+# Show only dotfiles log entries (filter out external tool output)
+logs-dotfiles file="":
+    @source ./scripts/package-management/shared/log-utils.sh && filter_dotfiles_logs {{file}}
 
 # Help aliases
 [private]

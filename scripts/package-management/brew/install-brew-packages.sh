@@ -69,11 +69,7 @@ install_from_file() {
 main() {
     local config_dir=$(get_machine_config_dir "brew")
 
-    log_output "Homebrew Package Installation"
-    log_output "============================="
-    log_output "Machine class: ${DOTFILES_MACHINE_CLASS}"
-    log_output "Package level: $PACKAGE_LEVEL"
-    log_output ""
+    log_info "Homebrew: ${DOTFILES_MACHINE_CLASS} - ${PACKAGE_LEVEL} packages"
 
     case "$PACKAGE_LEVEL" in
         user)

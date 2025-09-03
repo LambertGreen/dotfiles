@@ -50,7 +50,17 @@
       "Bash(brew list:*)",
       "Bash(brew:*)",
       "Bash(cat:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(LOG_PREFIX=\"TEST\" LOG_FILE=\"/tmp/test-logging.log\" bash -c 'source ./scripts/package-management/shared/logging.sh && initialize_log \"\"test-script.sh\"\" && log_info \"\"Testing enhanced logging\"\" && log_success \"\"This is a success message\"\" && log_warn \"\"This is a warning\"\" && log_error \"\"This is an error\"\" && finalize_log \"\"SUCCESS\"\"')",
+      "Bash(DEFAULT_LOG_DIR=\"/tmp\" bash -c 'source /Users/lambert.green/dev/my/dotfiles/scripts/package-management/shared/log-utils.sh && filter_by_level ERROR /tmp/test-logging.log')",
+      "Bash(DEFAULT_LOG_DIR=\"./.logs\" bash -c 'source ./scripts/package-management/shared/log-utils.sh && list_logs')",
+      "Bash(./test-enhanced-logging.sh:*)",
+      "Bash(/Users/lambert.green/dev/my/dotfiles/test-enhanced-logging.sh:*)",
+      "Bash(source:*)",
+      "Bash(log_summary:*)",
+      "Bash(filter_by_level ERROR /Users/lambert.green/dev/my/dotfiles/.logs/enhanced-logging-demo-20250902-224911.log)",
+      "Bash(LOG_PREFIX=\"TEST\" bash -c 'source scripts/package-management/shared/common.sh && log_info \"\"Testing enhanced logging through common.sh\"\" && log_success \"\"It works!\"\" && echo \"\"\"\" && echo \"\"Check log file:\"\" && echo \"\"${LOG_FILE}\"\"')",
+      "Bash(LOG_PREFIX=\"TEST\" LOG_FILE=\"/tmp/simple-test.log\" bash -c 'source ./scripts/package-management/shared/logging.sh && log_section \"\"Testing Simplified Logging\"\" && log_info \"\"Every line is useful\"\" && log_subsection \"\"Command Output\"\" && echo \"\"brew output\"\" | log_command_output \"\"BREW\"\"')"
     ],
     "deny": []
   }

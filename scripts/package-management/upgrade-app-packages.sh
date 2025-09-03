@@ -4,83 +4,61 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="APP-UPGRADE"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/upgrade-app-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file
-{
-    echo "Upgrade App Packages Log"
-    echo "========================"
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "========================"
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "upgrade-app-packages.sh"
 
-# Function to log both to console and file
-log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
-}
+# Track timing
+START_TIME=$(date +%s)
 
-# Function to log only to file
-log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
-}
-
-log_output "🔄 Upgrading application packages..."
-log_output ""
+log_section "Application Package Upgrade"
+log_info "Starting application package upgrade process..."
 
 # Track what package managers we upgrade
 upgraded_pms=()
 
 # Upgrade Zsh plugins (zinit)
-if command -v zinit >/dev/null 2>&1 || [[ -d "${HOME}/.zinit" ]]; then
-    log_output "=== Zsh Plugins (zinit) ==="
-    upgraded_pms+=("zinit")
+log_subsection "Zsh Plugins (zinit)"
 
-    if zsh -c "zinit self-update && zinit update --all" 2>&1 | tee -a "${LOG_FILE}"; then
-        log_output "✅ Zsh plugins upgraded"
-    else
-        log_output "⚠️ Some zsh plugin upgrades may have failed"
-    fi
-    log_output ""
+if command -v zinit >/dev/null 2>&1 || [[ -d "${HOME}/.zinit" ]]; then
+    upgraded_pms+=("zinit")
+    log_info "Upgrading zinit plugins..."
+
+    zsh -c "zinit self-update && zinit update --all"
+    log_success "Zsh plugins upgraded successfully"
 else
-    log_verbose "Zinit not available - skipping zsh plugin upgrades"
+    log_debug "Zinit not available - skipping zsh plugin upgrades"
 fi
 
 # Upgrade Emacs packages (elpaca) - placeholder for now
-log_verbose "Emacs (elpaca) upgrade not yet implemented"
+log_debug "Emacs (elpaca) upgrade not yet implemented"
 
 # Upgrade Neovim packages (lazy.nvim) - placeholder for now
-log_verbose "Neovim (lazy.nvim) upgrade not yet implemented"
+log_debug "Neovim (lazy.nvim) upgrade not yet implemented"
 
 # Summary
-log_output "========================="
+log_section "Upgrade Summary"
+
 if [[ ${#upgraded_pms[@]} -eq 0 ]]; then
-    log_output "⚠️  No app package managers found to upgrade"
-    log_verbose "No app package managers detected on this system"
+    log_warn "No app package managers found to upgrade"
+    log_debug "No app package managers detected on this system"
 else
-    log_output "✅ Attempted upgrades for: ${upgraded_pms[*]}"
+    log_success "Completed upgrades for: ${upgraded_pms[*]}"
 fi
 
-log_output ""
-log_output "📝 Upgrade session logged to: ${LOG_FILE}"
+log_duration "${START_TIME}"
+finalize_log "SUCCESS"
 
-# Log final status to file
-{
-    echo ""
-    echo "=== UPGRADE COMPLETION ==="
-    echo "App package managers upgraded: ${upgraded_pms[*]:-none}"
-    echo "Status: SUCCESS"
-    echo "=========================="
-    echo ""
-    echo "Upgrade completed at: $(date)"
-} >> "${LOG_FILE}"
+log_info "Upgrade session logged to: ${LOG_FILE}"
 
 exit 0
