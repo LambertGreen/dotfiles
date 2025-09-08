@@ -196,8 +196,7 @@ else
 fi
 
 # Summary
-log_output "📊 Dev Package Initialization Summary"
-log_output "===================================="
+log_output "Initialized ${#initialized_pms[@]} dev package managers"
 
 if [[ ${#initialized_pms[@]} -gt 0 ]]; then
     log_output "[SUCCESS] Successfully initialized: ${initialized_pms[*]}"

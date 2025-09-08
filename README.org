@@ -306,6 +306,12 @@ just show-config
 - Advanced window managers and system tools are in advanced categories for optional installation
 
 
+* Testing
+
+The dotfiles project includes comprehensive Docker-based testing to validate configurations across multiple platforms and machine classes.
+
+For detailed testing documentation, baselines, and success criteria, see [[file:test/Testing.org][Testing Documentation]].
+
 * Contributing
 
 1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
