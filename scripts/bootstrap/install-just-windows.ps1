@@ -29,7 +29,7 @@ try {
 
 # Verify installation
 if (Get-Command just -ErrorAction SilentlyContinue) {
-    Write-Host "✓ Just installed successfully!" -ForegroundColor Green
+    Write-Host "??? Just installed successfully!" -ForegroundColor Green
     just --version
 } else {
     Write-Error "Just installation failed"

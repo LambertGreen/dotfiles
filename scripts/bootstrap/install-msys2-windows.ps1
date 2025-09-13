@@ -52,7 +52,7 @@ foreach ($location in $msys2Locations) {
 }
 
 if ($verifyPath) {
-    Write-Host "✓ MSYS2 installed successfully at: $verifyPath" -ForegroundColor Green
+    Write-Host "??? MSYS2 installed successfully at: $verifyPath" -ForegroundColor Green
     & $verifyPath --version
 } else {
     Write-Error "MSYS2 installation failed"
