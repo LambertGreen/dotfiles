@@ -32,7 +32,7 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 
 # Verify installation
 if (Get-Command choco -ErrorAction SilentlyContinue) {
-    Write-Host "✓ Chocolatey installed successfully!" -ForegroundColor Green
+    Write-Host "??? Chocolatey installed successfully!" -ForegroundColor Green
     choco --version
 } else {
     Write-Error "Chocolatey installation failed"

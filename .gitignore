@@ -1,33 +1,29 @@
 # Karabiner backup directory
-karabiner/.config/karabiner/automatic_backups/
+automatic_backups/
 
-# Nvim
-nvim/.config/nvim/.netrwhist
-nvim/.config/nvim/autoload/
-nvim/.config/nvim/backup/
-nvim/.config/nvim/plugged/
-nvim/.config/nvim/swap/
-nvim/.config/nvim/undo/
-nvim/.config/nvim/spell/
+# Nvim runtime files
+.netrwhist
+autoload/
+backup/
+plugged/
+swap/
+undo/
+spell/
 
-# Tmux
-/tmux/.tmux/plugins/
-/configs/tmux/dot-tmux/plugins/
+# Tmux plugins
+plugins/
 
-# Powershell
-/WindowsPowerShell/Documents/WindowsPowerShell/Modules/
-/powershell_win/Documents/Powershell/Modules/
+# PowerShell modules
+Modules/
 
-# Keypirinha
-/Keypirinha/scoop/apps/keypirinha/current/portable/Profile/User/Keypirinha-Notepad2.ini
+# Keypirinha runtime files
+Keypirinha-Notepad2.ini
 Keypirinha.history
 
 # macOS
 .DS_Store
 /.idea/
-/tmux/dot-tmux/plugins/
-/spelling/dot-config/enchant/*.exc
-/karabiner/dot-config/karabiner/automatic_backups/
+*.exc
 .env
 .dotfiles.env
 
@@ -40,6 +36,7 @@ Keypirinha.history
 # Test logs
 test/.logs/
 
-# Clink
-/configs/windows_only/clink/AppData/Local/clink/clink_history*
-/configs/windows_only/clink/AppData/Local/clink/clink_errorlevel*
+# Clink runtime files
+clink_history*
+clink_errorlevel*
+clink.log

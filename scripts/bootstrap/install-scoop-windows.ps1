@@ -28,7 +28,7 @@ try {
 
 # Verify installation
 if (Get-Command scoop -ErrorAction SilentlyContinue) {
-    Write-Host "✓ Scoop installed successfully!" -ForegroundColor Green
+    Write-Host "??? Scoop installed successfully!" -ForegroundColor Green
     scoop --version
 } else {
     Write-Error "Scoop installation failed"

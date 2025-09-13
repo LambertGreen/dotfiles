@@ -22,16 +22,16 @@ if ($Help) {
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "🚀 Windows Dotfiles Bootstrap" -ForegroundColor Magenta
+Write-Host "???? Windows Dotfiles Bootstrap" -ForegroundColor Magenta
 Write-Host ""
 
 # Check if configured
 if (!(Test-Path "$env:USERPROFILE\.dotfiles.env")) {
-    Write-Host "❌ Not configured yet. Run: .\configure.ps1" -ForegroundColor Red
+    Write-Host "??? Not configured yet. Run: .\configure.ps1" -ForegroundColor Red
     exit 1
 }
 
-Write-Host "🔍 Phase 1: Installing Windows Package Managers" -ForegroundColor Yellow
+Write-Host "???? Phase 1: Installing Windows Package Managers" -ForegroundColor Yellow
 Write-Host ""
 
 $scriptDir = "scripts\bootstrap"
@@ -47,7 +47,7 @@ try {
 }
 
 Write-Host ""
-Write-Host "🔍 Phase 2: Installing Essential POSIX Tools" -ForegroundColor Yellow
+Write-Host "???? Phase 2: Installing Essential POSIX Tools" -ForegroundColor Yellow
 Write-Host ""
 
 # Install just and stow via scoop (for POSIX tool convergence)
@@ -60,12 +60,12 @@ try {
 }
 
 Write-Host ""
-Write-Host "✅ Windows Bootstrap Complete!" -ForegroundColor Green
+Write-Host "??? Windows Bootstrap Complete!" -ForegroundColor Green
 Write-Host ""
-Write-Host "🎯 Convergence: All platforms now use the same tools:" -ForegroundColor Cyan
-Write-Host "  • bash (via MSYS2)" -ForegroundColor White
-Write-Host "  • just (cross-platform task runner)" -ForegroundColor White  
-Write-Host "  • stow (dotfile symlink manager)" -ForegroundColor White
+Write-Host "???? Convergence: All platforms now use the same tools:" -ForegroundColor Cyan
+Write-Host "  ??? bash (via MSYS2)" -ForegroundColor White
+Write-Host "  ??? just (cross-platform task runner)" -ForegroundColor White  
+Write-Host "  ??? stow (dotfile symlink manager)" -ForegroundColor White
 Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Green
 Write-Host "  just stow           # Deploy configurations" -ForegroundColor White
