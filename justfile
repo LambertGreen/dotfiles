@@ -280,14 +280,14 @@ cleanup-broken-links-remove:
 # Interactive configuration (select machine class)
 configure:
     #!/usr/bin/env bash
-    @if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OS" == "Windows_NT" ]]; then \
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OS" == "Windows_NT" ]]; then \
         if [ -f "./configure.ps1" ]; then \
             echo "🔧 Running Windows configuration..."; \
             powershell.exe -ExecutionPolicy Bypass -File configure.ps1; \
         else \
             echo "❌ configure.ps1 not found"; \
             exit 1; \
-        fi \
+        fi; \
     else \
         if [ -f "./configure.sh" ]; then \
             echo "🔧 Running Unix/Linux configuration..."; \
@@ -295,21 +295,21 @@ configure:
         else \
             echo "❌ configure.sh not found"; \
             exit 1; \
-        fi \
+        fi; \
     fi
 
 
 # Bootstrap system (install core tools)
 bootstrap:
     #!/usr/bin/env bash
-    @if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OS" == "Windows_NT" ]]; then \
+    if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OS" == "Windows_NT" ]]; then \
         if [ -f "./bootstrap.ps1" ]; then \
             echo "🚀 Running Windows bootstrap..."; \
             powershell.exe -ExecutionPolicy Bypass -File bootstrap.ps1; \
         else \
             echo "❌ bootstrap.ps1 not found"; \
             exit 1; \
-        fi \
+        fi; \
     else \
         if [ -f "./bootstrap.sh" ]; then \
             echo "🚀 Running Unix/Linux bootstrap..."; \
@@ -317,7 +317,7 @@ bootstrap:
         else \
             echo "❌ bootstrap.sh not found"; \
             exit 1; \
-        fi \
+        fi; \
     fi
 
 # Deploy configuration files
