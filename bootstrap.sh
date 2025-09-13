@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Windows detection and PowerShell fallback
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "${OS:-}" == "Windows_NT" ]]; then
+    # We're on Windows - check if we have the PowerShell bootstrap script
+    if [[ -f "bootstrap.ps1" ]]; then
+        echo "🔄 Detected Windows environment, delegating to bootstrap.ps1..."
+        powershell.exe -ExecutionPolicy Bypass -File bootstrap.ps1
+        exit $?
+    else
+        echo "⚠️  Windows detected but bootstrap.ps1 not found, continuing with bash bootstrap..."
+    fi
+fi
+
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${DOTFILES_ROOT}/logs"
