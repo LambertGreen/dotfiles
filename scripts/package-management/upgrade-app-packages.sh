@@ -30,12 +30,16 @@ upgraded_pms=()
 # Upgrade Zsh plugins (zinit)
 log_subsection "Zsh Plugins (zinit)"
 
-if command -v zinit >/dev/null 2>&1 || [[ -d "${HOME}/.zinit" ]]; then
+if [[ -d "${HOME}/.zinit" ]]; then
     upgraded_pms+=("zinit")
     log_info "Upgrading zinit plugins..."
 
-    zsh -c "zinit self-update && zinit update --all"
-    log_success "Zsh plugins upgraded successfully"
+    # Use timeout to prevent hanging and source zinit properly
+    if timeout 120 zsh -c "source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit self-update && zinit update --all" 2>&1; then
+        log_success "Zsh plugins upgraded successfully"
+    else
+        log_warn "Zinit upgrade had issues or timed out"
+    fi
 else
     log_debug "Zinit not available - skipping zsh plugin upgrades"
 fi

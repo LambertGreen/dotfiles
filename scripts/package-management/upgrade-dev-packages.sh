@@ -4,34 +4,31 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="DEV-UPGRADE"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/upgrade-dev-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file with header
-{
-    echo "Upgrade Dev Packages Log"
-    echo "========================"
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "Script: $0 $*"
-    echo "========================"
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "upgrade-dev-packages.sh"
 
-# Function to log both to console and file
+# Track timing
+START_TIME=$(date +%s)
+
+# For backward compatibility with existing script
 log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
+    log_info "$1"
 }
 
 # Function to log only to file (for verbose details)
 log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
+    log_debug "$1"
 }
 
 log_output "🔄 Dev Package Upgrade Manager"
@@ -240,4 +237,12 @@ for pm in "${SELECTED_PMS[@]}"; do
     log_output ""
 done
 
-log_output "Attempted upgrades for: ${#SELECTED_PMS[@]} package managers"
+log_section "Upgrade Summary"
+log_success "Attempted upgrades for: ${#SELECTED_PMS[@]} dev package managers"
+
+log_duration "${START_TIME}"
+finalize_log "SUCCESS"
+
+log_info "Upgrade session logged to: ${LOG_FILE}"
+
+exit 0

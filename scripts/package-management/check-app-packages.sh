@@ -34,21 +34,33 @@ log_subsection "Zsh Plugins (zinit)"
 if command -v zinit >/dev/null 2>&1 || [[ -d "${HOME}/.zinit" ]]; then
     checked_pms+=("zinit")
 
-    # Check if zinit can update plugins (this doesn't actually update)
-    if zsh -c "zinit list" >/dev/null 2>&1; then
-        plugin_count=$(zsh -c "zinit list" 2>/dev/null | wc -l | tr -d ' ')
-        if [[ ${plugin_count:-0} -gt 0 ]]; then
-            log_info "Found ${plugin_count} zsh plugins"
-            log_warn "Updates may be available for zinit plugins"
-            updates_found=true
-            log_debug "Zinit plugins can be updated"
+    # Check zinit plugins by looking at the plugins directory
+    if [[ -d "${HOME}/.zinit/plugins" ]]; then
+        if plugin_list=$(ls -1 "${HOME}/.zinit/plugins" 2>/dev/null); then
+            if [[ -n "$plugin_list" ]]; then
+                plugin_count=$(echo "$plugin_list" | wc -l | tr -d ' ')
+                log_info "Found ${plugin_count} zsh plugins:"
+                # Format plugin names for better readability (convert user---repo to user/repo)
+                formatted_plugins=$(echo "$plugin_list" | sed 's/---/\//g' | sed 's/^/  - /' | head -10)
+                log_info "$formatted_plugins"
+                if [[ $plugin_count -gt 10 ]]; then
+                    log_info "  ... and $((plugin_count - 10)) more plugins"
+                fi
+                log_warn "Updates may be available for zinit plugins"
+                updates_found=true
+                log_debug "Zinit has ${plugin_count} plugins installed"
+                # Note: zinit self-update and zinit update check for updates
+            else
+                log_info "No zsh plugins found"
+                log_debug "No zinit plugins installed"
+            fi
         else
-            log_info "No zsh plugins found"
-            log_debug "No zinit plugins installed"
+            log_warn "Cannot read zinit plugins directory"
+            log_debug "ls command failed on ${HOME}/.zinit/plugins"
         fi
     else
-        log_error "Cannot check zsh plugin status"
-        log_debug "zinit list command failed"
+        log_warn "Zinit plugins directory not found"
+        log_debug "Expected directory: ${HOME}/.zinit/plugins"
     fi
 else
     log_debug "Zinit not available - skipping"

@@ -36,7 +36,7 @@ log_warn "This may prompt for your password"
 
 if command_exists brew; then
     log_info "Upgrading admin packages via Homebrew..."
-    if "${DOTFILES_ROOT}/scripts/package-management/brew/upgrade-brew-packages.sh" admin false 2>&1 | log_command_output "BREW"; then
+    if "${DOTFILES_ROOT}/scripts/package-management/brew/upgrade-brew-packages.sh" admin false; then
         log_success "Admin packages upgraded successfully"
     else
         log_warn "Some admin package upgrades may have failed"
@@ -50,7 +50,7 @@ log_subsection "User-level Package Upgrades"
 
 if command_exists brew; then
     log_info "Upgrading user packages via Homebrew..."
-    if "${DOTFILES_ROOT}/scripts/package-management/brew/upgrade-brew-packages.sh" user false 2>&1 | log_command_output "BREW"; then
+    if "${DOTFILES_ROOT}/scripts/package-management/brew/upgrade-brew-packages.sh" user false; then
         log_success "User packages upgraded successfully"
     else
         log_warn "Some user package upgrades may have failed"

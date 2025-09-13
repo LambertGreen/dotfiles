@@ -4,38 +4,35 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="DEV-CHECK"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/check-dev-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file with header
-{
-    echo "Check Dev Packages Log"
-    echo "======================"
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "Script: $0 $*"
-    echo "======================"
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "check-dev-packages.sh"
 
-# Function to log both to console and file
+# Track timing
+START_TIME=$(date +%s)
+
+# For backward compatibility with existing script
 log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
+    log_info "$1"
 }
 
 # Function to log only to file (for verbose details)
 log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
+    log_debug "$1"
 }
 
-log_output "🔍 Checking for updates across all dev package managers..."
-log_output ""
+log_section "Development Package Check"
+log_info "Checking development packages for updates..."
 
 # Load configuration if available
 if [[ -f ~/.dotfiles.env ]]; then
@@ -51,66 +48,73 @@ fi
 checked_pms=()
 updates_found=false
 
-# Check zsh (zinit plugins)
-if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
-    log_output "=== Zsh (plugins) ==="
-    checked_pms+=("zsh")
+# NOTE: Zsh plugins (zinit) moved to check-app-packages.sh to avoid duplication
+# Check zsh (zinit plugins) - COMMENTED OUT - Now in app-packages
+# if command -v zsh >/dev/null 2>&1 && [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
+#     log_output "=== Zsh (plugins) ==="
+#     checked_pms+=("zsh")
 
-    log_verbose "Running: zinit list in zsh context"
-    # Check if zinit has any plugins that can be updated
-    # We use a timeout since zinit commands can hang if zsh config is broken
-    if zinit_status=$(timeout 30 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit times | head -20' 2>/dev/null); then
-        if [[ -n "$zinit_status" ]]; then
-            # Count number of plugins loaded
-            plugin_count=$(echo "$zinit_status" | wc -l | tr -d ' ')
-            plugin_count="${plugin_count//[$'\r\n']/}"
-            if [[ ${plugin_count:-0} -gt 0 ]]; then
-                log_output "Found $plugin_count zsh plugins (updates available)"
-                updates_found=true
-                log_verbose "zsh plugins available for update"
-                log_verbose "$zinit_status"
-            else
-                log_output "No zsh plugins found"
-                log_verbose "No zsh plugins"
-            fi
-        else
-            log_output "No zsh plugins found or zinit not properly initialized"
-            log_verbose "zinit times returned empty"
-        fi
-    else
-        log_output "Error checking zsh plugin status (timeout or initialization issue)"
-        log_verbose "zsh plugin check timed out or failed"
-    fi
-    log_output ""
-else
-    log_verbose "zsh plugins not available (zsh missing or ~/.zinit/bin/zinit.zsh not found)"
-fi
+#     log_verbose "Running: zinit list in zsh context"
+#     # Check if zinit has any plugins that can be updated
+#     # We use a timeout since zinit commands can hang if zsh config is broken
+#     if zinit_status=$(timeout 30 zsh -c 'source ~/.zinit/bin/zinit.zsh 2>/dev/null && zinit times | head -20' 2>/dev/null); then
+#         if [[ -n "$zinit_status" ]]; then
+#             # Count number of plugins loaded
+#             plugin_count=$(echo "$zinit_status" | wc -l | tr -d ' ')
+#             plugin_count="${plugin_count//[$'\r\n']/}"
+#             if [[ ${plugin_count:-0} -gt 0 ]]; then
+#                 log_output "Found $plugin_count zsh plugins (updates available)"
+#                 updates_found=true
+#                 log_verbose "zsh plugins available for update"
+#                 log_verbose "$zinit_status"
+#             else
+#                 log_output "No zsh plugins found"
+#                 log_verbose "No zsh plugins"
+#             fi
+#         else
+#             log_output "No zsh plugins found or zinit not properly initialized"
+#             log_verbose "zinit times returned empty"
+#         fi
+#     else
+#         log_output "Error checking zsh plugin status (timeout or initialization issue)"
+#         log_verbose "zsh plugin check timed out or failed"
+#     fi
+#     log_output ""
+# else
+#     log_verbose "zsh plugins not available (zsh missing or ~/.zinit/bin/zinit.zsh not found)"
+# fi
 
 # Check emacs (elpaca packages)
 if command -v emacs >/dev/null 2>&1 && [[ -d "$HOME/.emacs.d/elpaca" ]]; then
-    log_output "=== Emacs (packages) ==="
+    log_subsection "Emacs Packages"
     checked_pms+=("emacs")
 
-    log_verbose "Running: emacs elpaca status check"
-    # Check if elpaca has packages that can be updated
-    if emacs_status=$(timeout 60 emacs --batch --eval "(progn (require 'elpaca) (message \"%d packages installed\" (length (elpaca--queued))))" 2>/dev/null | grep "packages installed" || echo ""); then
-        if [[ -n "$emacs_status" ]]; then
-            package_count=$(echo "$emacs_status" | grep -o '[0-9]\+' | head -1)
-            if [[ ${package_count:-0} -gt 0 ]]; then
-                log_output "Found $package_count emacs packages (updates available)"
+    log_verbose "Checking elpaca packages directory"
+    # Check elpaca packages by looking at the builds directory
+    if [[ -d "$HOME/.emacs.d/elpaca/builds" ]]; then
+        if package_list=$(ls -1 "$HOME/.emacs.d/elpaca/builds" 2>/dev/null); then
+            if [[ -n "$package_list" ]]; then
+                package_count=$(echo "$package_list" | wc -l | tr -d ' ')
+                log_output "Found $package_count emacs packages:"
+                # Show first 10 packages
+                formatted_packages=$(echo "$package_list" | sed 's/^/  - /' | head -10)
+                log_output "$formatted_packages"
+                if [[ $package_count -gt 10 ]]; then
+                    log_output "  ... and $((package_count - 10)) more packages"
+                fi
                 updates_found=true
-                log_verbose "emacs packages available for update"
+                log_verbose "emacs packages (updates may be available - check in Emacs)"
             else
                 log_output "No emacs packages found"
-                log_verbose "No emacs packages"
+                log_verbose "No emacs packages in builds directory"
             fi
         else
-            log_output "No emacs packages found or elpaca not properly configured"
-            log_verbose "elpaca check returned empty"
+            log_output "Cannot read emacs elpaca builds directory"
+            log_verbose "ls command failed on ~/.emacs.d/elpaca/builds"
         fi
     else
-        log_output "Error checking emacs package status (timeout or configuration issue)"
-        log_verbose "emacs package check timed out or failed"
+        log_output "Emacs elpaca builds directory not found"
+        log_verbose "Expected directory: ~/.emacs.d/elpaca/builds"
     fi
     log_output ""
 else
@@ -131,7 +135,7 @@ if command -v nvim >/dev/null 2>&1; then
     done
 
     if [[ "$lazy_config_found" == true ]]; then
-        log_output "=== Neovim (plugins) ==="
+        log_subsection "Neovim Plugins"
         checked_pms+=("neovim")
 
         log_verbose "Running: nvim lazy status check"
@@ -164,7 +168,7 @@ fi
 
 # Check cargo (Rust tools)
 if command -v cargo >/dev/null 2>&1 && [[ -d "$HOME/.cargo/bin" ]]; then
-    log_output "=== Cargo (Rust tools) ==="
+    log_subsection "Cargo (Rust Tools)"
     checked_pms+=("cargo")
 
     log_verbose "Running: cargo install --list"
@@ -189,17 +193,23 @@ fi
 
 # Check pipx (Python CLI tools)
 if command -v pipx >/dev/null 2>&1; then
-    log_output "=== Pipx (Python tools) ==="
+    log_subsection "Pipx (Python Tools)"
     checked_pms+=("pipx")
 
-    log_verbose "Running: pipx list"
-    # Check if pipx has installed packages
-    if pipx_list=$(pipx list --short 2>/dev/null | wc -l | tr -d ' '); then
-        pipx_list="${pipx_list//[$'\r\n']/}"
-        if [[ ${pipx_list:-0} -gt 0 ]]; then
-            log_output "Found $pipx_list pipx tools (updates available)"
-            updates_found=true
-            log_verbose "pipx tools available for update"
+    log_verbose "Running: pipx list --short"
+    # Check if pipx has installed packages and show their versions
+    if pipx_packages=$(pipx list --short 2>/dev/null); then
+        if [[ -n "$pipx_packages" ]]; then
+            package_count=$(echo "$pipx_packages" | wc -l | tr -d ' ')
+            log_output "Found $package_count pipx tools:"
+            log_output "$pipx_packages"
+
+            # Check for outdated packages
+            log_verbose "Checking for outdated pipx packages"
+            if outdated_pipx=$(pipx list --short 2>/dev/null); then
+                updates_found=true
+                log_verbose "pipx packages (updates may be available - run pipx upgrade-all)"
+            fi
         else
             log_output "No pipx tools installed"
             log_verbose "No pipx tools"
@@ -214,19 +224,21 @@ else
 fi
 
 # Summary
-log_output "Checked ${#checked_pms[@]} dev package managers"
+log_section "Check Summary"
 
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
-    log_output "⚠️  No dev package managers found"
+    log_warn "No dev package managers found"
+    log_debug "No dev package managers detected on this system"
 else
-    log_output "✅ Checked dev package managers: ${checked_pms[*]}"
-
+    log_success "Checked dev package managers: ${checked_pms[*]}"
     if [[ "$updates_found" == true ]]; then
-        log_output "📦 Updates available - run 'just upgrade-dev-packages' to install"
+        log_warn "Updates available - run 'just upgrade-dev-packages' to install"
     else
-        log_output "✅ All dev packages are up to date"
+        log_success "All dev packages are up to date"
     fi
 fi
 
-log_output ""
-log_output "📝 Check dev packages session logged to: ${LOG_FILE}"
+log_duration "${START_TIME}"
+finalize_log "SUCCESS"
+
+log_info "Check session logged to: ${LOG_FILE}"

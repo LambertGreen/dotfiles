@@ -4,38 +4,35 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="SYS-CHECK"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/check-system-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file with header
-{
-    echo "Check System Packages Log"
-    echo "========================="
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "Script: $0 $*"
-    echo "========================="
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "check-system-packages.sh"
 
-# Function to log both to console and file
+# Track timing
+START_TIME=$(date +%s)
+
+# For backward compatibility with existing script
 log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
+    log_info "$1"
 }
 
 # Function to log only to file (for verbose details)
 log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
+    log_debug "$1"
 }
 
-log_output "🔄 Updating package registries and checking for system updates..."
-log_output ""
+log_section "System Package Check"
+log_info "Checking system packages for updates..."
 
 # Load configuration if available
 if [[ -f ~/.dotfiles.env ]]; then
@@ -53,7 +50,7 @@ updates_found=false
 
 # Check Homebrew (macOS/Linux)
 if command -v brew >/dev/null 2>&1; then
-    log_output "=== Homebrew ==="
+    log_subsection "Homebrew"
     checked_pms+=("brew")
 
     # UPDATE REGISTRY
@@ -66,21 +63,52 @@ if command -v brew >/dev/null 2>&1; then
         log_verbose "brew update failed with exit code: $?"
     fi
 
-    # CHECK FOR UPDATES
-    log_verbose "Running: brew outdated"
-    if outdated_brew=$(brew outdated 2>&1); then
-        if [[ -n "$outdated_brew" ]]; then
-            log_output "Available updates:"
-            log_output "$outdated_brew"
-            updates_found=true
-            log_verbose "Homebrew updates available"
-        else
-            log_output "All Homebrew packages are up to date"
-            log_verbose "No Homebrew updates"
-        fi
+    # CHECK FOR UPDATES (formulas and casks with greedy flag + version info)
+    log_verbose "Running: brew outdated --verbose && brew outdated --cask --greedy --verbose"
+
+    # Check formulas (with version info)
+    outdated_formulas=""
+    if outdated_formulas=$(brew outdated --verbose 2>&1); then
+        log_verbose "Formula check completed"
     else
-        log_output "Error checking Homebrew updates"
-        log_verbose "brew outdated failed with exit code: $?"
+        log_verbose "Formula check failed with exit code: $?"
+    fi
+
+    # Check casks (including greedy + version info)
+    outdated_casks=""
+    if outdated_casks=$(brew outdated --cask --greedy --verbose 2>&1); then
+        log_verbose "Cask check completed"
+    else
+        log_verbose "Cask check failed with exit code: $?"
+    fi
+
+    # Show results separately for better organization
+    outdated_brew=""
+    if [[ -n "$outdated_formulas" ]]; then
+        formula_count=$(echo "$outdated_formulas" | wc -l | tr -d ' ')
+        log_output "📦 Homebrew Formulas (${formula_count} updates):"
+        log_output "$outdated_formulas"
+        outdated_brew="formulas"
+    fi
+
+    if [[ -n "$outdated_casks" ]]; then
+        cask_count=$(echo "$outdated_casks" | wc -l | tr -d ' ')
+        log_output ""
+        log_output "🖥️ GUI Applications/Casks (${cask_count} updates):"
+        log_output "$outdated_casks"
+        if [[ -n "$outdated_brew" ]]; then
+            outdated_brew="$outdated_brew + casks"
+        else
+            outdated_brew="casks"
+        fi
+    fi
+
+    if [[ -n "$outdated_brew" ]]; then
+        updates_found=true
+        log_verbose "Homebrew updates available"
+    else
+        log_output "All Homebrew packages are up to date"
+        log_verbose "No Homebrew updates"
     fi
     log_output ""
 else
@@ -89,7 +117,7 @@ fi
 
 # Check APT (Ubuntu/Debian)
 if command -v apt >/dev/null 2>&1; then
-    log_output "=== APT ==="
+    log_subsection "APT"
     checked_pms+=("apt")
 
     # UPDATE REGISTRY
@@ -127,7 +155,7 @@ fi
 
 # Check Pacman (Arch)
 if command -v pacman >/dev/null 2>&1; then
-    log_output "=== Pacman ==="
+    log_subsection "Pacman"
     checked_pms+=("pacman")
 
     # UPDATE REGISTRY
@@ -163,7 +191,7 @@ fi
 
 # Check Scoop (Windows)
 if command -v scoop >/dev/null 2>&1; then
-    log_output "=== Scoop ==="
+    log_subsection "Scoop"
     checked_pms+=("scoop")
 
     # UPDATE REGISTRY
@@ -198,20 +226,23 @@ else
 fi
 
 # Summary
+log_section "Check Summary"
+
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
-    log_output "⚠️  No package managers found"
-    log_verbose "No package managers detected on this system"
+    log_warn "No package managers found"
+    log_debug "No package managers detected on this system"
 else
-    log_output "✅ Checked package managers: ${checked_pms[*]}"
+    log_success "Checked package managers: ${checked_pms[*]}"
     if [[ "$updates_found" == true ]]; then
-        log_output "📦 Updates are available - run 'just upgrade-system-packages' to upgrade"
+        log_warn "Updates are available - run 'just upgrade-system-packages' to upgrade"
     else
-        log_output "✨ All system packages are up to date"
+        log_success "All system packages are up to date"
     fi
 fi
 
-log_output ""
-log_output "📝 Check session logged to: ${LOG_FILE}"
+log_duration "${START_TIME}"
+finalize_log "SUCCESS"
 
+log_info "Check session logged to: ${LOG_FILE}"
 
 exit 0
