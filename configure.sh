@@ -4,18 +4,6 @@
 
 set -euo pipefail
 
-# Windows detection and PowerShell fallback
-if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "${OS:-}" == "Windows_NT" ]]; then
-    # We're on Windows - check if we have the PowerShell configure script
-    if [[ -f "configure.ps1" ]]; then
-        echo "🔄 Detected Windows environment, delegating to configure.ps1..."
-        powershell.exe -ExecutionPolicy Bypass -File configure.ps1
-        exit $?
-    else
-        echo "⚠️  Windows detected but configure.ps1 not found, continuing with bash configure..."
-    fi
-fi
-
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LOG_DIR="${DOTFILES_ROOT}/logs"

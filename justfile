@@ -279,11 +279,11 @@ cleanup-broken-links-remove:
 
 # Interactive configuration (select machine class)
 configure:
-    @./configure.sh
+    @{{ if os() == "windows" { "powershell.exe -ExecutionPolicy Bypass -File configure.ps1" } else { "./configure.sh" } }}
 
 # Bootstrap system (install core tools)  
 bootstrap:
-    @./bootstrap.sh
+    @{{ if os() == "windows" { "powershell.exe -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
 
 # Deploy configuration files
 stow:
