@@ -4,48 +4,35 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="DEV-INIT"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/init-dev-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file with header
-{
-    echo "Initialize Dev Packages Log"
-    echo "=========================="
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "Script: $0 $*"
-    echo "=========================="
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "init-dev-packages.sh"
 
-# Function to log both to console and file
-log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
-}
+# Track timing
+START_TIME=$(date +%s)
 
-# Function to log only to file (for verbose details)
-log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
-}
-
-log_output "🚀 Dev Package Manager Initialization"
-log_output ""
+log_section "Development Package Manager Initialization"
+log_info "Starting dev package manager initialization..."
 
 # Load configuration if available
 if [[ -f ~/.dotfiles.env ]]; then
     # shellcheck source=/dev/null
     source ~/.dotfiles.env
-    log_verbose "Loaded configuration from ~/.dotfiles.env"
-    log_verbose "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
-    log_verbose "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
+    log_debug "Loaded configuration from ~/.dotfiles.env"
+    log_debug "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
+    log_debug "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
 else
-    log_verbose "No ~/.dotfiles.env found"
+    log_debug "No ~/.dotfiles.env found"
 fi
 
 # Track initialization results
@@ -209,8 +196,7 @@ else
 fi
 
 # Summary
-log_output "📊 Dev Package Initialization Summary"
-log_output "===================================="
+log_output "Initialized ${#initialized_pms[@]} dev package managers"
 
 if [[ ${#initialized_pms[@]} -gt 0 ]]; then
     log_output "[SUCCESS] Successfully initialized: ${initialized_pms[*]}"

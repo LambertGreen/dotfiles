@@ -1,0 +1,273 @@
+#+TITLE: Dotfiles Testing Documentation
+#+AUTHOR: Lambert Green
+#+DATE: 2025-09-05
+#+OPTIONS: toc:3 num:nil
+
+* Overview
+
+This document defines the testing baselines, expectations, and success criteria for the dotfiles project. Our testing framework uses Docker containers to verify installation and configuration across multiple platforms and machine classes.
+
+* Test Architecture
+
+** Platforms
+- Ubuntu (22.04 and 24.04)
+- Arch Linux (latest)
+
+** Machine Classes
+- =essential= - Minimal system with core utilities only
+- =developer= - Full development environment (editors, compilers, tools)
+- =gui= - Desktop environment packages (X11/Wayland support)
+
+** Test Matrix
+
+| Platform | Essential | Developer | GUI |
+|----------+-----------+-----------+-----|
+| Ubuntu   | ✓         | ✓         | ✓   |
+| Arch     | ✓         | ✓         | ✓   |
+
+* Baseline Expectations
+
+** Essential Machine Class
+*** Purpose
+Validate core dotfiles functionality on a minimal system.
+
+*** Expected Time
+- Ubuntu: 3-5 minutes
+- Arch: 3-5 minutes
+
+*** Success Criteria
+1. [ ] Bootstrap script completes without errors
+2. [ ] Stow successfully links all configurations
+3. [ ] Shell environment loads without errors
+4. [ ] Basic utilities installed (git, curl, wget, vim)
+5. [ ] Package management scripts functional
+6. [ ] Logging system operational
+
+*** Key Packages
+- git
+- stow
+- curl/wget
+- vim
+- zsh
+- basic build tools
+
+** Developer Machine Class
+*** Purpose
+Validate full development environment setup including all programming languages and tools.
+
+*** Expected Time
+- Ubuntu: 10-15 minutes
+- Arch: 10-15 minutes
+
+*** Success Criteria
+1. [ ] All essential criteria met
+2. [ ] Programming environments initialized:
+   - [ ] Zsh with zinit plugins
+   - [ ] Neovim with lazy.nvim
+   - [ ] Emacs with elpaca (if applicable)
+3. [ ] Development tools installed:
+   - [ ] Node.js/npm
+   - [ ] Python/pip
+   - [ ] Rust/cargo
+   - [ ] Go
+4. [ ] Package managers functional:
+   - [ ] System packages (brew/apt/pacman)
+   - [ ] Development packages (npm, pip, cargo)
+   - [ ] Application packages (zinit, lazy.nvim)
+5. [ ] All health checks pass
+
+*** Key Packages
+Everything from Essential plus:
+- neovim
+- emacs
+- nodejs/npm
+- python3/pip
+- rust/cargo
+- golang
+- docker (where applicable)
+- development libraries
+
+** GUI Machine Class
+*** Purpose
+Validate desktop environment packages and GUI application configurations.
+
+*** Expected Time
+- Ubuntu: 5-8 minutes
+- Arch: 5-8 minutes
+
+*** Success Criteria
+1. [ ] All essential criteria met
+2. [ ] Desktop packages installed successfully
+3. [ ] Font packages available
+4. [ ] Terminal emulators configured
+5. [ ] Window manager configurations linked (if applicable)
+
+*** Key Packages
+Everything from Essential plus:
+- fonts (nerd fonts, etc.)
+- terminal emulators
+- GUI utilities
+- desktop integration tools
+
+* Test Execution
+
+** Running Tests
+
+*** Individual Tests
+#+BEGIN_SRC bash
+# Test specific configuration
+just test-essential-ubuntu
+just test-developer-arch
+
+# Interactive debugging
+just run-developer-ubuntu
+#+END_SRC
+
+*** Batch Testing
+#+BEGIN_SRC bash
+# Test all Ubuntu configurations
+just test-all-ubuntu
+
+# Test all Arch configurations
+just test-all-arch
+
+# Test everything
+just test-all
+#+END_SRC
+
+** Monitoring Progress
+
+*** Log Files
+Test logs are stored in =test/.logs/= with timestamps:
+- Pattern: =test-{class}-{platform}-YYYYMMDD-HHMMSS.log=
+- Summary: =test-summary-YYYYMMDD-HHMMSS.md=
+
+*** Viewing Results
+#+BEGIN_SRC bash
+# Show latest test summary
+just show-test-summary
+
+# Show last log
+just show-last-log
+
+# List all logs
+just list-logs
+#+END_SRC
+
+* Performance Baselines
+
+** Build Times (Docker image creation)
+| Configuration      | Expected Time | Max Acceptable |
+|--------------------+---------------+----------------|
+| essential-ubuntu   | 2-3 min       | 5 min          |
+| essential-arch     | 2-3 min       | 5 min          |
+| developer-ubuntu   | 8-12 min      | 20 min         |
+| developer-arch     | 8-12 min      | 20 min         |
+| gui-ubuntu         | 4-6 min       | 10 min         |
+| gui-arch           | 4-6 min       | 10 min         |
+
+** Installation Times (inside container)
+| Phase                  | Expected Time | Max Acceptable |
+|------------------------+---------------+----------------|
+| Bootstrap              | 30-60 sec     | 2 min          |
+| Stow linking           | 5-10 sec      | 30 sec         |
+| System packages        | 2-5 min       | 10 min         |
+| Dev packages (init)    | 3-5 min       | 10 min         |
+| Health checks          | 10-20 sec     | 1 min          |
+
+* Success Metrics
+
+** Overall Success Rate
+Target: 100% pass rate for all test scenarios
+
+** Key Performance Indicators (KPIs)
+1. *Bootstrap Success Rate*: 100%
+2. *Package Installation Rate*: >95% (some optional packages may fail)
+3. *Configuration Link Rate*: 100%
+4. *Health Check Pass Rate*: 100%
+5. *Total Test Time*: <30 minutes for full suite
+
+** Error Tolerance
+- Network errors: Retry up to 3 times
+- Package conflicts: Document and skip
+- Optional features: May fail without blocking
+
+* Common Issues and Solutions
+
+** Issue: Package not found
+- *Cause*: Repository not updated or package renamed
+- *Solution*: Update package lists, check package names
+
+** Issue: Stow conflicts
+- *Cause*: Existing files in target locations
+- *Solution*: Clean target directories or use force options
+
+** Issue: Permission denied
+- *Cause*: Missing sudo or incorrect permissions
+- *Solution*: Ensure proper privilege escalation in scripts
+
+** Issue: Network timeouts
+- *Cause*: Slow connection or repository issues
+- *Solution*: Implement retries and fallback mirrors
+
+* Continuous Improvement
+
+** Test Coverage Goals
+- [ ] Add Windows WSL testing
+- [ ] Add macOS native testing (non-Docker)
+- [ ] Add performance regression testing
+- [ ] Add configuration validation tests
+
+** Automation Goals
+- [ ] Nightly test runs
+- [ ] PR validation tests
+- [ ] Performance tracking dashboard
+- [ ] Automated issue creation for failures
+
+* Test Commands Reference
+
+** Quick Test Commands
+#+BEGIN_SRC bash
+# Clean everything and start fresh
+just clean
+
+# Run minimal smoke test
+just test-essential-ubuntu
+
+# Run full developer test
+just test-developer-ubuntu
+
+# Debug a failed test
+just run-developer-ubuntu
+#+END_SRC
+
+** Advanced Testing
+#+BEGIN_SRC bash
+# Force rebuild (no cache)
+just clear-docker-cache
+just test-developer-ubuntu
+
+# Test with custom machine class
+DOTFILES_MACHINE_CLASS=custom just test-essential-ubuntu
+
+# Parallel testing (be careful with resources)
+just test-all
+#+END_SRC
+
+* Appendix
+
+** Environment Variables
+- =DOTFILES_TEST_PLATFORM=: Override default test platform
+- =DOTFILES_MACHINE_CLASS=: Set machine class for testing
+- =TZ=: Timezone for test containers
+
+** File Locations
+- Test definitions: =test/justfile=
+- Dockerfiles: =test/dockerfiles/=
+- Test logs: =test/.logs/=
+- Test helpers: =test/test-helpers/=
+
+** Related Documentation
+- [[file:../README.org][Main README]]
+- [[file:../docs/CONFIGURATION.org][Configuration Guide]]
+- [[file:../docs/MACHINE_CLASSES.org][Machine Classes Documentation]]

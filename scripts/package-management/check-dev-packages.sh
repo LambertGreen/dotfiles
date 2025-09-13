@@ -214,8 +214,7 @@ else
 fi
 
 # Summary
-log_output "📊 Dev Package Update Check Summary"
-log_output "==================================="
+log_output "Checked ${#checked_pms[@]} dev package managers"
 
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No dev package managers found"
@@ -231,16 +230,3 @@ fi
 
 log_output ""
 log_output "📝 Check dev packages session logged to: ${LOG_FILE}"
-
-# Log final status to file
-{
-    echo ""
-    echo "=== CHECK DEV PACKAGES COMPLETION ==="
-    echo "Dev package managers checked: ${checked_pms[*]:-none}"
-    echo "Updates found: $updates_found"
-    echo "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
-    echo "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
-    echo "======================================"
-    echo ""
-    echo "Check dev packages completed at: $(date)"
-} >> "${LOG_FILE}"

@@ -240,27 +240,4 @@ for pm in "${SELECTED_PMS[@]}"; do
     log_output ""
 done
 
-log_output "📊 Dev Package Upgrade Summary"
-log_output "=============================="
-log_output "✅ Attempted upgrades for: ${SELECTED_PMS[*]}"
-log_output ""
-log_output "💡 Next steps:"
-log_output "  just check-dev-packages  - Check for any remaining updates"
-log_output "  just check-health        - Verify system health"
-
-log_output ""
-log_output "📝 Upgrade session logged to: ${LOG_FILE}"
-
-# Log final status to file
-{
-    echo ""
-    echo "=== UPGRADE DEV PACKAGES COMPLETION ==="
-    echo "Based on check log: $(basename "$LATEST_CHECK_LOG")"
-    echo "Available dev package managers: ${AVAILABLE_UPGRADES[*]:-none}"
-    echo "Selected dev package managers: ${SELECTED_PMS[*]:-none}"
-    echo "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
-    echo "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
-    echo "========================================"
-    echo ""
-    echo "Upgrade dev packages completed at: $(date)"
-} >> "${LOG_FILE}"
+log_output "Attempted upgrades for: ${#SELECTED_PMS[@]} package managers"

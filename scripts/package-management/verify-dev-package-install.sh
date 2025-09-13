@@ -172,8 +172,7 @@ else
 fi
 
 # Summary
-log_output "📊 Dev Package Installation Verification Summary"
-log_output "================================================"
+log_output "Verified ${#verified_pms[@]} dev package managers"
 
 if [[ ${#verified_pms[@]} -gt 0 ]]; then
     log_output "✅ Successfully verified: ${verified_pms[*]}"

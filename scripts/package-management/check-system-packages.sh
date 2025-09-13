@@ -198,7 +198,6 @@ else
 fi
 
 # Summary
-log_output "========================="
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers found"
     log_verbose "No package managers detected on this system"
@@ -214,16 +213,5 @@ fi
 log_output ""
 log_output "📝 Check session logged to: ${LOG_FILE}"
 
-# Log final status to file
-{
-    echo ""
-    echo "=== CHECK COMPLETION ==="
-    echo "Package managers checked: ${checked_pms[*]:-none}"
-    echo "Updates found: $updates_found"
-    echo "Status: SUCCESS"
-    echo "======================="
-    echo ""
-    echo "Check completed at: $(date)"
-} >> "${LOG_FILE}"
 
 exit 0

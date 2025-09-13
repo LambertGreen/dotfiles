@@ -212,8 +212,7 @@ fi
 
 # Export summary
 log_output ""
-log_output "📊 Export Summary"
-log_output "=================="
+log_output "Exported ${#exported_pms[@]} package managers"
 
 if [[ ${#exported_pms[@]} -gt 0 ]]; then
     log_output "✅ Successfully exported: ${exported_pms[*]}"
@@ -272,18 +271,3 @@ fi
 
 log_output ""
 log_output "📝 Export session logged to: ${LOG_FILE}"
-
-# Log final status to file
-{
-    echo ""
-    echo "=== EXPORT PACKAGES COMPLETION ==="
-    echo "Export type: $([ "$UPDATE_CURRENT" = true ] && echo "Update current machine class" || echo "Export to /tmp")"
-    echo "Target directory: $EXPORT_DIR"
-    echo "Exported package managers: ${exported_pms[*]:-none}"
-    echo "Export errors: ${export_errors[*]:-none}"
-    echo "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
-    echo "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
-    echo "===================================="
-    echo ""
-    echo "Export completed at: $(date)"
-} >> "${LOG_FILE}"

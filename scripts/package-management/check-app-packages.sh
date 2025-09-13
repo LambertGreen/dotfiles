@@ -4,100 +4,80 @@
 
 set -euo pipefail
 
-# Set up logging
+# Setup
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
+# Configure logging
+LOG_PREFIX="APP-CHECK"
 LOG_DIR="${DOTFILES_ROOT}/.logs"
 LOG_FILE="${LOG_DIR}/check-app-packages-$(date +%Y%m%d-%H%M%S).log"
 
-# Create log directory if it doesn't exist
-mkdir -p "${LOG_DIR}"
+# Source enhanced logging utilities
+source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
 
-# Initialize log file
-{
-    echo "Check App Packages Log"
-    echo "======================"
-    echo "Date: $(date)"
-    echo "Machine: $(hostname 2>/dev/null || echo 'unknown')"
-    echo "User: ${USER:-$(whoami)}"
-    echo "======================"
-    echo ""
-} > "${LOG_FILE}"
+# Initialize log
+initialize_log "check-app-packages.sh"
 
-# Function to log both to console and file
-log_output() {
-    echo "$1" | tee -a "${LOG_FILE}"
-}
+# Track timing
+START_TIME=$(date +%s)
 
-# Function to log only to file
-log_verbose() {
-    echo "$1" >> "${LOG_FILE}"
-}
-
-log_output "🔍 Checking application packages for updates..."
-log_output ""
+log_section "Application Package Check"
+log_info "Checking application packages for updates..."
 
 # Track what package managers we check
 checked_pms=()
 updates_found=false
 
 # Check Zsh plugins (zinit)
+log_subsection "Zsh Plugins (zinit)"
+
 if command -v zinit >/dev/null 2>&1 || [[ -d "${HOME}/.zinit" ]]; then
-    log_output "=== Zsh Plugins (zinit) ==="
     checked_pms+=("zinit")
 
     # Check if zinit can update plugins (this doesn't actually update)
     if zsh -c "zinit list" >/dev/null 2>&1; then
         plugin_count=$(zsh -c "zinit list" 2>/dev/null | wc -l | tr -d ' ')
         if [[ ${plugin_count:-0} -gt 0 ]]; then
-            log_output "Found ${plugin_count} zsh plugins (updates available)"
+            log_info "Found ${plugin_count} zsh plugins"
+            log_warn "Updates may be available for zinit plugins"
             updates_found=true
-            log_verbose "Zinit plugins can be updated"
+            log_debug "Zinit plugins can be updated"
         else
-            log_output "No zsh plugins found"
-            log_verbose "No zinit plugins"
+            log_info "No zsh plugins found"
+            log_debug "No zinit plugins installed"
         fi
     else
-        log_output "Cannot check zsh plugin status"
-        log_verbose "zinit list command failed"
+        log_error "Cannot check zsh plugin status"
+        log_debug "zinit list command failed"
     fi
-    log_output ""
 else
-    log_verbose "Zinit not available"
+    log_debug "Zinit not available - skipping"
 fi
 
 # Check Emacs packages (elpaca) - placeholder for now
-log_verbose "Emacs (elpaca) check not yet implemented"
+log_debug "Emacs (elpaca) check not yet implemented"
 
 # Check Neovim packages (lazy.nvim) - placeholder for now
-log_verbose "Neovim (lazy.nvim) check not yet implemented"
+log_debug "Neovim (lazy.nvim) check not yet implemented"
 
 # Summary
-log_output "========================="
+log_section "Check Summary"
+
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
-    log_output "⚠️  No app package managers found"
-    log_verbose "No app package managers detected on this system"
+    log_warn "No app package managers found"
+    log_debug "No app package managers detected on this system"
 else
-    log_output "✅ Checked app package managers: ${checked_pms[*]}"
+    log_success "Checked app package managers: ${checked_pms[*]}"
     if [[ "$updates_found" == true ]]; then
-        log_output "📦 Updates are available - run 'just upgrade-app-packages' to upgrade"
+        log_warn "Updates are available - run 'just upgrade-app-packages' to upgrade"
     else
-        log_output "✨ All app packages are up to date"
+        log_success "All app packages are up to date"
     fi
 fi
 
-log_output ""
-log_output "📝 Check session logged to: ${LOG_FILE}"
+log_duration "${START_TIME}"
+finalize_log "SUCCESS"
 
-# Log final status to file
-{
-    echo ""
-    echo "=== CHECK COMPLETION ==="
-    echo "App package managers checked: ${checked_pms[*]:-none}"
-    echo "Updates found: $updates_found"
-    echo "Status: SUCCESS"
-    echo "========================"
-    echo ""
-    echo "Check completed at: $(date)"
-} >> "${LOG_FILE}"
+log_info "Check session logged to: ${LOG_FILE}"
 
 exit 0

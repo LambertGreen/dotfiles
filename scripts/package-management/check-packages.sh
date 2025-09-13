@@ -177,8 +177,7 @@ else
 fi
 
 # Summary
-log_output "📊 Update Check Summary"
-log_output "======================="
+log_output "Checked ${#checked_pms[@]} package managers"
 
 if [[ ${#checked_pms[@]} -eq 0 ]]; then
     log_output "⚠️  No package managers found"
@@ -194,16 +193,3 @@ fi
 
 log_output ""
 log_output "📝 Check packages session logged to: ${LOG_FILE}"
-
-# Log final status to file
-{
-    echo ""
-    echo "=== CHECK PACKAGES COMPLETION ==="
-    echo "Package managers checked: ${checked_pms[*]:-none}"
-    echo "Updates found: $updates_found"
-    echo "DOTFILES_PLATFORM: ${DOTFILES_PLATFORM:-'not set'}"
-    echo "DOTFILES_MACHINE_CLASS: ${DOTFILES_MACHINE_CLASS:-'not set'}"
-    echo "=================================="
-    echo ""
-    echo "Check packages completed at: $(date)"
-} >> "${LOG_FILE}"
