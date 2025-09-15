@@ -14,6 +14,7 @@ LOG_FILE="${LOG_DIR}/check-system-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Source enhanced logging utilities
 source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
+source "${DOTFILES_ROOT}/scripts/package-management/shared/brew-lock-cleanup.sh"
 
 # Initialize log
 initialize_log "check-system-packages.sh"
@@ -33,6 +34,9 @@ log_verbose() {
 
 log_section "System Package Check"
 log_info "Checking system packages for updates..."
+
+# Clean up any brew locks before starting
+cleanup_brew_locks_if_needed
 
 # Load configuration if available
 if [[ -f ~/.dotfiles.env ]]; then

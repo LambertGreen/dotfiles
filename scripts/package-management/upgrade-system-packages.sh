@@ -14,6 +14,7 @@ LOG_FILE="${LOG_DIR}/upgrade-system-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Source enhanced logging utilities
 source "${DOTFILES_ROOT}/scripts/package-management/shared/logging.sh"
+source "${DOTFILES_ROOT}/scripts/package-management/shared/brew-lock-cleanup.sh"
 
 # Initialize log
 initialize_log "upgrade-system-packages.sh"
@@ -23,6 +24,9 @@ START_TIME=$(date +%s)
 
 log_section "System Package Upgrade"
 log_info "Starting system package upgrade process..."
+
+# Clean up any brew locks before starting
+cleanup_brew_locks_if_needed
 
 # Load machine configuration
 if [[ -f "${HOME}/.dotfiles.env" ]]; then
