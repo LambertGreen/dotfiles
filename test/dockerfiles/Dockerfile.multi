@@ -82,6 +82,7 @@ RUN ./bootstrap.sh
 FROM bootstrap-ubuntu AS stow-ubuntu
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
+COPY --chown=user:user src/ ./src/
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
 COPY --chown=user:user scripts/show-config.sh ./scripts/
@@ -104,13 +105,11 @@ COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scrip
 # =============================================================================
 
 FROM install-ubuntu AS system-packages-ubuntu
-# Copy orchestration scripts
-COPY --chown=user:user scripts/package-management/install-system-packages.sh ./scripts/package-management/
-# Copy all system package manager scripts
+# Copy system package manager configurations
 COPY --chown=user:user scripts/package-management/apt/ ./scripts/package-management/apt/
 COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
 COPY --chown=user:user justfile ./
-# Install system packages (admin then user)
+# Install system packages using Python (admin then user)
 RUN just install-system-packages || true
 
 # =============================================================================
@@ -119,14 +118,12 @@ RUN just install-system-packages || true
 # =============================================================================
 
 FROM system-packages-ubuntu AS dev-packages-ubuntu
-# Copy dev orchestration script
-COPY --chown=user:user scripts/package-management/install-dev-packages.sh ./scripts/package-management/
-# Copy all dev package manager scripts
+# Copy dev package manager configurations
 COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
 COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
 COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
 COPY --chown=user:user scripts/package-management/cargo/ ./scripts/package-management/cargo/
-# Install dev packages
+# Install dev packages using Python
 RUN just install-dev-packages || true
 
 # =============================================================================
@@ -135,13 +132,11 @@ RUN just install-dev-packages || true
 # =============================================================================
 
 FROM dev-packages-ubuntu AS app-packages-ubuntu
-# Copy app orchestration script
-COPY --chown=user:user scripts/package-management/install-app-packages.sh ./scripts/package-management/
-# Copy all app package manager scripts
+# Copy app package manager configurations
 COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
 COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
 COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
-# Install app packages
+# Install app packages using Python
 RUN just install-app-packages || true
 
 # =============================================================================
@@ -168,6 +163,7 @@ RUN ./bootstrap.sh
 FROM bootstrap-arch AS stow-arch
 COPY --chown=user:user configs/ ./configs/
 COPY --chown=user:user justfile ./
+COPY --chown=user:user src/ ./src/
 COPY --chown=user:user scripts/health/ ./scripts/health/
 COPY --chown=user:user scripts/stow/ ./scripts/stow/
 COPY --chown=user:user scripts/show-config.sh ./scripts/
@@ -190,13 +186,11 @@ COPY --chown=user:user scripts/package-management/interactive-prompts.sh ./scrip
 # =============================================================================
 
 FROM install-arch AS system-packages-arch
-# Copy orchestration scripts
-COPY --chown=user:user scripts/package-management/install-system-packages.sh ./scripts/package-management/
-# Copy all system package manager scripts
+# Copy system package manager configurations
 COPY --chown=user:user scripts/package-management/pacman/ ./scripts/package-management/pacman/
 COPY --chown=user:user scripts/package-management/brew/ ./scripts/package-management/brew/
 COPY --chown=user:user justfile ./
-# Install system packages (admin then user)
+# Install system packages using Python (admin then user)
 RUN just install-system-packages || true
 
 # =============================================================================
@@ -205,14 +199,12 @@ RUN just install-system-packages || true
 # =============================================================================
 
 FROM system-packages-arch AS dev-packages-arch
-# Copy dev orchestration script
-COPY --chown=user:user scripts/package-management/install-dev-packages.sh ./scripts/package-management/
-# Copy all dev package manager scripts
+# Copy dev package manager configurations
 COPY --chown=user:user scripts/package-management/pip/ ./scripts/package-management/pip/
 COPY --chown=user:user scripts/package-management/npm/ ./scripts/package-management/npm/
 COPY --chown=user:user scripts/package-management/gem/ ./scripts/package-management/gem/
 COPY --chown=user:user scripts/package-management/cargo/ ./scripts/package-management/cargo/
-# Install dev packages
+# Install dev packages using Python
 RUN just install-dev-packages || true
 
 # =============================================================================
@@ -221,13 +213,11 @@ RUN just install-dev-packages || true
 # =============================================================================
 
 FROM dev-packages-arch AS app-packages-arch
-# Copy app orchestration script
-COPY --chown=user:user scripts/package-management/install-app-packages.sh ./scripts/package-management/
-# Copy all app package manager scripts
+# Copy app package manager configurations
 COPY --chown=user:user scripts/package-management/emacs/ ./scripts/package-management/emacs/
 COPY --chown=user:user scripts/package-management/neovim/ ./scripts/package-management/neovim/
 COPY --chown=user:user scripts/package-management/zsh/ ./scripts/package-management/zsh/
-# Install app packages
+# Install app packages using Python
 RUN just install-app-packages || true
 
 # =============================================================================
@@ -238,6 +228,8 @@ RUN just install-app-packages || true
 FROM app-packages-ubuntu AS docker_essential_ubuntu
 ARG MACHINE_CLASS=docker_essential_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -249,6 +241,8 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 FROM app-packages-ubuntu AS docker_developer_ubuntu
 ARG MACHINE_CLASS=docker_developer_ubuntu
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -260,6 +254,8 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 FROM app-packages-ubuntu AS docker_ubuntu_gui
 ARG MACHINE_CLASS=docker_ubuntu_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -272,6 +268,8 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 FROM app-packages-arch AS docker_essential_arch
 ARG MACHINE_CLASS=docker_essential_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -283,6 +281,8 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 FROM app-packages-arch AS docker_developer_arch
 ARG MACHINE_CLASS=docker_developer_arch
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -294,6 +294,8 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 FROM app-packages-arch AS docker_arch_gui
 ARG MACHINE_CLASS=docker_arch_gui
 ENV DOTFILES_MACHINE_CLASS=${MACHINE_CLASS}
+# Copy Python modules for package management
+COPY --chown=user:user src/ ./src/
 # Copy all remaining package management scripts for final stage
 COPY --chown=user:user scripts/package-management/*.sh ./scripts/package-management/
 RUN chmod +x ./scripts/package-management/*.sh
@@ -310,46 +312,26 @@ RUN zsh -l -c 'just check-health && just check-packages && just show-package-sta
 
 # Ubuntu maintenance workflows
 FROM docker_essential_ubuntu AS maintenance-ubuntu
-# Copy check/upgrade scripts (changes to these files will break cache here)
-COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
-# Test maintenance workflow: check then upgrade (using cached registries)
+# Test maintenance workflow: check then upgrade (using Python system)
 RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
 RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
 FROM docker_developer_ubuntu AS maintenance-dev-ubuntu
-# Copy check/upgrade scripts (changes to these files will break cache here)
-COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
-# Test maintenance workflow: check then upgrade (using cached registries)
+# Test maintenance workflow: check then upgrade (using Python system)
 RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
 RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
 # Arch maintenance workflows
 FROM docker_essential_arch AS maintenance-arch
-# Copy check/upgrade scripts (changes to these files will break cache here)
-COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
-# Test maintenance workflow: check then upgrade (using cached registries)
+# Test maintenance workflow: check then upgrade (using Python system)
 RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
 RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
 RUN zsh -l -c 'just check-health && just show-package-stats'
 
 FROM docker_developer_arch AS maintenance-dev-arch
-# Copy check/upgrade scripts (changes to these files will break cache here)
-COPY --chown=user:user scripts/package-management/check-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-system-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/check-dev-packages.sh ./scripts/package-management/
-COPY --chown=user:user scripts/package-management/upgrade-dev-packages.sh ./scripts/package-management/
-# Test maintenance workflow: check then upgrade (using cached registries)
+# Test maintenance workflow: check then upgrade (using Python system)
 RUN zsh -l -c 'just check-system-packages && just upgrade-system-packages' || true
 RUN zsh -l -c 'just check-dev-packages && just upgrade-dev-packages' || true
 RUN zsh -l -c 'just check-health && just show-package-stats'

@@ -58,18 +58,19 @@ if [ -z "$DOTFILES_PLATFORM" ]; then
 fi
 
 # Define platform-specific requirements
+# Note: Python3 is now required for all platforms for package management
 case "$DOTFILES_PLATFORM" in
     arch)
-        REQUIRED_TOOLS="stow just"
-        PLATFORM_MSG="🏛️ Arch: stow, just"
+        REQUIRED_TOOLS="python3 stow just"
+        PLATFORM_MSG="🏛️ Arch: python3, stow, just"
         ;;
     ubuntu)
-        REQUIRED_TOOLS="stow just brew"
-        PLATFORM_MSG="🐧 Ubuntu: stow, just, homebrew"
+        REQUIRED_TOOLS="python3 stow just brew"
+        PLATFORM_MSG="🐧 Ubuntu: python3, stow, just, homebrew"
         ;;
     osx)
-        REQUIRED_TOOLS="stow just brew"
-        PLATFORM_MSG="🍎 macOS: stow, just, homebrew"
+        REQUIRED_TOOLS="python3 stow just brew"
+        PLATFORM_MSG="🍎 macOS: python3, stow, just, homebrew"
         ;;
     *)
         echo "❌ Unsupported platform: $DOTFILES_PLATFORM"
@@ -99,21 +100,23 @@ if [ "$ALL_TOOLS_PRESENT" = true ]; then
 else
     echo "🔧 Installing missing tools..."
     cd scripts/bootstrap
-    
+
     # Always use basic bootstrap (essential tools only) for P1/P2 system
     BOOTSTRAP_LEVEL="basic"
-    
+
     # Run platform-specific bootstrap scripts (visible in bootstrap/ folder)
     echo "🔧 Running $BOOTSTRAP_LEVEL bootstrap for $DOTFILES_PLATFORM..."
     case "$DOTFILES_PLATFORM" in
         arch)
             echo "🏛️ Arch Basic Bootstrap - Essential tools"
+            ./install-python3-arch.sh
             ./install-just-arch.sh
             # stow comes from system packages on Arch
             sudo pacman -S --noconfirm stow
             ;;
         ubuntu)
             echo "🐧 Ubuntu Basic Bootstrap - Essential tools"
+            ./install-python3-ubuntu.sh
             ./install-stow-ubuntu.sh
             ./install-just-ubuntu.sh
             ./install-homebrew-linux.sh
@@ -121,6 +124,7 @@ else
         osx)
             echo "🍎 macOS Basic Bootstrap - Essential tools"
             ./install-homebrew-osx.sh
+            ./install-python3-osx.sh
             ./install-stow-osx.sh
             ./install-just-osx.sh
             ;;

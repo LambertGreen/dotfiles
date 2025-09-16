@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Minimal bash wrapper for fake-pm1
+# This allows 'command -v fake-pm1' detection to work
+exec python3 "$(dirname "$0")/fake_pm.py" pm1 "$@"

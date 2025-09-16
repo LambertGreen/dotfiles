@@ -39,8 +39,9 @@ default:
     @echo "  just upgrade-app-packages          - Upgrade application packages"
     @echo ""
     @echo "🔄 Unified Package Operations:"
-    @echo "  just check-packages                - Check all packages for updates"
-    @echo "  just upgrade-packages              - Upgrade all packages"
+    @echo "  just register-pms                  - Register/enable package managers"
+    @echo "  just check-packages                - Check all packages (with PM selection)"
+    @echo "  just upgrade-packages              - Upgrade all packages (with PM selection)"
     @echo "  just export-packages               - Update machine class with installed packages"
     @echo ""
     @echo "🏥 Health Check & Troubleshooting:"
@@ -95,69 +96,60 @@ install-packages:
     @echo ""
     @echo "✅ Package installation complete"
 
-# Install system packages (both admin and user levels)
+# Install system packages (using Python system)
 install-system-packages:
     @echo "🖥️ Installing system packages..."
-    @./scripts/package-management/install-system-packages.sh
-    @echo "📝 View log: just show-logs-last"
+    @python3 -m src.dotfiles_pm.pm install --category system
 
-# Install admin-level system packages (may prompt for password)
+# Install admin-level system packages (using Python system)
 install-system-packages-admin:
     @echo "🔐 Installing admin-level system packages..."
-    @./scripts/package-management/brew/install-brew-packages.sh admin
+    @python3 -m src.dotfiles_pm.pm install brew --level admin
 
-# Install user-level system packages (no admin required)
+# Install user-level system packages (using Python system)
 install-system-packages-user:
     @echo "🚀 Installing user-level system packages..."
-    @./scripts/package-management/brew/install-brew-packages.sh user
+    @python3 -m src.dotfiles_pm.pm install brew --level user
 
-# Install development language packages (npm, pip, cargo, gem)
+# Install development language packages (using Python system)
 install-dev-packages:
     @echo "🔧 Installing development packages..."
-    @./scripts/package-management/install-dev-packages.sh
+    @python3 -m src.dotfiles_pm.pm install --category dev
 
-# Install application packages (zinit, elpaca, lazy.nvim)
+# Install application packages (using Python system)
 install-app-packages:
     @echo "📱 Installing application packages..."
-    @./scripts/package-management/install-app-packages.sh
+    @python3 -m src.dotfiles_pm.pm install --category app
 
-# Check for available package updates (all packages - updates registries)
+# Check for available package updates (all packages - with PM selection)
 check-packages:
-    @echo "🔍 Checking for updates across all package types..."
-    @just check-system-packages
-    @echo ""
-    @just check-dev-packages
-    @echo ""
-    @just check-app-packages
+    @echo "🔍 Unified package checking with PM selection..."
+    @python3 -m src.dotfiles_pm.pm check
 
-# Check for system package updates (updates OS package registries)
+# Check for system package updates (using Python system)
 check-system-packages:
     @echo "🖥️ Checking system packages..."
-    @./scripts/package-management/check-system-packages.sh
+    @python3 -m src.dotfiles_pm.pm check brew apt pacman choco winget scoop
 
-# Check for dev package updates (updates language package registries)
+# Check for dev package updates (using Python system)
 check-dev-packages:
     @echo "🔧 Checking development packages..."
-    @./scripts/package-management/check-dev-packages.sh
+    @python3 -m src.dotfiles_pm.pm check npm pip pipx cargo gem
 
-# Check for app package updates (checks application package managers)
+# Check for app package updates (using Python system)
 check-app-packages:
     @echo "📱 Checking application packages..."
-    @./scripts/package-management/check-app-packages.sh
+    @python3 -m src.dotfiles_pm.pm check emacs zinit neovim
 
-# Upgrade all packages (system, dev, and app - uses cached registries)
+# Upgrade all packages (system, dev, and app - with PM selection)
 upgrade-packages:
-    @echo "🔄 Running comprehensive package upgrade..."
-    @just upgrade-system-packages
-    @echo ""
-    @just upgrade-dev-packages
-    @echo ""
-    @just upgrade-app-packages
+    @echo "🔄 Unified package upgrading with PM selection..."
+    @python3 -m src.dotfiles_pm.pm upgrade
 
-# Upgrade system packages (both admin and user levels)
+# Upgrade system packages (using Python system)
 upgrade-system-packages:
     @echo "🖥️ Upgrading system packages..."
-    @./scripts/package-management/upgrade-system-packages.sh
+    @python3 -m src.dotfiles_pm.pm upgrade brew apt pacman choco winget scoop
 
 # Upgrade admin-level system packages (may prompt for password)
 upgrade-system-packages-admin:
@@ -175,15 +167,15 @@ upgrade-system-packages-user:
         ./scripts/package-management/brew/upgrade-brew-packages.sh user false; \
     fi
 
-# Upgrade development language packages (npm, pip, cargo, gem)
+# Upgrade development language packages (using Python system)
 upgrade-dev-packages:
     @echo "🔧 Upgrading development packages..."
-    @./scripts/package-management/upgrade-dev-packages.sh
+    @python3 -m src.dotfiles_pm.pm upgrade npm pip pipx cargo gem
 
-# Upgrade application packages (zinit, elpaca, lazy.nvim)
+# Upgrade application packages (using Python system)
 upgrade-app-packages:
     @echo "📱 Upgrading application packages..."
-    @./scripts/package-management/upgrade-app-packages.sh
+    @python3 -m src.dotfiles_pm.pm upgrade emacs zinit neovim
 
 # Kill stuck brew processes (use with caution)
 kill-brew-processes:
@@ -203,7 +195,7 @@ verify-dev-package-install:
 
 # Check system packages only (without dev packages)
 check-packages-system-only:
-    @./scripts/package-management/check-packages.sh
+    @python3 -m src.dotfiles_pm.pm check
 
 # Upgrade system packages only (without dev packages)
 upgrade-packages-system-only:
@@ -288,7 +280,7 @@ cleanup-broken-links-remove:
 configure:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File configure.ps1" } else { "./configure.sh" } }}
 
-# Bootstrap system (install core tools)  
+# Bootstrap system (install core tools)
 bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
 
@@ -334,6 +326,145 @@ help: default
 
 [private]
 h: default
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Conditional Package Manager Recipes (only show if PM is installed)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Check brew packages (only available if brew is installed)
+[group('PM-specific')]
+check-brew-packages:
+    #!/usr/bin/env bash
+    if command -v brew >/dev/null 2>&1; then
+        echo "🍺 Checking Homebrew packages..."
+        python3 -m src.dotfiles_pm.pm check brew
+    else
+        echo "❌ Homebrew not installed"
+        exit 1
+    fi
+
+# Upgrade brew packages (only available if brew is installed)
+[group('PM-specific')]
+upgrade-brew-packages:
+    #!/usr/bin/env bash
+    if command -v brew >/dev/null 2>&1; then
+        echo "🍺 Upgrading Homebrew packages..."
+        python3 -m src.dotfiles_pm.pm upgrade brew
+    else
+        echo "❌ Homebrew not installed"
+        exit 1
+    fi
+
+# Check npm packages (only available if npm is installed)
+[group('PM-specific')]
+check-npm-packages:
+    #!/usr/bin/env bash
+    if command -v npm >/dev/null 2>&1; then
+        echo "📦 Checking npm packages..."
+        python3 -m src.dotfiles_pm.pm check npm
+    else
+        echo "❌ npm not installed"
+        exit 1
+    fi
+
+# Upgrade npm packages (only available if npm is installed)
+[group('PM-specific')]
+upgrade-npm-packages:
+    #!/usr/bin/env bash
+    if command -v npm >/dev/null 2>&1; then
+        echo "📦 Upgrading npm packages..."
+        python3 -m src.dotfiles_pm.pm upgrade npm
+    else
+        echo "❌ npm not installed"
+        exit 1
+    fi
+
+# Check pip packages (only available if pip3 is installed)
+[group('PM-specific')]
+check-pip-packages:
+    #!/usr/bin/env bash
+    if command -v pip3 >/dev/null 2>&1; then
+        echo "🐍 Checking pip packages..."
+        python3 -m src.dotfiles_pm.pm check pip
+    else
+        echo "❌ pip3 not installed"
+        exit 1
+    fi
+
+# Upgrade pip packages (only available if pip3 is installed)
+[group('PM-specific')]
+upgrade-pip-packages:
+    #!/usr/bin/env bash
+    if command -v pip3 >/dev/null 2>&1; then
+        echo "🐍 Upgrading pip packages..."
+        python3 -m src.dotfiles_pm.pm upgrade pip
+    else
+        echo "❌ pip3 not installed"
+        exit 1
+    fi
+
+# Test recipe that's only available when test PMs exist
+[group('Testing')]
+test-fake-pms:
+    #!/usr/bin/env bash
+    export PATH="$(pwd)/test:$PATH"
+    if command -v fake-pm1 >/dev/null 2>&1 && command -v fake-pm2 >/dev/null 2>&1; then
+        echo "🧪 Testing with fake package managers..."
+        echo "FakePM1 version: $(fake-pm1 version)"
+        echo "FakePM2 version: $(fake-pm2 version)"
+        echo "✅ Fake PMs are working"
+    else
+        echo "❌ Fake PMs not found (run from project root)"
+        exit 1
+    fi
+
+# Run pytest suite
+[group('Testing')]
+test:
+    @echo "🧪 Running pytest suite..."
+    python3 -m pytest tests/ -v
+
+# Run pytest with coverage
+[group('Testing')]
+test-coverage:
+    @echo "🧪 Running pytest with coverage..."
+    python3 -m pytest tests/ --cov=scripts --cov-report=term-missing
+
+# List available package managers
+[group('Package Info')]
+list-pms:
+    @python3 -m src.dotfiles_pm.pm list
+
+# Register/configure which package managers are enabled/disabled
+# Use this after installing packages to enable/disable specific PMs
+register-pms:
+    @echo "📦 Registering available package managers..."
+    @python3 -m src.dotfiles_pm.pm configure
+
+# Alias for register-pms
+[group('Package Info')]
+configure-pms: register-pms
+
+# Run end-to-end tests with fake package managers
+[group('Testing')]
+test-e2e:
+    #!/usr/bin/env bash
+    echo "🧪 Running end-to-end tests with fake PMs..."
+    export PATH="./test:$PATH"
+    export DOTFILES_PM_ONLY_FAKES="true"  # Only use fake PMs for testing
+    python3 test/test_e2e_fake.py
+
+# Run end-to-end tests in CI mode (only fake PMs, no system impact)
+[group('Testing')]
+test-e2e-ci:
+    #!/usr/bin/env bash
+    echo "🤖 Running CI-safe end-to-end tests..."
+    export PATH="./test:$PATH"
+    export DOTFILES_PM_ONLY_FAKES="true"
+    export DOTFILES_PM_DISABLE_REAL="true"  # Disable all real PMs for CI
+    python3 test/test_e2e_fake.py
+
+
 
 [private]
 usage: default
