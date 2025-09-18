@@ -1,0 +1,125 @@
+# Debugging and Troubleshooting Context
+# Tools for system health, logs, and problem resolution
+
+# Show available debug commands
+default:
+    @echo "🔍 Debugging & Troubleshooting Tools"
+    @echo ""
+    @echo "🏥 Health Checking:"
+    @echo "  just health-check           - Run system health validation"
+    @echo "  just health-check-verbose   - Detailed health check with verbose output"
+    @echo ""
+    @echo "📊 Log Analysis:"
+    @echo "  just logs                   - List recent log files"
+    @echo "  just logs-view              - Interactive log viewer"
+    @echo "  just logs-summary           - Show summary of latest log"
+    @echo "  just logs-errors            - Show error messages from latest log"
+    @echo "  just logs-timing            - Show timing analysis"
+    @echo "  just show-logs              - Show recent package management logs"
+    @echo ""
+    @echo "🧹 Cleanup & Maintenance:"
+    @echo "  just cleanup-broken-links   - List broken symlinks (dry run)"
+    @echo "  just cleanup-broken-links-remove - Remove broken symlinks"
+    @echo "  just kill-brew-processes    - Kill stuck brew processes"
+    @echo ""
+    @echo "🔄 Return to main: exit"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Health Checking
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Run system health validation
+health-check:
+    @just _health-check-with-log "../.logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
+
+# Detailed health check with verbose output
+health-check-verbose:
+    @just _health-check-with-log "../.logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
+
+# Internal helper for health checks with logging
+[private]
+_health-check-with-log logfile flags:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd ..
+    mkdir -p .logs
+    echo "🏥 Running health check {{flags}}..."
+    echo "📝 Logging to: {{logfile}}"
+    echo ""
+    if bash -c "source scripts/health/dotfiles-health.sh && dotfiles_health_check {{flags}}" 2>&1 | tee "{{logfile}}"; then
+        echo ""
+        echo "✅ Health check passed"
+        echo "📄 Full log: {{logfile}}"
+    else
+        echo ""
+        echo "❌ Health check failed"
+        echo "📄 Check log for details: {{logfile}}"
+        exit 1
+    fi
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Log Analysis
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# List recent log files
+logs:
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && list_logs
+
+# Interactive log viewer
+logs-view file="":
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && view_log {{file}}
+
+# Show summary of latest log
+logs-summary file="":
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && show_summary {{file}}
+
+# Show error messages from latest log
+logs-errors file="":
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && filter_by_level ERROR {{file}}
+
+# Show timing analysis of latest log
+logs-timing file="":
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && analyze_timing {{file}}
+
+# Show recent package management logs
+show-logs:
+    @cd .. && ./scripts/package-management/show-logs.sh
+
+# Show most recent package management log
+show-logs-last:
+    @cd .. && ./scripts/package-management/show-logs.sh | head -20
+
+# Show only dotfiles log entries (filter out external tool output)
+logs-dotfiles file="":
+    @cd .. && source ./scripts/package-management/shared/log-utils.sh && filter_dotfiles_logs {{file}}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Cleanup & Maintenance
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# List broken symlinks (dry run)
+cleanup-broken-links:
+    @cd .. && bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --dry-run"
+
+# Remove broken symlinks
+cleanup-broken-links-remove:
+    @cd .. && bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
+
+# Kill stuck brew processes (use with caution)
+kill-brew-processes:
+    @echo "🔪 Killing stuck brew processes..."
+    @pkill -f "brew" || echo "No brew processes found"
+    @echo "✅ Done. You may need to run 'brew cleanup' after this."
+
+# Verify dev package installation completed successfully
+verify-dev-packages:
+    @cd .. && ./scripts/package-management/verify-dev-package-install.sh
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Navigation
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Return to main context
+back:
+    @echo "Returning to main context..."
+    @exit

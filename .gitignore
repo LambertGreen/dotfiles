@@ -36,6 +36,14 @@ Keypirinha.history
 # Test logs
 test/.logs/
 
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
 # Clink runtime files
 clink_history*
 clink_errorlevel*

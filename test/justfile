@@ -9,9 +9,15 @@ docker_machine_classes := "essential developer gui"
 
 # Show test help
 default:
-    @echo "🧪 Dotfiles Testing - Machine Class Based"
+    @echo "🧪 Dotfiles Testing Suite"
     @echo ""
-    @echo "🔨 Build & Test Commands:"
+    @echo "🐍 Python Tests:"
+    @echo "  just test                       - Run Python test suite"
+    @echo "  just test-coverage              - Run tests with coverage report"
+    @echo "  just test-e2e                   - End-to-end tests with fake PMs"
+    @echo "  just test-e2e-ci                - CI-safe end-to-end tests"
+    @echo ""
+    @echo "🐳 Docker Tests:"
     @echo "  just test-essential-ubuntu      - Test minimal Ubuntu setup"
     @echo "  just test-essential-arch        - Test minimal Arch setup"
     @echo "  just test-developer-ubuntu      - Test full Ubuntu development setup"
@@ -28,7 +34,7 @@ default:
     @echo "📦 Batch Testing:"
     @echo "  just test-all-ubuntu            - Test all Ubuntu machine classes"
     @echo "  just test-all-arch              - Test all Arch machine classes"
-    @echo "  just test-all                   - Test everything"
+    @echo "  just test-all                   - Test everything (Python + Docker)"
     @echo ""
     @echo "📋 Log Management:"
     @echo "  just show-test-summary          - Show latest test summary"
@@ -41,6 +47,47 @@ default:
     @echo "  just clean-logs                 - Move test log directories to trash"
     @echo "  just clean-docker               - Remove dotfiles test images"
     @echo "  just clean                      - Clean logs + images"
+    @echo ""
+    @echo "🔄 Return to main: exit"
+
+# =============================================================================
+# Python Testing
+# =============================================================================
+
+# Run Python test suite
+test:
+    @echo "🧪 Running Python test suite..."
+    @cd .. && python3 -m pytest tests/ -v
+
+# Run Python tests with coverage report
+test-coverage:
+    @echo "🧪 Running Python tests with coverage..."
+    @cd .. && python3 -m pytest tests/ --cov=src --cov-report=term-missing
+
+# Run end-to-end tests with fake package managers
+test-e2e:
+    @echo "🧪 Running end-to-end tests with fake PMs..."
+    @cd .. && export PATH="./test:$PATH" && export DOTFILES_PM_ONLY_FAKES="true" && python3 test/test_e2e_fake.py
+
+# Run end-to-end tests in CI mode (only fake PMs, no system impact)
+test-e2e-ci:
+    @echo "🤖 Running CI-safe end-to-end tests..."
+    @cd .. && export PATH="./test:$PATH" && export DOTFILES_PM_ONLY_FAKES="true" && export DOTFILES_PM_DISABLE_REAL="true" && python3 test/test_e2e_fake.py
+
+# Test with fake package managers
+test-fake-pms:
+    #!/usr/bin/env bash
+    cd ..
+    export PATH="$(pwd)/test:$PATH"
+    if command -v fake-pm1 >/dev/null 2>&1 && command -v fake-pm2 >/dev/null 2>&1; then
+        echo "🧪 Testing with fake package managers..."
+        echo "FakePM1 version: $(fake-pm1 version)"
+        echo "FakePM2 version: $(fake-pm2 version)"
+        echo "✅ Fake PMs are working"
+    else
+        echo "❌ Fake PMs not found"
+        exit 1
+    fi
 
 # =============================================================================
 # Essential Tier - Minimal system testing
@@ -128,10 +175,14 @@ test-all-arch:
     just test-developer-arch
     just test-gui-arch
 
-# Test everything
+# Test everything (Python + Docker)
 test-all:
-    @echo "🧪 Testing all platforms and tiers..."
+    @echo "🧪 Testing everything (Python + Docker)..."
     @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "🐍 Python tests..."
+    just test
+    @echo ""
+    @echo "🐳 Docker tests..."
     just test-all-ubuntu
     just test-all-arch
 
