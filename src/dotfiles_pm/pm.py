@@ -95,6 +95,10 @@ def cmd_check(args):
     print(f"📈 Total outdated packages: {total_outdated}")
     print(f"🎯 Successful checks: {successful_checks}/{len(selected_pms)}")
 
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
+
     return 0
 
 
@@ -154,6 +158,10 @@ def cmd_upgrade(args):
     print()
     print(f"📈 Total packages upgraded: {total_upgraded}")
     print(f"🎯 Successful upgrades: {successful_upgrades}/{len(selected_pms)}")
+
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
 
     return 0
 

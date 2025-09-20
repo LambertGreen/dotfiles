@@ -48,12 +48,12 @@ def get_machine_config_dir(pm_name: str) -> Optional[Path]:
     return None
 
 
-def install_brew_packages(level: str = 'all') -> Dict[str, Any]:
+def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
     """
-    Install Homebrew packages from Brewfile format.
+    Install Homebrew packages from unified Brewfile.
 
     Args:
-        level: 'user', 'admin', or 'all'
+        package_type: 'formulas', 'casks', or 'all'
 
     Returns:
         Dict with installation results
@@ -71,51 +71,62 @@ def install_brew_packages(level: str = 'all') -> Dict[str, Any]:
         result['error'] = 'No configuration found for brew'
         return result
 
-    levels_to_install = []
-    if level == 'all':
-        levels_to_install = ['admin', 'user']
-    else:
-        levels_to_install = [level]
+    brewfile = config_dir / 'Brewfile'
 
-    total_installed = 0
-    for install_level in levels_to_install:
-        package_file = config_dir / f'packages.{install_level}'
+    # Fallback to old packages.user/admin if Brewfile doesn't exist
+    if not brewfile.exists():
+        # Try legacy format
+        legacy_files = [config_dir / 'packages.user', config_dir / 'packages.admin']
+        for legacy_file in legacy_files:
+            if legacy_file.exists():
+                brewfile = legacy_file
+                break
 
-        if not package_file.exists():
-            continue
+    if not brewfile.exists():
+        result['error'] = f'Brewfile not found in {config_dir}'
+        return result
 
-        print(f"  📦 Installing {install_level}-level packages from: {package_file.name}")
+    print(f"  📦 Installing from: {brewfile.name}")
 
-        try:
-            # Use brew bundle to install
-            cmd = ['brew', 'bundle', 'install', f'--file={package_file}', '--no-upgrade']
+    try:
+        # Determine install command and environment based on package type
+        cmd = ['brew', 'bundle', 'install', f'--file={brewfile}', '--no-upgrade']
+        env = dict(os.environ)
 
-            if install_level == 'admin':
-                print(f"  ⚠️  Admin packages may require password")
+        if package_type == 'formulas':
+            print(f"  🍺 Installing formulas only...")
+            env['HOMEBREW_BUNDLE_CASK_SKIP'] = '1'
+            env['HOMEBREW_BUNDLE_MAS_SKIP'] = '1'
+        elif package_type == 'casks':
+            print(f"  📦 Installing casks only...")
+            env['HOMEBREW_BUNDLE_BREW_SKIP'] = '1'
+            env['HOMEBREW_BUNDLE_MAS_SKIP'] = '1'
+        else:  # 'all'
+            print(f"  📦 Installing all packages...")
 
-            proc = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=600  # 10 minutes for installations
-            )
+        proc = subprocess.run(
+            cmd,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=600  # 10 minutes for installations
+        )
 
-            if proc.returncode == 0:
-                # Count installed packages (rough estimate)
-                lines = proc.stdout.strip().split('\n') if proc.stdout else []
-                installed = len([l for l in lines if 'Installing' in l or 'Installed' in l])
-                total_installed += installed
-                result['output'] += f"\n{install_level}: {proc.stdout}"
-            else:
-                result['error'] += f"\n{install_level}: {proc.stderr}"
+        if proc.returncode == 0:
+            # Count installed packages (rough estimate)
+            lines = proc.stdout.strip().split('\n') if proc.stdout else []
+            installed = len([l for l in lines if 'Installing' in l or 'Installed' in l])
+            result['installed_count'] = installed
+            result['output'] = proc.stdout
+            result['success'] = True
+        else:
+            result['error'] = proc.stderr
 
-        except subprocess.TimeoutExpired:
-            result['error'] += f"\n{install_level}: Installation timed out"
-        except Exception as e:
-            result['error'] += f"\n{install_level}: {str(e)}"
+    except subprocess.TimeoutExpired:
+        result['error'] = 'Installation timed out'
+    except Exception as e:
+        result['error'] = str(e)
 
-    result['installed_count'] = total_installed
-    result['success'] = total_installed > 0 or not result['error']
     return result
 
 
@@ -218,19 +229,27 @@ def install_npm_packages() -> Dict[str, Any]:
 
     try:
         print(f"  📦 Installing {len(packages)} npm packages globally...")
-        cmd = ['npm', 'install', '-g'] + packages
+        installed_count = 0
+        failed_packages = []
+        output_lines = []
 
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+        for package in packages:
+            cmd = ['npm', 'install', '-g', package]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
 
-        result['output'] = proc.stdout
-        result['error'] = proc.stderr
-        result['success'] = proc.returncode == 0
-        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+            if proc.returncode == 0:
+                installed_count += 1
+                output_lines.append(f"✅ {package}: installed")
+            else:
+                failed_packages.append(package)
+                output_lines.append(f"❌ {package}: failed - {proc.stderr.strip()}")
+
+        result['output'] = '\n'.join(output_lines)
+        result['success'] = installed_count > 0  # Success if at least one package installed
+        result['installed_count'] = installed_count
+
+        if failed_packages:
+            result['error'] = f"Failed to install: {', '.join(failed_packages)}"
 
     except subprocess.TimeoutExpired:
         result['error'] = 'Installation timed out'
@@ -267,7 +286,7 @@ def install_pip_packages() -> Dict[str, Any]:
 
     try:
         print(f"  📦 Installing pip packages from requirements.txt...")
-        cmd = ['pip3', 'install', '-r', str(package_file)]
+        cmd = ['pip3', 'install', '--user', '--break-system-packages', '-r', str(package_file)]
 
         proc = subprocess.run(
             cmd,
@@ -293,6 +312,177 @@ def install_pip_packages() -> Dict[str, Any]:
     return result
 
 
+def install_pipx_packages() -> Dict[str, Any]:
+    """
+    Install pipx packages from packages.txt file.
+
+    Returns:
+        Dict with installation results
+    """
+    result = {
+        'pm': 'pipx',
+        'success': False,
+        'output': '',
+        'error': '',
+        'installed_count': 0
+    }
+
+    config_dir = get_machine_config_dir('pipx')
+    if not config_dir:
+        result['error'] = 'No configuration found for pipx'
+        return result
+
+    package_file = config_dir / 'packages.txt'
+    if not package_file.exists():
+        result['error'] = f'Package file not found: {package_file}'
+        return result
+
+    # Read packages
+    with open(package_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+    if not packages:
+        result['output'] = 'No packages to install'
+        result['success'] = True
+        return result
+
+    try:
+        print(f"  📦 Installing {len(packages)} pipx packages...")
+        installed_count = 0
+        for package in packages:
+            cmd = ['pipx', 'install', package]
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            if proc.returncode == 0:
+                installed_count += 1
+
+        result['output'] = f'Attempted to install {len(packages)} packages'
+        result['success'] = True
+        result['installed_count'] = installed_count
+
+    except subprocess.TimeoutExpired:
+        result['error'] = 'Installation timed out'
+    except Exception as e:
+        result['error'] = str(e)
+
+    return result
+
+
+def install_cargo_packages() -> Dict[str, Any]:
+    """
+    Install cargo packages from packages.txt file.
+
+    Returns:
+        Dict with installation results
+    """
+    result = {
+        'pm': 'cargo',
+        'success': False,
+        'output': '',
+        'error': '',
+        'installed_count': 0
+    }
+
+    config_dir = get_machine_config_dir('cargo')
+    if not config_dir:
+        result['error'] = 'No configuration found for cargo'
+        return result
+
+    package_file = config_dir / 'packages.txt'
+    if not package_file.exists():
+        result['error'] = f'Package file not found: {package_file}'
+        return result
+
+    # Read packages
+    with open(package_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+    if not packages:
+        result['output'] = 'No packages to install'
+        result['success'] = True
+        return result
+
+    try:
+        print(f"  📦 Installing {len(packages)} cargo packages...")
+        cmd = ['cargo', 'install'] + packages
+
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=600
+        )
+
+        result['output'] = proc.stdout
+        result['error'] = proc.stderr
+        result['success'] = proc.returncode == 0
+        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+
+    except subprocess.TimeoutExpired:
+        result['error'] = 'Installation timed out'
+    except Exception as e:
+        result['error'] = str(e)
+
+    return result
+
+
+def install_gem_packages() -> Dict[str, Any]:
+    """
+    Install gem packages from packages.txt file.
+
+    Returns:
+        Dict with installation results
+    """
+    result = {
+        'pm': 'gem',
+        'success': False,
+        'output': '',
+        'error': '',
+        'installed_count': 0
+    }
+
+    config_dir = get_machine_config_dir('gem')
+    if not config_dir:
+        result['error'] = 'No configuration found for gem'
+        return result
+
+    package_file = config_dir / 'packages.txt'
+    if not package_file.exists():
+        result['error'] = f'Package file not found: {package_file}'
+        return result
+
+    # Read packages
+    with open(package_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+    if not packages:
+        result['output'] = 'No packages to install'
+        result['success'] = True
+        return result
+
+    try:
+        print(f"  📦 Installing {len(packages)} gem packages...")
+        cmd = ['gem', 'install'] + packages
+
+        proc = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+
+        result['output'] = proc.stdout
+        result['error'] = proc.stderr
+        result['success'] = proc.returncode == 0
+        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+
+    except subprocess.TimeoutExpired:
+        result['error'] = 'Installation timed out'
+    except Exception as e:
+        result['error'] = str(e)
+
+    return result
+
+
 def install_packages_for_pm(pm_name: str, level: str = 'all') -> Dict[str, Any]:
     """
     Install packages for a specific package manager.
@@ -305,10 +495,13 @@ def install_packages_for_pm(pm_name: str, level: str = 'all') -> Dict[str, Any]:
         Dict with installation results
     """
     installers = {
-        'brew': lambda: install_brew_packages(level),
+        'brew': lambda: install_brew_packages('all'),  # Use single Brewfile for all packages
         'apt': install_apt_packages,
         'npm': install_npm_packages,
         'pip': install_pip_packages,
+        'pipx': install_pipx_packages,
+        'cargo': install_cargo_packages,
+        'gem': install_gem_packages,
         # Add more installers as needed
     }
 

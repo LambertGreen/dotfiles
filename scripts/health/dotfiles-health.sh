@@ -64,7 +64,7 @@ _get_search_directories() {
     dirs+=("$TEST_HOME")  # Home directory (depth 1 only)
     [[ -d "$TEST_HOME/.config" ]] && dirs+=("$TEST_HOME/.config")
     [[ -d "$TEST_HOME/.local/share/applications" ]] && dirs+=("$TEST_HOME/.local/share/applications")
-    
+
     # Common dotfile directories
     local dotfile_dirs=("$TEST_HOME/.hammerspoon" "$TEST_HOME/.tmux" "$TEST_HOME/.gnupg" "$TEST_HOME/.spacemacs.d" "$TEST_HOME/.doom.d")
     if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -72,11 +72,11 @@ _get_search_directories() {
     elif [[ -d "$TEST_HOME/AppData" ]]; then
         dotfile_dirs+=("$TEST_HOME/AppData/Local" "$TEST_HOME/AppData/Roaming")
     fi
-    
+
     for dir in "${dotfile_dirs[@]}"; do
         [[ -d "$dir" ]] && dirs+=("$dir")
     done
-    
+
     printf '%s\n' "${dirs[@]}"
 }
 
@@ -86,24 +86,24 @@ _get_search_directories() {
 _find_broken_symlinks() {
     local filter_dotfiles_only="${1:-false}"
     FOUND_BROKEN_SYMLINKS=()
-    
+
     # Get search directories using shared function
     local search_dirs=()
     while IFS= read -r dir; do
         search_dirs+=("$dir")
     done < <(_get_search_directories)
-    
+
     # Find broken symlinks using find (fd doesn't handle broken symlinks well)
     for dir in "${search_dirs[@]}"; do
         local depth_args=""
         [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
-        
+
         # Exclude Temp directory on Windows
         local exclude_args=""
         if [[ "$dir" == *"AppData/Local"* ]]; then
             exclude_args="-path '*/Temp/*' -prune -o"
         fi
-        
+
         while IFS= read -r link; do
             if [[ "$filter_dotfiles_only" == "true" ]]; then
                 _check_dotfile_symlink "$link" && FOUND_BROKEN_SYMLINKS+=("$link")
@@ -157,7 +157,7 @@ _categorize_symlinks() {
     BROKEN_LINKS=()
     WARNINGS=()
     ERRORS=()
-    
+
     # First, find broken symlinks pointing to dotfiles directory (filtered)
     _find_broken_symlinks true
     # Safely copy array, handling empty case
@@ -169,20 +169,20 @@ _categorize_symlinks() {
     else
         BROKEN_LINKS=()
     fi
-    
+
     # Now categorize non-broken symlinks that point to dotfiles
     # Use same search locations as _find_broken_symlinks for consistency
     local search_dirs=()
     while IFS= read -r dir; do
         search_dirs+=("$dir")
     done < <(_get_search_directories)
-    
+
     # Find all non-broken symlinks that point to dotfiles
     if command -v fd >/dev/null 2>&1; then
         for dir in "${search_dirs[@]}"; do
             local depth_args=""
             [[ "$dir" == "$TEST_HOME" ]] && depth_args="--max-depth 1"
-            
+
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
@@ -192,15 +192,15 @@ _categorize_symlinks() {
                     done
                 fi
                 [[ "$is_broken" == "true" ]] && continue
-                
+
                 # Only process symlinks that point to dotfiles
                 if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
                     local target=$(readlink "$link" 2>/dev/null || continue)
                     local display_link="$link"
-                    
+
                     # Make display path relative to home if possible
                     [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
-                    
+
                     if [[ "$target" == *"/configs/"* ]]; then
                         # New system link
                         NEW_LINKS+=("$display_link -> $target")
@@ -227,13 +227,13 @@ _categorize_symlinks() {
         for dir in "${search_dirs[@]}"; do
             local depth_args=""
             [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
-            
+
             # Exclude Temp directory on Windows
             local exclude_args=""
             if [[ "$dir" == *"AppData/Local"* ]]; then
                 exclude_args="-path '*/Temp/*' -prune -o"
             fi
-            
+
             while IFS= read -r link; do
                 # Skip if broken (already handled)
                 local is_broken=false
@@ -243,15 +243,15 @@ _categorize_symlinks() {
                     done
                 fi
                 [[ "$is_broken" == "true" ]] && continue
-                
+
                 # Only process symlinks that point to dotfiles
                 if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
                     local target=$(readlink "$link" 2>/dev/null || continue)
                     local display_link="$link"
-                    
+
                     # Make display path relative to home if possible
                     [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
-                    
+
                     if [[ "$target" == *"/configs/"* ]]; then
                         # New system link
                         NEW_LINKS+=("$display_link -> $target")
@@ -284,7 +284,7 @@ _categorize_symlinks() {
 # Check if package manager is available
 check_package_manager() {
     local pm="$1"
-    
+
     case "${pm}" in
         brew)
             command -v brew >/dev/null 2>&1
@@ -373,12 +373,12 @@ _check_package_health() {
         fi
 
         local pm_name=$(basename "$pm_dir")
-        
+
         # Skip stow directory - it's for configuration, not package management
         if [[ "$pm_name" == "stow" ]]; then
             continue
         fi
-        
+
         $log_output "  • Checking $pm_name packages..."
 
         # Check if package manager is available
@@ -394,11 +394,11 @@ _check_package_health() {
                 # Check for classified system first (preferred)
                 if [[ -f "$pm_dir/Brewfile.formulas.non_admin" ]]; then
                     $log_output "    - ✅ Using classified Brewfile system"
-                    
+
                     # Count packages across all classified Brewfiles
                     local total_formulae=0 total_casks=0 total_mas=0
                     local brewfile_count=0
-                    
+
                     for brewfile in "$pm_dir"/Brewfile.*; do
                         if [[ -f "$brewfile" ]]; then
                             local filename=$(basename "$brewfile")
@@ -415,26 +415,26 @@ _check_package_health() {
                             brewfile_count=$((brewfile_count + 1))
                         fi
                     done
-                    
+
                     # Get system info
                     local brew_info=$(brew --version 2>/dev/null | head -n 1)
                     local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
                     local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
-                    
+
                     $log_output "    - 📊 $brew_info"
                     $log_output "    - 📦 Classified Brewfiles: $total_formulae formulae, $total_casks casks, $total_mas mas ($brewfile_count files)"
                     $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
-                    
+
                     # Note: Can't use brew bundle check with classified system, so consider it healthy if files exist
                     $log_output "    - ✅ Classified Brewfiles structure validated"
                     PACKAGE_PASSED+=("$pm_name (Classified Brewfiles)")
                     checked_packages=$((checked_packages + 1))
-                    
+
                 # Fallback to legacy Brewfile system
                 elif [[ -f "$pm_dir/Brewfile" ]]; then
                     $log_output "    - ⚠️  Using legacy Brewfile system"
                     WARNINGS+=("$pm_name: Using legacy Brewfile system - consider migrating to classified system")
-                    
+
                     # Count packages in Brewfile
                     local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
                     local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
@@ -442,16 +442,16 @@ _check_package_health() {
                     brew_count="${brew_count//[$'\r\n']/}"
                     cask_count="${cask_count//[$'\r\n']/}"
                     local total_brewfile=$((${brew_count:-0} + ${cask_count:-0}))
-                    
+
                     # Get system info
                     local brew_info=$(brew --version 2>/dev/null | head -n 1)
                     local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
                     local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
-                    
+
                     $log_output "    - 📊 $brew_info"
                     $log_output "    - 📦 Legacy Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
                     $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
-                    
+
                     # Check if packages match Brewfile
                     if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
                         $log_output "    - ✅ All Brewfile packages installed"
@@ -465,20 +465,20 @@ _check_package_health() {
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
-                
+
             pip)
                 if [[ -f "$pm_dir/requirements.txt" ]]; then
                     local pip_cmd="pip3"
                     command -v pip3 >/dev/null 2>&1 || pip_cmd="pip"
-                    
+
                     # Count packages in requirements.txt
                     local req_count=$(grep -v '^#' "$pm_dir/requirements.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
-                    
+
                     if command -v "$pip_cmd" >/dev/null 2>&1; then
                         # Get pip info and installed packages count
                         local pip_info=$($pip_cmd --version 2>/dev/null || echo "pip version unknown")
                         local installed_count=$($pip_cmd list --user 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')
-                        
+
                         $log_output "    - 📊 $pip_info"
                         $log_output "    - 📦 requirements.txt: $req_count packages"
                         $log_output "    - 🏠 Installed (user): $installed_count packages"
@@ -494,18 +494,18 @@ _check_package_health() {
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
-                
+
             npm)
                 if [[ -f "$pm_dir/packages.txt" ]]; then
                     # Count packages in packages.txt
                     local npm_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
-                    
+
                     if command -v npm >/dev/null 2>&1; then
                         # Get npm info and global packages count
                         local npm_info=$(npm --version 2>/dev/null | sed 's/^/npm v/' || echo "npm version unknown")
                         local node_info=$(node --version 2>/dev/null | sed 's/^/Node /' || echo "Node version unknown")
                         local installed_count=$(npm list -g --depth=0 2>/dev/null | grep -c '^├──\|^└──' || echo "0")
-                        
+
                         $log_output "    - 📊 $npm_info, $node_info"
                         $log_output "    - 📦 packages.txt: $npm_count packages"
                         $log_output "    - 🏠 Installed (global): $installed_count packages"
@@ -521,12 +521,12 @@ _check_package_health() {
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
-                
+
             apt|pacman)
                 if [[ -f "$pm_dir/packages.txt" ]]; then
                     # Count packages in packages.txt
                     local pkg_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
-                    
+
                     if command -v "$pm_name" >/dev/null 2>&1; then
                         # Get package manager info
                         local pm_info=""
@@ -555,20 +555,20 @@ _check_package_health() {
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
-                
+
             gem)
                 if [[ -f "$pm_dir/Gemfile" ]]; then
                     # Count gems in Gemfile
                     local gem_count=$(grep -c "^gem " "$pm_dir/Gemfile" 2>/dev/null || echo 0)
                     # Strip any newlines or carriage returns from grep output
                     gem_count="${gem_count//[$'\r\n']/}"
-                    
+
                     if command -v gem >/dev/null 2>&1; then
                         # Get Ruby and gem info
                         local ruby_info=$(ruby --version 2>/dev/null | cut -d' ' -f1-2 || echo "Ruby version unknown")
                         local gem_info=$(gem --version 2>/dev/null | sed 's/^/RubyGems v/' || echo "RubyGems version unknown")
                         local installed_count=$(gem list 2>/dev/null | wc -l | tr -d ' ')
-                        
+
                         $log_output "    - 📊 $ruby_info, $gem_info"
                         $log_output "    - 📦 Gemfile: $gem_count gems"
                         $log_output "    - 🏠 Installed: $installed_count gems"
@@ -584,7 +584,7 @@ _check_package_health() {
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
-                
+
             *)
                 $log_output "    - ℹ️  Health check not implemented for $pm_name"
                 ;;

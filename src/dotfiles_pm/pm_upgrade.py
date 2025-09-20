@@ -12,6 +12,8 @@ from typing import List, Dict, Any
 
 from .pm_detect import detect_all_pms
 from .pm_select import select_pms
+from .terminal_executor import spawn_tracked
+from .command_executor import run_command
 
 
 def upgrade_pm_packages(pm_name: str) -> Dict[str, Any]:
@@ -48,8 +50,72 @@ def upgrade_pm_packages(pm_name: str) -> Dict[str, Any]:
         result['error'] = f"No upgrade command defined for {pm_name}"
         return result
 
+    # Package managers that need interactive terminal
+    interactive_pms = ['brew', 'apt', 'gem']
+
     try:
         cmd = commands[pm_name]
+
+        # Check if this PM needs interactive terminal
+        if pm_name in interactive_pms:
+            upgrade_cmd = ' '.join(cmd)
+            print(f"🚀 Opening terminal for interactive {pm_name} upgrade...")
+            print(f"  💻 Command: {upgrade_cmd}")
+            print(f"  🖥️  Executing in new terminal window...")
+
+            terminal_result = spawn_tracked(
+                upgrade_cmd,
+                operation=f'{pm_name}-upgrade',
+                auto_close=False  # Let user see results
+            )
+
+            if terminal_result['status'] == 'spawned':
+                result['log_file'] = terminal_result.get('log_file')
+                result['status_file'] = terminal_result.get('status_file')
+                print(f"  📄 Log: {terminal_result.get('log_file')}")
+                print(f"  📊 Status: {terminal_result.get('status_file')}")
+                print(f"  ⏳ Waiting for upgrade to complete...")
+
+                # Wait for completion by polling status file
+                import time
+                from .terminal_executor import create_terminal_executor
+
+                executor = create_terminal_executor()
+                status_file = terminal_result.get('status_file')
+
+                if status_file:
+                    # Poll until completion
+                    while True:
+                        status_info = executor.check_status(status_file)
+                        if status_info.get('status') == 'completed':
+                            exit_code = status_info.get('exit_code', 0)
+                            if exit_code == 0:
+                                print(f"  ✅ {pm_name} upgrade completed successfully")
+                                result['success'] = True
+                                result['output'] = f"Upgrade completed successfully"
+                            else:
+                                print(f"  ❌ {pm_name} upgrade failed (exit code: {exit_code})")
+                                result['success'] = False
+                                result['error'] = f"Upgrade failed with exit code {exit_code}"
+                            break
+                        elif status_info.get('status') == 'error':
+                            print(f"  ❌ {pm_name} upgrade error: {status_info.get('error', 'Unknown error')}")
+                            result['success'] = False
+                            result['error'] = status_info.get('error', 'Unknown error')
+                            break
+                        else:
+                            # Still running, wait a bit
+                            time.sleep(2)
+                else:
+                    # Fallback if no status file
+                    result['success'] = True
+                    result['output'] = f"Launched in {terminal_result['method']}"
+            else:
+                result['success'] = False
+                result['error'] = terminal_result.get('error', 'Failed to spawn terminal')
+                print(f"  ❌ Failed to spawn terminal: {terminal_result.get('error', 'Unknown error')}")
+
+            return result
 
         # For pip, we need to first get the list of outdated packages
         if pm_name == 'pip':
@@ -130,7 +196,7 @@ def upgrade_all_pms(selected_pms: List[str]) -> List[Dict[str, Any]]:
     """
     results = []
 
-    for pm in selected_pms:
+    for i, pm in enumerate(selected_pms):
         print(f"⬆️ Upgrading {pm}...")
         result = upgrade_pm_packages(pm)
         results.append(result)
@@ -142,6 +208,10 @@ def upgrade_all_pms(selected_pms: List[str]) -> List[Dict[str, Any]]:
                 print(f"  ✅ All packages already up to date")
         else:
             print(f"  ❌ Upgrade failed: {result['error']}")
+
+        # Add spacing between PMs (except after the last one)
+        if i < len(selected_pms) - 1:
+            print()  # Add blank line for visual separation
 
     return results
 

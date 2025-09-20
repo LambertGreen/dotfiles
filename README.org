@@ -10,18 +10,20 @@ This is a cross-platform dotfiles and unified package management system - think 
 
 ** Key Features
 
-- **Unified Package Management** - Single command updates packages across all your package managers:
-  - System: brew/cask, pacman/AUR, apt, mas (Mac App Store)
-  - Languages: npm, pip, gem, cargo
+- **Unified Package Management** - Python-based orchestration layer manages all your package managers:
+  - System: brew/cask, pacman/AUR, apt, mas, choco, winget, scoop
+  - Development: npm, pip, pipx, gem, cargo
   - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (neovim)
 - **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
 - **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
+- **Modal Interface** - Clean main interface with specialized contexts for advanced operations
 - **Comprehensive Testing** - Docker validates multi-package-manager scenarios
 
 ** Key Technologies
 
+- **Python** - Unified package management orchestration layer
 - **GNU Stow** - Symlink management for dotfiles deployment
-- **Just** - Command runner for consistent cross-platform operations
+- **Just** - Command runner with modular contexts for clean interface
 - **Docker** - Automated testing including multi-package-manager validation
 - **Machine Classes** - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
@@ -31,26 +33,25 @@ This is a cross-platform dotfiles and unified package management system - think 
 
 #+begin_src sh
 # Initial setup
-./configure.sh                   # Configure machine class
-./bootstrap.sh                   # Install essential tools
+just configure                   # Configure machine class
+just bootstrap                   # Install essential tools (Python, Just, Stow)
 just stow                        # Deploy dotfiles
-just install-packages            # Install all packages (system + dev)
+just install                     # Install all packages
 
 # Daily operations
-just check-packages              # Check all updates (system + dev)
-just upgrade-packages            # Upgrade everything (system + dev)
+just update                      # Update registries & check for updates
+just upgrade                     # Upgrade packages (interactive PM selection)
 just check-health                # Verify system health
 
-# Granular control - System packages
-just install-packages-user       # User packages only (no sudo)
-just install-packages-admin      # Admin packages only
-just upgrade-packages-user       # Upgrade user packages
-just upgrade-packages-admin      # Upgrade admin packages
+# Package manager control
+just register-package-managers   # Enable/disable package managers
+just list-package-managers       # Show available package managers
+just package-summary             # Show package counts
 
-# Granular control - Dev packages
-just install-dev-packages        # Install dev packages (emacs, nvim, zsh)
-just check-dev-packages          # Check dev package updates
-just upgrade-dev-packages        # Upgrade dev packages only
+# Advanced contexts (modal navigation)
+just package-managers            # Enter PM context for granular control
+just debugging                   # Enter debug context for troubleshooting
+just testing                     # Enter test context for validation
 #+end_src
 
 ** 1. Clone the Repository
@@ -90,10 +91,15 @@ Configuration is saved to =.dotfiles.env= for future use.
 Install essential tools and package managers:
 
 #+begin_src sh
-./bootstrap.sh
+just bootstrap
+# Or directly: ./bootstrap.sh
 #+end_src
 
-This reads your configuration and installs the appropriate tools (including =just=).
+This installs core tools:
+- Python 3 (required for package management)
+- Just (command runner)
+- Stow (symlink management)
+- Platform-specific package managers (brew, apt, pacman)
 
 ** 4. Deploy Configurations
 
@@ -108,15 +114,14 @@ just stow
 Install packages defined in your machine class:
 
 #+begin_src sh
-just install-packages         # Install everything (user, admin, and dev packages)
-
-# OR separately:
-just install-packages-user    # User packages only (no sudo required)
-just install-packages-admin   # Admin packages only (may prompt for password)
-just install-dev-packages     # Dev packages (Emacs, Neovim, Zsh plugins, etc.)
+just install                  # Install everything (system, dev, and app packages)
 #+end_src
 
-Note: `just install-packages` now includes development tool packages (Emacs, Neovim, Zsh plugins) automatically.
+The Python-based system automatically:
+- Detects available package managers
+- Reads machine class configurations
+- Installs packages in proper order (system → dev → app)
+- Handles admin/user separation for system packages
 
 ** 6. Verify Setup
 
@@ -126,6 +131,14 @@ Check that everything is configured correctly:
 just check-health
 #+end_src
 
+** 7. Configure Package Managers
+
+After installation, enable/disable specific package managers:
+
+#+begin_src sh
+just register-package-managers   # Interactive PM selection
+just list-package-managers       # Show detected PMs
+#+end_src
 
 * Package Management
 
@@ -137,18 +150,24 @@ Install packages for your machine class:
 
 #+begin_src sh
 # Install everything (recommended)
-just install-packages          # Installs user, admin, and dev packages
-
-# Or install separately:
-just install-packages-user     # System packages - no sudo required
-just install-packages-admin    # System packages - may prompt for password
-just install-dev-packages      # App packages - Emacs, Neovim, Zsh plugins
+just install                   # Installs all packages via Python orchestration
 #+end_src
 
-The system now integrates:
-- **System packages**: brew, apt, pacman, scoop (via user/admin split)
-- **Dev packages**: Emacs (elpaca), Neovim (lazy.nvim), Zsh (zinit), Cargo, pipx
-- All managed through a unified interface with `just install-packages`
+For granular control, enter the package-managers context:
+
+#+begin_src sh
+just package-managers          # Enter PM context
+# Now in package-managers context:
+just install-brew              # Install only Homebrew packages
+just install-npm               # Install only npm packages
+just install-emacs             # Install only Emacs packages
+# Type 'exit' to return to main
+#+end_src
+
+The Python system manages:
+- **System packages**: brew, apt, pacman, choco, winget, scoop
+- **Development packages**: npm, pip, pipx, cargo, gem
+- **Application packages**: emacs (elpaca), neovim (lazy.nvim), zsh (zinit)
 
 ** System Updates
 
@@ -156,14 +175,15 @@ Keep your system and packages up to date with a two-step process:
 
 *** Check for Available Updates
 
-First, see what updates are available:
+First, update registries and see what updates are available:
 
 #+begin_src sh
-just check-packages     # Shows available updates for all packages
+just update             # Update registries & check for updates
 #+end_src
 
-This is a safe, read-only operation that:
-- Checks package manager registries for newer versions
+This operation:
+- Updates package manager registries (fetches latest package info)
+- Prompts you to select which package managers to check
 - Shows which packages have updates available
 - Does NOT install anything
 
@@ -172,12 +192,7 @@ This is a safe, read-only operation that:
 After reviewing available updates, upgrade when ready:
 
 #+begin_src sh
-# Upgrade everything (recommended)
-just upgrade-packages
-
-# Or upgrade separately:
-just upgrade-packages-user    # User packages only
-just upgrade-packages-admin   # Admin packages only (may prompt for password)
+just upgrade            # Interactive: select which PMs to upgrade
 #+end_src
 
 This will:
@@ -185,21 +200,18 @@ This will:
 - Clean up old versions where appropriate
 - Admin upgrades may prompt for your password
 
-*** Development Package Updates
+*** Advanced Package Management
 
-For application-specific package managers (Emacs, Neovim, Zsh plugins):
+For granular control over specific package managers:
 
 #+begin_src sh
-just check-dev-packages    # Check for updates in development tools
-just upgrade-dev-packages  # Upgrade development tool packages
+just package-managers      # Enter package-managers context
+# Now you can:
+just check-brew           # Check only Homebrew
+just upgrade-npm          # Upgrade only npm packages
+just install-emacs        # Install only Emacs packages
+# Type 'exit' to return
 #+end_src
-
-This manages packages for:
-- Zsh plugins (via zinit)
-- Emacs packages (via elpaca)
-- Neovim plugins (via lazy.nvim)
-- Cargo packages (Rust tools)
-- pipx packages (Python CLI tools)
 
 * Platform-Specific Notes
 
@@ -221,7 +233,44 @@ This manages packages for:
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
 
-* Health Check
+* Modal Interface (Advanced)
+
+The system uses a modal interface with specialized contexts for advanced operations:
+
+** Main Context
+The main =just= interface shows only essential commands:
+- Setup: configure, bootstrap, stow
+- Package Management: install, update, upgrade
+- System: check-health
+- Info: show-config, package-summary
+
+** Specialized Contexts
+
+Enter contexts for advanced operations:
+
+#+begin_src sh
+# Testing context - Docker and Python tests
+just testing
+just test              # Run Python tests
+just test-all-ubuntu   # Run Docker tests
+exit                   # Return to main
+
+# Debugging context - Health, logs, troubleshooting
+just debugging
+just logs              # View recent logs
+just cleanup-broken-links  # Fix symlink issues
+exit                   # Return to main
+
+# Package managers context - Granular PM control
+just package-managers
+just check-brew        # Check only Homebrew
+just upgrade-npm       # Upgrade only npm
+exit                   # Return to main
+#+end_src
+
+* Health Check & Debugging
+
+** System Health Validation
 
 The health check tool validates your dotfiles setup:
 
@@ -234,18 +283,17 @@ It reports:
 - Any broken symlinks that need attention
 - Overall system health status
 
-** Cleaning Broken Links
+** Advanced Debugging
 
-Preview what would be removed:
-
-#+begin_src sh
-just cleanup-broken-links
-#+end_src
-
-Actually remove broken links:
+For detailed troubleshooting, enter the debug context:
 
 #+begin_src sh
-just cleanup-broken-links --remove
+just debugging         # Enter debug context
+just logs              # View recent logs
+just logs-errors       # Show only errors
+just cleanup-broken-links      # Preview broken links
+just cleanup-broken-links-remove  # Remove broken links
+exit                   # Return to main
 #+end_src
 
 * Common Tasks
@@ -294,17 +342,26 @@ just show-config
 ** Permission Denied Errors
 - Ensure you have sudo access for bootstrap phase
 - Package installation may require admin privileges
+- Use =just debugging= context for detailed logs
 
 ** Symlink Conflicts
-- Use health check to identify issues
+- Use =just check-health= to identify issues
+- Enter debug context: =just debugging=
+- Use =just cleanup-broken-links= to preview issues
 - Remove conflicting files or use force install
 - Common conflicts: =.bashrc=, =.zshrc= from system defaults
+
+** Package Manager Issues
+- Use =just list-package-managers= to see detected PMs
+- Use =just register-package-managers= to enable/disable specific PMs
+- Enter PM context for granular control: =just package-managers=
+- Check Python cache: ensure no =__pycache__= directories are tracked
 
 ** Work Machine Restrictions
 - Configure only the components you need on work machines
 - GUI applications may require admin access on some systems
 - Advanced window managers and system tools are in advanced categories for optional installation
-
+- Use machine class system to define work-appropriate package sets
 
 * Testing
 

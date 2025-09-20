@@ -101,7 +101,12 @@
       "Bash(do echo -n \"$script: \")",
       "Bash(if [ -f \"scripts/package-management/$script\" ])",
       "Bash(else echo \"✅ DELETED\")",
-      "Bash(fi)"
+      "Bash(fi)",
+      "Read(//Users/lambert.green/.dotfiles/logs/**)",
+      "Bash(DOTFILES_DIR=/Users/lambert.green/dev/my/dotfiles python3 -m src.dotfiles_pm.pm upgrade brew)",
+      "Bash(DOTFILES_TEST_MODE=true python3 -m src.dotfiles_pm.pm upgrade brew)",
+      "Bash(export DOTFILES_TEST_MODE=true)",
+      "Bash(gem:*)"
     ],
     "deny": []
   }

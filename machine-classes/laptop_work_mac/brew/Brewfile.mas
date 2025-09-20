@@ -1,4 +1,0 @@
-# Mac App Store Apps
-# These use Apple ID authentication, not admin privileges
-
-mas "Windows App", id: 1295203466

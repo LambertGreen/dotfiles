@@ -6,7 +6,9 @@ default:
     @echo "📦 Package Managers - Granular Control"
     @echo ""
     @echo "🖥️ System Package Managers:"
-    @echo "  just install-brew          - Install Homebrew packages"
+    @echo "  just install-brew          - Install all Homebrew packages"
+    @echo "  just install-brew-formulas - Install only CLI tools (brew formulas)"
+    @echo "  just install-brew-casks    - Install only GUI apps (brew casks)"
     @echo "  just check-brew            - Check Homebrew for updates"
     @echo "  just upgrade-brew          - Upgrade Homebrew packages"
     @echo "  just install-apt           - Install APT packages (Ubuntu)"
@@ -38,17 +40,17 @@ default:
 # System Package Managers
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Install Homebrew packages (all levels)
+# Install all Homebrew packages (formulas + casks)
 install-brew:
-    @cd .. && python3 -m src.dotfiles_pm.pm install brew
+    @cd .. && python3 -c "from src.dotfiles_pm.pm_install import install_brew_packages; result = install_brew_packages('all'); print(f'✅ {result[\"installed_count\"]} packages installed' if result['success'] else f'❌ {result[\"error\"]}')"
 
-# Install Homebrew packages (admin level)
-install-brew-admin:
-    @cd .. && python3 -m src.dotfiles_pm.pm install brew --level admin
+# Install only Homebrew formulas (CLI tools)
+install-brew-formulas:
+    @cd .. && python3 -c "from src.dotfiles_pm.pm_install import install_brew_packages; result = install_brew_packages('formulas'); print(f'✅ {result[\"installed_count\"]} formulas installed' if result['success'] else f'❌ {result[\"error\"]}')"
 
-# Install Homebrew packages (user level)
-install-brew-user:
-    @cd .. && python3 -m src.dotfiles_pm.pm install brew --level user
+# Install only Homebrew casks (GUI apps)
+install-brew-casks:
+    @cd .. && python3 -c "from src.dotfiles_pm.pm_install import install_brew_packages; result = install_brew_packages('casks'); print(f'✅ {result[\"installed_count\"]} casks installed' if result['success'] else f'❌ {result[\"error\"]}')"
 
 # Check Homebrew for updates
 check-brew:

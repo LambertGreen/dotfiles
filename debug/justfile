@@ -6,8 +6,8 @@ default:
     @echo "🔍 Debugging & Troubleshooting Tools"
     @echo ""
     @echo "🏥 Health Checking:"
-    @echo "  just health-check           - Run system health validation"
-    @echo "  just health-check-verbose   - Detailed health check with verbose output"
+    @echo "  just check-health           - Run system health validation"
+    @echo "  just check-health-verbose   - Detailed health check with verbose output"
     @echo ""
     @echo "📊 Log Analysis:"
     @echo "  just logs                   - List recent log files"
@@ -28,17 +28,17 @@ default:
 # Health Checking
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Run system health validation
-health-check:
-    @just _health-check-with-log "../.logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
+# Validate system health
+check-health:
+    @just _check-health-with-log "../.logs/health-check-$(date +%Y%m%d-%H%M%S).log" ""
 
 # Detailed health check with verbose output
-health-check-verbose:
-    @just _health-check-with-log "../.logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
+check-health-verbose:
+    @just _check-health-with-log "../.logs/health-check-verbose-$(date +%Y%m%d-%H%M%S).log" "--verbose"
 
 # Internal helper for health checks with logging
 [private]
-_health-check-with-log logfile flags:
+_check-health-with-log logfile flags:
     #!/usr/bin/env bash
     set -euo pipefail
     cd ..
@@ -46,7 +46,7 @@ _health-check-with-log logfile flags:
     echo "🏥 Running health check {{flags}}..."
     echo "📝 Logging to: {{logfile}}"
     echo ""
-    if bash -c "source scripts/health/dotfiles-health.sh && dotfiles_health_check {{flags}}" 2>&1 | tee "{{logfile}}"; then
+    if bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health {{flags}}" 2>&1 | tee "{{logfile}}"; then
         echo ""
         echo "✅ Health check passed"
         echo "📄 Full log: {{logfile}}"

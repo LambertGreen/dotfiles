@@ -37,7 +37,7 @@ stow:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @./scripts/stow/stow-dotfiles.sh
+    @source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
@@ -51,10 +51,10 @@ install:
     @echo ""
     @echo "✅ Package installation complete"
 
-# Check for updates across package managers
+# Update package registries and check for available updates
 [group('2-📦-Package-Management')]
-check:
-    @echo "🔍 Checking for package updates (interactive)..."
+update:
+    @echo "🔄 Updating package registries and checking for updates..."
     @python3 -m src.dotfiles_pm.pm check
 
 # Upgrade packages across package managers
@@ -74,11 +74,11 @@ register-package-managers:
 list-package-managers:
     @python3 -m src.dotfiles_pm.pm list
 
-# Run system health validation
+# Validate system health
 [group('3-🏥-System')]
-health-check:
+check-health:
     @echo "🏥 Running health check..."
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_health_check"
+    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
 # Show current configuration
 [group('4-ℹ️-Info')]

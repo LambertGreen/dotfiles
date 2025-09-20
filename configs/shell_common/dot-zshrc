@@ -492,7 +492,7 @@ fi
 lgreen_shell_status() {
     local status="initializing"
     local message=""
-    
+
     if [[ -f "$HOME/.zinit/bin/zinit.zsh" ]]; then
         if command -v zinit &>/dev/null; then
             # Check if zinit is actually functional
@@ -517,7 +517,7 @@ lgreen_shell_status() {
         status="not-installed"
         message="Shell not configured: plugin manager missing"
     fi
-    
+
     echo "$message"
     [[ "$status" = "ready" ]] && return 0 || return 1
 }
@@ -525,7 +525,7 @@ lgreen_shell_status() {
 lgreen_await_shell_ready() {
     local timeout=${1:-30}
     local elapsed=0
-    
+
     while ! lgreen_shell_status &>/dev/null; do
         sleep 1
         elapsed=$((elapsed + 1))
@@ -536,7 +536,7 @@ lgreen_await_shell_ready() {
         echo -n "." >&2
     done
     echo "" >&2
-    
+
     lgreen_shell_status
     return 0
 }
@@ -557,3 +557,4 @@ lgreen_conditionally_stop_profiler
 
 # Added by Windsurf
 export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"

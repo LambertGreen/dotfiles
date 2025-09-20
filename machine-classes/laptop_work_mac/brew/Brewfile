@@ -1,10 +1,11 @@
-# Work Mac Setup - Generated from actual system
-# Only manually installed packages (no auto-dependencies)
+# Homebrew Formulas - Non-Admin
+# CLI tools and libraries that don't require admin privileges
 
 tap "homebrew/core"
-tap "homebrew/cask"
+tap "microsoft/mssql-release", "https://github.com/Microsoft/homebrew-mssql-release"
+tap "pkryger/emacsmacport-exp"
 
-# CLI Tools (manually installed only)
+# Core CLI Tools
 brew "awscli"
 brew "bash-language-server"
 brew "bat"
@@ -25,8 +26,6 @@ brew "ctags"
 brew "curl"
 brew "diffutils"
 brew "direnv"
-brew "docker"
-brew "docker-compose"
 brew "doxygen"
 brew "dust"
 brew "editorconfig"
@@ -101,9 +100,7 @@ brew "pinentry-mac"
 brew "pipenv"
 brew "pipx"
 brew "pkryger/emacsmacport-exp/emacs-mac-exp@31"
-brew "podman"
 brew "poppler"
-brew "postgresql@14"
 brew "protoc-gen-go-grpc"
 brew "pstree"
 brew "pyenv-virtualenv"
@@ -145,10 +142,14 @@ brew "zellij"
 brew "zoxide"
 brew "zsh"
 
-# Applications (casks)
-cask "1password"
+# Homebrew Casks - Non-Admin
+# GUI applications that don't require admin privileges
+
+tap "homebrew/cask"
+# tap "homebrew/cask-fonts"  # DEPRECATED - fonts are now in homebrew/cask
+
+# Productivity & Utilities
 cask "alacritty"
-cask "alfred@4"
 cask "anki"
 cask "beyond-compare"
 cask "bing-wallpaper"
@@ -159,40 +160,67 @@ cask "cursor"
 cask "cursorcerer"
 cask "dbeaver-community"
 cask "divvy"
-cask "docker"
-cask "docker-desktop"
 cask "eqmac"
 cask "finicky"
 cask "firefox"
-cask "font-aporetic"
-cask "font-iosevka-nerd-font"
-cask "font-meslo-lg-nerd-font"
 cask "google-chrome"
 cask "google-chrome@beta"
 cask "google-drive"
 cask "grandperspective"
-cask "hammerspoon"
 cask "keycastr"
 cask "macdown"
-cask "microsoft-auto-update"
-cask "microsoft-word"
 cask "mos"
 cask "openmtp"
-cask "p4"
 cask "pgadmin4"
 cask "postman"
 cask "raycast"
 cask "slack"
 cask "stats"
-cask "tableau"
 cask "vanilla"
-cask "visual-studio-code"
 cask "vlc"
 cask "wezterm"
 cask "whatsapp"
-cask "xquartz"
 cask "zed"
 cask "zoom"
 
-# Mac App Store
-mas "Windows App  (11.2.0)", id: 1295203466
+# Fonts
+cask "font-aporetic"
+cask "font-iosevka-nerd-font"
+cask "font-meslo-lg-nerd-font"
+
+# Mac App Store Apps
+# These use Apple ID authentication, not admin privileges
+
+mas "Windows App", id: 1295203466
+# Homebrew Formulas - Requires Admin
+# CLI tools that may require admin privileges (system integration, services, etc.)
+
+tap "homebrew/core"
+
+# Containerization & Virtualization (may require system integration)
+brew "docker"
+brew "docker-compose"
+brew "podman"
+
+# Database Services (may require system-level permissions)
+brew "postgresql@14"
+
+# Homebrew Casks - Requires Admin
+# GUI applications that may require admin privileges (services, system integration, etc.)
+
+tap "homebrew/cask"
+
+# Development Tools with Services
+cask "docker"
+cask "docker-desktop"
+cask "visual-studio-code"    # May require password for launchctl services
+
+# System Tools & Integration
+cask "1password"             # System integration, browser extensions
+cask "alfred@4"             # System-wide shortcuts, may need accessibility permissions
+cask "hammerspoon"          # System automation, accessibility permissions
+cask "microsoft-auto-update"
+cask "microsoft-word"
+cask "p4"                   # Perforce client, system integration
+cask "tableau"              # Professional software, licensing integration
+cask "xquartz"              # X11 system integration
