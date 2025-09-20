@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Personal Mac Laptop Stow Configuration
 # Full personal development environment
 

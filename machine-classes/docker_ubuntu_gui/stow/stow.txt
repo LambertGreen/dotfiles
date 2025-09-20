@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Docker Ubuntu GUI Stow Configuration
 # Desktop validation environment for Ubuntu
 

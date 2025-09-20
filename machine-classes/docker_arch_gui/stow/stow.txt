@@ -1,4 +1,5 @@
-# Docker Arch GUI Stow Configuration  
+# -*- mode: conf -*-
+# Docker Arch GUI Stow Configuration
 # Desktop validation environment for Arch Linux
 
 # Common configs (truly universal)

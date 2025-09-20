@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Docker Arch Developer Stow Configuration
 # Development environment with pacman + AUR/yay + homebrew + pip + npm
 

@@ -10,10 +10,10 @@ brew "aspell"
 brew "automake"
 brew "bat"
 brew "python@3.9"
-brew "black"
+# brew "black"  # Let projects manage formatters via dev dependencies
 brew "glib"
 brew "pkg-config"
-brew "clang-format"
+# brew "clang-format"  # Let projects manage formatters via dev dependencies
 brew "cmake"
 brew "coreutils"
 brew "ctags"

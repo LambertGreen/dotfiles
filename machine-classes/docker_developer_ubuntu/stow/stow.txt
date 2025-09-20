@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Docker Ubuntu Developer Stow Configuration
 # Development environment with apt + homebrew + npm + pip
 

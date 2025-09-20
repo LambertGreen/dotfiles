@@ -106,7 +106,14 @@
       "Bash(DOTFILES_DIR=/Users/lambert.green/dev/my/dotfiles python3 -m src.dotfiles_pm.pm upgrade brew)",
       "Bash(DOTFILES_TEST_MODE=true python3 -m src.dotfiles_pm.pm upgrade brew)",
       "Bash(export DOTFILES_TEST_MODE=true)",
-      "Bash(gem:*)"
+      "Bash(gem:*)",
+      "Bash(pipx list:*)",
+      "Bash(cargo install:*)",
+      "Bash(ruby --version)",
+      "Bash(npm:*)",
+      "Bash(pip3:*)",
+      "Bash(pipx:*)",
+      "Bash(cargo --version)"
     ],
     "deny": []
   }

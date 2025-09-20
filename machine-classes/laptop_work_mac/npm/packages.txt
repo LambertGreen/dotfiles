@@ -1,20 +1,6 @@
-lib
-claude-code
-cli
-eslint-plugin
-claude-code
-cli
+# Essential cross-project CLI tools only
 corepack
+claude-code
 do-not-disturb-cli
-eslint-plugin
-eslint
-js-beautify
-js-tidy
-lib
 mcp-server-gus
-neovim
 pdf2md
-prettier
-stylelint
-typescript-language-server
-typescript

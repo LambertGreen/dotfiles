@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Docker Ubuntu Essential Stow Configuration
 # Essential configs for minimal Ubuntu Docker environment
 

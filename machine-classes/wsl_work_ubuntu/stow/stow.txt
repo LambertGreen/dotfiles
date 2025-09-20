@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # WSL Work Ubuntu Stow Configuration
 # Work development environment on Windows WSL2
 

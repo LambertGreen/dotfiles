@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Windows Work Desktop Stow Configuration
 # Based on Windows work machine with scoop + chocolatey + winget + MSYS2
 

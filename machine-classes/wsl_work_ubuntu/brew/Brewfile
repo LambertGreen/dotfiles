@@ -34,7 +34,7 @@ brew "openjdk"
 brew "pyenv"
 brew "pyenv-virtualenv"
 brew "ripgrep"
-brew "shellcheck"
+# brew "shellcheck"  # Let projects manage linters via dev dependencies
 brew "stow"
 brew "swig"
 brew "tldr"

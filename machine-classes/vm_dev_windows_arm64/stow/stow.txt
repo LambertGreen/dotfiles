@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Windows ARM64 Development Stow Configuration
 # Windows development with MSYS2 pacman + scoop
 

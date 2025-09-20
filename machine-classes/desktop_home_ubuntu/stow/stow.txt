@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Home Ubuntu Desktop Stow Configuration
 # Personal Ubuntu desktop with apt + homebrew + snap
 

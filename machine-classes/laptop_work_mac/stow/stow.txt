@@ -1,3 +1,4 @@
+# -*- mode: conf -*-
 # Work Mac Laptop Stow Configuration
 # Work development environment with work-specific configs
 
