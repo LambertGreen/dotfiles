@@ -30,6 +30,7 @@ default:
     @echo "  just install-neovim        - Install Neovim plugins"
     @echo ""
     @echo "📊 Information:"
+    @echo "  just audit                 - Audit PM consistency (manifests vs installed)"
     @echo "  just show-package-list     - Full package list for machine class"
     @echo "  just show-package-stats    - Package counts summary"
     @echo "  just export-packages       - Export installed packages"
@@ -179,6 +180,10 @@ upgrade-neovim:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Information & Export
 # ═══════════════════════════════════════════════════════════════════════════════
+
+# Audit package managers for consistency
+audit:
+    @cd .. && python3 -m src.dotfiles_pm.pm audit
 
 # Show full list of packages configured for current machine class
 show-package-list:

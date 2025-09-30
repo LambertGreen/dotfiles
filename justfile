@@ -43,13 +43,7 @@ stow:
 [group('2-📦-Package-Management')]
 install:
     @echo "📦 Installing packages for current machine class..."
-    @python3 -m src.dotfiles_pm.pm install --category system
-    @echo ""
-    @python3 -m src.dotfiles_pm.pm install --category dev
-    @echo ""
-    @python3 -m src.dotfiles_pm.pm install --category app
-    @echo ""
-    @echo "✅ Package installation complete"
+    @python3 -m src.dotfiles_pm.pm install
 
 # Update package registries and check for available updates
 [group('2-📦-Package-Management')]

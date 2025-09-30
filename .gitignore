@@ -27,6 +27,9 @@ Keypirinha.history
 .env
 .dotfiles.env
 
+# Claude settings
+.claude/settings.local.json
+
 # Runtime and build artifacts
 .runtime/
 .runtime_testing/
