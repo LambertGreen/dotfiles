@@ -41,6 +41,23 @@ def detect_all_pms() -> List[str]:
     if enabled_str := os.environ.get('DOTFILES_PM_ENABLED', ''):
         enabled_pms = set(pm.strip() for pm in enabled_str.split(',') if pm.strip())
 
+    # Define system directories to exclude (platform-specific)
+    # These are directories with OS-provided binaries that we shouldn't manage
+    import platform
+    system_dirs = set()
+    if platform.system() == 'Darwin':  # macOS
+        system_dirs = {'/usr/bin', '/bin', '/System'}
+    elif platform.system() == 'Linux':
+        system_dirs = {'/usr/bin', '/bin'}  # Not /usr/local/bin - that's for user installs
+    elif platform.system() == 'Windows':
+        system_dirs = {'C:\\Windows\\System32', 'C:\\Windows'}
+
+    def is_system_binary(binary_path: str) -> bool:
+        """Check if a binary is a system binary that shouldn't be managed."""
+        if not binary_path:
+            return False
+        return any(binary_path.startswith(sys_dir) for sys_dir in system_dirs)
+
     # Helper to check if PM should be included
     def should_include(pm_name: str, is_fake: bool = False) -> bool:
         # If only_fakes mode, only include fake PMs
@@ -74,26 +91,36 @@ def detect_all_pms() -> List[str]:
     if shutil.which('scoop') and should_include('scoop'):
         pms.append('scoop')
 
-    # Dev package managers
-    if shutil.which('npm') and should_include('npm'):
+    # Dev package managers (exclude system versions)
+    npm_path = shutil.which('npm')
+    if npm_path and not is_system_binary(npm_path) and should_include('npm'):
         pms.append('npm')
-    if shutil.which('pip3') and should_include('pip'):
-        pms.append('pip')
-    if shutil.which('pipx') and should_include('pipx'):
+
+    # pip3 is now externally-managed (PEP 668) and should not be used for system packages
+    # Use pipx for applications instead
+    # pip3_path = shutil.which('pip3')
+    # if pip3_path and not is_system_binary(pip3_path) and should_include('pip'):
+    #     pms.append('pip')
+
+    pipx_path = shutil.which('pipx')
+    if pipx_path and not is_system_binary(pipx_path) and should_include('pipx'):
         pms.append('pipx')
-    if shutil.which('cargo') and should_include('cargo'):
+
+    cargo_path = shutil.which('cargo')
+    if cargo_path and not is_system_binary(cargo_path) and should_include('cargo'):
         pms.append('cargo')
-    if shutil.which('gem') and should_include('gem'):
+
+    gem_path = shutil.which('gem')
+    if gem_path and not is_system_binary(gem_path) and should_include('gem'):
         pms.append('gem')
 
+    # Editor package managers - their configs are in stowed dotfiles
     # Directory-based package managers
     home = Path.home()
     if (home / '.emacs.d').exists() and should_include('emacs'):
         pms.append('emacs')
     if (home / '.zinit').exists() and should_include('zinit'):
         pms.append('zinit')
-
-    # Editor package managers
     if shutil.which('nvim') and should_include('neovim'):
         pms.append('neovim')
 

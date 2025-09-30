@@ -68,7 +68,8 @@ def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('brew')
     if not config_dir:
-        result['error'] = 'No configuration found for brew'
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling brew'
         return result
 
     brewfile = config_dir / 'Brewfile'
@@ -120,7 +121,8 @@ def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
             result['output'] = proc.stdout
             result['success'] = True
         else:
-            result['error'] = proc.stderr
+            # brew bundle outputs errors to stdout, not stderr
+            result['error'] = proc.stdout if proc.stdout else proc.stderr
 
     except subprocess.TimeoutExpired:
         result['error'] = 'Installation timed out'
@@ -152,7 +154,8 @@ def install_apt_packages() -> Dict[str, Any]:
 
     package_file = config_dir / 'packages.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        result['success'] = True
+        result['output'] = '⚠️  No packages.txt file found - consider creating one or removing config directory'
         return result
 
     # Read packages
@@ -210,12 +213,14 @@ def install_npm_packages() -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('npm')
     if not config_dir:
-        result['error'] = 'No configuration found for npm'
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling npm'
         return result
 
     package_file = config_dir / 'packages.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        result['success'] = True
+        result['output'] = '⚠️  No packages.txt file found - consider creating one or removing config directory'
         return result
 
     # Read packages
@@ -276,12 +281,14 @@ def install_pip_packages() -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('pip')
     if not config_dir:
-        result['error'] = 'No configuration found for pip'
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling pip'
         return result
 
     package_file = config_dir / 'requirements.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        result['success'] = True
+        result['output'] = '⚠️  No requirements.txt file found - consider creating one or removing config directory'
         return result
 
     try:
@@ -329,12 +336,16 @@ def install_pipx_packages() -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('pipx')
     if not config_dir:
-        result['error'] = 'No configuration found for pipx'
+        # Warn user - PM is installed but no config exists
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling pipx'
         return result
 
     package_file = config_dir / 'packages.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        # Warn user - config dir exists but no package file
+        result['success'] = True
+        result['output'] = '⚠️  No packages.txt file found - consider creating one or removing config directory'
         return result
 
     # Read packages
@@ -384,12 +395,14 @@ def install_cargo_packages() -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('cargo')
     if not config_dir:
-        result['error'] = 'No configuration found for cargo'
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling cargo'
         return result
 
     package_file = config_dir / 'packages.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        result['success'] = True
+        result['output'] = '⚠️  No packages.txt file found - consider creating one or removing config directory'
         return result
 
     # Read packages
@@ -442,12 +455,14 @@ def install_gem_packages() -> Dict[str, Any]:
 
     config_dir = get_machine_config_dir('gem')
     if not config_dir:
-        result['error'] = 'No configuration found for gem'
+        result['success'] = True
+        result['output'] = '⚠️  No configuration directory found - consider creating one or uninstalling gem'
         return result
 
     package_file = config_dir / 'packages.txt'
     if not package_file.exists():
-        result['error'] = f'Package file not found: {package_file}'
+        result['success'] = True
+        result['output'] = '⚠️  No packages.txt file found - consider creating one or removing config directory'
         return result
 
     # Read packages

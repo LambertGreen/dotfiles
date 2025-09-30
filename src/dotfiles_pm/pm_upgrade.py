@@ -26,194 +26,219 @@ def upgrade_pm_packages(pm_name: str) -> Dict[str, Any]:
     Returns:
         Dict with status, output, and error information
     """
-    result = {
-        'pm': pm_name,
-        'success': False,
-        'output': '',
-        'error': '',
-        'upgraded_count': 0
-    }
+    from .pm_executor import execute_pm_command
 
-    # Define commands for different package managers
-    commands = {
-        'brew': ['brew', 'upgrade'],
-        'npm': ['npm', 'update', '-g'],
-        'pip': ['pip3', 'install', '--upgrade-strategy', 'eager', '--upgrade'],
-        'pipx': ['pipx', 'upgrade-all'],
-        'cargo': ['cargo', 'install-update', '-a'],
-        'gem': ['gem', 'update'],
-        'fake-pm1': ['fake-pm1', 'upgrade'],
-        'fake-pm2': ['fake-pm2', 'upgrade'],
-    }
+    # Use unified executor for interactive upgrade
+    result = execute_pm_command(pm_name, 'upgrade', interactive=True)
 
-    if pm_name not in commands:
-        result['error'] = f"No upgrade command defined for {pm_name}"
-        return result
-
-    # Package managers that need interactive terminal
-    interactive_pms = ['brew', 'apt', 'gem']
-
-    try:
-        cmd = commands[pm_name]
-
-        # Check if this PM needs interactive terminal
-        if pm_name in interactive_pms:
-            upgrade_cmd = ' '.join(cmd)
-            print(f"🚀 Opening terminal for interactive {pm_name} upgrade...")
-            print(f"  💻 Command: {upgrade_cmd}")
-            print(f"  🖥️  Executing in new terminal window...")
-
-            terminal_result = spawn_tracked(
-                upgrade_cmd,
-                operation=f'{pm_name}-upgrade',
-                auto_close=False  # Let user see results
-            )
-
-            if terminal_result['status'] == 'spawned':
-                result['log_file'] = terminal_result.get('log_file')
-                result['status_file'] = terminal_result.get('status_file')
-                print(f"  📄 Log: {terminal_result.get('log_file')}")
-                print(f"  📊 Status: {terminal_result.get('status_file')}")
-                print(f"  ⏳ Waiting for upgrade to complete...")
-
-                # Wait for completion by polling status file
-                import time
-                from .terminal_executor import create_terminal_executor
-
-                executor = create_terminal_executor()
-                status_file = terminal_result.get('status_file')
-
-                if status_file:
-                    # Poll until completion
-                    while True:
-                        status_info = executor.check_status(status_file)
-                        if status_info.get('status') == 'completed':
-                            exit_code = status_info.get('exit_code', 0)
-                            if exit_code == 0:
-                                print(f"  ✅ {pm_name} upgrade completed successfully")
-                                result['success'] = True
-                                result['output'] = f"Upgrade completed successfully"
-                            else:
-                                print(f"  ❌ {pm_name} upgrade failed (exit code: {exit_code})")
-                                result['success'] = False
-                                result['error'] = f"Upgrade failed with exit code {exit_code}"
-                            break
-                        elif status_info.get('status') == 'error':
-                            print(f"  ❌ {pm_name} upgrade error: {status_info.get('error', 'Unknown error')}")
-                            result['success'] = False
-                            result['error'] = status_info.get('error', 'Unknown error')
-                            break
-                        else:
-                            # Still running, wait a bit
-                            time.sleep(2)
-                else:
-                    # Fallback if no status file
-                    result['success'] = True
-                    result['output'] = f"Launched in {terminal_result['method']}"
-            else:
-                result['success'] = False
-                result['error'] = terminal_result.get('error', 'Failed to spawn terminal')
-                print(f"  ❌ Failed to spawn terminal: {terminal_result.get('error', 'Unknown error')}")
-
-            return result
-
-        # For pip, we need to first get the list of outdated packages
-        if pm_name == 'pip':
-            # Get outdated packages first
-            outdated_proc = subprocess.run(
-                ['pip3', 'list', '--outdated', '--format=freeze'],
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-
-            if outdated_proc.returncode == 0 and outdated_proc.stdout.strip():
-                # Extract package names from outdated list
-                outdated_packages = []
-                for line in outdated_proc.stdout.strip().split('\n'):
-                    if '==' in line:
-                        pkg_name = line.split('==')[0]
-                        outdated_packages.append(pkg_name)
-
-                if outdated_packages:
-                    cmd = ['pip3', 'install', '--upgrade'] + outdated_packages
-                else:
-                    result['success'] = True
-                    result['output'] = "No packages to upgrade"
-                    return result
-            else:
-                result['success'] = True
-                result['output'] = "No packages to upgrade"
-                return result
-
-        print(f"  Running: {' '.join(cmd)}")
-
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minutes timeout for upgrades
-        )
-
-        result['output'] = proc.stdout.strip()
-        result['error'] = proc.stderr.strip()
-        result['success'] = proc.returncode == 0
-
-        # Count upgraded packages (simple heuristic)
-        if result['success'] and result['output']:
-            # Different PMs have different success patterns
-            output_lower = result['output'].lower()
-            if 'upgraded' in output_lower or 'updated' in output_lower or 'installing' in output_lower:
-                # Count lines that suggest package operations
-                lines = [line for line in result['output'].split('\n')
-                        if line.strip() and any(word in line.lower()
-                        for word in ['upgraded', 'updated', 'installing', 'installed'])]
-                result['upgraded_count'] = len(lines)
-            elif pm_name.startswith('fake-'):
-                # For fake PMs, count non-empty lines
-                lines = [line for line in result['output'].split('\n') if line.strip()]
-                result['upgraded_count'] = len(lines)
-
-    except subprocess.TimeoutExpired:
-        result['error'] = f"Command timed out after 5 minutes"
-    except FileNotFoundError:
-        result['error'] = f"Command not found: {' '.join(cmd)}"
-    except Exception as e:
-        result['error'] = f"Unexpected error: {str(e)}"
-
-    return result
+    # Convert to expected format for compatibility
+    if result['success']:
+        return {
+            'pm': pm_name,
+            'success': True,
+            'output': 'Upgrade completed',
+            'error': '',
+            'log_file': result.get('log_file'),
+            'status_file': result.get('status_file')
+        }
+    else:
+        return {
+            'pm': pm_name,
+            'success': False,
+            'output': '',
+            'error': result.get('error', 'Upgrade failed'),
+            'log_file': None,
+            'status_file': None
+        }
 
 
-def upgrade_all_pms(selected_pms: List[str]) -> List[Dict[str, Any]]:
+def upgrade_all_pms(selected_pms: List[str], parallel: bool = False) -> List[Dict[str, Any]]:
     """
     Upgrade packages for all selected package managers.
 
     Args:
         selected_pms: List of selected package manager names
+        parallel: Whether to run upgrades in parallel (False by default for safety)
 
     Returns:
         List of upgrade results for each PM
     """
-    results = []
+    if not selected_pms:
+        return []
 
-    for i, pm in enumerate(selected_pms):
-        print(f"⬆️ Upgrading {pm}...")
-        result = upgrade_pm_packages(pm)
-        results.append(result)
+    import time
+    from .terminal_executor import create_terminal_executor
 
-        if result['success']:
-            if result['upgraded_count'] > 0:
-                print(f"  ✅ {result['upgraded_count']} packages upgraded")
+    # Phase 1: Launch terminals (all at once if parallel, one by one if sequential)
+    if parallel:
+        print(f"🚀 Launching {len(selected_pms)} package manager upgrades in parallel...")
+    else:
+        print(f"🚀 Running {len(selected_pms)} package manager upgrades sequentially...")
+    print()
+
+    spawned_operations = []
+    executor = create_terminal_executor()
+
+    if parallel:
+        # Launch all at once
+        for pm in selected_pms:
+            print(f"⬆️ Launching {pm} upgrade...")
+            result = upgrade_pm_packages(pm)
+
+            if result.get('status_file'):
+                # Successfully spawned
+                print(f"  🖥️  Executing in new terminal window...")
+                print(f"  📄 Log: {result.get('log_file')}")
+                spawned_operations.append(result)
+                print(f"  ✅ Spawned successfully")
             else:
-                print(f"  ✅ All packages already up to date")
+                # Failed to spawn or doesn't need terminal
+                print(f"  ❌ Failed: {result.get('error', 'Unknown error')}")
+                spawned_operations.append(result)
+
+        print(f"\n⏳ Waiting for all {len(spawned_operations)} upgrades to complete...")
+    else:
+        # Sequential mode - launch and wait for each one
+        completed_results = {}
+        for i, pm in enumerate(selected_pms):
+            print(f"⬆️ Upgrading {pm} ({i+1}/{len(selected_pms)})...")
+            result = upgrade_pm_packages(pm)
+
+            if result.get('status_file'):
+                print(f"  🖥️  Executing in new terminal window...")
+                print(f"  📄 Log: {result.get('log_file')}")
+                print(f"  ⏳ Waiting for {pm} upgrade to complete...")
+
+                # Wait for this specific operation to complete
+                status_file = result.get('status_file')
+                while True:
+                    status_info = executor.check_status(status_file)
+                    if status_info.get('status') == 'completed':
+                        exit_code = status_info.get('exit_code', 0)
+                        final_result = {
+                            'pm': pm,
+                            'success': exit_code == 0,
+                            'output': 'Upgrade completed' if exit_code == 0 else '',
+                            'error': '' if exit_code == 0 else f"Upgrade failed with exit code {exit_code}"
+                        }
+                        completed_results[pm] = final_result
+
+                        # Print completion status
+                        if final_result['success']:
+                            print(f"  ✅ {pm}: Upgrade completed successfully")
+                        else:
+                            print(f"  ❌ {pm}: Upgrade failed")
+                        break
+
+                    elif status_info.get('status') == 'error':
+                        final_result = {
+                            'pm': pm,
+                            'success': False,
+                            'output': '',
+                            'error': status_info.get('error', 'Unknown error')
+                        }
+                        completed_results[pm] = final_result
+                        print(f"  ❌ {pm}: Upgrade failed")
+                        break
+                    else:
+                        # Still running, wait a bit
+                        time.sleep(1)
+            else:
+                print(f"  ❌ Failed: {result.get('error', 'Unknown error')}")
+                completed_results[pm] = {
+                    'pm': pm,
+                    'success': False,
+                    'output': '',
+                    'error': result.get('error', 'Failed to spawn terminal')
+                }
+
+            print()  # Add spacing between sequential operations
+
+        # For sequential mode, return results immediately
+        return [completed_results.get(pm, {
+            'pm': pm,
+            'success': False,
+            'output': '',
+            'error': 'Unknown - result not found'
+        }) for pm in selected_pms]
+
+    # Phase 2: Poll all operations concurrently until completion (parallel mode only)
+    completed_results = {}  # pm_name -> result
+    pending_operations = spawned_operations.copy()
+
+    while pending_operations:
+        completed_this_round = []
+
+        for operation in pending_operations:
+            pm = operation['pm']
+
+            # Skip if already failed to spawn
+            if not operation.get('status_file'):
+                final_result = {
+                    'pm': pm,
+                    'success': False,
+                    'output': '',
+                    'error': operation.get('error', 'Failed to spawn terminal')
+                }
+                completed_results[pm] = final_result
+                completed_this_round.append(operation)
+                print(f"  ❌ {pm}: Failed to spawn")
+                continue
+
+            status_file = operation.get('status_file')
+            status_info = executor.check_status(status_file)
+
+            if status_info.get('status') == 'completed':
+                exit_code = status_info.get('exit_code', 0)
+                final_result = {
+                    'pm': pm,
+                    'success': exit_code == 0,
+                    'output': 'Upgrade completed' if exit_code == 0 else '',
+                    'error': '' if exit_code == 0 else f"Upgrade failed with exit code {exit_code}"
+                }
+                completed_results[pm] = final_result
+                completed_this_round.append(operation)
+
+                # Print completion status
+                if final_result['success']:
+                    print(f"  ✅ {pm}: Upgrade completed successfully")
+                else:
+                    print(f"  ❌ {pm}: Upgrade failed")
+
+            elif status_info.get('status') == 'error':
+                final_result = {
+                    'pm': pm,
+                    'success': False,
+                    'output': '',
+                    'error': status_info.get('error', 'Unknown error')
+                }
+                completed_results[pm] = final_result
+                completed_this_round.append(operation)
+                print(f"  ❌ {pm}: Upgrade failed")
+
+        # Remove completed operations
+        for completed_op in completed_this_round:
+            pending_operations.remove(completed_op)
+
+        # Brief pause before next poll cycle (only if there are still pending)
+        if pending_operations:
+            time.sleep(1)
+
+    # Phase 3: Return results in original order
+    ordered_results = []
+    for pm in selected_pms:
+        if pm in completed_results:
+            ordered_results.append(completed_results[pm])
         else:
-            print(f"  ❌ Upgrade failed: {result['error']}")
+            # This shouldn't happen, but add a fallback
+            ordered_results.append({
+                'pm': pm,
+                'success': False,
+                'output': '',
+                'error': 'Unknown - result not found'
+            })
 
-        # Add spacing between PMs (except after the last one)
-        if i < len(selected_pms) - 1:
-            print()  # Add blank line for visual separation
-
-    return results
+    return ordered_results
 
 
 def main():
@@ -247,7 +272,6 @@ def main():
     print("\n📊 Upgrade Summary")
     print("==================")
 
-    total_upgraded = 0
     successful_upgrades = 0
 
     for result in results:
@@ -256,15 +280,16 @@ def main():
 
         if result['success']:
             successful_upgrades += 1
-            count = result['upgraded_count']
-            total_upgraded += count
-            print(f"{status} {pm}: {count} packages upgraded")
+            print(f"{status} {pm}: Upgrade completed")
         else:
             print(f"{status} {pm}: Upgrade failed")
 
     print()
-    print(f"📈 Total packages upgraded: {total_upgraded}")
     print(f"🎯 Successful upgrades: {successful_upgrades}/{len(selected_pms)}")
+
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
 
     return 0
 

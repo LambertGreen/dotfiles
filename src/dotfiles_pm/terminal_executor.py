@@ -76,7 +76,7 @@ class TerminalExecutor(ABC):
         global _spawned_terminals
         _spawned_terminals.append(terminal_info)
 
-        # Load current registry, add this terminal (without executor), and save
+        # Append to persistent registry
         current_registry = _load_terminal_registry()
         # Create serializable version without executor
         serializable_info = {k: v for k, v in terminal_info.items() if k != 'executor'}
@@ -102,8 +102,13 @@ class TerminalExecutor(ABC):
         log_dir = Path.home() / '.dotfiles' / 'logs'
         log_dir.mkdir(parents=True, exist_ok=True)
 
-        log_file = str(log_dir / f"{operation}-{timestamp}.log")
-        status_file = str(log_dir / f"{operation}-{timestamp}.status")
+        # Sanitize operation name for filename: replace spaces and special chars with hyphens
+        import re
+        safe_operation = re.sub(r'[^a-zA-Z0-9_-]+', '-', operation)
+        safe_operation = re.sub(r'-+', '-', safe_operation).strip('-')  # Clean up multiple hyphens
+
+        log_file = str(log_dir / f"{safe_operation}-{timestamp}.log")
+        status_file = str(log_dir / f"{safe_operation}-{timestamp}.status")
 
         # Get the wrapper script path - try multiple locations
         wrapper_script = None

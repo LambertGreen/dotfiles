@@ -69,31 +69,43 @@ def cmd_check(args):
     print(f"\n🎯 Checking {len(selected_pms)} package managers...")
     print()
 
-    # Check all selected package managers
-    results = check_all_pms(selected_pms)
+    # Check all selected package managers (parallel by default)
+    results = check_all_pms(selected_pms, parallel=True)
 
-    # Summary
-    print("\n📊 Check Summary")
-    print("================")
+    # Summary with raw output
+    print("\n📊 Outdated Packages")
+    print("=" * 20)
+    print()
 
-    total_outdated = 0
     successful_checks = 0
+    has_outdated = False
 
     for result in results:
-        status = "✅" if result['success'] else "❌"
         pm = result['pm']
 
         if result['success']:
             successful_checks += 1
-            count = result['outdated_count']
-            total_outdated += count
-            print(f"{status} {pm}: {count} outdated packages")
-        else:
-            print(f"{status} {pm}: Check failed")
+            output = result.get('output', '').strip()
 
-    print()
-    print(f"📈 Total outdated packages: {total_outdated}")
-    print(f"🎯 Successful checks: {successful_checks}/{len(selected_pms)}")
+            if output:
+                has_outdated = True
+                print(f"📦 {pm}:")
+                print("-" * 40)
+                # Show raw output indented
+                for line in output.split('\n'):
+                    print(f"  {line}")
+                print()
+            else:
+                print(f"✅ {pm}: All packages up to date")
+                print()
+        else:
+            print(f"❌ {pm}: Check failed - {result.get('error', 'Unknown error')}")
+            print()
+
+    if not has_outdated:
+        print("🎉 All packages are up to date!")
+
+    print(f"\n🎯 Successful checks: {successful_checks}/{len(selected_pms)}")
 
     # Offer to close spawned terminals
     from .terminal_executor import prompt_close_terminals
@@ -133,14 +145,13 @@ def cmd_upgrade(args):
     print(f"\n🎯 Upgrading {len(selected_pms)} package managers...")
     print()
 
-    # Upgrade all selected package managers
-    results = upgrade_all_pms(selected_pms)
+    # Upgrade all selected package managers (sequential by default for safety)
+    results = upgrade_all_pms(selected_pms, parallel=False)
 
     # Summary
     print("\n📊 Upgrade Summary")
     print("==================")
 
-    total_upgraded = 0
     successful_upgrades = 0
 
     for result in results:
@@ -149,14 +160,11 @@ def cmd_upgrade(args):
 
         if result['success']:
             successful_upgrades += 1
-            count = result['upgraded_count']
-            total_upgraded += count
-            print(f"{status} {pm}: {count} packages upgraded")
+            print(f"{status} {pm}: Upgrade completed")
         else:
             print(f"{status} {pm}: Upgrade failed")
 
     print()
-    print(f"📈 Total packages upgraded: {total_upgraded}")
     print(f"🎯 Successful upgrades: {successful_upgrades}/{len(selected_pms)}")
 
     # Offer to close spawned terminals
@@ -189,6 +197,24 @@ def cmd_configure(args):
     return 0
 
 
+def cmd_audit(args):
+    """Audit package managers for consistency."""
+    from .pm_audit import audit_package_managers, recommend_actions, print_audit_report
+
+    print("🔍 Package Manager Audit")
+    print("=" * 25)
+    print()
+
+    # Perform audit
+    audit_results = audit_package_managers()
+    recommendations = recommend_actions(audit_results)
+
+    # Print report
+    print_audit_report(audit_results, recommendations)
+
+    return 0
+
+
 def cmd_install(args):
     """Install packages."""
     from .pm_install import install_all_pms
@@ -203,8 +229,6 @@ def cmd_install(args):
         print("❌ No package managers detected")
         return 1
 
-    print(f"\n📋 Detected {len(available_pms)} package managers")
-
     # Filter by category if specified
     if args.category:
         category_pms = {
@@ -213,6 +237,8 @@ def cmd_install(args):
             'app': ['emacs', 'zinit', 'neovim']
         }
         available_pms = [pm for pm in available_pms if pm in category_pms.get(args.category, [])]
+
+    print(f"\n📋 Detected {len(available_pms)} package managers")
 
     # Filter by specific PMs if requested
     if args.pms:
@@ -251,6 +277,9 @@ def cmd_install(args):
             count = result['installed_count']
             total_installed += count
             print(f"{status} {pm}: {count} packages installed")
+            # Show warning message if present (e.g., no configuration)
+            if result.get('output') and '⚠️' in result['output']:
+                print(f"    {result['output']}")
         else:
             print(f"{status} {pm}: Installation failed")
 
@@ -269,6 +298,7 @@ def main():
         epilog="""
 Examples:
   pm list                    # List all available package managers
+  pm audit                   # Audit PMs for consistency (manifests vs installed)
   pm check                   # Check for outdated packages (interactive)
   pm check brew npm          # Check specific package managers
   pm upgrade                 # Upgrade packages (interactive)
@@ -294,6 +324,9 @@ Examples:
     # Configure command
     parser_configure = subparsers.add_parser('configure', help='Configure package managers')
 
+    # Audit command
+    parser_audit = subparsers.add_parser('audit', help='Audit package managers for consistency')
+
     # Install command
     parser_install = subparsers.add_parser('install', help='Install packages')
     parser_install.add_argument('pms', nargs='*', help='Specific PMs to install for (optional)')
@@ -314,6 +347,7 @@ Examples:
         'check': cmd_check,
         'upgrade': cmd_upgrade,
         'configure': cmd_configure,
+        'audit': cmd_audit,
         'install': cmd_install,
     }
 
