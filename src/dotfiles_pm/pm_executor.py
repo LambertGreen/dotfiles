@@ -21,6 +21,14 @@ def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
         Dict mapping pm_name -> operation -> command_list
     """
     return {
+        'apt': {
+            # Use apt-get for scripting (apt man page recommendation for automation)
+            # apt is designed for interactive use and may change behavior between versions
+            # Note: apt-get update requires sudo - user will be prompted in terminal
+            'check': ['sudo', 'apt-get', 'update', '&&', 'apt', 'list', '--upgradable'],
+            'upgrade': ['sudo', 'apt-get', 'upgrade'],
+            'install': ['sudo', 'apt-get', 'install']
+        },
         'brew': {
             'check': ['brew', 'update', '&&', 'brew', 'outdated', '--verbose'],
             'upgrade': ['brew', 'upgrade'],
@@ -77,6 +85,27 @@ def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
             'install': ['nvim', '--headless', '-c', 'Lazy install', '-c', 'qa']
         }
     }
+
+
+def requires_sudo(pm_name: str, operation: str) -> bool:
+    """
+    Check if a package manager operation requires sudo.
+
+    Args:
+        pm_name: Package manager name
+        operation: Operation being performed
+
+    Returns:
+        True if the operation requires sudo
+    """
+    commands = get_pm_commands()
+
+    if pm_name not in commands or operation not in commands[pm_name]:
+        return False
+
+    cmd_list = commands[pm_name][operation]
+    # Check if command starts with sudo
+    return len(cmd_list) > 0 and cmd_list[0] == 'sudo'
 
 
 def is_success_exit_code(pm_name: str, operation: str, exit_code: int, has_output: bool) -> bool:

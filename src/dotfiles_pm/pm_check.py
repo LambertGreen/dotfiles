@@ -86,6 +86,9 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
     """
     Check all selected package managers for outdated packages.
 
+    Package managers requiring sudo are run sequentially first, then
+    non-sudo PMs are run in parallel to avoid conflicts.
+
     Args:
         selected_pms: List of selected package manager names
         parallel: Whether to run checks in parallel (True) or sequentially (False)
@@ -98,20 +101,114 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
 
     import time
     from terminal_executor import create_terminal_executor
+    from .pm_executor import requires_sudo
 
-    # Phase 1: Launch terminals (all at once if parallel, one by one if sequential)
-    if parallel:
-        print(f"🚀 Launching {len(selected_pms)} package manager checks in parallel...")
-    else:
-        print(f"🚀 Running {len(selected_pms)} package manager checks sequentially...")
+    # Separate sudo-requiring PMs from non-sudo PMs
+    sudo_pms = [pm for pm in selected_pms if requires_sudo(pm, 'check')]
+    non_sudo_pms = [pm for pm in selected_pms if not requires_sudo(pm, 'check')]
+
+    print(f"🚀 Checking {len(selected_pms)} package managers...")
+    if sudo_pms:
+        print(f"   ⚠️  {len(sudo_pms)} require sudo (will run sequentially first): {', '.join(sudo_pms)}")
+    if non_sudo_pms and parallel:
+        print(f"   ⚡ {len(non_sudo_pms)} will run in parallel: {', '.join(non_sudo_pms)}")
     print()
 
-    spawned_operations = []
+    all_results = {}
     executor = create_terminal_executor()
 
-    if parallel:
+    # Phase 1: Run sudo PMs sequentially (they need user interaction for password)
+    if sudo_pms:
+        print(f"📋 Running {len(sudo_pms)} sudo-requiring PM(s) sequentially...")
+        for pm in sudo_pms:
+            print(f"\n🔍 Checking {pm} (requires sudo)...")
+            result = check_pm_outdated_parallel(pm)
+
+            if result['status'] == 'spawned':
+                print(f"  💻 Command: {result.get('command', 'Unknown command')}")
+                print(f"  🖥️  Executing in new terminal window...")
+                print(f"  📄 Log: {result.get('log_file')}")
+                print(f"  ⏳ Waiting for {pm} to complete (you may need to enter sudo password)...")
+
+                # Wait for this sudo operation to complete
+                status_file = result.get('status_file')
+                if status_file:
+                    while True:
+                        status_info = executor.check_status(status_file)
+                        if status_info.get('status') == 'completed':
+                            exit_code = status_info.get('exit_code', 0)
+
+                            # Read log file
+                            log_content = ''
+                            try:
+                                from pathlib import Path
+                                log_content = Path(result['log_file']).read_text().strip()
+                            except Exception:
+                                pass
+
+                            # Check success
+                            from .pm_executor import is_success_exit_code
+                            is_success = is_success_exit_code(pm, 'check', exit_code, bool(log_content))
+
+                            final_result = {
+                                'pm': pm,
+                                'success': is_success,
+                                'output': log_content if is_success else '',
+                                'error': f"Check failed with exit code {exit_code}" if not is_success else '',
+                                'outdated_count': 0
+                            }
+
+                            if is_success and log_content:
+                                lines = [line for line in log_content.split('\n') if line.strip()]
+                                final_result['outdated_count'] = len(lines)
+
+                            all_results[pm] = final_result
+
+                            if final_result['success']:
+                                if final_result['outdated_count'] > 0:
+                                    print(f"  ✅ {pm}: {final_result['outdated_count']} outdated packages")
+                                else:
+                                    print(f"  ✅ {pm}: All packages up to date")
+                            else:
+                                print(f"  ❌ {pm}: Check failed")
+                            break
+
+                        elif status_info.get('status') == 'error':
+                            all_results[pm] = {
+                                'pm': pm,
+                                'success': False,
+                                'output': '',
+                                'error': status_info.get('error', 'Unknown error'),
+                                'outdated_count': 0
+                            }
+                            print(f"  ❌ {pm}: Check failed")
+                            break
+                        else:
+                            time.sleep(1)
+            else:
+                print(f"  ❌ Failed to spawn: {result.get('error', 'Unknown error')}")
+                all_results[pm] = {
+                    'pm': pm,
+                    'success': False,
+                    'output': '',
+                    'error': result.get('error', 'Failed to spawn terminal'),
+                    'outdated_count': 0
+                }
+
+        print(f"\n✅ Sudo PM(s) completed\n")
+
+    # Phase 2: Run non-sudo PMs (in parallel if enabled)
+    spawned_operations = []
+    if non_sudo_pms:
+        if parallel:
+            print(f"🚀 Launching {len(non_sudo_pms)} package manager checks in parallel...")
+        else:
+            print(f"🚀 Running {len(non_sudo_pms)} package manager checks sequentially...")
+        print()
+
+    if parallel and non_sudo_pms:
         # Launch all at once
-        for pm in selected_pms:
+        for pm in non_sudo_pms:
             print(f"🔍 Launching {pm} check...")
             result = check_pm_outdated_parallel(pm)
             if result['status'] == 'spawned':
@@ -323,11 +420,14 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
         if pending_operations:
             time.sleep(1)
 
-    # Phase 3: Return results in original order
+    # Phase 3: Merge all results (sudo + non-sudo) and return in original order
+    # Merge completed_results from non-sudo PMs with all_results from sudo PMs
+    all_completed_results = {**all_results, **completed_results}
+
     ordered_results = []
     for pm in selected_pms:
-        if pm in completed_results:
-            ordered_results.append(completed_results[pm])
+        if pm in all_completed_results:
+            ordered_results.append(all_completed_results[pm])
         else:
             # This shouldn't happen, but add a fallback
             ordered_results.append({
