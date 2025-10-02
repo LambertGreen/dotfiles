@@ -14,15 +14,22 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
     """
     Interactive selection of package managers.
 
+    Package managers are displayed sorted by priority (system PMs first).
+    Selection preserves this priority order.
+
     Args:
         available_pms: List of available package managers
         timeout: Seconds to wait for input before selecting all (default: 10)
 
     Returns:
-        List of selected package managers
+        List of selected package managers in priority order
     """
     if not available_pms:
         return []
+
+    # Sort PMs by priority for display and selection
+    from .pm_executor import get_pm_priority
+    available_pms = sorted(available_pms, key=get_pm_priority)
 
     # Check if we're in interactive mode
     if not sys.stdin.isatty() or not sys.stdout.isatty():
@@ -30,11 +37,13 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
         print(f"Non-interactive mode - selecting all PMs: {', '.join(available_pms)}")
         return available_pms
 
-    print("\n📋 Select package managers to process:\n")
+    print("\n📋 Select package managers to process (sorted by priority):\n")
 
     # Display numbered list
     for i, pm in enumerate(available_pms, 1):
-        print(f"  {i}. {pm}")
+        priority = get_pm_priority(pm)
+        priority_label = "system" if priority == 0 else "user"
+        print(f"  {i}. {pm} ({priority_label})")
 
     print("\nOptions:")
     print("  • Enter numbers (e.g., '1 3 5') to select specific PMs")
@@ -67,7 +76,7 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
         print("⏭️ Skipping - no package managers selected")
         return []
 
-    # Parse numbers
+    # Parse numbers - maintain priority order
     selected = []
     for token in user_input.split():
         try:

@@ -87,6 +87,31 @@ def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
     }
 
 
+def get_pm_priority(pm_name: str) -> int:
+    """
+    Get the priority for a package manager.
+    Lower numbers run first.
+
+    Priority levels:
+    - 0: System package managers (apt, yum, dnf, pacman)
+    - 1: User-level package managers with sudo (none currently)
+    - 10: User-level package managers (brew, cargo, gem, etc.)
+
+    Args:
+        pm_name: Package manager name
+
+    Returns:
+        Priority level (lower runs first)
+    """
+    # System package managers - run these first
+    system_pms = ['apt', 'yum', 'dnf', 'pacman', 'zypper']
+    if pm_name in system_pms:
+        return 0
+
+    # All other PMs are user-level
+    return 10
+
+
 def requires_sudo(pm_name: str, operation: str) -> bool:
     """
     Check if a package manager operation requires sudo.

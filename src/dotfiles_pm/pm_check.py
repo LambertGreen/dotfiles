@@ -104,12 +104,13 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
     from .pm_executor import requires_sudo
 
     # Separate sudo-requiring PMs from non-sudo PMs
+    # Selected PMs are already sorted by priority from pm_select
     sudo_pms = [pm for pm in selected_pms if requires_sudo(pm, 'check')]
     non_sudo_pms = [pm for pm in selected_pms if not requires_sudo(pm, 'check')]
 
     print(f"🚀 Checking {len(selected_pms)} package managers...")
     if sudo_pms:
-        print(f"   ⚠️  {len(sudo_pms)} require sudo (will run sequentially first): {', '.join(sudo_pms)}")
+        print(f"   ⚠️  {len(sudo_pms)} require sudo (will run sequentially by priority): {', '.join(sudo_pms)}")
     if non_sudo_pms and parallel:
         print(f"   ⚡ {len(non_sudo_pms)} will run in parallel: {', '.join(non_sudo_pms)}")
     print()

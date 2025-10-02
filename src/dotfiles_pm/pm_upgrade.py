@@ -56,6 +56,9 @@ def upgrade_all_pms(selected_pms: List[str], parallel: bool = False) -> List[Dic
     """
     Upgrade packages for all selected package managers.
 
+    Package managers are sorted by priority (system PMs like apt first),
+    then run sequentially to ensure sudo prompts are handled properly.
+
     Args:
         selected_pms: List of selected package manager names
         parallel: Whether to run upgrades in parallel (False by default for safety)
@@ -69,11 +72,12 @@ def upgrade_all_pms(selected_pms: List[str], parallel: bool = False) -> List[Dic
     import time
     from .terminal_executor import create_terminal_executor
 
+    # Selected PMs are already sorted by priority from pm_select
     # Phase 1: Launch terminals (all at once if parallel, one by one if sequential)
     if parallel:
         print(f"🚀 Launching {len(selected_pms)} package manager upgrades in parallel...")
     else:
-        print(f"🚀 Running {len(selected_pms)} package manager upgrades sequentially...")
+        print(f"🚀 Running {len(selected_pms)} package manager upgrades sequentially by priority...")
     print()
 
     spawned_operations = []
