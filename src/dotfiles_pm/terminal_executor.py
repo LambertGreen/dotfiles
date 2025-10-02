@@ -233,24 +233,141 @@ class DarwinTerminalExecutor(TerminalExecutor):
 class LinuxTerminalExecutor(TerminalExecutor):
     """Linux terminal executor with fallback chain"""
 
+    def close_terminal(self, terminal_info: Dict[str, Any]) -> bool:
+        """
+        Close a spawned Linux terminal window safely using its unique title.
+
+        This is the SAFE way to close terminal windows:
+        1. Use the unique title we set when spawning
+        2. Use wmctrl to close only that specific window
+        3. This prevents accidentally closing the terminal we're running from!
+
+        Args:
+            terminal_info: Result from spawn() containing terminal details including 'title'
+
+        Returns:
+            True if successfully closed, False otherwise
+        """
+        title = terminal_info.get('title')
+        if not title:
+            # Fallback: try PID-based cleanup (less safe)
+            return self._close_terminal_by_pid(terminal_info)
+
+        try:
+            # Use wmctrl to close window by its unique title
+            # This is safe because:
+            # 1. The title is unique (includes PID and timestamp)
+            # 2. Only our spawned windows have this title format
+            # 3. Won't match the user's main terminal (Wezterm, etc.)
+            result = subprocess.run(
+                ['wmctrl', '-c', title],
+                capture_output=True,
+                stderr=subprocess.DEVNULL
+            )
+
+            # Wait a moment for the window to close
+            time.sleep(0.3)
+
+            # Verify the window is closed by checking if it's still in the window list
+            check_result = subprocess.run(
+                ['wmctrl', '-l'],
+                capture_output=True,
+                text=True
+            )
+
+            # If the title is no longer in the window list, it's closed
+            is_closed = title not in check_result.stdout
+
+            return is_closed
+
+        except (FileNotFoundError, Exception):
+            # wmctrl not available, fall back to PID-based cleanup
+            return self._close_terminal_by_pid(terminal_info)
+
+    def _close_terminal_by_pid(self, terminal_info: Dict[str, Any]) -> bool:
+        """
+        Fallback: Close terminal by killing its process tree.
+        Less safe than title-based approach.
+        """
+        pid = terminal_info.get('pid')
+        if not pid:
+            return False
+
+        try:
+            # Kill all child processes
+            subprocess.run(['pkill', '-P', str(pid)], stderr=subprocess.DEVNULL)
+            time.sleep(0.2)
+
+            # Kill parent
+            try:
+                os.kill(pid, 15)  # SIGTERM
+                time.sleep(0.2)
+                os.kill(pid, 9)  # SIGKILL
+            except ProcessLookupError:
+                pass
+
+            return True
+        except Exception:
+            return False
+
     def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
         """Try various Linux terminals in order of preference"""
+        # Get user's shell from SHELL environment variable
+        # IMPORTANT: Many users have .bashrc that auto-execs to zsh when interactive
+        # So we detect and prefer zsh if available to avoid the exec loop
+        user_shell = os.environ.get('SHELL', '/bin/bash')
+
+        # If SHELL is bash, check if zsh is available (common in dotfiles setups)
+        # This avoids the bash -> zsh exec that prevents commands from running
+        if 'bash' in user_shell:
+            zsh_path = shutil.which('zsh')
+            if zsh_path:
+                user_shell = zsh_path
+
+        # Ensure we're using an absolute path
+        if not user_shell.startswith('/'):
+            user_shell = shutil.which(user_shell) or '/bin/bash'
+
+        # Create a unique title for this terminal window so we can track and close it safely
+        # Format: DOTFILES-PM-<operation>-<pid>-<timestamp>
+        if not title:
+            title = f"DOTFILES-PM-{os.getpid()}-{int(time.time())}"
+        unique_title = f"DOTFILES-PM-{title}-{os.getpid()}-{int(time.time())}"
+
+        # Build commands for different terminals
+        # IMPORTANT: For commands to execute properly, we need to:
+        # 1. Use the user's actual shell (from $SHELL environment variable)
+        # 2. Set a unique title so we can identify and close this window later
+        # 3. Tell the shell to execute the command with -c
+        # 4. After command completes, exec the shell again to keep terminal open
+
+        # For gnome-terminal (modern version 3.x+):
+        # - Use '--title' to set a unique window title for tracking
+        # - Use '--' followed by the command to execute
+        # - The command after -- is executed directly (not parsed by gnome-terminal)
+        # - We pass the user's shell with -c to run our command, then exec the shell to keep it open
+
+        # Note: We use shell -c "command; exec shell" pattern to:
+        # 1. Run the command
+        # 2. After command completes, replace the process with an interactive shell (keeps terminal open)
         terminals = [
-            ('gnome-terminal', ['gnome-terminal', '--', 'bash', '-c', command]),
-            ('konsole', ['konsole', '-e', 'bash', '-c', command]),
-            ('xfce4-terminal', ['xfce4-terminal', '-e', f'bash -c "{command}"']),
-            ('xterm', ['xterm', '-e', command])
+            ('gnome-terminal', ['gnome-terminal', '--title', unique_title, '--', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('konsole', ['konsole', '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xfce4-terminal', ['xfce4-terminal', '--title', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xterm', ['xterm', '-T', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}'])
         ]
 
         for terminal_name, cmd in terminals:
             if shutil.which(terminal_name.split()[0]):
                 try:
-                    subprocess.Popen(cmd)
+                    proc = subprocess.Popen(cmd)
                     return {
                         'status': 'spawned',
                         'platform': 'linux',
                         'method': terminal_name,
-                        'command': command[:50] + '...' if len(command) > 50 else command
+                        'command': command[:50] + '...' if len(command) > 50 else command,
+                        'pid': proc.pid,
+                        'title': unique_title  # Store title for safe cleanup
                     }
                 except Exception:
                     continue
@@ -413,56 +530,149 @@ def get_spawned_terminals() -> List[Dict[str, Any]]:
 
 def close_all_terminals() -> int:
     """
-    Close all spawned terminals.
+    Close all spawned terminals by finding all DOTFILES-PM windows.
+
+    This uses wmctrl to find all terminals we spawned (by title prefix),
+    which is more reliable than the registry since the registry can be cleared.
 
     Returns:
         Number of terminals successfully closed
     """
-    spawned_terminals = _load_terminal_registry()
     closed_count = 0
 
-    for terminal_info in spawned_terminals:
-        # Recreate executor if not present (from persistent registry)
-        executor = terminal_info.get('executor')
-        if not executor:
-            executor = create_terminal_executor()
+    try:
+        # Find all DOTFILES-PM windows using wmctrl
+        result = subprocess.run(
+            ['wmctrl', '-l'],
+            capture_output=True,
+            text=True,
+            check=False
+        )
 
-        if executor and executor.close_terminal(terminal_info):
-            closed_count += 1
+        if result.returncode != 0:
+            # wmctrl not available, fall back to registry-based cleanup
+            spawned_terminals = _load_terminal_registry()
+            for terminal_info in spawned_terminals:
+                executor = terminal_info.get('executor')
+                if not executor:
+                    executor = create_terminal_executor()
+                if executor and executor.close_terminal(terminal_info):
+                    closed_count += 1
+        else:
+            # Use wmctrl to close all DOTFILES-PM windows
+            lines = result.stdout.strip().split('\n')
+            dotfiles_windows = [l for l in lines if 'DOTFILES-PM' in l and l.strip()]
 
-    # Clear both registries
+            for line in dotfiles_windows:
+                window_id = line.split()[0]
+                # Close window by ID
+                close_result = subprocess.run(
+                    ['wmctrl', '-ic', window_id],
+                    stderr=subprocess.DEVNULL,
+                    check=False
+                )
+                if close_result.returncode == 0:
+                    closed_count += 1
+
+    except Exception:
+        pass
+
+    # Clear registries regardless
     global _spawned_terminals
     _spawned_terminals.clear()
     _save_terminal_registry([])
+
     return closed_count
 
 
 def prompt_close_terminals() -> None:
-    """Prompt user to close spawned terminals"""
-    spawned_terminals = _load_terminal_registry()
+    """
+    Prompt user to close spawned terminals with auto-close timeout.
 
-    if not spawned_terminals:
+    By default, terminals will auto-close after a timeout (configurable via
+    DOTFILES_TERMINAL_CLOSE_TIMEOUT env var, default 10 seconds).
+    User can press ESC to cancel auto-close and keep terminals open.
+    """
+    # Count actual DOTFILES-PM windows instead of using registry
+    try:
+        result = subprocess.run(['wmctrl', '-l'], capture_output=True, text=True, check=False)
+        dotfiles_windows = [l for l in result.stdout.split('\n') if 'DOTFILES-PM' in l and l.strip()]
+        num_terminals = len(dotfiles_windows)
+    except Exception:
+        # Fallback to registry count
+        spawned_terminals = _load_terminal_registry()
+        num_terminals = len(spawned_terminals)
+
+    if num_terminals == 0:
         return
 
-    print(f"\n🖥️  {len(spawned_terminals)} terminal(s) were opened during this session:")
-    for i, terminal in enumerate(spawned_terminals, 1):
-        print(f"  {i}. {terminal.get('operation', 'Unknown operation')}")
+    # Get timeout from environment variable (default 60 seconds)
+    timeout = int(os.environ.get('DOTFILES_TERMINAL_CLOSE_TIMEOUT', '60'))
 
+    print(f"\n🖥️  {num_terminals} terminal(s) were opened during this session")
+    print(f"⏱️  Auto-closing in {timeout} seconds... (press ESC to cancel)")
+
+    import select
+    import sys
+    import termios
+    import tty
+
+    # Save terminal settings
+    old_settings = None
     try:
-        while True:
-            choice = input(f"\nClose all terminals? [Y/n]: ").strip().lower()
-            if choice in ['y', 'yes', '']:  # Empty input defaults to yes
+        old_settings = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin.fileno())
+
+        start_time = time.time()
+        cancelled = False
+
+        while time.time() - start_time < timeout:
+            remaining = int(timeout - (time.time() - start_time))
+            # Update countdown
+            print(f"\r⏱️  Closing in {remaining} seconds... (press ESC to cancel)  ", end='', flush=True)
+
+            # Check for input (non-blocking)
+            if select.select([sys.stdin], [], [], 0.1)[0]:
+                char = sys.stdin.read(1)
+                # ESC key is '\x1b'
+                if char == '\x1b':
+                    cancelled = True
+                    print(f"\n📋 Auto-close cancelled - terminals left open for review")
+                    break
+
+            time.sleep(0.1)
+
+        if not cancelled:
+            print(f"\n🗑️  Closing {num_terminals} terminal(s)...")
+            closed = close_all_terminals()
+            print(f"✅ Closed {closed} terminal(s)")
+        else:
+            # User cancelled - now wait for Enter to close on their timeline
+            # Restore normal terminal mode for input
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+            try:
+                input(f"📌 Press ENTER when ready to close terminals (or Ctrl+C to leave open): ")
+                print(f"🗑️  Closing {num_terminals} terminal(s)...")
                 closed = close_all_terminals()
                 print(f"✅ Closed {closed} terminal(s)")
-                break
-            elif choice in ['n', 'no']:
-                print(f"📋 Terminals left open for review")
-                break
-            else:
-                print(f"Please enter 'y' or 'n' (default: y)")
-    except (EOFError, KeyboardInterrupt):
-        # Handle cases where input is not available (Claude Code, CI, etc.)
-        print(f"\n📋 Terminals left open for review")
+            except KeyboardInterrupt:
+                print(f"\n📋 Terminals left open for review")
+
+    except (termios.error, IOError, OSError):
+        # Terminal doesn't support raw mode (e.g., non-interactive, CI, Claude Code)
+        # Fall back to immediate close
+        print(f"\n🗑️  Closing {num_terminals} terminal(s)...")
+        closed = close_all_terminals()
+        print(f"✅ Closed {closed} terminal(s)")
+    except KeyboardInterrupt:
+        print(f"\n📋 Interrupted - terminals left open for review")
+    finally:
+        # Restore terminal settings
+        if old_settings:
+            try:
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+            except:
+                pass
 
 
 def spawn_tracked(command: str, operation: str, auto_close: bool = False, test_mode: bool = False) -> Dict[str, Any]:

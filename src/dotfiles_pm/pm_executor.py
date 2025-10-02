@@ -141,9 +141,11 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
 
     if interactive:
         # Run in terminal with tracking
+        # Use simple operation name for terminal title (not the full command)
+        operation_label = f"{pm_name}-{operation}"
         terminal_result = spawn_tracked(
             cmd_str,
-            operation=cmd_str,  # Use command as operation name
+            operation=operation_label,  # Simple name for terminal title
             auto_close=False
         )
 
