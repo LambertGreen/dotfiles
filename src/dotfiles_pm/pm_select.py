@@ -8,6 +8,10 @@ Interactive selection of package managers with timeout for unattended operation.
 import sys
 import select
 from typing import List, Optional
+from pathlib import Path
+
+# Add current directory to path for imports (when run as module)
+sys.path.insert(0, str(Path(__file__).parent))
 
 
 def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
@@ -28,11 +32,15 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
         return []
 
     # Sort PMs by priority for display and selection
-    from .pm_executor import get_pm_priority
+    from pm_executor import get_pm_priority
     available_pms = sorted(available_pms, key=get_pm_priority)
 
-    # Check if we're in interactive mode
-    if not sys.stdin.isatty() or not sys.stdout.isatty():
+    # Check for test mode override first
+    import os
+    test_selection = os.environ.get('DOTFILES_PM_SELECT')
+
+    # Check if we're in interactive mode (unless test mode is enabled)
+    if not test_selection and (not sys.stdin.isatty() or not sys.stdout.isatty()):
         # Non-interactive mode - select all
         print(f"Non-interactive mode - selecting all PMs: {', '.join(available_pms)}")
         return available_pms
@@ -51,21 +59,26 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
     print("  • Enter 'none' to skip")
     print(f"  • Timeout: {timeout} seconds (defaults to 'all')\n")
 
-    # Wait for input with timeout
-    try:
-        # Check if input is available within timeout
-        ready, _, _ = select.select([sys.stdin], [], [], timeout)
+    # Check for test mode override (already imported os and got test_selection above)
+    if test_selection:
+        print(f"TEST MODE: Using selection from DOTFILES_PM_SELECT='{test_selection}'")
+        user_input = test_selection
+    else:
+        # Wait for input with timeout
+        try:
+            # Check if input is available within timeout
+            ready, _, _ = select.select([sys.stdin], [], [], timeout)
 
-        if ready:
-            user_input = input("Selection: ").strip()
-        else:
-            # Timeout reached
-            print("\n⏱️ Timeout - selecting all package managers")
-            return available_pms
+            if ready:
+                user_input = input("Selection: ").strip()
+            else:
+                # Timeout reached
+                print("\n⏱️ Timeout - selecting all package managers")
+                return available_pms
 
-    except (KeyboardInterrupt, EOFError):
-        print("\n⚠️ Interrupted - selecting none")
-        return []
+        except (KeyboardInterrupt, EOFError):
+            print("\n⚠️ Interrupted - selecting none")
+            return []
 
     # Parse user input
     if not user_input or user_input.lower() == 'all':

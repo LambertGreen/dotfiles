@@ -225,9 +225,9 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
 
         print(f"\n⏳ Waiting for all {len(spawned_operations)} checks to complete...")
     else:
-        # Launch and wait for each one sequentially
+        # Launch and wait for each non-sudo PM sequentially
         completed_results = {}
-        for pm in selected_pms:
+        for pm in non_sudo_pms:
             print(f"🔍 Checking {pm}...")
             result = check_pm_outdated_parallel(pm)
 
@@ -314,8 +314,9 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
 
             print()  # Add spacing between sequential operations
 
-        # For sequential mode, return results immediately
-        return [completed_results.get(pm, {
+        # For sequential mode, merge sudo and non-sudo results and return
+        all_completed_results = {**all_results, **completed_results}
+        return [all_completed_results.get(pm, {
             'pm': pm,
             'success': False,
             'output': '',

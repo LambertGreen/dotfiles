@@ -1,3 +1,7 @@
 if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && command -v zsh >/dev/null 2>&1; then
   exec zsh -l        # -l makes it a login zsh → .zprofile runs
 fi
+export PATH="$PATH:/opt/mssql-tools/bin"
+
+# Added by dx-cli for Claude Code CA certificates
+export NODE_EXTRA_CA_CERTS="/home/lambert.green/.claude/certs/salesforce-ca-bundle.pem"

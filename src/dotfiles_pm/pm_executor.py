@@ -5,11 +5,15 @@ Unified Package Manager Command Executor
 Single place for all package manager command execution - no special cases!
 """
 
+import sys
 import subprocess
 from typing import Dict, Any, List
 from pathlib import Path
 
-from .terminal_executor import spawn_tracked
+# Add current directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
+
+from terminal_executor import spawn_tracked
 
 
 def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
