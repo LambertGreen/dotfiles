@@ -22,71 +22,93 @@ def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
     No special case logic - just the correct commands.
 
     Returns:
-        Dict mapping pm_name -> operation -> command_list
+        Dict mapping pm_name -> {
+            'check': command_list,
+            'upgrade': command_list,
+            'install': command_list,
+            'sudo_required': bool  # Explicit flag, not inferred from command
+        }
     """
     return {
         'apt': {
-            # Use apt-get for scripting (apt man page recommendation for automation)
-            # apt is designed for interactive use and may change behavior between versions
-            # Note: apt-get update requires sudo - user will be prompted in terminal
             'check': ['sudo', 'apt-get', 'update', '&&', 'apt', 'list', '--upgradable'],
             'upgrade': ['sudo', 'apt-get', 'upgrade'],
-            'install': ['sudo', 'apt-get', 'install']
+            'install': ['sudo', 'apt-get', 'install'],
+            'sudo_required': True
         },
         'brew': {
             'check': ['brew', 'update', '&&', 'brew', 'outdated', '--verbose'],
             'upgrade': ['brew', 'upgrade'],
-            'install': ['brew', 'bundle', 'install']
+            'install': ['brew', 'bundle', 'install'],
+            'sudo_required': False
         },
         'npm': {
             'check': ['npm', 'outdated', '-g'],
             'upgrade': ['npm', 'update', '-g'],
-            'install': ['npm', 'install', '-g']
+            'install': ['npm', 'install', '-g'],
+            'sudo_required': False
         },
         'pip': {
             'check': ['pip3', 'list', '--outdated'],
-            'upgrade': ['pip3', 'install', '--upgrade'],  # Will be modified per package
-            'install': ['pip3', 'install']
+            'upgrade': ['pip3', 'install', '--upgrade'],
+            'install': ['pip3', 'install'],
+            'sudo_required': False
         },
         'pipx': {
             'check': ['pipx', 'list', '--short'],
             'upgrade': ['pipx', 'upgrade-all'],
-            'install': ['pipx', 'install']
+            'install': ['pipx', 'install'],
+            'sudo_required': False
         },
         'cargo': {
             'check': ['cargo', 'install-update', '--list'],
             'upgrade': ['cargo', 'install-update', '-a'],
-            'install': ['cargo', 'install']
+            'install': ['cargo', 'install'],
+            'sudo_required': False
         },
         'gem': {
             'check': ['gem', 'outdated'],
             'upgrade': ['gem', 'update'],
-            'install': ['gem', 'install']
+            'install': ['gem', 'install'],
+            'sudo_required': False
         },
         'fake-pm1': {
-            'check': ['fake-pm1', 'outdated'],
-            'upgrade': ['fake-pm1', 'upgrade'],
-            'install': ['fake-pm1', 'install']
+            'check': ['echo', 'fake-pm1: 5 packages outdated'],
+            'upgrade': ['echo', 'fake-pm1: upgrading packages...'],
+            'install': ['echo', 'fake-pm1: installing packages...'],
+            'sudo_required': False
         },
         'fake-pm2': {
-            'check': ['fake-pm2', 'outdated'],
-            'upgrade': ['fake-pm2', 'upgrade'],
-            'install': ['fake-pm2', 'install']
+            'check': ['echo', 'fake-pm2: 3 packages outdated'],
+            'upgrade': ['echo', 'fake-pm2: upgrading packages...'],
+            'install': ['echo', 'fake-pm2: installing packages...'],
+            'sudo_required': False
+        },
+        'fake-sudo-pm': {
+            # Simulates a sudo-requiring PM for testing priority/ordering
+            # Uses sleep to simulate time taken for sudo password entry
+            'check': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: 7 packages outdated"'],
+            'upgrade': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: upgraded"'],
+            'install': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: installed"'],
+            'sudo_required': True
         },
         'zinit': {
             'check': ["zsh -i -c 'zinit times'"],
             'upgrade': ["zsh -i -c 'zinit self-update && zinit update --all'"],
-            'install': ["zsh -i -c 'true'"]
+            'install': ["zsh -i -c 'true'"],
+            'sudo_required': False
         },
         'emacs': {
             'check': ['env', 'DOTFILES_EMACS_CHECK=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
             'upgrade': ['env', 'DOTFILES_EMACS_UPDATE=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
-            'install': ['env', 'DOTFILES_EMACS_INSTALL=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el']
+            'install': ['env', 'DOTFILES_EMACS_INSTALL=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
+            'sudo_required': False
         },
         'neovim': {
             'check': ['nvim', '--headless', '-c', 'Lazy check', '-c', 'qa'],
             'upgrade': ['nvim', '--headless', '-c', 'Lazy sync', '-c', 'qa'],
-            'install': ['nvim', '--headless', '-c', 'Lazy install', '-c', 'qa']
+            'install': ['nvim', '--headless', '-c', 'Lazy install', '-c', 'qa'],
+            'sudo_required': False
         }
     }
 
@@ -97,7 +119,7 @@ def get_pm_priority(pm_name: str) -> int:
     Lower numbers run first.
 
     Priority levels:
-    - 0: System package managers (apt, yum, dnf, pacman)
+    - 0: System package managers (apt, yum, dnf, pacman, fake-sudo-pm for testing)
     - 1: User-level package managers with sudo (none currently)
     - 10: User-level package managers (brew, cargo, gem, etc.)
 
@@ -108,7 +130,8 @@ def get_pm_priority(pm_name: str) -> int:
         Priority level (lower runs first)
     """
     # System package managers - run these first
-    system_pms = ['apt', 'yum', 'dnf', 'pacman', 'zypper']
+    # Include fake-sudo-pm for testing sudo functionality
+    system_pms = ['apt', 'yum', 'dnf', 'pacman', 'zypper', 'fake-sudo-pm']
     if pm_name in system_pms:
         return 0
 
@@ -116,25 +139,27 @@ def get_pm_priority(pm_name: str) -> int:
     return 10
 
 
-def requires_sudo(pm_name: str, operation: str) -> bool:
+def requires_sudo(pm_name: str, operation: str = 'check') -> bool:
     """
-    Check if a package manager operation requires sudo.
+    Check if a package manager requires sudo for operations.
+
+    Uses explicit 'sudo_required' metadata field, not command inference.
+    This is correct because PMs may run sudo internally in scripts.
 
     Args:
         pm_name: Package manager name
-        operation: Operation being performed
+        operation: Operation being performed (unused, kept for compatibility)
 
     Returns:
-        True if the operation requires sudo
+        True if the PM requires sudo
     """
     commands = get_pm_commands()
 
-    if pm_name not in commands or operation not in commands[pm_name]:
+    if pm_name not in commands:
         return False
 
-    cmd_list = commands[pm_name][operation]
-    # Check if command starts with sudo
-    return len(cmd_list) > 0 and cmd_list[0] == 'sudo'
+    # Use explicit sudo_required flag from metadata
+    return commands[pm_name].get('sudo_required', False)
 
 
 def is_success_exit_code(pm_name: str, operation: str, exit_code: int, has_output: bool) -> bool:

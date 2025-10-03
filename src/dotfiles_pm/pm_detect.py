@@ -124,15 +124,14 @@ def detect_all_pms() -> List[str]:
     if shutil.which('nvim') and should_include('neovim'):
         pms.append('neovim')
 
-    # Fake PMs for testing
-    if shutil.which('fake-pm1') and should_include('fake-pm1', is_fake=True):
+    # Fake PMs for testing - enabled via DOTFILES_PM_ENABLED
+    # These don't require binaries to exist; they use simple shell commands
+    if should_include('fake-pm1', is_fake=True):
         pms.append('fake-pm1')
-    if shutil.which('fake-pm2') and should_include('fake-pm2', is_fake=True):
+    if should_include('fake-pm2', is_fake=True):
         pms.append('fake-pm2')
-    if shutil.which('fake-unattended') and should_include('fake-unattended', is_fake=True):
-        pms.append('fake-unattended')
-    if shutil.which('fake-attended') and should_include('fake-attended', is_fake=True):
-        pms.append('fake-attended')
+    if should_include('fake-sudo-pm', is_fake=True):
+        pms.append('fake-sudo-pm')
 
     return pms
 
