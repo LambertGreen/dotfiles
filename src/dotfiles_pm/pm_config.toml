@@ -1,0 +1,101 @@
+# Package Manager Configuration
+#
+# This file defines metadata for all supported package managers:
+# - commands: Command lists for check, upgrade, and install operations
+# - sudo_required: Whether the PM requires sudo privileges
+# - priority: Execution priority (0=system, 10=user)
+#
+# Note: sudo_required is explicit, not inferred from commands.
+# PMs may run sudo internally in scripts without it appearing in the command.
+
+[apt]
+sudo_required = true
+priority = 0
+check = ["sudo", "apt-get", "update", "&&", "apt", "list", "--upgradable"]
+upgrade = ["sudo", "apt-get", "upgrade"]
+install = ["sudo", "apt-get", "install"]
+
+[brew]
+sudo_required = false
+priority = 10
+check = ["brew", "update", "&&", "brew", "outdated", "--verbose"]
+upgrade = ["brew", "upgrade"]
+install = ["brew", "bundle", "install"]
+
+[npm]
+sudo_required = false
+priority = 10
+check = ["npm", "outdated", "-g"]
+upgrade = ["npm", "update", "-g"]
+install = ["npm", "install", "-g"]
+
+[pip]
+sudo_required = false
+priority = 10
+check = ["pip3", "list", "--outdated"]
+upgrade = ["pip3", "install", "--upgrade"]
+install = ["pip3", "install"]
+
+[pipx]
+sudo_required = false
+priority = 10
+check = ["pipx", "list", "--short"]
+upgrade = ["pipx", "upgrade-all"]
+install = ["pipx", "install"]
+
+[cargo]
+sudo_required = false
+priority = 10
+check = ["cargo", "install-update", "--list"]
+upgrade = ["cargo", "install-update", "-a"]
+install = ["cargo", "install"]
+
+[gem]
+sudo_required = false
+priority = 10
+check = ["gem", "outdated"]
+upgrade = ["gem", "update"]
+install = ["gem", "install"]
+
+[zinit]
+sudo_required = false
+priority = 10
+check = ["zsh -i -c 'zinit times'"]
+upgrade = ["zsh -i -c 'zinit self-update && zinit update --all'"]
+install = ["zsh -i -c 'true'"]
+
+[emacs]
+sudo_required = false
+priority = 10
+check = ["env", "DOTFILES_EMACS_CHECK=1", "emacs", "--batch", "-l", "~/.emacs.d/init.el"]
+upgrade = ["env", "DOTFILES_EMACS_UPDATE=1", "emacs", "--batch", "-l", "~/.emacs.d/init.el"]
+install = ["env", "DOTFILES_EMACS_INSTALL=1", "emacs", "--batch", "-l", "~/.emacs.d/init.el"]
+
+[neovim]
+sudo_required = false
+priority = 10
+check = ["nvim", "--headless", "-c", "Lazy check", "-c", "qa"]
+upgrade = ["nvim", "--headless", "-c", "Lazy sync", "-c", "qa"]
+install = ["nvim", "--headless", "-c", "Lazy install", "-c", "qa"]
+
+# Fake PMs for testing
+[fake-pm1]
+sudo_required = false
+priority = 10
+check = ["echo", "fake-pm1: 5 packages outdated"]
+upgrade = ["echo", "fake-pm1: upgrading packages..."]
+install = ["echo", "fake-pm1: installing packages..."]
+
+[fake-pm2]
+sudo_required = false
+priority = 10
+check = ["echo", "fake-pm2: 3 packages outdated"]
+upgrade = ["echo", "fake-pm2: upgrading packages..."]
+install = ["echo", "fake-pm2: installing packages..."]
+
+[fake-sudo-pm]
+sudo_required = true
+priority = 0
+check = ["sh", "-c", "sleep 2 && echo \"fake-sudo-pm: 7 packages outdated\""]
+upgrade = ["sh", "-c", "sleep 2 && echo \"fake-sudo-pm: upgraded\""]
+install = ["sh", "-c", "sleep 2 && echo \"fake-sudo-pm: installed\""]

@@ -7,6 +7,7 @@ Single place for all package manager command execution - no special cases!
 
 import sys
 import subprocess
+import tomllib
 from typing import Dict, Any, List
 from pathlib import Path
 
@@ -15,19 +16,46 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from terminal_executor import spawn_tracked
 
+# Cache for loaded PM config
+_pm_config_cache = None
 
-def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
+
+def get_pm_commands() -> Dict[str, Dict[str, Any]]:
     """
-    Get all package manager commands defined in one place.
-    No special case logic - just the correct commands.
+    Load package manager configuration from TOML file.
 
     Returns:
         Dict mapping pm_name -> {
             'check': command_list,
             'upgrade': command_list,
             'install': command_list,
-            'sudo_required': bool  # Explicit flag, not inferred from command
+            'sudo_required': bool,
+            'priority': int
         }
+    """
+    global _pm_config_cache
+
+    # Return cached config if available
+    if _pm_config_cache is not None:
+        return _pm_config_cache
+
+    # Load from TOML file
+    config_file = Path(__file__).parent / 'pm_config.toml'
+
+    try:
+        with open(config_file, 'rb') as f:
+            _pm_config_cache = tomllib.load(f)
+        return _pm_config_cache
+    except FileNotFoundError:
+        raise RuntimeError(f"PM configuration file not found: {config_file}")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load PM configuration: {e}")
+
+
+def _get_pm_commands_legacy() -> Dict[str, Dict[str, Any]]:
+    """
+    Legacy hardcoded PM commands (kept for reference, not used).
+    All configuration now lives in pm_config.toml.
     """
     return {
         'apt': {
@@ -115,28 +143,26 @@ def get_pm_commands() -> Dict[str, Dict[str, List[str]]]:
 
 def get_pm_priority(pm_name: str) -> int:
     """
-    Get the priority for a package manager.
+    Get the priority for a package manager from configuration.
     Lower numbers run first.
 
     Priority levels:
-    - 0: System package managers (apt, yum, dnf, pacman, fake-sudo-pm for testing)
-    - 1: User-level package managers with sudo (none currently)
+    - 0: System package managers (apt, yum, dnf, pacman)
     - 10: User-level package managers (brew, cargo, gem, etc.)
 
     Args:
         pm_name: Package manager name
 
     Returns:
-        Priority level (lower runs first)
+        Priority level (lower runs first), defaults to 10 if not found
     """
-    # System package managers - run these first
-    # Include fake-sudo-pm for testing sudo functionality
-    system_pms = ['apt', 'yum', 'dnf', 'pacman', 'zypper', 'fake-sudo-pm']
-    if pm_name in system_pms:
-        return 0
+    commands = get_pm_commands()
 
-    # All other PMs are user-level
-    return 10
+    if pm_name not in commands:
+        return 10  # Default to user-level priority
+
+    # Get priority from config, default to 10 if not specified
+    return commands[pm_name].get('priority', 10)
 
 
 def requires_sudo(pm_name: str, operation: str = 'check') -> bool:
