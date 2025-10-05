@@ -66,7 +66,10 @@ def detect_all_pms() -> List[str]:
         # If disable_real mode, exclude real PMs
         if disable_real and not is_fake:
             return False
-        # Check explicit enable/disable lists
+        # Fake PMs must be explicitly enabled
+        if is_fake:
+            return pm_name in enabled_pms
+        # Check explicit enable/disable lists for real PMs
         if pm_name in enabled_pms:
             return True
         if pm_name in disabled_pms:

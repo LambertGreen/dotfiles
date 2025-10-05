@@ -11,7 +11,7 @@
 [apt]
 sudo_required = true
 priority = 0
-check = ["sudo", "apt-get", "update", "&&", "apt", "list", "--upgradable"]
+check = ["sudo", "apt-get", "update", "&&", "sudo", "apt-get", "upgrade", "--dry-run"]
 upgrade = ["sudo", "apt-get", "upgrade"]
 install = ["sudo", "apt-get", "install"]
 
