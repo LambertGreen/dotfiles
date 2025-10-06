@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from pm_detect import detect_all_pms
 from pm_select import select_pms
-from pm_parsers import parse_pm_output
+from pm_registry import get_pm
 from terminal_executor import spawn_tracked, _save_terminal_registry
 from command_executor import run_command
 
@@ -37,7 +37,8 @@ def check_pm_outdated(pm_name: str) -> Dict[str, Any]:
 
     # Convert to expected format and add count using PM-specific parser
     if result['success'] and result['output']:
-        result['outdated_count'] = parse_pm_output(pm_name, result['output'])
+        pm = get_pm(pm_name)
+        result['outdated_count'] = pm.parse_check_output(result['output'])
     else:
         result['outdated_count'] = 0
 
@@ -160,7 +161,8 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
                             }
 
                             if is_success and log_content:
-                                final_result['outdated_count'] = parse_pm_output(pm, log_content)
+                                pm_instance = get_pm(pm)
+                                final_result['outdated_count'] = pm_instance.parse_check_output(log_content)
 
                             all_results[pm] = final_result
 
@@ -270,7 +272,8 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
 
                                 # Count outdated packages using PM-specific parser
                                 if log_content:
-                                    final_result['outdated_count'] = parse_pm_output(pm, log_content)
+                                    pm_instance = get_pm(pm)
+                                    final_result['outdated_count'] = pm_instance.parse_check_output(log_content)
                             else:
                                 final_result['error'] = f"Check failed with exit code {exit_code}"
 
@@ -380,7 +383,11 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
                     final_result['output'] = log_content
 
                     # Count outdated packages using PM-specific parser
-                    final_result['outdated_count'] = parse_pm_output(pm, log_content) if log_content else 0
+                    if log_content:
+                        pm_instance = get_pm(pm)
+                        final_result['outdated_count'] = pm_instance.parse_check_output(log_content)
+                    else:
+                        final_result['outdated_count'] = 0
                 else:
                     final_result['error'] = f"Check failed with exit code {exit_code}"
 

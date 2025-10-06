@@ -3,11 +3,10 @@
 Package Manager Base Classes
 
 Defines the base architecture for package manager operations.
-This is the foundation for migrating from procedural to OOP design.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List
+from typing import List
 from dataclasses import dataclass
 
 
@@ -46,16 +45,6 @@ class DefaultParser(PMParser):
             return 0
         lines = [line for line in output.split('\n') if line.strip()]
         return len(lines)
-
-
-class ZinitParser(PMParser):
-    """Parser for zinit status output"""
-
-    def count_outdated(self, output: str) -> int:
-        if not output:
-            return 0
-        # Count occurrences of "Your branch is behind"
-        return output.count('Your branch is behind')
 
 
 class PackageManager(ABC):
@@ -118,55 +107,3 @@ class PackageManager(ABC):
             Number of outdated packages
         """
         return self.parser.count_outdated(output)
-
-
-class ZinitPM(PackageManager):
-    """Zinit package manager (Zsh plugin manager)"""
-
-    def __init__(self):
-        super().__init__('zinit')
-        self._parser = ZinitParser()
-
-    @property
-    def check_command(self) -> List[str]:
-        return ["zsh -i -c 'zinit status --all'"]
-
-    @property
-    def upgrade_command(self) -> List[str]:
-        return ["zsh -i -c 'zinit self-update && zinit update --all'"]
-
-    @property
-    def install_command(self) -> List[str]:
-        return ["zsh -i -c 'true'"]
-
-    @property
-    def requires_sudo(self) -> bool:
-        return False
-
-    @property
-    def priority(self) -> int:
-        return 10
-
-
-# Registry of PM instances (will grow as we migrate more PMs)
-PM_REGISTRY: Dict[str, PackageManager] = {
-    'zinit': ZinitPM(),
-}
-
-
-def get_pm(name: str) -> PackageManager:
-    """
-    Get package manager instance by name.
-
-    Args:
-        name: Package manager name
-
-    Returns:
-        PackageManager instance
-
-    Raises:
-        KeyError: If PM not found in registry
-    """
-    if name not in PM_REGISTRY:
-        raise KeyError(f"Package manager '{name}' not registered")
-    return PM_REGISTRY[name]
