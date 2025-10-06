@@ -122,24 +122,9 @@ lgreen_setup_plugins() {
     [ -n "$ZPLUGIN_ICE" ] && zinit ice wait"0" atinit"zpcompinit" lucid
     zinit light zdharma-continuum/fast-syntax-highlighting
 
-# ** Plugin::Direnv
-    zinit ice from"gh-r" as"program" mv"direnv* -> direnv"      \
-        atclone'./direnv hook zsh > zhook.zsh' atpull'%atclone' \
-        pick"direnv" src="zhook.zsh" for direnv/direnv
-    zinit load direnv/direnv
-
-# ** Plugin::Zoxide
-    zinit ice from"gh-r" as"program" pick"zoxide" \
-        atload'eval "$(zoxide init zsh)"'
-    zinit load ajeetdsouza/zoxide
-
 # ** Plugin::Powerlevel10k
     zinit ice depth=1
     zinit light romkatv/powerlevel10k
-
-# ** Plugin::fzf
-    zinit ice from"gh-r" as"program"
-    zinit light junegunn/fzf
 
 # ** Plugin::fzf-history-search
     zinit ice lucid wait'0'
@@ -357,7 +342,37 @@ lgreen_setup_fzf-tab_styles() {
     # switch group using `<` and `>`
     zstyle ':fzf-tab:*' switch-group '<' '>'
 }
-# * Integrations
+# * Tool Integrations
+# NOTE: We moved setup of fzf/direnv/zoxide from zinit to here
+# because zinit does not track binary downloads versions.
+# ** fzf
+lgreen_setup_fzf() {
+    # fzf installed via brew, set up shell integration
+    if command -v fzf >/dev/null 2>&1; then
+        # Set up key bindings (Ctrl-R history, Ctrl-T files, Alt-C directories)
+        if [ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh" ]; then
+            source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
+        fi
+        # Set up completion
+        if [ -f "$(brew --prefix)/opt/fzf/shell/completion.zsh" ]; then
+            source "$(brew --prefix)/opt/fzf/shell/completion.zsh"
+        fi
+    fi
+}
+# ** direnv
+lgreen_setup_direnv() {
+    # direnv installed via brew, set up shell hook
+    if command -v direnv >/dev/null 2>&1; then
+        eval "$(direnv hook zsh)"
+    fi
+}
+# ** zoxide
+lgreen_setup_zoxide() {
+    # zoxide installed via brew, initialize for shell
+    if command -v zoxide >/dev/null 2>&1; then
+        eval "$(zoxide init zsh)"
+    fi
+}
 # ** Emacs
 lgreen_setup_running_inside_emacs_eat() {
     [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
@@ -484,6 +499,10 @@ if [[ -o interactive ]]; then
     lgreen_setup_tmux_theme_switcher
     lgreen_setup_fzf-tab_styles
 
+    lgreen_setup_fzf
+    lgreen_setup_direnv
+    lgreen_setup_zoxide
+
     lgreen_setup_running_inside_emacs_eat
     lgreen_setup_running_inside_emacs_vterm
 fi
@@ -560,4 +579,3 @@ export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # For Claude Code
-export CLAUDE_CODE_OAUTH_TOKEN="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"
