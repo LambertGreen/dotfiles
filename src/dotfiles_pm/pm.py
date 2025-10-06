@@ -19,22 +19,35 @@ from .pm_configure import configure_pms, save_pm_config
 
 
 def cmd_list(args):
-    """List available package managers."""
+    """List available package managers with selection numbers."""
+    from .pm_executor import get_pm_priority
+
     pms = detect_all_pms()
 
     if not pms:
         print("No package managers detected")
         return 1
 
+    # Sort by priority (same order as selection interface)
+    pms = sorted(pms, key=get_pm_priority)
+
     print("📋 Available Package Managers")
     print("============================")
     print()
+    print("Selection numbers for DOTFILES_PM_SELECT:")
+    print()
 
-    for pm in pms:
-        print(f"✅ {pm}")
+    for i, pm in enumerate(pms, 1):
+        priority = get_pm_priority(pm)
+        pm_type = "(system)" if priority == 0 else "(user)"
+        print(f"  {i}. {pm} {pm_type}")
 
     print()
     print(f"📊 Summary: {len(pms)} package managers detected")
+    print()
+    print("💡 Usage:")
+    print("   export DOTFILES_PM_SELECT=\"1 3 5\"  # Select specific PMs")
+    print("   just update                         # Run with selection")
     return 0
 
 

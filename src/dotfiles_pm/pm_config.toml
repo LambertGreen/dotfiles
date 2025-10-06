@@ -60,7 +60,7 @@ install = ["gem", "install"]
 [zinit]
 sudo_required = false
 priority = 10
-check = ["zsh -i -c 'zinit times'"]
+check = ["zsh -i -c 'zinit status --all'"]
 upgrade = ["zsh -i -c 'zinit self-update && zinit update --all'"]
 install = ["zsh -i -c 'true'"]
 
