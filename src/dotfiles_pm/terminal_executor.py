@@ -347,15 +347,14 @@ class LinuxTerminalExecutor(TerminalExecutor):
         # - The command after -- is executed directly (not parsed by gnome-terminal)
         # - We pass the user's shell with -c to run our command, then exec the shell to keep it open
 
-        # Note: We use shell -c "command; sleep" pattern to:
+        # Note: We use shell -c "command; exec shell" pattern to:
         # 1. Run the command
-        # 2. Sleep briefly so user can see output before automation closes it
-        # This prevents "Do you want to close?" prompts when automation closes the terminal
+        # 2. After command completes, replace the process with an interactive shell (keeps terminal open)
         terminals = [
-            ('gnome-terminal', ['gnome-terminal', '--title', unique_title, '--', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('konsole', ['konsole', '-e', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('xfce4-terminal', ['xfce4-terminal', '--title', unique_title, '-e', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('xterm', ['xterm', '-T', unique_title, '-e', user_shell, '-c', f'{command}; sleep 0.5'])
+            ('gnome-terminal', ['gnome-terminal', '--title', unique_title, '--', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('konsole', ['konsole', '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xfce4-terminal', ['xfce4-terminal', '--title', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xterm', ['xterm', '-T', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}'])
         ]
 
         for terminal_name, cmd in terminals:
