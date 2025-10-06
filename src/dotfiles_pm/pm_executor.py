@@ -7,7 +7,6 @@ Single place for all package manager command execution - no special cases!
 
 import sys
 import subprocess
-import tomllib
 from typing import Dict, Any, List
 from pathlib import Path
 
@@ -15,14 +14,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from terminal_executor import spawn_tracked
-
-# Cache for loaded PM config
-_pm_config_cache = None
+from pm_registry import PM_REGISTRY, get_pm
 
 
 def get_pm_commands() -> Dict[str, Dict[str, Any]]:
     """
-    Load package manager configuration from TOML file.
+    Get package manager configuration from PM_REGISTRY.
 
     Returns:
         Dict mapping pm_name -> {
@@ -33,112 +30,16 @@ def get_pm_commands() -> Dict[str, Dict[str, Any]]:
             'priority': int
         }
     """
-    global _pm_config_cache
-
-    # Return cached config if available
-    if _pm_config_cache is not None:
-        return _pm_config_cache
-
-    # Load from TOML file
-    config_file = Path(__file__).parent / 'pm_config.toml'
-
-    try:
-        with open(config_file, 'rb') as f:
-            _pm_config_cache = tomllib.load(f)
-        return _pm_config_cache
-    except FileNotFoundError:
-        raise RuntimeError(f"PM configuration file not found: {config_file}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to load PM configuration: {e}")
-
-
-def _get_pm_commands_legacy() -> Dict[str, Dict[str, Any]]:
-    """
-    Legacy hardcoded PM commands (kept for reference, not used).
-    All configuration now lives in pm_config.toml.
-    """
-    return {
-        'apt': {
-            'check': ['sudo', 'apt-get', 'update', '&&', 'apt', 'list', '--upgradable'],
-            'upgrade': ['sudo', 'apt-get', 'upgrade'],
-            'install': ['sudo', 'apt-get', 'install'],
-            'sudo_required': True
-        },
-        'brew': {
-            'check': ['brew', 'update', '&&', 'brew', 'outdated', '--verbose'],
-            'upgrade': ['brew', 'upgrade'],
-            'install': ['brew', 'bundle', 'install'],
-            'sudo_required': False
-        },
-        'npm': {
-            'check': ['npm', 'outdated', '-g'],
-            'upgrade': ['npm', 'update', '-g'],
-            'install': ['npm', 'install', '-g'],
-            'sudo_required': False
-        },
-        'pip': {
-            'check': ['pip3', 'list', '--outdated'],
-            'upgrade': ['pip3', 'install', '--upgrade'],
-            'install': ['pip3', 'install'],
-            'sudo_required': False
-        },
-        'pipx': {
-            'check': ['pipx', 'list', '--short'],
-            'upgrade': ['pipx', 'upgrade-all'],
-            'install': ['pipx', 'install'],
-            'sudo_required': False
-        },
-        'cargo': {
-            'check': ['cargo', 'install-update', '--list'],
-            'upgrade': ['cargo', 'install-update', '-a'],
-            'install': ['cargo', 'install'],
-            'sudo_required': False
-        },
-        'gem': {
-            'check': ['gem', 'outdated'],
-            'upgrade': ['gem', 'update'],
-            'install': ['gem', 'install'],
-            'sudo_required': False
-        },
-        'fake-pm1': {
-            'check': ['echo', 'fake-pm1: 5 packages outdated'],
-            'upgrade': ['echo', 'fake-pm1: upgrading packages...'],
-            'install': ['echo', 'fake-pm1: installing packages...'],
-            'sudo_required': False
-        },
-        'fake-pm2': {
-            'check': ['echo', 'fake-pm2: 3 packages outdated'],
-            'upgrade': ['echo', 'fake-pm2: upgrading packages...'],
-            'install': ['echo', 'fake-pm2: installing packages...'],
-            'sudo_required': False
-        },
-        'fake-sudo-pm': {
-            # Simulates a sudo-requiring PM for testing priority/ordering
-            # Uses sleep to simulate time taken for sudo password entry
-            'check': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: 7 packages outdated"'],
-            'upgrade': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: upgraded"'],
-            'install': ['sh', '-c', 'sleep 2 && echo "fake-sudo-pm: installed"'],
-            'sudo_required': True
-        },
-        'zinit': {
-            'check': ["zsh -i -c 'zinit times'"],
-            'upgrade': ["zsh -i -c 'zinit self-update && zinit update --all'"],
-            'install': ["zsh -i -c 'true'"],
-            'sudo_required': False
-        },
-        'emacs': {
-            'check': ['env', 'DOTFILES_EMACS_CHECK=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
-            'upgrade': ['env', 'DOTFILES_EMACS_UPDATE=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
-            'install': ['env', 'DOTFILES_EMACS_INSTALL=1', 'emacs', '--batch', '-l', '~/.emacs.d/init.el'],
-            'sudo_required': False
-        },
-        'neovim': {
-            'check': ['nvim', '--headless', '-c', 'Lazy check', '-c', 'qa'],
-            'upgrade': ['nvim', '--headless', '-c', 'Lazy sync', '-c', 'qa'],
-            'install': ['nvim', '--headless', '-c', 'Lazy install', '-c', 'qa'],
-            'sudo_required': False
+    result = {}
+    for pm_name, pm_instance in PM_REGISTRY.items():
+        result[pm_name] = {
+            'check': pm_instance.check_command,
+            'upgrade': pm_instance.upgrade_command,
+            'install': pm_instance.install_command,
+            'sudo_required': pm_instance.requires_sudo,
+            'priority': pm_instance.priority
         }
-    }
+    return result
 
 
 def get_pm_priority(pm_name: str) -> int:

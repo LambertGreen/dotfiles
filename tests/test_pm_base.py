@@ -11,10 +11,9 @@ import sys
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / 'src' / 'dotfiles_pm'))
 
-from pm_base import (
-    PackageManager, ZinitPM, PMParser, ZinitParser, DefaultParser,
-    get_pm, PM_REGISTRY
-)
+from pm_base import PackageManager, PMParser, DefaultParser
+from pm_registry import get_pm, PM_REGISTRY
+from pms.zinit import ZinitPM, ZinitParser
 
 
 class TestParsers:
