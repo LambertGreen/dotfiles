@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from pm_detect import detect_all_pms
 from pm_select import select_pms
+from pm_parsers import parse_pm_output
 from terminal_executor import spawn_tracked, _save_terminal_registry
 from command_executor import run_command
 
@@ -34,10 +35,9 @@ def check_pm_outdated(pm_name: str) -> Dict[str, Any]:
     # Use unified executor for non-interactive check
     result = execute_pm_command(pm_name, 'check', interactive=False)
 
-    # Convert to expected format and add count
+    # Convert to expected format and add count using PM-specific parser
     if result['success'] and result['output']:
-        lines = [line for line in result['output'].split('\n') if line.strip()]
-        result['outdated_count'] = len(lines)
+        result['outdated_count'] = parse_pm_output(pm_name, result['output'])
     else:
         result['outdated_count'] = 0
 
@@ -160,8 +160,7 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
                             }
 
                             if is_success and log_content:
-                                lines = [line for line in log_content.split('\n') if line.strip()]
-                                final_result['outdated_count'] = len(lines)
+                                final_result['outdated_count'] = parse_pm_output(pm, log_content)
 
                             all_results[pm] = final_result
 
@@ -269,10 +268,9 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
                                 # Store the output
                                 final_result['output'] = log_content
 
-                                # Simple line count for packages (non-empty lines)
+                                # Count outdated packages using PM-specific parser
                                 if log_content:
-                                    lines = [line for line in log_content.split('\n') if line.strip()]
-                                    final_result['outdated_count'] = len(lines)
+                                    final_result['outdated_count'] = parse_pm_output(pm, log_content)
                             else:
                                 final_result['error'] = f"Check failed with exit code {exit_code}"
 
@@ -381,12 +379,8 @@ def check_all_pms(selected_pms: List[str], parallel: bool = True) -> List[Dict[s
                     # Store the output
                     final_result['output'] = log_content
 
-                    # Simple line count for packages (non-empty lines)
-                    if log_content:
-                        lines = [line for line in log_content.split('\n') if line.strip()]
-                        final_result['outdated_count'] = len(lines)
-                    else:
-                        final_result['outdated_count'] = 0
+                    # Count outdated packages using PM-specific parser
+                    final_result['outdated_count'] = parse_pm_output(pm, log_content) if log_content else 0
                 else:
                     final_result['error'] = f"Check failed with exit code {exit_code}"
 
