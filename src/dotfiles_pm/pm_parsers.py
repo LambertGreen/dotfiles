@@ -3,6 +3,9 @@
 Package Manager Output Parsers
 
 PM-specific logic for parsing check command output and counting outdated packages.
+
+NOTE: This module provides functional wrappers around the OOP parser classes
+defined in pm_base.py. New code should use the OOP classes directly.
 """
 
 from typing import Dict, Callable
