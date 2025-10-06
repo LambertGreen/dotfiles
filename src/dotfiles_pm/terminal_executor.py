@@ -629,13 +629,19 @@ def prompt_close_terminals() -> None:
         while time.time() - start_time < timeout:
             remaining = int(timeout - (time.time() - start_time))
             # Update countdown
-            print(f"\r⏱️  Closing in {remaining} seconds... (press ESC to cancel)  ", end='', flush=True)
+            print(f"\r⏱️  Closing in {remaining} seconds... (ENTER=close now, ESC=cancel)  ", end='', flush=True)
 
             # Check for input (non-blocking)
             if select.select([sys.stdin], [], [], 0.1)[0]:
                 char = sys.stdin.read(1)
-                # ESC key is '\x1b'
-                if char == '\x1b':
+                # Enter is '\n' or '\r' - close immediately
+                if char in ('\n', '\r'):
+                    print(f"\n🗑️  Closing {num_terminals} terminal(s)...")
+                    closed = close_all_terminals()
+                    print(f"✅ Closed {closed} terminal(s)")
+                    return
+                # ESC key is '\x1b' - cancel countdown and keep open
+                elif char == '\x1b':
                     cancelled = True
                     print(f"\n📋 Auto-close cancelled - terminals left open for review")
                     break
