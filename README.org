@@ -143,7 +143,29 @@ git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotf
 cd ~/dev/my/dotfiles
 #+end_src
 
-** 2. Configure Your System
+** 2. Security Setup (Recommended)
+
+Install the pre-commit hook to prevent accidentally committing sensitive tokens:
+
+#+begin_src sh
+# Copy the pre-commit hook (if not already installed)
+cp hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+#+end_src
+
+The pre-commit hook automatically scans staged files for:
+- Anthropic API keys (sk-ant-*)
+- Claude OAuth tokens
+- GitHub tokens (ghp_, gho_, etc.)
+- AWS keys (AKIA*)
+- Private SSH keys
+- And other common secrets
+
+If tokens are detected, the commit will be blocked with helpful guidance on how to fix the issue.
+
+*Note:* To bypass the hook in emergencies (not recommended): =git commit --no-verify=
+
+** 3. Configure Your System
 
 Interactive configuration:
 
@@ -165,7 +187,7 @@ Each machine class defines specific package lists optimized for that use case.
 
 Configuration is saved to =.dotfiles.env= for future use.
 
-** 3. Bootstrap Your System
+** 4. Bootstrap Your System
 
 Install essential tools and package managers:
 
@@ -180,7 +202,7 @@ This installs core tools:
 - Stow (symlink management)
 - Platform-specific package managers (brew, apt, pacman)
 
-** 4. Deploy Configurations
+** 5. Deploy Configurations
 
 Deploy dotfiles using the stow system:
 
@@ -188,7 +210,7 @@ Deploy dotfiles using the stow system:
 just stow
 #+end_src
 
-** 5. Install Packages
+** 6. Install Packages
 
 Install packages defined in your machine class:
 
@@ -202,7 +224,7 @@ The Python-based system automatically:
 - Installs packages in proper order (system → dev → app)
 - Handles admin/user separation for system packages
 
-** 6. Verify Setup
+** 7. Verify Setup
 
 Check that everything is configured correctly:
 
@@ -210,7 +232,7 @@ Check that everything is configured correctly:
 just check-health
 #+end_src
 
-** 7. Configure Package Managers
+** 8. Configure Package Managers
 
 After installation, enable/disable specific package managers:
 
