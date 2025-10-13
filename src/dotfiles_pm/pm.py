@@ -16,6 +16,7 @@ from .pm_select import select_pms
 from .pm_check import check_all_pms
 from .pm_upgrade import upgrade_all_pms
 from .pm_configure import configure_pms, save_pm_config
+from .terminal_executor import _save_terminal_registry
 
 
 def cmd_list(args):
@@ -53,6 +54,9 @@ def cmd_list(args):
 
 def cmd_check(args):
     """Check for outdated packages."""
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
     print("🔍 Package Manager Check")
     print("=" * 25)
 
@@ -129,6 +133,9 @@ def cmd_check(args):
 
 def cmd_upgrade(args):
     """Upgrade packages."""
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
     print("⬆️ Package Manager Upgrade")
     print("=" * 27)
 
@@ -231,6 +238,9 @@ def cmd_audit(args):
 def cmd_install(args):
     """Install packages."""
     from .pm_install import install_all_pms
+
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
 
     print("📦 Package Manager Installation")
     print("=" * 32)
