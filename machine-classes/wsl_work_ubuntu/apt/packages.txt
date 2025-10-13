@@ -1,0 +1,21 @@
+# APT packages for WSL work Ubuntu
+# System PM is preferred - use brew only for packages not in apt or need newer versions
+
+# Essential build tools
+build-essential
+curl
+git
+stow
+sudo
+vim
+wget
+zsh
+
+# System utilities
+# fastfetch - not available in Ubuntu 24.04 apt repos, install via brew
+psmisc
+tmux
+
+# Additional development tools
+ripgrep
+fd-find

@@ -1,0 +1,8 @@
+tap "homebrew/bundle"
+tap "homebrew/core"
+
+# TODO: Run `brew bundle dump` on actual work machine to get accurate list
+# TODO: Remove packages that are available via apt (prefer system PM)
+
+# Packages that need newer versions than apt provides
+# (add as needed after validating on actual work machine)
