@@ -77,7 +77,14 @@ while IFS= read -r stow_entry; do
     fi
 
     if [ -d "$stow_package" ]; then
-        if stow --dotfiles --target="$HOME" "$stow_package" 2>>"${LOG_FILE}"; then
+        # Check if package has .stowrc with --no-folding (for file-level symlinking)
+        stow_opts="--dotfiles --target=$HOME"
+        if [ -f "$stow_package/.stowrc" ] && grep -q "no-folding" "$stow_package/.stowrc"; then
+            stow_opts="$stow_opts --no-folding"
+            log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
+        fi
+
+        if stow $stow_opts "$stow_package" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"
         else
             log_verbose "Failed to stow: $stow_package (exit code: $?)"

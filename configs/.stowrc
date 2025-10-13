@@ -3,3 +3,6 @@
 --target=~
 --dotfiles
 --ignore='\.DS_Store'
+--ignore='\.stowrc'
+--ignore='\.gitignore'
+--ignore='\.stow-local-ignore'
