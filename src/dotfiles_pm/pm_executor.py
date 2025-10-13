@@ -159,17 +159,17 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
             auto_close=False
         )
 
-        if terminal_result['status'] in ['spawned', 'completed']:
+        if terminal_result.status in ['spawned', 'completed']:
             return {
                 'success': True,
-                'log_file': terminal_result.get('log_file'),
-                'status_file': terminal_result.get('status_file'),
+                'log_file': terminal_result.log_file,
+                'status_file': terminal_result.status_file,
                 'command': cmd_str
             }
         else:
             return {
                 'success': False,
-                'error': terminal_result.get('error', 'Failed to spawn terminal'),
+                'error': terminal_result.error or 'Failed to spawn terminal',
                 'output': ''
             }
 

@@ -7,8 +7,27 @@ LOG_FILE="$3"
 STATUS_FILE="$4"
 AUTO_CLOSE="${5:-false}"
 
-# Ensure brew is in PATH (common locations)
-export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+# === Environment Setup ===
+# Source user's shell environment for PATH without loading interactive configs
+# Priority: zsh (if available) → bash (fallback)
+
+if command -v zsh >/dev/null 2>&1; then
+    # Zsh available: Source .zshenv + .zprofile (PATH setup, no interactive bloat)
+    eval "$(zsh -c '
+        [[ -f ~/.zshenv ]] && source ~/.zshenv
+        [[ -f ~/.zprofile ]] && source ~/.zprofile
+        # Export only environment variables with proper quoting
+        env | grep -E "^(PATH|HOMEBREW|GEM_HOME|PIPX|LANG|LC_|LD_LIBRARY_PATH|PKG_CONFIG_PATH|CPATH|COMPILER_PATH|LIBRARY_PATH)=" | while IFS= read -r line; do
+            # Split into name and value, then export with proper quoting
+            name="${line%%=*}"
+            value="${line#*=}"
+            printf "export %s=%q\n" "$name" "$value"
+        done
+    ')"
+else
+    # Bash fallback: Source .bash_profile (which sources .profile_{platform})
+    [ -f "$HOME/.bash_profile" ] && source "$HOME/.bash_profile"
+fi
 
 # Clear for clean start
 clear
@@ -16,6 +35,7 @@ clear
 # Header
 echo "🚀 $OPERATION"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "💻 Command: $COMMAND"
 echo ""
 
 # Write starting status

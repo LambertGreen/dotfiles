@@ -37,25 +37,25 @@ stow:
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
     fi
-    @source "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
+    @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
 install:
     @echo "📦 Installing packages for current machine class..."
-    @python3 -m src.dotfiles_pm.pm install
+    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm install
 
 # Update package registries and check for available updates
 [group('2-📦-Package-Management')]
 update:
     @echo "🔄 Updating package registries and checking for updates..."
-    @python3 -m src.dotfiles_pm.pm check
+    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm check
 
 # Upgrade packages across package managers
 [group('2-📦-Package-Management')]
 upgrade:
     @echo "🔄 Upgrading packages (interactive)..."
-    @python3 -m src.dotfiles_pm.pm upgrade
+    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm upgrade
 
 # Enable/disable package managers
 [group('2-📦-Package-Management')]
@@ -73,6 +73,16 @@ list-package-managers:
 check-health:
     @echo "🏥 Running health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
+
+# Find broken symlinks (dry-run only)
+[group('3-🏥-System')]
+cleanup-broken-links-dry-run:
+    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
+
+# Remove broken symlinks
+[group('3-🏥-System')]
+cleanup-broken-links-remove:
+    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
 # Show current configuration
 [group('4-ℹ️-Info')]

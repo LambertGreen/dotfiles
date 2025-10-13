@@ -1,3 +1,14 @@
 if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && command -v zsh >/dev/null 2>&1; then
   exec zsh -l        # -l makes it a login zsh → .zprofile runs
 fi
+
+# If zsh not yet installed, load platform-specific environment for PATH setup (e.g., brew)
+# This handles fresh machine case where brew is installed but zsh isn't yet
+if [ -z "$ZSH_VERSION" ]; then
+  # Source platform-specific environment if it exists
+  if [ -f "$HOME/.env_linux" ]; then
+    source "$HOME/.env_linux"
+  elif [ -f "$HOME/.env_osx" ]; then
+    source "$HOME/.env_osx"
+  fi
+fi

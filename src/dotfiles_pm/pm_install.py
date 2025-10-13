@@ -176,17 +176,18 @@ def install_apt_packages() -> Dict[str, Any]:
         print(f"  📦 Installing {len(packages)} packages...")
         cmd = ['sudo', 'apt-get', 'install', '-y'] + packages
 
+        # Don't capture output - let sudo prompt for password interactively
         proc = subprocess.run(
             cmd,
-            capture_output=True,
-            text=True,
             timeout=600
         )
 
-        result['output'] = proc.stdout
-        result['error'] = proc.stderr
         result['success'] = proc.returncode == 0
         result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+        if proc.returncode == 0:
+            result['output'] = f"Installed {len(packages)} packages"
+        else:
+            result['error'] = f"apt-get install failed with return code {proc.returncode}"
 
     except subprocess.TimeoutExpired:
         result['error'] = 'Installation timed out'
@@ -596,6 +597,14 @@ def main():
     if not available_pms:
         print("❌ No package managers detected")
         return 1
+
+    # Filter out self-bootstrapping app PMs (they don't need install, just update/upgrade)
+    self_bootstrapping_pms = {'emacs', 'zinit', 'neovim'}
+    available_pms = [pm for pm in available_pms if pm not in self_bootstrapping_pms]
+
+    if not available_pms:
+        print("❌ No package managers need installation (app PMs bootstrap themselves)")
+        return 0
 
     print(f"\n📋 Detected {len(available_pms)} package managers")
 

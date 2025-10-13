@@ -242,6 +242,14 @@ def cmd_install(args):
         print("❌ No package managers detected")
         return 1
 
+    # Filter out self-bootstrapping app PMs (they don't need install, just update/upgrade)
+    self_bootstrapping_pms = {'emacs', 'zinit', 'neovim'}
+    available_pms = [pm for pm in available_pms if pm not in self_bootstrapping_pms]
+
+    if not available_pms:
+        print("❌ No package managers need installation (app PMs bootstrap themselves)")
+        return 0
+
     # Filter by category if specified
     if args.category:
         category_pms = {

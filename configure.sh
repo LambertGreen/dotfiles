@@ -252,6 +252,15 @@ echo "# Generated on $(date)" >> ~/.dotfiles.env
 echo "export DOTFILES_PLATFORM=$PLATFORM" >> ~/.dotfiles.env
 echo "export DOTFILES_MACHINE_CLASS=$MACHINE_CLASS" >> ~/.dotfiles.env
 
+# WSL-specific configuration
+if grep -qi microsoft /proc/version 2>/dev/null || grep -qi wsl /proc/version 2>/dev/null; then
+    echo "" >> ~/.dotfiles.env
+    echo "# WSL-specific: Disable Windows package managers" >> ~/.dotfiles.env
+    echo "# Windows packages should be managed from Windows side" >> ~/.dotfiles.env
+    echo "export DOTFILES_PM_DISABLED=scoop,choco,winget" >> ~/.dotfiles.env
+    log_verbose "Detected WSL environment - disabled Windows package managers"
+fi
+
 echo ""
 
 # Show expected package managers for this machine class (informational only)
