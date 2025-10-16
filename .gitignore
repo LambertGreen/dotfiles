@@ -27,6 +27,9 @@ Keypirinha.history
 .env
 .dotfiles.env
 
+# direnv
+.direnv/
+
 # Claude settings
 .claude/settings.local.json
 
