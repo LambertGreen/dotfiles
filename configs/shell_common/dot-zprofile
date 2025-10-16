@@ -56,33 +56,34 @@ lgreen_setup_gcc() {
 
 # * Agents (SSH/GPG)
 lgreen_start_agents() {
+    # Export GPG_TTY BEFORE keychain runs so pinentry can prompt properly
+    export GPG_TTY=$(tty)
+
+    # Build keychain flags - only allow forwarded agents in SSH sessions
+    local keychain_flags=(--nogui --quiet --ignore-missing --eval)
+    if [ -n "$SSH_TTY" ]; then
+        keychain_flags+=(--ssh-allow-forwarded)
+    fi
+
     if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
         if command -v keychain >/dev/null; then
-            eval "$(keychain \
-                --nogui --quiet --quick --ignore-missing \
-                --eval \
+            eval "$(keychain ${keychain_flags[@]} \
                 id_rsa_personal id_rsa id_ed25519 \
-                --ssh-allow-forwarded \
-                --ssh-allow-gpg
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
             )"
         fi
     elif [ "$(uname_cached)" = "Linux" ]; then
         if command -v keychain >/dev/null; then
-            eval "$(keychain \
-                --nogui --quiet --quick --ignore-missing \
-                --eval \
+            eval "$(keychain ${keychain_flags[@]} \
                 id_rsa_personal id_rsa id_ed25519 \
-                --ssh-allow-forwarded \
-                --ssh-allow-gpg
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
             )"
         fi
     fi
-}
-
-lgreen_export_gpg_tty() {
-    export GPG_TTY=$(tty)
 }
 
 # * Ripgrep
@@ -97,5 +98,4 @@ lgreen_export_ripgrep_config_path() {
 lgreen_setup_gcc_symlinks
 lgreen_setup_gcc
 lgreen_start_agents
-lgreen_export_gpg_tty
 lgreen_export_ripgrep_config_path
