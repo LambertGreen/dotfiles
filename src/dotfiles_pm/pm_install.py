@@ -13,6 +13,7 @@ from typing import List, Dict, Any, Optional
 
 from .pm_detect import detect_all_pms
 from .pm_select import select_pms
+from .terminal_executor import spawn_tracked, create_terminal_executor
 
 
 def get_machine_config_dir(pm_name: str) -> Optional[Path]:
@@ -167,32 +168,29 @@ def install_apt_packages() -> Dict[str, Any]:
         result['success'] = True
         return result
 
-    try:
-        # Update package lists first
-        print(f"  📦 Updating package lists...")
-        subprocess.run(['sudo', 'apt-get', 'update'], check=False)
+    print(f"  📦 Installing {len(packages)} packages...")
 
-        # Install packages
-        print(f"  📦 Installing {len(packages)} packages...")
-        cmd = ['sudo', 'apt-get', 'install', '-y'] + packages
+    # Build command that updates and installs
+    packages_str = ' '.join(packages)
+    cmd_str = f"sudo apt-get update && sudo apt-get install -y {packages_str}"
 
-        # Don't capture output - let sudo prompt for password interactively
-        proc = subprocess.run(
-            cmd,
-            timeout=600
-        )
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"apt-install",
+        auto_close=False
+    )
 
-        result['success'] = proc.returncode == 0
-        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
-        if proc.returncode == 0:
-            result['output'] = f"Installed {len(packages)} packages"
-        else:
-            result['error'] = f"apt-get install failed with return code {proc.returncode}"
-
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -537,6 +535,8 @@ def install_all_pms(selected_pms: List[str], level: str = 'all') -> List[Dict[st
     """
     Install packages for all selected package managers.
 
+    Spawns terminals for interactive installations (like apt) and waits for completion.
+
     Args:
         selected_pms: List of selected package manager names
         level: Installation level ('user', 'admin', 'all' for system packages)
@@ -544,22 +544,77 @@ def install_all_pms(selected_pms: List[str], level: str = 'all') -> List[Dict[st
     Returns:
         List of installation results for each PM
     """
-    results = []
+    import time
 
-    for pm in selected_pms:
-        print(f"📦 Installing packages for {pm}...")
+    print(f"🚀 Installing packages for {len(selected_pms)} package manager(s) sequentially...")
+    print()
+
+    executor = create_terminal_executor()
+    completed_results = {}
+
+    for i, pm in enumerate(selected_pms):
+        print(f"📦 Installing {pm} packages ({i+1}/{len(selected_pms)})...")
         result = install_packages_for_pm(pm, level)
-        results.append(result)
 
-        if result['success']:
-            if result['installed_count'] > 0:
-                print(f"  ✅ {result['installed_count']} packages installed")
-            else:
-                print(f"  ✅ Installation completed")
+        if result.get('status_file'):
+            # Terminal spawned - wait for completion
+            print(f"  ⏳ Waiting for {pm} installation to complete...")
+
+            status_file = result.get('status_file')
+            while True:
+                status_info = executor.check_status(status_file)
+                if status_info.get('status') == 'completed':
+                    exit_code = status_info.get('exit_code', 0)
+                    final_result = {
+                        'pm': pm,
+                        'success': exit_code == 0,
+                        'output': 'Installation completed' if exit_code == 0 else '',
+                        'error': '' if exit_code == 0 else f"Installation failed with exit code {exit_code}",
+                        'installed_count': result.get('installed_count', 0)
+                    }
+                    completed_results[pm] = final_result
+
+                    if final_result['success']:
+                        print(f"  ✅ {pm}: Installation completed successfully")
+                    else:
+                        print(f"  ❌ {pm}: Installation failed")
+                    break
+
+                elif status_info.get('status') == 'error':
+                    final_result = {
+                        'pm': pm,
+                        'success': False,
+                        'output': '',
+                        'error': status_info.get('error', 'Unknown error'),
+                        'installed_count': 0
+                    }
+                    completed_results[pm] = final_result
+                    print(f"  ❌ {pm}: Installation failed")
+                    break
+                else:
+                    # Still running, wait a bit
+                    time.sleep(1)
         else:
-            print(f"  ❌ Installation failed: {result['error']}")
+            # Direct execution (no terminal spawned) or failure
+            if result['success']:
+                if result['installed_count'] > 0:
+                    print(f"  ✅ {result['installed_count']} packages installed")
+                else:
+                    print(f"  ✅ Installation completed")
+            else:
+                print(f"  ❌ Installation failed: {result['error']}")
+            completed_results[pm] = result
 
-    return results
+        print()  # Add spacing between sequential operations
+
+    # Return results in original order
+    return [completed_results.get(pm, {
+        'pm': pm,
+        'success': False,
+        'output': '',
+        'error': 'Unknown - result not found',
+        'installed_count': 0
+    }) for pm in selected_pms]
 
 
 def main():
@@ -659,6 +714,10 @@ def main():
     print()
     print(f"📈 Total packages installed: {total_installed}")
     print(f"🎯 Successful installations: {successful_installs}/{len(selected_pms)}")
+
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
 
     return 0 if successful_installs == len(selected_pms) else 1
 
