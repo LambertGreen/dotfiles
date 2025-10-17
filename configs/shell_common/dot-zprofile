@@ -99,3 +99,23 @@ lgreen_setup_gcc_symlinks
 lgreen_setup_gcc
 lgreen_start_agents
 lgreen_export_ripgrep_config_path
+
+# * Onetime Setup
+# Source onetime setup functions (platform-specific via stow)
+[ -f ~/.onetimesetup.sh ] && source ~/.onetimesetup.sh
+
+if [ "$(uname_cached)" = "Darwin" ]; then
+    [ -f ~/.onetimesetup_osx.sh ] && source ~/.onetimesetup_osx.sh
+elif [ "$(uname_cached)" = "Linux" ]; then
+    [ -f ~/.onetimesetup_linux.sh ] && source ~/.onetimesetup_linux.sh
+    [ -f ~/.onetimesetup_wsl.sh ] && source ~/.onetimesetup_wsl.sh
+fi
+
+# Warn if not complete (non-blocking)
+if command -v lgreen_onetimesetup_check_done >/dev/null 2>&1; then
+    if ! lgreen_onetimesetup_check_done; then
+        echo ""
+        echo "⚠  Onetime setup not complete. Run: lgreen_onetimesetup_run_all"
+        echo ""
+    fi
+fi
