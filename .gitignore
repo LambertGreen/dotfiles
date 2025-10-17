@@ -36,8 +36,8 @@ Keypirinha.history
 # Runtime and build artifacts
 .runtime/
 .runtime_testing/
-*.log
-.logs/
+# NOTE: We do NOT ignore *.log or .logs/ here - any logs written to the repo
+# are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
 
 # Test logs
 test/.logs/
