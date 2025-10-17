@@ -78,6 +78,25 @@ lgreen_onetimesetup_macos_scroll() {
     lgreen_onetimesetup_record_task "macos_scroll"
 }
 
+lgreen_onetimesetup_macos_tcc_reset() {
+    _onetimesetup_log "==> macOS TCC Database Reset (Accessibility)"
+    _onetimesetup_log ""
+    _onetimesetup_log "  ⚠️  WARNING: This is DESTRUCTIVE!"
+    _onetimesetup_log "  ⚠️  Resets ALL Accessibility permissions"
+    _onetimesetup_log "  ⚠️  You must manually re-grant permissions afterward"
+    _onetimesetup_log ""
+    _onetimesetup_log "  This function is kept in DRY-RUN mode for safety."
+    _onetimesetup_log "  To run manually:"
+    _onetimesetup_log "    tccutil reset Accessibility"
+    _onetimesetup_log ""
+
+    # ALWAYS force dry-run for safety - this is too destructive
+    _onetimesetup_log "  DRYRUN: Would run: tccutil reset Accessibility"
+    _onetimesetup_log "  ⚠️  Manual execution required for safety"
+
+    lgreen_onetimesetup_record_task "macos_tcc_reset_info_shown"
+}
+
 # =============================================================================
 # Platform Hook (called by common infrastructure)
 # =============================================================================
@@ -89,4 +108,7 @@ lgreen_onetimesetup_run_platform() {
     lgreen_onetimesetup_macos_ssh_keychain
     lgreen_onetimesetup_macos_finder
     lgreen_onetimesetup_macos_scroll
+
+    # Note: TCC reset available as lgreen_onetimesetup_macos_tcc_reset
+    # but not run automatically due to destructive nature
 }
