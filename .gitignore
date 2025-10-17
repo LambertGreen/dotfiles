@@ -39,9 +39,6 @@ Keypirinha.history
 # NOTE: We do NOT ignore *.log or .logs/ here - any logs written to the repo
 # are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
 
-# Test logs
-test/.logs/
-
 # Python cache files
 __pycache__/
 *.pyc
@@ -49,6 +46,7 @@ __pycache__/
 *.pyd
 .Python
 *.so
+.pytest_cache/
 
 # Clink runtime files
 clink_history*
