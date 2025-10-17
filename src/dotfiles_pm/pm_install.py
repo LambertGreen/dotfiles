@@ -170,9 +170,9 @@ def install_apt_packages() -> Dict[str, Any]:
 
     print(f"  📦 Installing {len(packages)} packages...")
 
-    # Build command that updates and installs
+    # Build install command (user should run 'just update' first)
     packages_str = ' '.join(packages)
-    cmd_str = f"sudo apt-get update && sudo apt-get install -y {packages_str}"
+    cmd_str = f"sudo apt-get install -y {packages_str}"
 
     # Spawn terminal for interactive execution
     terminal_result = spawn_tracked(
