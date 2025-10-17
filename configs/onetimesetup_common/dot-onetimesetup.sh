@@ -179,7 +179,21 @@ lgreen_onetimesetup_git_remotes() {
         return 0
     fi
 
-    _onetimesetup_log "  Configure GitHub SSH host for dotfiles repo?"
+    # Check if we're in a git repo
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        _onetimesetup_log "  ⚠ Not in a git repository, skipping"
+        return 0
+    fi
+
+    local current_remote
+    current_remote=$(git remote get-url origin 2>/dev/null) || {
+        _onetimesetup_log "  ⚠ No origin remote found, skipping"
+        return 0
+    }
+
+    _onetimesetup_log "  Current remote: $current_remote"
+    _onetimesetup_log ""
+    _onetimesetup_log "  Configure GitHub SSH host for this repo?"
     _onetimesetup_log "    1) Personal account (github.com-personal)"
     _onetimesetup_log "    2) Work account (github.com-work)"
     _onetimesetup_log "    3) Skip"
@@ -191,14 +205,33 @@ lgreen_onetimesetup_git_remotes() {
     fi
 
     read -r choice
+
+    # Determine sed command (macOS uses gsed)
+    local SED="sed"
+    if [ "$(uname -s)" = "Darwin" ]; then
+        if command -v gsed >/dev/null 2>&1; then
+            SED="gsed"
+        else
+            _onetimesetup_log "  ⚠ gsed not found (brew install gnu-sed), using sed"
+        fi
+    fi
+
     case "$choice" in
         1)
-            _onetimesetup_log "  TODO: Implement personal remote update"
-            # TODO: Port from deprecated/setup/setup.sh
+            _onetimesetup_log "  Setting remote to github.com-personal..."
+            local new_url
+            new_url=$(echo "$current_remote" | $SED "s/git@github\.com\([^:]*\):/git@github.com-personal:/")
+            _onetimesetup_log "  New URL: $new_url"
+            git remote set-url origin "$new_url"
+            _onetimesetup_log "  ✓ Remote updated"
             ;;
         2)
-            _onetimesetup_log "  TODO: Implement work remote update"
-            # TODO: Port from deprecated/setup/setup.sh
+            _onetimesetup_log "  Setting remote to github.com-work..."
+            local new_url
+            new_url=$(echo "$current_remote" | $SED "s/git@github\.com\([^:]*\):/git@github.com-work:/")
+            _onetimesetup_log "  New URL: $new_url"
+            git remote set-url origin "$new_url"
+            _onetimesetup_log "  ✓ Remote updated"
             ;;
         *)
             _onetimesetup_log "  Skipped"
@@ -206,6 +239,42 @@ lgreen_onetimesetup_git_remotes() {
     esac
 
     lgreen_onetimesetup_record_task "git_remotes"
+}
+
+lgreen_onetimesetup_git_remotes_submodules() {
+    _onetimesetup_log "==> Git Submodules Remote URL Configuration"
+
+    if ! git rev-parse --git-dir >/dev/null 2>&1; then
+        _onetimesetup_log "  ⚠ Not in a git repository, skipping"
+        return 0
+    fi
+
+    if ! git submodule status >/dev/null 2>&1; then
+        _onetimesetup_log "  ⚠ No submodules found, skipping"
+        return 0
+    fi
+
+    _onetimesetup_log "  Update all submodules to personal account?"
+    _onetimesetup_log "    1) Yes"
+    _onetimesetup_log "    2) No"
+
+    if _onetimesetup_is_dryrun; then
+        _onetimesetup_log "  DRYRUN: Would update submodule remotes"
+        lgreen_onetimesetup_record_task "git_remotes_submodules"
+        return 0
+    fi
+
+    read -r choice
+    if [ "$choice" = "1" ]; then
+        _onetimesetup_log "  Updating submodules..."
+        # Source this file in submodules context
+        git submodule foreach "[ -f ~/.onetimesetup.sh ] && source ~/.onetimesetup.sh && echo '1' | lgreen_onetimesetup_git_remotes"
+        _onetimesetup_log "  ✓ Submodules updated"
+    else
+        _onetimesetup_log "  Skipped"
+    fi
+
+    lgreen_onetimesetup_record_task "git_remotes_submodules"
 }
 
 # =============================================================================
