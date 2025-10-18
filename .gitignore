@@ -48,6 +48,11 @@ __pycache__/
 *.so
 .pytest_cache/
 
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
+
 # Clink runtime files
 clink_history*
 clink_errorlevel*

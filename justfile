@@ -143,6 +143,16 @@ test-run-unit:
     eval "$(direnv export bash)"
     python3 -m pytest tests/ -v || echo "⚠️  Some tests failed (expected during development)"
 
+# Run unit tests with code coverage
+[group('5-🧪-Testing')]
+test-run-unit-coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🧪 Running unit tests with code coverage..."
+    eval "$(direnv export bash)"
+    python3 -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
+    echo "📊 Coverage report generated in htmlcov/"
+
 # Run functional tests (uses fake package managers)
 [group('5-🧪-Testing')]
 test-run-functional:
@@ -155,6 +165,19 @@ test-run-functional:
     export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
     python3 -m src.dotfiles_pm.pm list
     echo "✅ Functional tests completed"
+
+# Run functional tests with code coverage
+[group('5-🧪-Testing')]
+test-run-functional-coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🧪 Running functional tests with code coverage..."
+    eval "$(direnv export bash)"
+    export PATH="./test:$PATH"
+    export DOTFILES_PM_ONLY_FAKES="true"
+    export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
+    python3 -m pytest tests/e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
+    echo "📊 Coverage report generated in htmlcov/"
 
 # Run integration tests (uses Docker containers)
 [group('5-🧪-Testing')]
@@ -188,6 +211,51 @@ test-run-all:
     python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
     echo ""
     echo "✅ Test suite completed"
+
+# Run comprehensive test suite with code coverage
+[group('5-🧪-Testing')]
+test-run-all-coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🧪 Running comprehensive test suite with code coverage..."
+    eval "$(direnv export bash)"
+    echo "1. Unit tests with coverage..."
+    just test-run-unit-coverage || echo "   Unit tests had issues (continuing...)"
+    echo ""
+    echo "2. Functional tests with coverage..."
+    just test-run-functional-coverage || echo "   Functional tests had issues (continuing...)"
+    echo ""
+    echo "3. Integration tests..."
+    just test-run-integration || echo "   Integration tests had issues (continuing...)"
+    echo ""
+    echo "4. Testing brew lock detection..."
+    python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
+    echo ""
+    echo "📊 Final coverage report available in htmlcov/"
+    echo "✅ Comprehensive test suite with coverage completed"
+
+# Run code coverage only (quick coverage check)
+[group('5-🧪-Testing')]
+test-coverage:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "📊 Running code coverage analysis..."
+    eval "$(direnv export bash)"
+    python3 -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov --cov-fail-under=25
+    echo "📊 Coverage report generated in htmlcov/"
+
+# Open coverage report in browser
+[group('5-🧪-Testing')]
+test-coverage-open:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ -f "htmlcov/index.html" ]; then
+        echo "🌐 Opening coverage report in browser..."
+        open htmlcov/index.html || xdg-open htmlcov/index.html || echo "Please open htmlcov/index.html manually"
+    else
+        echo "❌ No coverage report found. Run 'just test-coverage' first."
+        exit 1
+    fi
 
 # Enter testing context (advanced Docker + integration tests)
 [group('5-🧪-Testing')]
