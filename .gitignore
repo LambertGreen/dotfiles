@@ -51,3 +51,4 @@ __pycache__/
 clink_history*
 clink_errorlevel*
 clink.log
+.venv/
