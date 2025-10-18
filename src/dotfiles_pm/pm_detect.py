@@ -12,9 +12,14 @@ from pathlib import Path
 from typing import List
 
 
-def detect_all_pms() -> List[str]:
+def detect_all_pms(operation: str = 'check') -> List[str]:
     """
-    Detect all available package managers on the system.
+    Detect available package managers on the system for a specific operation.
+
+    Args:
+        operation: Operation context ('install', 'check', 'upgrade')
+                  - 'install': Only PMs that handle installation (brew handles all install)
+                  - 'check'/'upgrade': All PMs for granular update operations
 
     Respects environment variables:
     - DOTFILES_PM_ONLY_FAKES: Only return fake PMs (for testing)
@@ -23,7 +28,7 @@ def detect_all_pms() -> List[str]:
     - DOTFILES_PM_ENABLED: Comma-separated list of PMs to enable (overrides disabled)
 
     Returns:
-        List of package manager names that are available
+        List of package manager names that are available for the operation
     """
     pms = []
 
@@ -79,6 +84,15 @@ def detect_all_pms() -> List[str]:
     # System package managers
     if shutil.which('brew') and should_include('brew'):
         pms.append('brew')
+
+    # For install operations, brew handles all package types via brew bundle
+    # For check/upgrade operations, use separate PMs for granular control
+    if operation in ['check', 'upgrade']:
+        # brew-cask is macOS-only (casks don't exist on Linuxbrew)
+        if shutil.which('brew') and platform.system() == 'Darwin' and should_include('brew-cask'):
+            pms.append('brew-cask')
+        if shutil.which('mas') and should_include('mas'):
+            pms.append('mas')
     if shutil.which('apt') and should_include('apt'):
         pms.append('apt')
     if shutil.which('pacman') and should_include('pacman'):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pip Package Manager (Python)"""
+"""Mac App Store Package Manager"""
 
 from typing import List
 import sys
@@ -10,23 +10,23 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from pm_base import PackageManager
 
 
-class PipPM(PackageManager):
-    """Pip package manager (Python)"""
+class MasPM(PackageManager):
+    """Mac App Store package manager"""
 
     def __init__(self):
-        super().__init__('pip')
+        super().__init__('mas')
 
     @property
     def check_command(self) -> List[str]:
-        return ["pip3", "list", "--outdated"]
+        return ["mas", "outdated"]
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["pip3", "install", "--upgrade"]
+        return ["mas", "upgrade"]
 
     @property
     def install_command(self) -> List[str]:
-        return ["pip3", "install"]
+        return ["mas", "install"]
 
     @property
     def requires_sudo(self) -> bool:
@@ -34,4 +34,4 @@ class PipPM(PackageManager):
 
     @property
     def priority(self) -> int:
-        return 10
+        return 15  # Higher priority than npm/pip (system apps are important for security)

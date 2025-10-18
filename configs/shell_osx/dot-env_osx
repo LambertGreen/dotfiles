@@ -31,12 +31,15 @@ lgreen_setup_homebrew() {
     # Brew is installed in a different location on mac aarm64
     if [  -f "/opt/homebrew/bin/brew" ]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
-        
+
         # Add keg-only Ruby to PATH (modern Ruby instead of system 2.6.10)
         if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
             export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
         fi
     fi
+
+    # Configure cask installs to use ~/Applications (user-local, consistent with dotfiles)
+    export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 }
 
 lgreen_setup_homebrew

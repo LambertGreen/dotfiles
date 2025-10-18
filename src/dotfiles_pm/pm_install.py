@@ -591,8 +591,8 @@ def main():
     print("📦 Package Manager Installation")
     print("=" * 32)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for install operations
+    available_pms = detect_all_pms(operation='install')
 
     if not available_pms:
         print("❌ No package managers detected")

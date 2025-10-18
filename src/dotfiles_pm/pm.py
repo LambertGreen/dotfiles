@@ -23,7 +23,7 @@ def cmd_list(args):
     """List available package managers with selection numbers."""
     from .pm_executor import get_pm_priority
 
-    pms = detect_all_pms()
+    pms = detect_all_pms()  # cmd_list shows all PMs for display
 
     if not pms:
         print("No package managers detected")
@@ -60,8 +60,8 @@ def cmd_check(args):
     print("🔍 Package Manager Check")
     print("=" * 25)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for check operations
+    available_pms = detect_all_pms(operation='check')
 
     if not available_pms:
         print("❌ No package managers detected")
@@ -139,8 +139,8 @@ def cmd_upgrade(args):
     print("⬆️ Package Manager Upgrade")
     print("=" * 27)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for upgrade operations
+    available_pms = detect_all_pms(operation='upgrade')
 
     if not available_pms:
         print("❌ No package managers detected")
@@ -245,8 +245,8 @@ def cmd_install(args):
     print("📦 Package Manager Installation")
     print("=" * 32)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for install operations
+    available_pms = detect_all_pms(operation='install')
 
     if not available_pms:
         print("❌ No package managers detected")

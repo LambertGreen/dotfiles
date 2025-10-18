@@ -32,6 +32,33 @@ def parse_zinit_status(output: str) -> int:
     return output.count('Your branch is behind')
 
 
+def parse_brew_cask_output(output: str) -> int:
+    """
+    Parse brew cu output to count only apps marked as [ FORCED ].
+
+    brew cu shows apps with either [ OK ] (up to date) or [ FORCED ] (outdated).
+    Only count [ FORCED ] apps as needing updates.
+
+    Args:
+        output: Output from 'brew cu' command
+
+    Returns:
+        Number of apps that need updates ([ FORCED ] status)
+    """
+    if not output:
+        return 0
+
+    count = 0
+    lines = output.split('\n')
+
+    for line in lines:
+        # Only count lines that contain app entries with [ FORCED ] status
+        if "/" in line and "[ FORCED ]" in line:
+            count += 1
+
+    return count
+
+
 def parse_default_output(output: str) -> int:
     """
     Default parser - count non-empty lines as outdated packages.
@@ -52,6 +79,7 @@ def parse_default_output(output: str) -> int:
 # Registry of PM-specific parsers
 PM_PARSERS: Dict[str, Callable[[str], int]] = {
     'zinit': parse_zinit_status,
+    'brew-cask': parse_brew_cask_output,
 }
 
 

@@ -579,3 +579,9 @@ export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # For Claude Code
+# Added by dx-cli for Claude Code CA certificates
+# exportNODE_EXTRA_CA_CERTS="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+# # Added by lgreen trying to fix Claude issue: 400 API Error
+# export SSL_CERT_FILE="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+
+# export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0

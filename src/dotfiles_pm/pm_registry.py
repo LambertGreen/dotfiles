@@ -7,7 +7,7 @@ Central registry of all available package managers.
 from typing import Dict
 from pm_base import PackageManager
 from pms import (
-    AptPM, BrewPM, NpmPM, PipPM, PipxPM, CargoPM, GemPM,
+    AptPM, BrewPM, BrewCaskPM, MasPM, NpmPM, PipPM, PipxPM, CargoPM, GemPM,
     ZinitPM, EmacsPM, NeovimPM,
     FakePM1, FakePM2, FakeSudoPM
 )
@@ -17,6 +17,8 @@ from pms import (
 PM_REGISTRY: Dict[str, PackageManager] = {
     'apt': AptPM(),
     'brew': BrewPM(),
+    'brew-cask': BrewCaskPM(),
+    'mas': MasPM(),
     'npm': NpmPM(),
     'pip': PipPM(),
     'pipx': PipxPM(),

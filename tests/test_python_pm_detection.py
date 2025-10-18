@@ -22,18 +22,20 @@ class TestPythonPMDetection:
             mock_which.side_effect = lambda cmd: {
                 'brew': '/opt/homebrew/bin/brew',
                 'npm': '/usr/local/bin/npm',
-                'pip3': '/usr/bin/pip3'
+                'pipx': '/usr/local/bin/pipx'  # pip3 replaced with pipx
             }.get(cmd)
 
             with patch('pathlib.Path.home') as mock_home:
                 mock_home.return_value = Path('/fake/home')
                 with patch('pathlib.Path.exists', return_value=False):
-                    result = detect_all_pms()
+                    with patch('platform.system', return_value='Darwin'):  # macOS to get brew-cask
+                        result = detect_all_pms()
 
             assert 'brew' in result
+            assert 'brew-cask' in result  # brew-cask is now detected separately on macOS
             assert 'npm' in result
-            assert 'pip' in result
-            assert len(result) == 3
+            assert 'pipx' in result  # pip replaced with pipx
+            assert len(result) == 4
 
     def test_detect_directory_based_pms(self, temp_home):
         """Test detection of directory-based PMs"""
@@ -53,9 +55,11 @@ class TestPythonPMDetection:
     def test_detect_fake_pms(self, fake_pm_scripts):
         """Test detection of fake PMs for testing"""
         import shutil
+        import os
 
-        # Fake PMs should be in PATH from fixture
-        result = detect_all_pms()
+        # Fake PMs need to be explicitly enabled via environment variable
+        with patch.dict(os.environ, {'DOTFILES_PM_ENABLED': 'fake-pm1,fake-pm2'}):
+            result = detect_all_pms()
 
         assert 'fake-pm1' in result
         assert 'fake-pm2' in result
@@ -91,7 +95,7 @@ class TestPythonPMDetection:
     @pytest.mark.parametrize("pm_name,command", [
         ('brew', 'brew'),
         ('npm', 'npm'),
-        ('pip', 'pip3'),  # Note: pip3 command -> pip name
+        ('pipx', 'pipx'),  # pip3 replaced with pipx
         ('cargo', 'cargo'),
         ('gem', 'gem'),
         ('neovim', 'nvim'),  # Note: nvim command -> neovim name
@@ -101,7 +105,15 @@ class TestPythonPMDetection:
         with patch('shutil.which') as mock_which:
             mock_which.side_effect = lambda cmd: f'/path/to/{cmd}' if cmd == command else None
             with patch('pathlib.Path.exists', return_value=False):
-                result = detect_all_pms()
-
-        assert pm_name in result
-        assert len(result) == 1
+                # For brew, we need to handle brew-cask detection on macOS
+                if pm_name == 'brew':
+                    with patch('platform.system', return_value='Darwin'):
+                        result = detect_all_pms()
+                    # brew on macOS also detects brew-cask
+                    assert pm_name in result
+                    assert 'brew-cask' in result
+                    assert len(result) == 2
+                else:
+                    result = detect_all_pms()
+                    assert pm_name in result
+                    assert len(result) == 1

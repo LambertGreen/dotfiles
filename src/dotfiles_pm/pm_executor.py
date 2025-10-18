@@ -149,6 +149,26 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
     cmd_list = commands[pm_name][operation]
     cmd_str = ' '.join(cmd_list)
 
+    # Check if the PM has a custom execute_command method (like BrewPM for lock recovery)
+    pm_instance = get_pm(pm_name)
+    if pm_instance and hasattr(pm_instance, 'execute_command') and not interactive:
+        # Use the PM's custom execution logic for non-interactive runs
+        try:
+            pm_result = pm_instance.execute_command(cmd_list, operation)
+            return {
+                'success': pm_result.get('success', False),
+                'output': pm_result.get('output', ''),
+                'error': pm_result.get('error', ''),
+                'exit_code': pm_result.get('exit_code', -1),
+                'recovery_used': pm_result.get('recovery_used', False)
+            }
+        except Exception as e:
+            return {
+                'success': False,
+                'error': f"PM execute_command failed: {str(e)}",
+                'output': ''
+            }
+
     if interactive:
         # Run in terminal with tracking
         # Use simple operation name for terminal title (not the full command)

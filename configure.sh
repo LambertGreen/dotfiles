@@ -43,11 +43,11 @@ prompt_with_timeout() {
     if read -t $PROMPT_TIMEOUT -p "$prompt" "$variable_name"; then
         # User provided input within timeout
         if [[ -z "${!variable_name}" ]]; then
-            declare -g "$variable_name"="$default"
+            eval "$variable_name=\"$default\""
         fi
     else
         # Timeout occurred, use default
-        declare -g "$variable_name"="$default"
+        eval "$variable_name=\"$default\""
         echo "$default"
         log_verbose "Timeout after ${PROMPT_TIMEOUT}s, using default: $default"
     fi
