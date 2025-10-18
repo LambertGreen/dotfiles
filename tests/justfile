@@ -21,7 +21,7 @@ default:
 
 # Run unit tests (uses mocks, fast feedback)
 [group('1-🧪-Unit-Tests')]
-test-run-unit:
+run-unit-tests:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running unit tests (mocked dependencies)..."
@@ -30,7 +30,7 @@ test-run-unit:
 
 # Run unit tests with code coverage
 [group('1-🧪-Unit-Tests')]
-test-run-unit-coverage:
+run-unit-tests-with-coverage:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running unit tests with code coverage..."
@@ -40,7 +40,7 @@ test-run-unit-coverage:
 
 # Run functional tests (uses fake package managers)
 [group('2-🔧-Functional-Tests')]
-test-run-functional:
+run-functional-tests:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running functional tests (fake PMs)..."
@@ -53,7 +53,7 @@ test-run-functional:
 
 # Run functional tests with code coverage
 [group('2-🔧-Functional-Tests')]
-test-run-functional-coverage:
+run-functional-tests-with-coverage:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running functional tests with code coverage..."
@@ -66,7 +66,7 @@ test-run-functional-coverage:
 
 # Run integration tests (uses Docker containers)
 [group('3-🐳-Integration-Tests')]
-test-run-integration:
+run-integration-tests:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running integration tests (Docker containers)..."
@@ -82,19 +82,19 @@ test-run-integration:
 
 # Run comprehensive test suite (all test types)
 [group('4-🎯-Test-Suites')]
-test-run-all:
+run-all-tests:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running comprehensive test suite..."
     eval "$(direnv export bash)"
     echo "1. Unit tests..."
-    just test-run-unit || echo "   Unit tests had issues (continuing...)"
+    just run-unit-tests || echo "   Unit tests had issues (continuing...)"
     echo ""
     echo "2. Functional tests..."
-    just test-run-functional || echo "   Functional tests had issues (continuing...)"
+    just run-functional-tests || echo "   Functional tests had issues (continuing...)"
     echo ""
     echo "3. Integration tests..."
-    just test-run-integration || echo "   Integration tests had issues (continuing...)"
+    just run-integration-tests || echo "   Integration tests had issues (continuing...)"
     echo ""
     echo "4. Testing brew lock detection..."
     python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
@@ -103,19 +103,19 @@ test-run-all:
 
 # Run comprehensive test suite with code coverage
 [group('4-🎯-Test-Suites')]
-test-run-all-coverage:
+run-all-tests-with-coverage:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "🧪 Running comprehensive test suite with code coverage..."
     eval "$(direnv export bash)"
     echo "1. Unit tests with coverage..."
-    just test-run-unit-coverage || echo "   Unit tests had issues (continuing...)"
+    just run-unit-tests-with-coverage || echo "   Unit tests had issues (continuing...)"
     echo ""
     echo "2. Functional tests with coverage..."
-    just test-run-functional-coverage || echo "   Functional tests had issues (continuing...)"
+    just run-functional-tests-with-coverage || echo "   Functional tests had issues (continuing...)"
     echo ""
     echo "3. Integration tests..."
-    just test-run-integration || echo "   Integration tests had issues (continuing...)"
+    just run-integration-tests || echo "   Integration tests had issues (continuing...)"
     echo ""
     echo "4. Testing brew lock detection..."
     python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
@@ -129,7 +129,7 @@ test-run-all-coverage:
 
 # Run code coverage only (quick coverage check)
 [group('5-📊-Coverage')]
-test-coverage:
+run-coverage:
     #!/usr/bin/env bash
     set -euo pipefail
     echo "📊 Running code coverage analysis..."
@@ -139,30 +139,13 @@ test-coverage:
 
 # Open coverage report in browser
 [group('5-📊-Coverage')]
-test-coverage-open:
+open-coverage-report:
     #!/usr/bin/env bash
     set -euo pipefail
     if [ -f "htmlcov/index.html" ]; then
         echo "🌐 Opening coverage report in browser..."
         open htmlcov/index.html || xdg-open htmlcov/index.html || echo "Please open htmlcov/index.html manually"
     else
-        echo "❌ No coverage report found. Run 'just test-coverage' first."
+        echo "❌ No coverage report found. Run 'just run-coverage' first."
         exit 1
     fi
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Testing Contexts
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Enter testing context (advanced Docker + integration tests)
-[group('6-🔧-Contexts')]
-test-context:
-    @echo "🧪 Entering advanced testing context..."
-    @echo "Use 'just' to see Docker-based integration tests"
-    @cd test && exec $SHELL
-
-# Return to main dotfiles context
-[group('6-🔧-Contexts')]
-goto-main:
-    @echo "🏠 Returning to main dotfiles context..."
-    @cd .. && exec $SHELL
