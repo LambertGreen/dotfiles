@@ -25,7 +25,7 @@ Keypirinha.history
 /.idea/
 *.exc
 .env
-.dotfiles.env
+.envrc.local
 
 # Claude settings
 .claude/settings.local.json
