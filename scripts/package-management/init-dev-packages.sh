@@ -9,7 +9,7 @@ DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # Configure logging
 LOG_PREFIX="DEV-INIT"
-LOG_DIR="${DOTFILES_ROOT}/.logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/init-dev-packages-$(date +%Y%m%d-%H%M%S).log"
 
 # Source enhanced logging utilities
