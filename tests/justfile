@@ -48,7 +48,7 @@ run-functional-tests:
     export PATH="./test:$PATH"
     export DOTFILES_PM_ONLY_FAKES="true"
     export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
-    python3 -m src.dotfiles_pm.pm list
+    cd .. && python3 -m src.dotfiles_pm.pm list
     echo "✅ Functional tests completed"
 
 # Run functional tests with code coverage
@@ -61,7 +61,7 @@ run-functional-tests-with-coverage:
     export PATH="./test:$PATH"
     export DOTFILES_PM_ONLY_FAKES="true"
     export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
-    python3 -m pytest e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
+    cd .. && python3 -m pytest tests/e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
     echo "📊 Coverage report generated in htmlcov/"
 
 # Run integration tests (uses Docker containers)
@@ -97,7 +97,7 @@ run-all-tests:
     just run-integration-tests || echo "   Integration tests had issues (continuing...)"
     echo ""
     echo "4. Testing brew lock detection..."
-    python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
+    cd .. && python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
     echo ""
     echo "✅ Test suite completed"
 
@@ -118,7 +118,7 @@ run-all-tests-with-coverage:
     just run-integration-tests || echo "   Integration tests had issues (continuing...)"
     echo ""
     echo "4. Testing brew lock detection..."
-    python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
+    cd .. && python3 -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
     echo ""
     echo "📊 Final coverage report available in htmlcov/"
     echo "✅ Comprehensive test suite with coverage completed"
