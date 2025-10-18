@@ -90,45 +90,36 @@ def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
 
     print(f"  📦 Installing from: {brewfile.name}")
 
-    try:
-        # Determine install command and environment based on package type
-        cmd = ['brew', 'bundle', 'install', f'--file={brewfile}', '--no-upgrade']
-        env = dict(os.environ)
+    # Build command with environment variables
+    env_prefix = ""
+    if package_type == 'formulas':
+        print(f"  🍺 Installing formulas only...")
+        env_prefix = "HOMEBREW_BUNDLE_CASK_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
+    elif package_type == 'casks':
+        print(f"  📦 Installing casks only...")
+        env_prefix = "HOMEBREW_BUNDLE_BREW_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
+    else:
+        print(f"  📦 Installing all packages...")
 
-        if package_type == 'formulas':
-            print(f"  🍺 Installing formulas only...")
-            env['HOMEBREW_BUNDLE_CASK_SKIP'] = '1'
-            env['HOMEBREW_BUNDLE_MAS_SKIP'] = '1'
-        elif package_type == 'casks':
-            print(f"  📦 Installing casks only...")
-            env['HOMEBREW_BUNDLE_BREW_SKIP'] = '1'
-            env['HOMEBREW_BUNDLE_MAS_SKIP'] = '1'
-        else:  # 'all'
-            print(f"  📦 Installing all packages...")
+    cmd_str = f"{env_prefix}brew bundle install --file={brewfile} --no-upgrade"
 
-        proc = subprocess.run(
-            cmd,
-            env=env,
-            capture_output=True,
-            text=True,
-            timeout=600  # 10 minutes for installations
-        )
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"brew-install",
+        auto_close=False
+    )
 
-        if proc.returncode == 0:
-            # Count installed packages (rough estimate)
-            lines = proc.stdout.strip().split('\n') if proc.stdout else []
-            installed = len([l for l in lines if 'Installing' in l or 'Installed' in l])
-            result['installed_count'] = installed
-            result['output'] = proc.stdout
-            result['success'] = True
-        else:
-            # brew bundle outputs errors to stdout, not stderr
-            result['error'] = proc.stdout if proc.stdout else proc.stderr
-
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = 0  # Will be determined from logs
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -231,34 +222,29 @@ def install_npm_packages() -> Dict[str, Any]:
         result['success'] = True
         return result
 
-    try:
-        print(f"  📦 Installing {len(packages)} npm packages globally...")
-        installed_count = 0
-        failed_packages = []
-        output_lines = []
+    print(f"  📦 Installing {len(packages)} npm packages globally...")
 
-        for package in packages:
-            cmd = ['npm', 'install', '-g', package]
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+    # Build command to install all packages
+    packages_str = ' '.join(packages)
+    cmd_str = f"npm install -g {packages_str}"
 
-            if proc.returncode == 0:
-                installed_count += 1
-                output_lines.append(f"✅ {package}: installed")
-            else:
-                failed_packages.append(package)
-                output_lines.append(f"❌ {package}: failed - {proc.stderr.strip()}")
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"npm-install",
+        auto_close=False
+    )
 
-        result['output'] = '\n'.join(output_lines)
-        result['success'] = installed_count > 0  # Success if at least one package installed
-        result['installed_count'] = installed_count
-
-        if failed_packages:
-            result['error'] = f"Failed to install: {', '.join(failed_packages)}"
-
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -290,30 +276,28 @@ def install_pip_packages() -> Dict[str, Any]:
         result['output'] = '⚠️  No requirements.txt file found - consider creating one or removing config directory'
         return result
 
-    try:
-        print(f"  📦 Installing pip packages from requirements.txt...")
-        cmd = ['pip3', 'install', '--user', '--break-system-packages', '-r', str(package_file)]
+    print(f"  📦 Installing pip packages from requirements.txt...")
 
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+    # Build install command
+    cmd_str = f"pip3 install --user --break-system-packages -r {package_file}"
 
-        result['output'] = proc.stdout
-        result['error'] = proc.stderr
-        result['success'] = proc.returncode == 0
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"pip-install",
+        auto_close=False
+    )
 
-        # Count installed packages from output
-        if proc.returncode == 0:
-            installed = proc.stdout.count('Successfully installed')
-            result['installed_count'] = installed
-
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = 0  # Will be determined from logs
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -356,23 +340,29 @@ def install_pipx_packages() -> Dict[str, Any]:
         result['success'] = True
         return result
 
-    try:
-        print(f"  📦 Installing {len(packages)} pipx packages...")
-        installed_count = 0
-        for package in packages:
-            cmd = ['pipx', 'install', package]
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-            if proc.returncode == 0:
-                installed_count += 1
+    print(f"  📦 Installing {len(packages)} pipx packages...")
 
-        result['output'] = f'Attempted to install {len(packages)} packages'
+    # Build command to install all packages (pipx install supports one at a time, so chain them)
+    cmds = [f"pipx install {pkg}" for pkg in packages]
+    cmd_str = " && ".join(cmds)
+
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"pipx-install",
+        auto_close=False
+    )
+
+    if terminal_result.status in ['spawned', 'completed']:
         result['success'] = True
-        result['installed_count'] = installed_count
-
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -413,26 +403,29 @@ def install_cargo_packages() -> Dict[str, Any]:
         result['success'] = True
         return result
 
-    try:
-        print(f"  📦 Installing {len(packages)} cargo packages...")
-        cmd = ['cargo', 'install'] + packages
+    print(f"  📦 Installing {len(packages)} cargo packages...")
 
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=600
-        )
+    # Build install command
+    packages_str = ' '.join(packages)
+    cmd_str = f"cargo install {packages_str}"
 
-        result['output'] = proc.stdout
-        result['error'] = proc.stderr
-        result['success'] = proc.returncode == 0
-        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"cargo-install",
+        auto_close=False
+    )
 
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
@@ -473,26 +466,29 @@ def install_gem_packages() -> Dict[str, Any]:
         result['success'] = True
         return result
 
-    try:
-        print(f"  📦 Installing {len(packages)} gem packages...")
-        cmd = ['gem', 'install'] + packages
+    print(f"  📦 Installing {len(packages)} gem packages...")
 
-        proc = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+    # Build install command
+    packages_str = ' '.join(packages)
+    cmd_str = f"gem install {packages_str}"
 
-        result['output'] = proc.stdout
-        result['error'] = proc.stderr
-        result['success'] = proc.returncode == 0
-        result['installed_count'] = len(packages) if proc.returncode == 0 else 0
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"gem-install",
+        auto_close=False
+    )
 
-    except subprocess.TimeoutExpired:
-        result['error'] = 'Installation timed out'
-    except Exception as e:
-        result['error'] = str(e)
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
 
     return result
 
