@@ -318,6 +318,10 @@ def cmd_install(args):
     print(f"📈 Total packages installed: {total_installed}")
     print(f"🎯 Successful installations: {successful_installs}/{len(selected_pms)}")
 
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
+
     return 0 if successful_installs == len(selected_pms) else 1
 
 

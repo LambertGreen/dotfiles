@@ -8,5 +8,5 @@ pytest>=8.0.0
 pytest-cov>=4.0.0
 pytest-mock>=3.10.0
 
-# Development tools (optional)
-# pre-commit>=3.0.0  # Uncomment if you want pre-commit hooks
+# Development tools
+pre-commit>=3.0.0

@@ -4,8 +4,7 @@
 set -euo pipefail
 
 # Set up logging
-DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/.logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/stow-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist

@@ -501,7 +501,9 @@ class WSLTerminalExecutor(TerminalExecutor):
                     ]
 
                     if title:
-                        wt_cmd.extend(['--title', title])
+                        # Add DOTFILES-PM prefix for tracking
+                        unique_title = f"DOTFILES-PM-{title}"
+                        wt_cmd.extend(['--title', unique_title])
 
                     wt_cmd.extend([
                         'wsl.exe',

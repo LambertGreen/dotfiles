@@ -16,7 +16,6 @@ wget
 zsh
 
 # System utilities
-fastfetch
 psmisc
 tmux
 
