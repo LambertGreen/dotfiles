@@ -289,8 +289,8 @@ if [[ -n "$MACHINE_CLASS" ]]; then
                 echo "   • $pm"
             done
             echo ""
-            echo "ℹ️  Note: Package managers will be installed during 'just install-packages'"
-            echo "    After installation, run 'just register-pms' to enable/disable them"
+            echo "ℹ️  Note: Package managers will be installed during package installation"
+            echo "    After installation, run package manager registration to enable/disable them"
         else
             echo "⚠️  No package managers configured for machine class: $MACHINE_CLASS"
         fi
@@ -306,11 +306,11 @@ echo ""
 echo "🎉 Configuration complete!"
 echo ""
 echo "Next steps:"
-echo "  just bootstrap        - Install core tools (Python, stow, just, etc.)"
-echo "  just stow            - Deploy configuration files"
-echo "  just install-packages - Install packages"
-echo "  just register-pms    - Enable/disable package managers"
-echo "  just doctor-system-health    - Validate system health"
+echo "  Run bootstrap to install core tools"
+echo "  Deploy configuration files"
+echo "  Install packages"
+echo "  Register package managers"
+echo "  Validate system health"
 
 echo ""
 echo "📝 Configuration session logged to: ${LOG_FILE}"

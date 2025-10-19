@@ -39,7 +39,7 @@ log_output "🔗 Stowing ${PLATFORM} configurations using environment-driven app
 
 # Check if configured
 if [ ! -f "$HOME/.dotfiles.env" ]; then
-    log_output "❌ Configuration file missing. Run: just configure"
+    log_output "❌ Configuration file missing. Run configuration first"
     exit 1
 fi
 
@@ -101,7 +101,7 @@ log_output ""
 log_output "✅ Stow operation completed (GNU Stow only reports errors)"
 log_output ""
 log_output "💡 To verify symlinks were created successfully, run:"
-log_output "   just doctor-system-health"
+log_output "   Run system health check to verify symlinks"
 log_output ""
 log_output "📝 Note: The health check will show:"
 log_output "   - Number of symlinks created"

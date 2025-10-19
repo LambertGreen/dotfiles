@@ -24,11 +24,22 @@ default:
 [group('1-🚀-Setup')]
 configure:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File configure.ps1" } else { "./configure.sh" } }}
+    @echo ""
+    @echo "Next steps:"
+    @echo "  just bootstrap        # Install core tools (Python, stow, just, etc.)"
+    @echo "  just stow            # Deploy configuration files"
+    @echo "  just install         # Install packages"
+    @echo "  just register-package-managers    # Enable/disable package managers"
+    @echo "  just doctor-system-health    # Validate system health"
 
 # Bootstrap system (install core tools)
 [group('1-🚀-Setup')]
 bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
+    @echo ""
+    @echo "Next steps:"
+    @echo "  just stow           # Deploy configurations"
+    @echo "  just doctor-system-health   # Verify setup"
 
 # Deploy configuration files
 [group('1-🚀-Setup')]
@@ -38,6 +49,9 @@ stow:
         exit 1; \
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
+    @echo ""
+    @echo "Next steps:"
+    @echo "  just doctor-system-health   # Verify symlinks were created successfully"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
