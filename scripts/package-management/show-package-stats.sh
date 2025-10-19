@@ -37,7 +37,7 @@ total_packages=0
 for pm_dir in "${MACHINE_DIR}"/*; do
     if [[ -d "${pm_dir}" ]]; then
         pm_name=$(basename "${pm_dir}")
-        
+
         case "${pm_name}" in
             brew)
                 if [[ -f "${pm_dir}/Brewfile" ]]; then

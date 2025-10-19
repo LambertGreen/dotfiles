@@ -116,6 +116,14 @@ package-summary:
     @echo "💡 Next steps:"
     @echo "  just show-packages  # View detailed package lists"
 
+# Show detailed package lists
+[group('3-ℹ️-Info')]
+show-packages:
+    @./scripts/package-management/show-packages.sh
+    @echo ""
+    @echo "💡 Next steps:"
+    @echo "  just package-summary  # View package counts summary"
+
 # Show configuration and all available commands
 [private]
 help:
