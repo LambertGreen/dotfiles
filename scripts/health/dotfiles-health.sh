@@ -629,7 +629,7 @@ _check_package_health() {
 # Usage: _check_disabled_package_managers log_output
 _check_disabled_package_managers() {
     local log_output="$1"
-    
+
     # Check if any package managers are disabled
     if [[ -n "${DOTFILES_PM_DISABLED:-}" ]]; then
         $log_output "🔧 Disabled Package Managers"
