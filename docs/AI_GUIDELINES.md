@@ -25,6 +25,19 @@
 - Use `just goto-testing` to enter testing context
 - Use `just goto-package-managers` to enter package management context
 - Use `just goto-debugging` to enter debugging context
+
+## Standard Approaches
+- **ALWAYS** use standard approaches (e.g., `layout python3` for direnv)
+- **NEVER** deviate from standard practices without explicit discussion
+- **DISCUSS** any non-standard approaches before implementing
+- **ASK** if unsure about the standard way to do something
+
+## Environment Setup
+- **ALWAYS** run `just check-dev-prerequisites` first to verify direnv and pyenv are installed
+- **ALWAYS** run `direnv allow && eval "$(direnv export bash)"` to activate the environment
+- **VERIFY** virtual environment is active with `which python3` before running Python commands
+- **PERSISTENT SHELL**: The shell session persists between commands, so direnv activation only needed once per session
+- **SIMPLE SETUP**: Only direnv and pyenv are needed - they handle everything else
 - Context jumping is available for AI use, not just humans
 
 ## Code Quality

@@ -130,12 +130,6 @@ package-managers:
     @echo "Use 'just' to see available PM commands"
     @cd package-managers && exec $SHELL
 
-# Enter testing context (all testing commands)
-[group('5-🧪-Testing')]
-goto-testing:
-    @echo "🧪 Entering testing context..."
-    @echo "Use 'just' to see all available testing commands"
-    @cd tests && exec $SHELL
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Doctor Commands (System Repair & Diagnostics)
@@ -216,3 +210,22 @@ cleanup-broken-links-dry-run:
 cleanup-broken-links-remove:
     @echo "⚠️  Deprecated: Use 'just doctor-broken-links-fix' instead"
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Project Dev & Testing
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Enter testing context (all testing commands)
+[group('8-🧪-Project-Dev-Testing')]
+goto-testing:
+    @echo "🧪 Entering testing context..."
+    @echo "Use 'just' to see all available testing commands"
+    @cd tests && exec $SHELL
+
+# Check development prerequisites
+[group('8-🧪-Project-Dev-Testing')]
+check-dev-prerequisites:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🔍 Checking development prerequisites..."
+    ./devsetup/check-prerequisites.sh
