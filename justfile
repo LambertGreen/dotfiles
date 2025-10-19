@@ -90,12 +90,12 @@ list-package-managers:
 
 
 # Show current configuration
-[group('4-ℹ️-Info')]
+[group('3-ℹ️-Info')]
 show-config:
     @./scripts/show-config.sh
 
 # Show package counts summary
-[group('4-ℹ️-Info')]
+[group('3-ℹ️-Info')]
 package-summary:
     @./scripts/package-management/show-package-stats.sh
 
@@ -117,14 +117,14 @@ h: help
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Enter debugging context (health, logs, troubleshooting)
-[group('6-🔧-Contexts')]
+[group('4-🔧-Contexts')]
 debugging:
     @echo "🔍 Entering debugging context..."
     @echo "Use 'just' to see available debug commands"
     @cd debug && exec $SHELL
 
 # Enter package managers context (granular PM control)
-[group('6-🔧-Contexts')]
+[group('4-🔧-Contexts')]
 package-managers:
     @echo "📦 Entering package managers context..."
     @echo "Use 'just' to see available PM commands"
@@ -132,11 +132,11 @@ package-managers:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Doctor Commands (System Repair & Diagnostics)
+# Doctor Commands (System Health & Diagnostics)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Diagnose and fix Homebrew lock issues
-[group('7-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-brew-lock:
     @echo "👩‍⚕️ Diagnosing Homebrew lock issue..."
     @echo "1. Checking current status..."
@@ -167,13 +167,13 @@ doctor-brew-lock:
     fi
 
 # Check system health (migrated from check-health)
-[group('7-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-system-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
 # Diagnose and fix broken symlinks
-[group('7-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-broken-links:
     @echo "👩‍⚕️ Diagnosing broken symlinks..."
     @echo "Scanning for broken symlinks (dry-run)..."
@@ -182,48 +182,27 @@ doctor-broken-links:
     @echo "💡 To remove broken symlinks, run: just doctor-broken-links-fix"
 
 # Fix broken symlinks (destructive)
-[group('7-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-broken-links-fix:
     @echo "👩‍⚕️ Fixing broken symlinks..."
     @echo "⚠️  This will remove broken symlinks permanently!"
     @read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Legacy Health Commands (deprecated - use doctor-* commands)
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Validate system health (deprecated: use doctor-system-health)
-[group('3-🏥-System')]
-check-health:
-    @echo "⚠️  Deprecated: Use 'just doctor-system-health' instead"
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
-
-# Find broken symlinks (deprecated: use doctor-broken-links)
-[group('3-🏥-System')]
-cleanup-broken-links-dry-run:
-    @echo "⚠️  Deprecated: Use 'just doctor-broken-links' instead"
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
-
-# Remove broken symlinks (deprecated: use doctor-broken-links-fix)
-[group('3-🏥-System')]
-cleanup-broken-links-remove:
-    @echo "⚠️  Deprecated: Use 'just doctor-broken-links-fix' instead"
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Project Dev & Testing
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Enter testing context (all testing commands)
-[group('8-🧪-Project-Dev-Testing')]
+[group('6-🧪-Project-Dev-Testing')]
 goto-testing:
     @echo "🧪 Entering testing context..."
     @echo "Use 'just' to see all available testing commands"
     @cd tests && exec $SHELL
 
 # Check development prerequisites
-[group('8-🧪-Project-Dev-Testing')]
+[group('6-🧪-Project-Dev-Testing')]
 check-dev-prerequisites:
     #!/usr/bin/env bash
     set -euo pipefail
