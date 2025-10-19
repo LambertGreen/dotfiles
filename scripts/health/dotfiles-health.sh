@@ -619,7 +619,26 @@ _check_package_health() {
         $log_output "  • ℹ️  No package managers configured for health checking"
     fi
 
+    # Check for disabled package managers
+    _check_disabled_package_managers "$log_output"
+
     $log_output
+}
+
+# Check for disabled package managers
+# Usage: _check_disabled_package_managers log_output
+_check_disabled_package_managers() {
+    local log_output="$1"
+    
+    # Check if any package managers are disabled
+    if [[ -n "${DOTFILES_PM_DISABLED:-}" ]]; then
+        $log_output "🔧 Disabled Package Managers"
+        $log_output "  • ⚠️  The following package managers are disabled:"
+        $log_output "    - $DOTFILES_PM_DISABLED"
+        $log_output "  • 💡 This should only be temporary for debugging"
+        $log_output "  • 💡 To re-enable: unset DOTFILES_PM_DISABLED"
+        $log_output
+    fi
 }
 
 # Legacy TOML-based functions removed - now using native package management
