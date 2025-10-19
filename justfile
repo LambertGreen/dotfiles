@@ -30,7 +30,7 @@ configure:
     @echo "  just stow            # Deploy configuration files"
     @echo "  just install         # Install packages"
     @echo "  just register-package-managers    # Enable/disable package managers"
-    @echo "  just doctor-system-health    # Validate system health"
+    @echo "  just doctor-check-health    # Validate system health"
 
 # Bootstrap system (install core tools)
 [group('1-🚀-Setup')]
@@ -39,7 +39,7 @@ bootstrap:
     @echo ""
     @echo "Next steps:"
     @echo "  just stow           # Deploy configurations"
-    @echo "  just doctor-system-health   # Verify setup"
+    @echo "  just doctor-check-health   # Verify setup"
 
 # Deploy configuration files
 [group('1-🚀-Setup')]
@@ -51,7 +51,7 @@ stow:
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
     @echo ""
     @echo "Next steps:"
-    @echo "  just doctor-system-health   # Verify symlinks were created successfully"
+    @echo "  just doctor-check-health   # Verify symlinks were created successfully"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
@@ -59,7 +59,7 @@ install:
     @echo "📦 Installing packages for current machine class..."
     @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm install || \
     if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-brew-lock"; \
+        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
         exit 1; \
     fi
 
@@ -69,7 +69,7 @@ update:
     @echo "🔄 Updating package registries and checking for updates..."
     @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm check || \
     if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-brew-lock"; \
+        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
         exit 1; \
     fi
 
@@ -79,7 +79,7 @@ upgrade:
     @echo "🔄 Upgrading packages (interactive)..."
     @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm upgrade || \
     if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-brew-lock"; \
+        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
         exit 1; \
     fi
 
@@ -89,7 +89,7 @@ register-package-managers:
     @echo "📦 Registering available package managers..."
     @python3 -m src.dotfiles_pm.pm configure || \
     if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-brew-lock"; \
+        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
         exit 1; \
     fi
 
@@ -98,7 +98,7 @@ register-package-managers:
 list-package-managers:
     @python3 -m src.dotfiles_pm.pm list || \
     if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-brew-lock"; \
+        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
         exit 1; \
     fi
 
@@ -138,7 +138,7 @@ h: help
 
 # Diagnose and fix Homebrew lock issues
 [group('4-👩‍⚕️-Doctor')]
-doctor-brew-lock:
+doctor-fix-brew-lock:
     @echo "👩‍⚕️ Diagnosing Homebrew lock issue..."
     @echo "1. Checking current status..."
     @python3 -m src.dotfiles_pm.pms.brew_utils status
@@ -169,22 +169,22 @@ doctor-brew-lock:
 
 # Check system health (migrated from check-health)
 [group('4-👩‍⚕️-Doctor')]
-doctor-system-health:
+doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
 # Diagnose and fix broken symlinks
 [group('4-👩‍⚕️-Doctor')]
-doctor-broken-links:
+doctor-check-broken-links:
     @echo "👩‍⚕️ Diagnosing broken symlinks..."
     @echo "Scanning for broken symlinks (dry-run)..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
     @echo ""
-    @echo "💡 To remove broken symlinks, run: just doctor-broken-links-fix"
+    @echo "💡 To remove broken symlinks, run: just doctor-fix-broken-links"
 
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
-doctor-broken-links-fix:
+doctor-fix-broken-links:
     @echo "👩‍⚕️ Fixing broken symlinks..."
     @echo "⚠️  This will remove broken symlinks permanently!"
     @read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
