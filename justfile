@@ -167,7 +167,7 @@ doctor-fix-brew-lock:
         fi; \
     fi
 
-# Check system health (migrated from check-health)
+# Check system health
 [group('4-👩‍⚕️-Doctor')]
 doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
