@@ -133,30 +133,11 @@ help:
 h: help
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Modal Context Navigation
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Enter debugging context (health, logs, troubleshooting)
-[group('4-🔧-Contexts')]
-debugging:
-    @echo "🔍 Entering debugging context..."
-    @echo "Use 'just' to see available debug commands"
-    @cd debug && exec $SHELL
-
-# Enter package managers context (granular PM control)
-[group('4-🔧-Contexts')]
-package-managers:
-    @echo "📦 Entering package managers context..."
-    @echo "Use 'just' to see available PM commands"
-    @cd package-managers && exec $SHELL
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # Doctor Commands (System Health & Diagnostics)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Diagnose and fix Homebrew lock issues
-[group('5-👩‍⚕️-Doctor')]
+[group('4-👩‍⚕️-Doctor')]
 doctor-brew-lock:
     @echo "👩‍⚕️ Diagnosing Homebrew lock issue..."
     @echo "1. Checking current status..."
@@ -187,13 +168,13 @@ doctor-brew-lock:
     fi
 
 # Check system health (migrated from check-health)
-[group('5-👩‍⚕️-Doctor')]
+[group('4-👩‍⚕️-Doctor')]
 doctor-system-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
 # Diagnose and fix broken symlinks
-[group('5-👩‍⚕️-Doctor')]
+[group('4-👩‍⚕️-Doctor')]
 doctor-broken-links:
     @echo "👩‍⚕️ Diagnosing broken symlinks..."
     @echo "Scanning for broken symlinks (dry-run)..."
@@ -202,7 +183,7 @@ doctor-broken-links:
     @echo "💡 To remove broken symlinks, run: just doctor-broken-links-fix"
 
 # Fix broken symlinks (destructive)
-[group('5-👩‍⚕️-Doctor')]
+[group('4-👩‍⚕️-Doctor')]
 doctor-broken-links-fix:
     @echo "👩‍⚕️ Fixing broken symlinks..."
     @echo "⚠️  This will remove broken symlinks permanently!"
@@ -215,14 +196,14 @@ doctor-broken-links-fix:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Enter testing context (all testing commands)
-[group('6-🧪-Project-Dev-Testing')]
+[group('5-🧪-Project-Dev-Testing')]
 goto-testing:
     @echo "🧪 Entering testing context..."
     @echo "Use 'just' to see all available testing commands"
     @cd tests && exec $SHELL
 
 # Check development prerequisites
-[group('6-🧪-Project-Dev-Testing')]
+[group('5-🧪-Project-Dev-Testing')]
 check-dev-prerequisites:
     #!/usr/bin/env bash
     set -euo pipefail
