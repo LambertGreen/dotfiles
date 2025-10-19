@@ -110,7 +110,7 @@ show-config:
 
 # Show package counts summary
 [group('3-ℹ️-Info')]
-package-summary:
+show-package-summary:
     @./scripts/package-management/show-package-stats.sh
     @echo ""
     @echo "💡 Next steps:"
@@ -122,7 +122,7 @@ show-packages:
     @./scripts/package-management/show-packages.sh
     @echo ""
     @echo "💡 Next steps:"
-    @echo "  just package-summary  # View package counts summary"
+    @echo "  just show-package-summary  # View package counts summary"
 
 # Show configuration and all available commands
 [private]
