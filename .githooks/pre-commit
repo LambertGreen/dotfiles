@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+"""
+Pre-commit hook to detect and prevent committing sensitive tokens
+Cross-platform Python implementation for better compatibility
+"""
+
+import os
+import re
+import sys
+from pathlib import Path
+
+# Color codes for output
+RED = '\033[0;31m'
+YELLOW = '\033[1;33m'
+NC = '\033[0m'  # No Color
+
+# Patterns to detect (case-insensitive)
+PATTERNS = [
+    r"sk-ant-[a-zA-Z0-9_-]+",                    # Anthropic API keys
+    r"CLAUDE_CODE_OAUTH_TOKEN=['\"]?[a-zA-Z0-9_-]+",  # Claude OAuth tokens
+    r"github_pat_[a-zA-Z0-9_-]+",                # GitHub Personal Access Tokens
+    r"ghp_[a-zA-Z0-9_-]+",                       # GitHub tokens (old format)
+    r"gho_[a-zA-Z0-9_-]+",                       # GitHub OAuth tokens
+    r"ghu_[a-zA-Z0-9_-]+",                       # GitHub user tokens
+    r"ghs_[a-zA-Z0-9_-]+",                       # GitHub server tokens
+    r"ghr_[a-zA-Z0-9_-]+",                       # GitHub refresh tokens
+    r"[a-zA-Z0-9_-]{20,}@[a-zA-Z0-9_-]+\.iam\.gserviceaccount\.com",  # GCP service account
+    r"AKIA[0-9A-Z]{16}",                         # AWS Access Key ID
+    r"-----BEGIN.*(RSA|DSA|EC|OPENSSH).*PRIVATE KEY-----",  # Private keys
+    r"xox[pboa]-[0-9]{12}-[0-9]{12}-[a-zA-Z0-9]{24}",  # Slack tokens
+    r"AIza[0-9A-Za-z_-]{35}",                    # Google API key
+]
+
+def is_binary_file(filepath):
+    """Check if a file is binary"""
+    try:
+        with open(filepath, 'rb') as f:
+            chunk = f.read(1024)
+            return b'\0' in chunk
+    except:
+        return False
+
+def check_file_for_secrets(filepath):
+    """Check a single file for sensitive tokens"""
+    matches = []
+
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+    except:
+        return matches
+
+    for pattern in PATTERNS:
+        regex = re.compile(pattern, re.IGNORECASE)
+        for match in regex.finditer(content):
+            matches.append({
+                'pattern': pattern,
+                'match': match.group(),
+                'line_num': content[:match.start()].count('\n') + 1
+            })
+
+    return matches
+
+def main():
+    # Get list of files to check
+    if len(sys.argv) > 1:
+        files_to_check = sys.argv[1:]
+    else:
+        # Fallback to staged files for direct execution
+        import subprocess
+        try:
+            result = subprocess.run(['git', 'diff', '--cached', '--name-only', '--diff-filter=ACM'],
+                                  capture_output=True, text=True)
+            files_to_check = result.stdout.strip().split('\n') if result.stdout.strip() else []
+        except:
+            files_to_check = []
+
+    if not files_to_check:
+        print("✅ No files to check")
+        return 0
+
+    found_secrets = False
+
+    for filepath in files_to_check:
+        # Skip this pre-commit hook itself and any files in .githooks/ directory
+        if '.githooks/pre-commit' in filepath or '.git/hooks/' in filepath:
+            continue
+
+        # Skip if file doesn't exist
+        if not os.path.exists(filepath):
+            continue
+
+        # Skip binary files
+        if is_binary_file(filepath):
+            continue
+
+        # Check file for secrets
+        matches = check_file_for_secrets(filepath)
+
+        if matches:
+            if not found_secrets:
+                print()
+                print(f"{RED}❌ COMMIT BLOCKED: Sensitive tokens detected!{NC}")
+                print()
+
+            found_secrets = True
+            print(f"{YELLOW}File: {filepath}{NC}")
+            for match in matches[:3]:  # Show first 3 matches
+                print(f"Pattern: {match['pattern']}")
+                print(f"Match: {match['match']}")
+                print(f"Line: {match['line_num']}")
+                print()
+
+    if found_secrets:
+        print(f"{RED}================================================{NC}")
+        print(f"{RED}COMMIT REJECTED{NC}")
+        print(f"{RED}================================================{NC}")
+        print()
+        print("Please remove sensitive tokens before committing.")
+        print()
+        print("Options:")
+        print("  1. Remove the tokens from the files")
+        print("  2. Move tokens to environment variables or separate config files")
+        print("  3. Add files with tokens to .gitignore")
+        print("  4. Use git-secret or similar tools for encrypted secrets")
+        print()
+        print("To bypass this check (NOT RECOMMENDED):")
+        print("  git commit --no-verify")
+        print()
+        return 1
+
+    print("✅ No sensitive tokens detected")
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

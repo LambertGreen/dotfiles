@@ -42,3 +42,12 @@ repos:
     hooks:
       - id: hadolint-docker
         args: [--ignore, DL3008, --ignore, DL3009]  # Ignore apt/apk version pinning for dotfiles
+
+  # Custom local hooks
+  - repo: local
+    hooks:
+      - id: detect-sensitive-tokens
+        name: Detect sensitive tokens
+        entry: .githooks/pre-commit
+        language: script
+        always_run: true
