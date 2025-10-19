@@ -35,8 +35,8 @@ run-unit-tests-with-coverage:
     set -euo pipefail
     echo "🧪 Running unit tests with code coverage..."
     cd .. && eval "$(direnv export bash)"
-    python -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
-    echo "📊 Coverage report generated in htmlcov/"
+    python -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:.test/coverage
+    echo "📊 Coverage report generated in .test/coverage/"
 
 # Run functional tests (uses fake package managers)
 [group('2-🔧-Functional-Tests')]
@@ -61,8 +61,8 @@ run-functional-tests-with-coverage:
     export PATH="./test:$PATH"
     export DOTFILES_PM_ONLY_FAKES="true"
     export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
-    cd .. && python -m pytest tests/e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov
-    echo "📊 Coverage report generated in htmlcov/"
+        cd .. && python -m pytest tests/e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:.test/coverage
+        echo "📊 Coverage report generated in .test/coverage/"
 
 # Run integration tests (uses Docker containers)
 [group('3-🐳-Integration-Tests')]
@@ -120,7 +120,7 @@ run-all-tests-with-coverage:
     echo "4. Testing brew lock detection..."
     cd .. && python -m src.dotfiles_pm.pms.brew_utils status || echo "   Brew utils test failed"
     echo ""
-    echo "📊 Final coverage report available in htmlcov/"
+    echo "📊 Final coverage report available in .test/coverage/"
     echo "✅ Comprehensive test suite with coverage completed"
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -134,17 +134,17 @@ run-coverage:
     set -euo pipefail
     echo "📊 Running code coverage analysis..."
     cd .. && eval "$(direnv export bash)"
-    python -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:htmlcov --cov-fail-under=5
-    echo "📊 Coverage report generated in htmlcov/"
+    python -m pytest tests/ -v --cov=src --cov-report=term-missing --cov-report=html:.test/coverage --cov-fail-under=5
+    echo "📊 Coverage report generated in .test/coverage/"
 
 # Open coverage report in browser
 [group('5-📊-Coverage')]
 open-coverage-report:
     #!/usr/bin/env bash
     set -euo pipefail
-    if [ -f "htmlcov/index.html" ]; then
+    if [ -f ".test/coverage/index.html" ]; then
         echo "🌐 Opening coverage report in browser..."
-        open htmlcov/index.html || xdg-open htmlcov/index.html || echo "Please open htmlcov/index.html manually"
+        open .test/coverage/index.html || xdg-open .test/coverage/index.html || echo "Please open .test/coverage/index.html manually"
     else
         echo "❌ No coverage report found. Run 'just run-coverage' first."
         exit 1

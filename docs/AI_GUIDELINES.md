@@ -5,6 +5,8 @@
 - **ALWAYS** ask before committing: "Ready to commit these changes?"
 - **WAIT** for user's explicit "yes" or "commit this"
 - **SUGGEST** commit messages but let user decide
+- **ALWAYS** check `git status` before committing to ensure nothing is missed
+- **AMEND** commits if needed rather than creating separate cleanup commits
 
 ## Session Workflow
 - User may want session-based commits (one commit per session)
@@ -38,6 +40,12 @@
 - **VERIFY** virtual environment is active with `which python3` before running Python commands
 - **PERSISTENT SHELL**: The shell session persists between commands, so direnv activation only needed once per session
 - **SIMPLE SETUP**: Only direnv and pyenv are needed - they handle everything else
+
+## Working Directory Management
+- **PREFER** running actions from project root by cd'ing to project at session start
+- **AVOID** polluting command list with `cd` operations for every command
+- **REMEMBER** to reset to project root whenever doing a `cd` operation
+- **KEEP** command list focused on actual work, not navigation
 - Context jumping is available for AI use, not just humans
 
 ## Code Quality
