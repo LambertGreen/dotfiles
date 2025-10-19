@@ -310,7 +310,7 @@ echo "  just bootstrap        - Install core tools (Python, stow, just, etc.)"
 echo "  just stow            - Deploy configuration files"
 echo "  just install-packages - Install packages"
 echo "  just register-pms    - Enable/disable package managers"
-echo "  just check-health    - Validate system health"
+echo "  just doctor-system-health    - Validate system health"
 
 echo ""
 echo "📝 Configuration session logged to: ${LOG_FILE}"

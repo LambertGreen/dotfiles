@@ -141,7 +141,7 @@ log_output "✅ Bootstrap completed!"
 log_output ""
 log_output "Next steps:"
 log_output "  just stow           # Deploy configurations"
-log_output "  just check-health   # Verify setup"
+log_output "  just doctor-system-health   # Verify setup"
 
 log_output ""
 log_output "📝 Bootstrap session logged to: ${LOG_FILE}"
