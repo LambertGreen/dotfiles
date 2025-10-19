@@ -173,15 +173,6 @@ doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
-# Diagnose and fix broken symlinks
-[group('4-👩‍⚕️-Doctor')]
-doctor-check-broken-links:
-    @echo "👩‍⚕️ Diagnosing broken symlinks..."
-    @echo "Scanning for broken symlinks (dry-run)..."
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links"
-    @echo ""
-    @echo "💡 To remove broken symlinks, run: just doctor-fix-broken-links"
-
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
 doctor-fix-broken-links:
