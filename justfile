@@ -112,6 +112,9 @@ show-config:
 [group('3-ℹ️-Info')]
 package-summary:
     @./scripts/package-management/show-package-stats.sh
+    @echo ""
+    @echo "💡 Next steps:"
+    @echo "  just show-packages  # View detailed package lists"
 
 # Show configuration and all available commands
 [private]
