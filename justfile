@@ -103,22 +103,17 @@ list-package-managers:
     fi
 
 
-# Show current configuration
-[group('3-ℹ️-Info')]
-show-config:
-    @./scripts/show-config.sh
-
 # Show package counts summary
 [group('3-ℹ️-Info')]
 show-package-summary:
     @./scripts/package-management/show-package-stats.sh
     @echo ""
     @echo "💡 Next steps:"
-    @echo "  just show-packages  # View detailed package lists"
+    @echo "  just show-package-list  # View detailed package lists"
 
 # Show detailed package lists
 [group('3-ℹ️-Info')]
-show-packages:
+show-package-list:
     @./scripts/package-management/show-packages.sh
     @echo ""
     @echo "💡 Next steps:"
