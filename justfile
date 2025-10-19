@@ -176,10 +176,17 @@ doctor-check-health:
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
 doctor-fix-broken-links:
-    @echo "👩‍⚕️ Fixing broken symlinks..."
-    @echo "⚠️  This will remove broken symlinks permanently!"
-    @read -p "Continue? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
-    @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "👩‍⚕️ Fixing broken symlinks..."
+    echo "⚠️  This will remove broken symlinks permanently!"
+    read -p "Continue? (y/N): " confirm
+    if [ "$confirm" = "y" ]; then
+        bash -c "source scripts/health/dotfiles-health.sh && dotfiles_cleanup_broken_links --remove"
+    else
+        echo "❌ Operation cancelled"
+        exit 1
+    fi
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
