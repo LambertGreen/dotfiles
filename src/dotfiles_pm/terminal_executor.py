@@ -95,6 +95,16 @@ class TerminalExecutor(ABC):
         """
         pass
 
+    @abstractmethod
+    def close_all_terminals(self) -> int:
+        """
+        Close all spawned terminals using platform-specific methods.
+
+        Returns:
+            Number of terminals successfully closed
+        """
+        pass
+
     def spawn_tracked(self, command: str, operation: str, auto_close: bool = False) -> TerminalSpawnResult:
         """
         Spawn command with logging and status tracking.
@@ -282,6 +292,19 @@ class DarwinTerminalExecutor(TerminalExecutor):
         except Exception:
             return False
 
+    def close_all_terminals(self) -> int:
+        """Close all spawned Terminal.app windows using registry"""
+        try:
+            # Use registry-based cleanup since we can't reliably identify windows by title
+            spawned_terminals = _load_terminal_registry()
+            closed_count = 0
+            for terminal_info in spawned_terminals:
+                if self.close_terminal(terminal_info):
+                    closed_count += 1
+            return closed_count
+        except Exception:
+            return 0
+
 
 class LinuxTerminalExecutor(TerminalExecutor):
     """Linux terminal executor with fallback chain"""
@@ -447,6 +470,46 @@ class LinuxTerminalExecutor(TerminalExecutor):
                 error=str(e)
             )
 
+    def close_all_terminals(self) -> int:
+        """Close all DOTFILES-PM terminal windows using wmctrl"""
+        try:
+            # Find all DOTFILES-PM windows using wmctrl
+            result = subprocess.run(
+                ['wmctrl', '-l'],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+
+            if result.returncode != 0:
+                # wmctrl not available, fall back to registry-based cleanup
+                spawned_terminals = _load_terminal_registry()
+                closed_count = 0
+                for terminal_info in spawned_terminals:
+                    if self.close_terminal(terminal_info):
+                        closed_count += 1
+                return closed_count
+
+            # Use wmctrl to close all DOTFILES-PM windows
+            lines = result.stdout.strip().split('\n')
+            dotfiles_windows = [l for l in lines if 'DOTFILES-PM' in l and l.strip()]
+            closed_count = 0
+
+            for line in dotfiles_windows:
+                window_id = line.split()[0]
+                # Close window by ID
+                close_result = subprocess.run(
+                    ['wmctrl', '-ic', window_id],
+                    capture_output=True,
+                    check=False
+                )
+                if close_result.returncode == 0:
+                    closed_count += 1
+
+            return closed_count
+        except Exception:
+            return 0
+
 
 class WSLTerminalExecutor(TerminalExecutor):
     """Windows Subsystem for Linux terminal executor"""
@@ -454,6 +517,10 @@ class WSLTerminalExecutor(TerminalExecutor):
     def can_close_terminals(self) -> bool:
         """Cannot close Windows Terminal tabs from WSL"""
         return False
+
+    def close_all_terminals(self) -> int:
+        """Cannot close terminals from WSL"""
+        return 0
 
     def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Windows Terminal from WSL"""
@@ -548,6 +615,10 @@ class WindowsTerminalExecutor(TerminalExecutor):
         """Cannot close Windows Terminal tabs programmatically yet"""
         return False
 
+    def close_all_terminals(self) -> int:
+        """Cannot close terminals on Windows yet"""
+        return 0
+
     def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Windows Terminal or cmd"""
         try:
@@ -581,6 +652,11 @@ class TmuxTerminalExecutor(TerminalExecutor):
         """Delegate to system executor for now"""
         executor = create_terminal_executor(force_system=True)
         return executor.can_close_terminals()
+
+    def close_all_terminals(self) -> int:
+        """Delegate to system executor for now"""
+        executor = create_terminal_executor(force_system=True)
+        return executor.close_all_terminals()
 
     def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """
@@ -661,52 +737,13 @@ def get_spawned_terminals() -> List[Dict[str, Any]]:
 
 def close_all_terminals() -> int:
     """
-    Close all spawned terminals by finding all DOTFILES-PM windows.
-
-    This uses wmctrl to find all terminals we spawned (by title prefix),
-    which is more reliable than the registry since the registry can be cleared.
+    Close all spawned terminals using platform-specific methods.
 
     Returns:
         Number of terminals successfully closed
     """
-    closed_count = 0
-
-    try:
-        # Find all DOTFILES-PM windows using wmctrl
-        result = subprocess.run(
-            ['wmctrl', '-l'],
-            capture_output=True,
-            text=True,
-            check=False
-        )
-
-        if result.returncode != 0:
-            # wmctrl not available, fall back to registry-based cleanup
-            spawned_terminals = _load_terminal_registry()
-            for terminal_info in spawned_terminals:
-                executor = terminal_info.get('executor')
-                if not executor:
-                    executor = create_terminal_executor()
-                if executor and executor.close_terminal(terminal_info):
-                    closed_count += 1
-        else:
-            # Use wmctrl to close all DOTFILES-PM windows
-            lines = result.stdout.strip().split('\n')
-            dotfiles_windows = [l for l in lines if 'DOTFILES-PM' in l and l.strip()]
-
-            for line in dotfiles_windows:
-                window_id = line.split()[0]
-                # Close window by ID
-                close_result = subprocess.run(
-                    ['wmctrl', '-ic', window_id],
-                    stderr=subprocess.DEVNULL,
-                    check=False
-                )
-                if close_result.returncode == 0:
-                    closed_count += 1
-
-    except Exception:
-        pass
+    executor = create_terminal_executor()
+    closed_count = executor.close_all_terminals()
 
     # Clear registries regardless
     global _spawned_terminals
