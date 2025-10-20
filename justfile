@@ -268,7 +268,7 @@ test-functional-coverage:
     export PATH="./test:$PATH"
     export DOTFILES_PM_ONLY_FAKES="true"
     export DOTFILES_PM_ENABLED="fake-pm1,fake-pm2"
-    python -m pytest tests/e2e/test_e2e_fake.py -v --cov=src --cov-report=term-missing --cov-report=html:.test/coverage
+    python -m pytest tests/test_e2e_pm_check.py tests/test_integration.py -v --cov=src --cov-report=term-missing --cov-report=html:.test/coverage
     echo "📊 Coverage report generated in .test/coverage/"
 
 # Run comprehensive test suite with code coverage
