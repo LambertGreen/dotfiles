@@ -305,12 +305,6 @@ cat ~/.dotfiles.env
 echo ""
 echo "🎉 Configuration complete!"
 echo ""
-echo "Next steps:"
-echo "  Run bootstrap to install core tools"
-echo "  Deploy configuration files"
-echo "  Install packages"
-echo "  Register package managers"
-echo "  Validate system health"
 
 echo ""
 echo "📝 Configuration session logged to: ${LOG_FILE}"

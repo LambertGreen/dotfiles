@@ -65,7 +65,8 @@ def save_pm_config(enabled_pms: List[str], disabled_pms: List[str], config_file:
             'DOTFILES_PM_ENABLED',
             'DOTFILES_PM_DISABLED',
             'DOTFILES_PACKAGE_MANAGERS',
-            'DOTFILES_PACKAGE_MANAGERS_DISABLED'
+            'DOTFILES_PACKAGE_MANAGERS_DISABLED',
+            'Package Manager Configuration'
         ]):
             new_lines.append(line)
 

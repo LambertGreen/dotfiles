@@ -27,21 +27,16 @@ default:
 configure:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File configure.ps1" } else { "./configure.sh" } }}
     @echo ""
-    @echo "Next steps:"
-    @echo "  just bootstrap        # Install core tools (Python, stow, just, etc.)"
-    @echo "  just stow            # Deploy configuration files"
-    @echo "  just install         # Install packages"
-    @echo "  just doctor-disable-a-package-manager    # Disable problematic package managers"
-    @echo "  just doctor-check-health    # Validate system health"
+    @echo "Next step:"
+    @echo "  just bootstrap"
 
 # Bootstrap system (install core tools)
 [group('1-🚀-Setup')]
 bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
     @echo ""
-    @echo "Next steps:"
-    @echo "  just stow           # Deploy configurations"
-    @echo "  just doctor-check-health   # Verify setup"
+    @echo "Next step:"
+    @echo "  just stow"
 
 # Deploy configuration files
 [group('1-🚀-Setup')]
@@ -52,8 +47,8 @@ stow:
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
     @echo ""
-    @echo "Next steps:"
-    @echo "  just doctor-check-health   # Verify symlinks were created successfully"
+    @echo "Next step:"
+    @echo "  just install"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
@@ -99,16 +94,16 @@ show-package-managers:
 show-package-summary:
     @./scripts/package-management/show-package-stats.sh
     @echo ""
-    @echo "💡 Next steps:"
-    @echo "  just show-package-list  # View detailed package lists"
+    @echo "💡 Next step:"
+    @echo "  just show-package-list"
 
 # Show detailed package lists
 [group('3-ℹ️-Info')]
 show-package-list:
     @./scripts/package-management/show-packages.sh
     @echo ""
-    @echo "💡 Next steps:"
-    @echo "  just show-package-summary  # View package counts summary"
+    @echo "💡 Next step:"
+    @echo "  just show-package-summary"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
