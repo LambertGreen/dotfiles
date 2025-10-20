@@ -35,7 +35,7 @@ def cmd_list(args):
     print("📋 Available Package Managers")
     print("============================")
     print()
-    print("Selection numbers for DOTFILES_PM_SELECT:")
+    print("Selection numbers for DOTFILES_PM_UI_SELECT:")
     print()
 
     for i, pm in enumerate(pms, 1):
@@ -47,7 +47,7 @@ def cmd_list(args):
     print(f"📊 Summary: {len(pms)} package managers detected")
     print()
     print("💡 Usage:")
-    print("   export DOTFILES_PM_SELECT=\"1 3 5\"  # Select specific PMs")
+    print("   export DOTFILES_PM_UI_SELECT=\"1 3 5\"  # Select specific PMs")
     print("   just update                         # Run with selection")
     return 0
 

@@ -73,14 +73,14 @@ def test_sudo_metadata_field():
 
 
 def test_pm_selection_with_test_mode():
-    """Test that DOTFILES_PM_SELECT env var works for automated testing"""
+    """Test that DOTFILES_PM_UI_SELECT env var works for automated testing"""
     from pm_detect import detect_all_pms
     from pm_select import select_pms
 
     with patch.dict(os.environ, {
         'DOTFILES_PM_ENABLED': 'fake-pm1,fake-pm2,fake-sudo-pm',
         'DOTFILES_PM_DISABLED': 'apt,brew,npm,gem,emacs,zinit,neovim,cargo,pipx',
-        'DOTFILES_PM_SELECT': '1'  # Select first PM (fake-sudo-pm after sorting)
+        'DOTFILES_PM_UI_SELECT': '1'  # Select first PM (fake-sudo-pm after sorting)
     }):
         pms = detect_all_pms()
         selected = select_pms(pms)
@@ -98,7 +98,7 @@ def test_pm_selection_multiple():
     with patch.dict(os.environ, {
         'DOTFILES_PM_ENABLED': 'fake-pm1,fake-pm2,fake-sudo-pm',
         'DOTFILES_PM_DISABLED': 'apt,brew,npm,gem,emacs,zinit,neovim,cargo,pipx',
-        'DOTFILES_PM_SELECT': '1 2 3'  # Select all three
+        'DOTFILES_PM_UI_SELECT': '1 2 3'  # Select all three
     }):
         pms = detect_all_pms()
         selected = select_pms(pms)

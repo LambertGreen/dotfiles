@@ -37,7 +37,7 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
 
     # Check for test mode override first
     import os
-    test_selection = os.environ.get('DOTFILES_PM_SELECT')
+    test_selection = os.environ.get('DOTFILES_PM_UI_SELECT')
 
     # Check if we're in interactive mode (unless test mode is enabled)
     if not test_selection and (not sys.stdin.isatty() or not sys.stdout.isatty()):
@@ -61,7 +61,7 @@ def select_pms(available_pms: List[str], timeout: int = 10) -> List[str]:
 
     # Check for test mode override (already imported os and got test_selection above)
     if test_selection:
-        print(f"TEST MODE: Using selection from DOTFILES_PM_SELECT='{test_selection}'")
+        print(f"TEST MODE: Using selection from DOTFILES_PM_UI_SELECT='{test_selection}'")
         user_input = test_selection
     else:
         # Wait for input with timeout
