@@ -6,7 +6,6 @@
 typescript
 
 # MCP server development tool
-mcp-server-gus
 
 # Standalone formatter CLI for quick fixes
 prettier

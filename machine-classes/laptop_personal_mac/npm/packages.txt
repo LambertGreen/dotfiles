@@ -2,7 +2,6 @@ corepack
 do-not-disturb-cli
 js-beautify
 js-tidy
-mcp-server-gus
 neovim
 pdf2md
 prettier
