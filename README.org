@@ -10,22 +10,22 @@ This is a cross-platform dotfiles and unified package management system - think 
 
 ** Key Features
 
-- **Unified Package Management** - Python-based orchestration layer manages all your package managers:
+- =Unified Package Management= - Python-based orchestration layer manages all your package managers:
   - System: brew/cask, pacman/AUR, apt, mas, choco, winget, scoop
   - Development: npm, pip, pipx, gem, cargo
   - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (neovim)
-- **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
-- **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
-- **Interactive UX** - TUI-driven flows with sensible timeouts for unattended execution
-- **Testable & Automatable** - Test hooks enable CI validation and AI-based execution
+- =Cross-Platform= - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
+- =Work-Friendly= - Separate work/personal contexts to handle corporate restrictions
+- =Interactive UX= - TUI-driven flows with sensible timeouts for unattended execution
+- =Testable & Automatable= - Test hooks enable CI validation and AI-based execution
 
 ** Key Technologies
 
-- **Python** - Unified package management orchestration layer
-- **GNU Stow** - Symlink management for dotfiles deployment
-- **Just** - Command runner with a clean interface
-- **Docker** - Automated testing including multi-package-manager validation
-- **Machine Classes** - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
+- =Python= - Unified package management orchestration layer
+- =GNU Stow= - Symlink management for dotfiles deployment
+- =Just= - Command runner with a clean interface
+- =Docker= - Automated testing including multi-package-manager validation
+- =Machine Classes= - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
 
 * Architecture Documentation
@@ -75,7 +75,7 @@ Machine classes define what to stow and which packages to install for a given ma
 
 Browse the directory for concrete examples and native package lists:
 
-- `machine-classes/`
+- ~machine-classes/~
 
 
 
@@ -132,9 +132,9 @@ just --list | sed -n '1,120p'
 
 ** Update Package Lists
 
-The configuration system manages packages via machine class directories in `machine-classes/`. Each machine class contains package manager-specific files using native formats. To add new packages:
+The configuration system manages packages via machine class directories in ~machine-classes/~. Each machine class contains package manager-specific files using native formats. To add new packages:
 
-1. Identify the appropriate machine class (e.g., `docker_developer_ubuntu`, `laptop_personal_mac`)
+1. Identify the appropriate machine class (e.g., ~docker_developer_ubuntu~, ~laptop_personal_mac~)
 2. Navigate to the appropriate package manager directory
 3. Edit the package manager's native format file
 
@@ -174,17 +174,17 @@ just
 ** Permission Denied Errors
 - Ensure you have sudo access for bootstrap phase
 - Package installation may require admin privileges
-- Use doctor recipes for diagnostics (e.g., =just doctor-check-health=)
+- Use doctor recipes for diagnostics (e.g., ~just doctor-check-health~)
 
 ** Symlink Conflicts
-- Use =just doctor-check-health= to identify issues
+- Use ~just doctor-check-health~ to identify issues
 - To fix broken links, run a doctor fix recipe (example below)
 - Remove conflicting files or use force install
 - Common conflicts: =.bashrc=, =.zshrc= from system defaults
 
 ** Package Manager Issues
-- Use =just show-package-managers= to see detected PMs
-- Use =just doctor-disable-a-package-manager= to enable/disable specific PMs
+- Use ~just show-package-managers~ to see detected PMs
+- Use ~just doctor-disable-a-package-manager~ to enable/disable specific PMs
 - Check Python cache: ensure no =__pycache__= directories are tracked
 
 ** Work Machine Restrictions
@@ -201,9 +201,9 @@ For detailed testing documentation, baselines, and success criteria, see [[file:
 
 * Contributing
 
-1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
-2. Test using Docker test infrastructure: `cd test && just test-developer-arch`
-3. Run health check to verify changes: `just doctor-check-health`
+1. Make changes in appropriate config directory (~configs/common/~, ~configs/osx_only/~, etc.)
+2. Test using Docker test infrastructure: ~cd test && just test-developer-arch~
+3. Run health check to verify changes: ~just doctor-check-health~
 4. Update machine class package lists if adding new packages
 5. Submit PR with description of changes
 
