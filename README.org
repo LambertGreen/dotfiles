@@ -16,89 +16,17 @@ This is a cross-platform dotfiles and unified package management system - think 
   - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (neovim)
 - **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
 - **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
-- **Modal Interface** - Clean main interface with specialized contexts for advanced operations
-- **Comprehensive Testing** - Docker validates multi-package-manager scenarios
+- **Interactive UX** - TUI-driven flows with sensible timeouts for unattended execution
+- **Testable & Automatable** - Test hooks enable CI validation and AI-based execution
 
 ** Key Technologies
 
 - **Python** - Unified package management orchestration layer
 - **GNU Stow** - Symlink management for dotfiles deployment
-- **Just** - Command runner with modular contexts for clean interface
+- **Just** - Command runner with a clean interface
 - **Docker** - Automated testing including multi-package-manager validation
 - **Machine Classes** - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
-* Machine Classes
-
-Each machine class defines packages and configurations for specific use cases.
-
-** Laptop Classes
-
-*** laptop_work_mac
-Corporate MacBook development environment.
-- Configuration: [[file:machine-classes/laptop_work_mac/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/laptop_work_mac/brew/Brewfile][Brewfile]] | [[file:machine-classes/laptop_work_mac/npm/packages.txt][npm packages.txt]]
-
-*** laptop_personal_mac
-Personal MacBook with full development setup.
-- Configuration: [[file:machine-classes/laptop_personal_mac/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/laptop_personal_mac/brew/Brewfile][Brewfile]] | [[file:machine-classes/laptop_personal_mac/npm/packages.txt][npm packages.txt]]
-
-** Desktop Classes
-
-*** desktop_work_win
-Windows desktop for work development.
-- Configuration: [[file:machine-classes/desktop_work_win/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/desktop_work_win/scoop/packages.txt][scoop]] | [[file:machine-classes/desktop_work_win/choco/packages.txt][choco]] | [[file:machine-classes/desktop_work_win/pacman/packages.txt][pacman]] | [[file:machine-classes/desktop_work_win/winget/packages.txt][winget]]
-
-*** desktop_gaming_win
-Gaming-focused Windows desktop.
-- Configuration: [[file:machine-classes/desktop_gaming_win/stow/stow.txt][stow.txt]]
-
-*** desktop_home_ubuntu
-Ubuntu desktop for home use.
-- Configuration: [[file:machine-classes/desktop_home_ubuntu/stow/stow.txt][stow.txt]]
-
-** WSL/VM Classes
-
-*** wsl_work_ubuntu
-Windows Subsystem for Linux development.
-- Configuration: [[file:machine-classes/wsl_work_ubuntu/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/wsl_work_ubuntu/brew/Brewfile][Brewfile]]
-
-*** vm_dev_windows_arm64
-ARM64 Windows development VM.
-- Configuration: [[file:machine-classes/vm_dev_windows_arm64/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/vm_dev_windows_arm64/scoop/packages.txt][scoop]] | [[file:machine-classes/vm_dev_windows_arm64/pacman/packages.txt][pacman]]
-
-** Docker Testing Classes
-
-*** docker_essential_ubuntu
-Minimal Ubuntu container with basic CLI tools.
-- Configuration: [[file:machine-classes/docker_essential_ubuntu/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/docker_essential_ubuntu/apt/packages.txt][apt]]
-
-*** docker_essential_arch
-Minimal Arch container with basic CLI tools.
-- Configuration: [[file:machine-classes/docker_essential_arch/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/docker_essential_arch/pacman/packages.txt][pacman]]
-
-*** docker_developer_ubuntu
-Ubuntu development container with multiple package managers.
-- Configuration: [[file:machine-classes/docker_developer_ubuntu/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/docker_developer_ubuntu/apt/packages.txt][apt]] | [[file:machine-classes/docker_developer_ubuntu/npm/packages.txt][npm]]
-
-*** docker_developer_arch
-Arch development container with AUR support.
-- Configuration: [[file:machine-classes/docker_developer_arch/stow/stow.txt][stow.txt]]
-- Packages: [[file:machine-classes/docker_developer_arch/pacman/packages.txt][pacman]] | [[file:machine-classes/docker_developer_arch/aur/packages.txt][aur]] | [[file:machine-classes/docker_developer_arch/npm/packages.txt][npm]]
-
-*** docker_ubuntu_gui
-Ubuntu container with GUI application support.
-- Configuration: [[file:machine-classes/docker_ubuntu_gui/stow/stow.txt][stow.txt]]
-
-*** docker_arch_gui
-Arch container with GUI application support.
-- Configuration: [[file:machine-classes/docker_arch_gui/stow/stow.txt][stow.txt]]
 
 * Architecture Documentation
 
@@ -108,211 +36,48 @@ Arch container with GUI application support.
 
 * Quick Start
 
-** Quick Reference (for returning users)
+** Quick Reference (returning users)
 
 #+begin_src sh
-# Initial setup
-just configure                   # Configure machine class
-just bootstrap                   # Install essential tools (Python, Just, Stow)
+# Clone (recommended path)
+mkdir -p ~/dev/my
+git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
+cd ~/dev/my/dotfiles
+
+# Initial setup (on a fresh machine without 'just')
+./configure.sh                   # Configure machine class
+./bootstrap.sh                   # Install essential tools (Python, Just, Stow)
+
+# After bootstrap you can use 'just'
 just stow                        # Deploy dotfiles
 just install                     # Install all packages
 
 # Daily operations
 just update                      # Update registries & check for updates
-just upgrade                     # Upgrade packages (interactive PM selection)
-just check-health                # Verify system health
+just upgrade                     # Upgrade packages (interactive selection)
+just doctor-check-health         # Verify system health
 
-# Package manager control
-just register-package-managers   # Enable/disable package managers
-just list-package-managers       # Show available package managers
-just package-summary             # Show package counts
-
-# Advanced contexts (modal navigation)
-just package-managers            # Enter PM context for granular control
-just debugging                   # Enter debug context for troubleshooting
-just testing                     # Enter test context for validation
+# Package manager information
+just show-package-managers       # Show available package managers
+just show-package-summary        # Show package counts
+just show-package-list           # Show detailed package lists
 #+end_src
 
-** 1. Clone the Repository
+Note: During configure, select a machine class (e.g., =laptop_work_mac=, =docker_developer_ubuntu=, =desktop_gaming_win=) to match your platform/use case.
 
-Clone to =~/dev/my/dotfiles= (recommended path):
+* Machine Classes
 
-#+begin_src sh
-mkdir -p ~/dev/my
-git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
-cd ~/dev/my/dotfiles
-#+end_src
+Machine classes define what to stow and which packages to install for a given machine profile. They are composed along a few dimensions:
 
-** 2. Security Setup (Recommended)
+- **Platform**: macOS, Linux (Arch/Ubuntu), Windows, Docker/WSL/VM
+- **Purpose**: work vs personal
+- **Form factor**: laptop vs desktop (plus WSL/VM/Docker variants)
 
-Install the pre-commit hook to prevent accidentally committing sensitive tokens:
+Browse the directory for concrete examples and native package lists:
 
-#+begin_src sh
-# Copy the pre-commit hook (if not already installed)
-cp hooks/pre-commit .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-#+end_src
+- `machine-classes/`
 
-The pre-commit hook automatically scans staged files for:
-- Anthropic API keys (sk-ant-*)
-- Claude OAuth tokens
-- GitHub tokens (ghp_, gho_, etc.)
-- AWS keys (AKIA*)
-- Private SSH keys
-- And other common secrets
 
-If tokens are detected, the commit will be blocked with helpful guidance on how to fix the issue.
-
-*Note:* To bypass the hook in emergencies (not recommended): =git commit --no-verify=
-
-** 3. Configure Your System
-
-Interactive configuration:
-
-#+begin_src sh
-./configure.sh
-#+end_src
-
-The script will auto-detect your platform and present available machine classes to choose from.
-
-Available machine classes include:
-- ~docker_essential_{arch|ubuntu}~: Minimal containers with basic CLI tools
-- ~docker_developer_{arch|ubuntu}~: Development containers with multiple package managers
-- ~laptop_personal_mac~: Personal MacBook with full development setup
-- ~laptop_work_mac~: Work MacBook with enterprise-appropriate tools
-- ~desktop_{gaming_win|home_ubuntu|work_win}~: Desktop systems with GUI applications
-- ~wsl_work_ubuntu~: Windows Subsystem for Linux development environment
-
-Each machine class defines specific package lists optimized for that use case.
-
-Configuration is saved to =.dotfiles.env= for future use.
-
-** 4. Bootstrap Your System
-
-Install essential tools and package managers:
-
-#+begin_src sh
-just bootstrap
-# Or directly: ./bootstrap.sh
-#+end_src
-
-This installs core tools:
-- Python 3 (required for package management)
-- Just (command runner)
-- Stow (symlink management)
-- Platform-specific package managers (brew, apt, pacman)
-
-** 5. Deploy Configurations
-
-Deploy dotfiles using the stow system:
-
-#+begin_src sh
-just stow
-#+end_src
-
-** 6. Install Packages
-
-Install packages defined in your machine class:
-
-#+begin_src sh
-just install                  # Install everything (system, dev, and app packages)
-#+end_src
-
-The Python-based system automatically:
-- Detects available package managers
-- Reads machine class configurations
-- Installs packages in proper order (system → dev → app)
-- Handles admin/user separation for system packages
-
-** 7. Verify Setup
-
-Check that everything is configured correctly:
-
-#+begin_src sh
-just check-health
-#+end_src
-
-** 8. Configure Package Managers
-
-After installation, enable/disable specific package managers:
-
-#+begin_src sh
-just register-package-managers   # Interactive PM selection
-just list-package-managers       # Show detected PMs
-#+end_src
-
-* Package Management
-
-After initial setup, the system provides environment-driven package management with user/admin separation:
-
-** Package Installation
-
-Install packages for your machine class:
-
-#+begin_src sh
-# Install everything (recommended)
-just install                   # Installs all packages via Python orchestration
-#+end_src
-
-For granular control, enter the package-managers context:
-
-#+begin_src sh
-just package-managers          # Enter PM context
-# Now in package-managers context:
-just install-brew              # Install only Homebrew packages
-just install-npm               # Install only npm packages
-just install-emacs             # Install only Emacs packages
-# Type 'exit' to return to main
-#+end_src
-
-The Python system manages:
-- **System packages**: brew, apt, pacman, choco, winget, scoop
-- **Development packages**: npm, pip, pipx, cargo, gem
-- **Application packages**: emacs (elpaca), neovim (lazy.nvim), zsh (zinit)
-
-** System Updates
-
-Keep your system and packages up to date with a two-step process:
-
-*** Check for Available Updates
-
-First, update registries and see what updates are available:
-
-#+begin_src sh
-just update             # Update registries & check for updates
-#+end_src
-
-This operation:
-- Updates package manager registries (fetches latest package info)
-- Prompts you to select which package managers to check
-- Shows which packages have updates available
-- Does NOT install anything
-
-*** Upgrade Packages
-
-After reviewing available updates, upgrade when ready:
-
-#+begin_src sh
-just upgrade            # Interactive: select which PMs to upgrade
-#+end_src
-
-This will:
-- Upgrade packages to their latest versions
-- Clean up old versions where appropriate
-- Admin upgrades may prompt for your password
-
-*** Advanced Package Management
-
-For granular control over specific package managers:
-
-#+begin_src sh
-just package-managers      # Enter package-managers context
-# Now you can:
-just check-brew           # Check only Homebrew
-just upgrade-npm          # Upgrade only npm packages
-just install-emacs        # Install only Emacs packages
-# Type 'exit' to return
-#+end_src
 
 * Platform-Specific Notes
 
@@ -334,49 +99,16 @@ just install-emacs        # Install only Emacs packages
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
 
-* Modal Interface (Advanced)
 
-The system uses a modal interface with specialized contexts for advanced operations:
-
-** Main Context
-The main =just= interface shows only essential commands:
-- Setup: configure, bootstrap, stow
-- Package Management: install, update, upgrade
-- System: check-health
-- Info: show-config, package-summary
-
-** Specialized Contexts
-
-Enter contexts for advanced operations:
-
-#+begin_src sh
-# Testing context - Docker and Python tests
-just testing
-just test              # Run Python tests
-just test-all-ubuntu   # Run Docker tests
-exit                   # Return to main
-
-# Debugging context - Health, logs, troubleshooting
-just debugging
-just logs              # View recent logs
-just cleanup-broken-links  # Fix symlink issues
-exit                   # Return to main
-
-# Package managers context - Granular PM control
-just package-managers
-just check-brew        # Check only Homebrew
-just upgrade-npm       # Upgrade only npm
-exit                   # Return to main
-#+end_src
 
 * Health Check & Debugging
 
 ** System Health Validation
 
-The health check tool validates your dotfiles setup:
+The health check validates your dotfiles setup:
 
 #+begin_src sh
-just check-health
+just doctor-check-health
 #+end_src
 
 It reports:
@@ -384,17 +116,16 @@ It reports:
 - Any broken symlinks that need attention
 - Overall system health status
 
-** Advanced Debugging
+** Advanced
 
-For detailed troubleshooting, enter the debug context:
+Explore additional commands for diagnostics and fixes:
 
 #+begin_src sh
-just debugging         # Enter debug context
-just logs              # View recent logs
-just logs-errors       # Show only errors
-just cleanup-broken-links      # Preview broken links
-just cleanup-broken-links-remove  # Remove broken links
-exit                   # Return to main
+# Example
+just doctor-fix-broken-links
+
+# See full list
+just --list | sed -n '1,120p'
 #+end_src
 
 * Common Tasks
@@ -435,7 +166,7 @@ just stow    # Uses your configured platform automatically
 View your current configuration settings:
 
 #+begin_src sh
-just show-config
+just
 #+end_src
 
 * Troubleshooting
@@ -443,19 +174,17 @@ just show-config
 ** Permission Denied Errors
 - Ensure you have sudo access for bootstrap phase
 - Package installation may require admin privileges
-- Use =just debugging= context for detailed logs
+- Use doctor recipes for diagnostics (e.g., =just doctor-check-health=)
 
 ** Symlink Conflicts
-- Use =just check-health= to identify issues
-- Enter debug context: =just debugging=
-- Use =just cleanup-broken-links= to preview issues
+- Use =just doctor-check-health= to identify issues
+- To fix broken links, run a doctor fix recipe (example below)
 - Remove conflicting files or use force install
 - Common conflicts: =.bashrc=, =.zshrc= from system defaults
 
 ** Package Manager Issues
-- Use =just list-package-managers= to see detected PMs
-- Use =just register-package-managers= to enable/disable specific PMs
-- Enter PM context for granular control: =just package-managers=
+- Use =just show-package-managers= to see detected PMs
+- Use =just doctor-disable-a-package-manager= to enable/disable specific PMs
 - Check Python cache: ensure no =__pycache__= directories are tracked
 
 ** Work Machine Restrictions
@@ -474,7 +203,7 @@ For detailed testing documentation, baselines, and success criteria, see [[file:
 
 1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
 2. Test using Docker test infrastructure: `cd test && just test-developer-arch`
-3. Run health check to verify changes: `just check-health`
+3. Run health check to verify changes: `just doctor-check-health`
 4. Update machine class package lists if adding new packages
 5. Submit PR with description of changes
 
