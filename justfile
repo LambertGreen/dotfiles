@@ -113,32 +113,117 @@ show-package-list:
 # Diagnose and fix Homebrew lock issues
 [group('4-👩‍⚕️-Doctor')]
 doctor-fix-brew-lock:
-    @echo "👩‍⚕️ Diagnosing Homebrew lock issue..."
-    @echo "1. Checking current status..."
-    @python3 -m src.dotfiles_pm.pms.brew_utils status
-    @echo ""
-    @echo "2. Attempting graceful process termination..."
-    @python3 -m src.dotfiles_pm.pms.brew_utils kill
-    @echo ""
-    @echo "3. Testing availability..."
-    @if brew --version >/dev/null 2>&1; then \
-        echo "✅ Homebrew is now available"; \
-        echo "💡 Try your original command again"; \
-    else \
-        echo "❌ Homebrew still locked - trying force kill..."; \
-        python3 -m src.dotfiles_pm.pms.brew_utils kill-force; \
-        echo ""; \
-        echo "4. Final cleanup..."; \
-        brew cleanup --prune=all 2>/dev/null || echo "   Cleanup skipped (still locked)"; \
-        echo ""; \
-        if brew --version >/dev/null 2>&1; then \
-            echo "✅ Homebrew recovered successfully"; \
-        else \
-            echo "❌ Manual intervention required:"; \
-            echo "   • Check for stale lock files in /opt/homebrew/var/homebrew/locks/"; \
-            echo "   • Run: brew doctor"; \
-            echo "   • Consider reboot if issue persists"; \
-        fi; \
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "👩‍⚕️ Intelligent Homebrew Lock Diagnosis"
+    echo "======================================"
+    echo ""
+
+    # Step 1: Check current status
+    echo "1. 🔍 Analyzing current brew status..."
+    python3 -m src.dotfiles_pm.pms.brew_utils status
+    echo ""
+
+    # Step 2: Check for running processes
+    echo "2. 🔍 Checking for running brew processes..."
+    processes=$(python3 -c "
+    from src.dotfiles_pm.pms.brew_utils import brew_lock_manager
+    processes = brew_lock_manager.find_brew_processes()
+    print(len(processes))
+    for p in processes:
+        print(f'{p.pid}:{p.command[:60]}')
+    ")
+
+    process_count=$(echo "$processes" | head -1)
+    if [ "$process_count" -gt 0 ]; then
+        echo "   Found $process_count running brew processes:"
+        echo "$processes" | tail -n +2 | while read line; do
+            echo "   • $line"
+        done
+        echo ""
+        echo "   🤔 These processes might be causing the lock."
+        echo "   💡 You can:"
+        echo "      - Wait for them to finish naturally"
+        echo "      - Kill them if they're stuck (see below)"
+        echo ""
+        read -p "   ❓ Kill these processes? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "   🔪 Killing processes..."
+            python3 -m src.dotfiles_pm.pms.brew_utils kill
+            echo "   ✅ Processes killed"
+        else
+            echo "   ⏳ Skipping process termination"
+        fi
+    else
+        echo "   ✅ No running brew processes found"
+    fi
+    echo ""
+
+    # Step 3: Check for orphaned lock files
+    echo "3. 🔍 Checking for orphaned lock files..."
+    python3 -m src.dotfiles_pm.pms.brew_utils check-orphaned-locks
+    orphaned_result=$(python3 -c "
+    from src.dotfiles_pm.pms.brew_utils import check_orphaned_locks
+    result = check_orphaned_locks()
+    print(len(result['orphaned_locks']))
+    ")
+
+    if [ "$orphaned_result" -gt 0 ]; then
+        echo ""
+        echo "   🤔 Found $orphaned_result orphaned lock files."
+        echo "   💡 These are lock files without running processes."
+        echo ""
+        read -p "   ❓ Remove orphaned lock files? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo "   🧹 Removing orphaned locks..."
+            # Remove lock files (platform-specific paths)
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                LOCK_DIR="/opt/homebrew/var/homebrew/locks"
+            elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+                # Try common Linuxbrew paths
+                if [ -d "$HOME/.linuxbrew/var/homebrew/locks" ]; then
+                    LOCK_DIR="$HOME/.linuxbrew/var/homebrew/locks"
+                elif [ -d "/home/linuxbrew/.linuxbrew/var/homebrew/locks" ]; then
+                    LOCK_DIR="/home/linuxbrew/.linuxbrew/var/homebrew/locks"
+                elif [ -d "/usr/local/var/homebrew/locks" ]; then
+                    LOCK_DIR="/usr/local/var/homebrew/locks"
+                else
+                    echo "   ❌ Linuxbrew lock directory not found"
+                    exit 1
+                fi
+            else
+                echo "   ❌ Unsupported platform for brew lock cleanup"
+                exit 1
+            fi
+
+            find "$LOCK_DIR" -name "*.lock" -o -name "update" | while read lockfile; do
+                if [ -f "$lockfile" ]; then
+                    rm -f "$lockfile"
+                    echo "   • Removed $(basename "$lockfile")"
+                fi
+            done
+            echo "   ✅ Orphaned locks removed"
+        else
+            echo "   ⏳ Skipping lock file removal"
+        fi
+    else
+        echo "   ✅ No orphaned lock files found"
+    fi
+    echo ""
+
+    # Step 4: Final test
+    echo "4. 🧪 Testing brew availability..."
+    if brew --version >/dev/null 2>&1; then
+        echo "   ✅ Homebrew is now available!"
+        echo "   💡 Try your original command again"
+    else
+        echo "   ❌ Homebrew still not available"
+        echo "   💡 Manual intervention may be required:"
+        echo "      • Check /opt/homebrew/var/homebrew/locks/ for remaining locks"
+        echo "      • Run: brew doctor"
+        echo "      • Consider system reboot if issue persists"
     fi
 
 # Disable problematic package managers

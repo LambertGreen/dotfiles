@@ -244,6 +244,69 @@ class BrewLockManager:
 brew_lock_manager = BrewLockManager()
 
 
+def check_orphaned_locks() -> Dict[str, any]:
+    """Check for orphaned lock files (locks without running processes)"""
+    import platform
+
+    # Platform-specific lock directory paths
+    if platform.system() == 'Darwin':
+        lock_dir = '/opt/homebrew/var/homebrew/locks'
+    elif platform.system() == 'Linux':
+        # Linuxbrew typically uses ~/.linuxbrew/var/homebrew/locks
+        # or /home/linuxbrew/.linuxbrew/var/homebrew/locks
+        home = os.path.expanduser('~')
+        possible_paths = [
+            f'{home}/.linuxbrew/var/homebrew/locks',
+            '/home/linuxbrew/.linuxbrew/var/homebrew/locks',
+            '/usr/local/var/homebrew/locks'  # fallback
+        ]
+        lock_dir = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                lock_dir = path
+                break
+        if not lock_dir:
+            return {'orphaned_locks': [], 'errors': ['Linuxbrew lock directory not found']}
+    else:
+        return {'orphaned_locks': [], 'errors': ['Unsupported platform for brew lock detection']}
+
+    orphaned_locks = []
+    errors = []
+
+    try:
+        # Check for actual brew processes (not just files in homebrew directory)
+        result = subprocess.run(['pgrep', '-f', 'brew.rb|brew update|brew upgrade|brew install'],
+                              capture_output=True, text=True)
+
+        if result.returncode == 0:
+            # There are actual brew processes running
+            return {'orphaned_locks': [], 'errors': ['Real brew processes detected, no orphaned locks']}
+
+        # No real processes, check for lock files
+        for filename in os.listdir(lock_dir):
+            if filename.endswith('.lock') or filename == 'update':
+                lock_file = os.path.join(lock_dir, filename)
+                try:
+                    # Check if file is actually locked (has content or is recent)
+                    stat = os.stat(lock_file)
+                    if stat.st_size > 0 or (time.time() - stat.st_mtime) < 3600:  # 1 hour
+                        orphaned_locks.append({
+                            'filename': filename,
+                            'size': stat.st_size,
+                            'age_seconds': int(time.time() - stat.st_mtime)
+                        })
+                except Exception as e:
+                    errors.append(f"Failed to check {filename}: {e}")
+
+    except Exception as e:
+        errors.append(f"Error during orphaned lock check: {e}")
+
+    return {
+        'orphaned_locks': orphaned_locks,
+        'errors': errors
+    }
+
+
 def get_brew_status_report() -> Dict[str, any]:
     """Get comprehensive brew status for troubleshooting"""
     manager = brew_lock_manager
@@ -306,7 +369,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 2:
         print("Usage: python3 brew_utils.py <command>")
-        print("Commands: status, wait, kill, kill-force")
+        print("Commands: status, wait, kill, kill-force, check-orphaned-locks")
         sys.exit(1)
 
     command = sys.argv[1]
@@ -341,6 +404,23 @@ if __name__ == '__main__':
         force = command == 'kill-force'
         killed = manager.kill_stuck_brew_processes(force)
         print(f"Killed {len(killed)} processes")
+        sys.exit(0)
+
+    elif command == 'check-orphaned-locks':
+        result = check_orphaned_locks()
+        if result['orphaned_locks']:
+            print(f"🔍 Found {len(result['orphaned_locks'])} orphaned lock files:")
+            for lock in result['orphaned_locks']:
+                age_min = lock['age_seconds'] // 60
+                print(f"  • {lock['filename']} ({lock['size']} bytes, {age_min}m old)")
+        else:
+            print("✅ No orphaned lock files found")
+
+        if result['errors']:
+            print("\n⚠️  Errors:")
+            for error in result['errors']:
+                print(f"  • {error}")
+
         sys.exit(0)
 
     else:

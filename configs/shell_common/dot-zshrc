@@ -564,6 +564,17 @@ lgreen_fix_compaudit_insecure_directories() {
 
     echo "Done."
 }
+
+lgreen_fix_stale_terminal_title() {
+    echo -ne "\033]0;\007"
+}
+
+lgreen_setup_word_style() {
+    # Make Ctrl-W delete sub-words
+    autoload -U select-word-style
+    select-word-style bash
+}
+
 # * == MAIN ==
 lgreen_conditionally_start_profiler
 
@@ -588,6 +599,8 @@ if [[ -o interactive ]]; then
 
     lgreen_setup_running_inside_emacs_eat
     lgreen_setup_running_inside_emacs_vterm
+
+    lgreen_setup_word_style
 fi
 
 # * Dotfiles API Functions
