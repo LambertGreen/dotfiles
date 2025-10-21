@@ -1,0 +1,4 @@
+-Xmx65536m
+-Dide.managed.by.toolbox=C:\Users\lambert.green\AppData\Local\JetBrains\Toolbox\bin\jetbrains-toolbox.exe
+-Dtoolbox.notification.token=60be04b9-dbb9-435a-9558-974cb034c679
+-Dtoolbox.notification.portFile=C:\Users\lambert.green\AppData\Local\JetBrains\Toolbox\cache\ports\ef35c0ea-0cc6-450c-8a3d-8cb3b31251a1.port
