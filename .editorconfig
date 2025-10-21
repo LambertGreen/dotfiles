@@ -14,6 +14,7 @@ indent_size = 2
 
 # Shell scripts
 [*.{sh,bash,zsh}]
+end_of_line = lf
 indent_size = 4
 
 # Python

@@ -59,9 +59,15 @@ lgreen_setup-homebrew-on-linux() {
         # - Update PATH, MANPATH, INFOPATH to have linuxbrew paths prepended
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
+        # NOTE: DISABLED 2025-10-20: LD_LIBRARY_PATH breaks ZScaler Client Connector
+        # ZScaler refuses to start with "untrusted library path" error for security reasons
+        # Original reason: Some Homebrew-installed binaries needed to find their shared libraries
+        # Tradeoff: If Homebrew binaries fail with "shared library not found" errors,
+        # consider per-binary fixes (rpath, wrapper scripts) instead of global LD_LIBRARY_PATH
+        #
         # Ensure Homebrew's lib is in LD_LIBRARY_PATH without overriding system paths
-        DEFAULT_LD_LIBRARY_PATH="/usr/lib:/usr/lib/x86_64-linux-gnu:/lib:/lib/x86_64-linux-gnu"
-        export LD_LIBRARY_PATH="$DEFAULT_LD_LIBRARY_PATH:/home/linuxbrew/.linuxbrew/lib"
+        # DEFAULT_LD_LIBRARY_PATH="/usr/lib:/usr/lib/x86_64-linux-gnu:/lib:/lib/x86_64-linux-gnu"
+        # export LD_LIBRARY_PATH="$DEFAULT_LD_LIBRARY_PATH:/home/linuxbrew/.linuxbrew/lib"
     fi
 }
 

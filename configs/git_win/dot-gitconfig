@@ -8,6 +8,7 @@
 	sshCommand = C:/Program\\ Files/OpenSSH-Win64/ssh.exe
 	fsmonitor = true
 
+	compression = 0
 [credential "helperselector"]
 	selected = wincred
 
@@ -26,5 +27,8 @@
 	postBuffer = 524288000
 	sslVersion = tlsv1.2
 
+	lowSpeedLimit = 0
+	lowSpeedTime = 999999
+	maxRequestBuffer = 100M
 [gpg]
-	program = gpg.exe
+	program = C:/Program Files (x86)/GnuPG/bin/gpg.exe
