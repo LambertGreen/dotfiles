@@ -1,29 +1,60 @@
 # Karabiner backup directory
-karabiner/.config/karabiner/automatic_backups/
+automatic_backups/
 
-# Nvim
-nvim/.config/nvim/.netrwhist
-nvim/.config/nvim/autoload/
-nvim/.config/nvim/backup/
-nvim/.config/nvim/plugged/
-nvim/.config/nvim/swap/
-nvim/.config/nvim/undo/
-nvim/.config/nvim/spell/
+# Nvim runtime files
+.netrwhist
+autoload/
+backup/
+plugged/
+swap/
+undo/
+spell/
 
-# Tmux
-/tmux/.tmux/plugins/
+# Tmux plugins
+plugins/
 
-# Powershell
-/WindowsPowerShell/Documents/WindowsPowerShell/Modules/
-/powershell_win/Documents/Powershell/Modules/
+# PowerShell modules
+Modules/
 
-# Keypirinha
-/Keypirinha/scoop/apps/keypirinha/current/portable/Profile/User/Keypirinha-Notepad2.ini
+# Keypirinha runtime files
+Keypirinha-Notepad2.ini
 Keypirinha.history
 
 # macOS
 .DS_Store
 /.idea/
-/tmux/dot-tmux/plugins/
-/spelling/dot-config/enchant/*.exc
-/karabiner/dot-config/karabiner/automatic_backups/
+*.exc
+.env
+.envrc.local
+
+# direnv
+.direnv/
+
+# Claude settings
+.claude/settings.local.json
+
+# Runtime and build artifacts
+.runtime/
+.runtime_testing/
+# NOTE: We do NOT ignore *.log or .logs/ here - any logs written to the repo
+# are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Test artifacts
+.test/
+.coverage
+coverage.xml
+
+# Clink runtime files
+clink_history*
+clink_errorlevel*
+clink.log
+.venv/

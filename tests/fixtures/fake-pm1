@@ -1,0 +1,18 @@
+#!/bin/bash
+case "$1" in
+    outdated)
+        echo "package1 1.0.0 -> 1.1.0"
+        echo "package2 2.0.0 -> 2.1.0"
+        ;;
+    upgrade)
+        echo "Upgrading package1..."
+        sleep 1
+        echo "Upgrading package2..."
+        sleep 1
+        echo "All packages upgraded!"
+        ;;
+    *)
+        echo "Unknown command: $1"
+        exit 1
+        ;;
+esac

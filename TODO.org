@@ -1,45 +1,94 @@
 #+title: TODOs for Dotfiles Project
 
-* TODOs [18/23]
-** Open [0/3]
-*** TODO Consider using =make= or =just= file for machine setup
-This may be the way to address the below TODO items i.e. machine setup and updating.
-*Note* =just= can is cross-platform so it may serve as a good option to handle all platforms.
-*** TODO Add section with steps for setting a new machine [0/2]
-Till recently the steps were pretty straight-forward i.e. just sync repo; install apps with package-manager; run =stow=. However doing a brand-new install is not that straight-forward e.g. bulk installing apps requires some manual work e.g. editing a reference package-manager file from exports; ensuring ~.config~ directory is created first before running =stow=; etc.  Further there is OS specific considerations as well.
+* TODOs
+** Open [0/6]
+*** TODO Install remaining missing packages via correct package managers
+**** Context
+After implementing pip package manager support, several packages still fail health checks.
+**** Missing Windows packages by package manager:
+***** Chocolatey packages (11 packages): 
+- black, btop, cloc, cowsay, firefox, fortune, helix, pandoc, ruby, shellcheck
+- trash → choco install recycle-bin
+***** Scoop packages (3 packages):
+- nodejs → provides npm automatically  
+- cmake
+- rust → scoop install rustup → provides cargo automatically
+***** Missing/No Windows Support (4 packages):
+- cargo - comes with rustup (Scoop)
+- npm - comes with nodejs (Scoop)
+- isort - no Windows TOML entry
+- rust-analyzer - no Windows TOML entry
+**** Action Items:
+1. Test package installation through Windows package managers
+2. Update any packages that fail to install
+3. Add missing TOML entries for isort/rust-analyzer if needed
 
-**** [ ] Use =org-babel= blocks so that manual steps are copy/paste.
-**** [ ] Use scripts were applicable
-*** TODO Add steps/scripts for updating packages
-**** Description
-I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than one package manager in use e.g. ~home-manager~ on Linux work machine.  Maybe we need a script wrapper that does the right thing to update a particular system?
+*** TODO Add npm package manager support  
+**** Context
+Following the pip implementation pattern, add npm support for Node.js packages.
+**** Implementation:
+- Add npm case to package-management-config.sh
+- Use 'npm install -g' for global packages
+- Add npm to Windows platform package managers
+- Test through MSYS2 environment
 
-***** An example of a complex update on the Linux machine:
-1. Update system and installed packages using ~sudo yum update~
-2. Update =Nix= and installed packages using ~nix-channel --update~
-3. Update =HomeManager= packages using ~home-manager switch~
+*** TODO Add cargo package manager support
+**** Context  
+Following the pip implementation pattern, add cargo support for Rust packages.
+**** Implementation:
+- Add cargo case to package-management-config.sh  
+- Use 'cargo install' for Rust packages
+- Add cargo to platform package managers
+- May need to handle Rust toolchain installation first
 
-***** An example of multiple updates on Windows machine:
-1. Update system using =Windows Update= (fortunately this is already automatic)
-2. Update =Scoop= and installed packages using ~scoop update~
-3. Update =Msys2= and installed packages using ~pacman -Syu~
-4. Update =Choco= and installed packages using ~choco update~
-5. For each =WSL= instance update that Linux distribution.
-**** Investigation
-***** [X] Consider using =topgrade=
-CLOSED: [2023-02-02 Thu 13:05]
-**** Solution Proposals
-***** Create update shell functions
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description
 + Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
 
 *** TODO Add app for doing presentations
-**** Requirements [/]
+**** Requirements [0/2]
 ***** [ ] Show mouse cursor
 ***** [ ] Zoom in/out
 
-** Completed [8/8]
+*** TODO Implement Dotfiles API for emacs and neovim
+**** Context
+Following the successful implementation of the Dotfiles API architecture for zsh/zinit, extend this pattern to other app-based package managers to maintain consistent conversational configuration management.
+**** Implementation Requirements:
+***** Emacs API Functions:
+- =lgreen-emacs-status=: Query elpaca package manager state  
+- =lgreen-await-emacs-ready=: Wait for packages to finish loading
+- =lgreen-ensure-packages-updated=: Update all packages via elpaca
+***** Neovim API Functions:
+- =lgreen_nvim_status()=: Query lazy.nvim plugin manager state
+- =lgreen_await_nvim_ready(timeout)=: Wait for plugins to be ready
+- =lgreen_ensure_plugins_updated()=: Update all plugins via lazy.nvim
+**** Benefits:
+- Maintains conversational "May I help you?" user experience
+- Allows testing/automation to use dotfiles API instead of directly calling elpaca/lazy.nvim
+- Preserves the respectful, timeout-based auto-setup for interactive users
+- Enables swapping plugin managers without changing Docker/CI configuration
+**** Reference:
+See =docs/DOTFILES_API_ARCHITECTURE.md= for the architectural philosophy and implementation patterns.
+
+** Completed [13/13]
+*** DONE Consider using =make= or =just= file for machine setup
+CLOSED: [2025-07-29 Tue]
+- Implemented justfile with comprehensive system maintenance commands
+- Added `just stow`, `just check-health`, `just system-check`, `just system-upgrade`
+- Created tiered approach with goto-sys-maintenance for platform-specific operations
+
+*** DONE Add steps/scripts for updating packages  
+CLOSED: [2025-07-29 Tue]
+- Implemented unified package management with `just update-check` and `just update-upgrade`
+- Created two-step update process: preview available updates, then upgrade
+- Added support for multiple package managers per platform (brew/mas, pacman/AUR, apt/brew, scoop/choco/winget/pacman)
+
+*** DONE Add section with steps for setting a new machine
+CLOSED: [2025-07-29 Tue]  
+- Partially complete with existing setup scripts in `setup_*` directories
+- Bootstrap scripts in `bootstrap/` provide transparency for system preparation
+- Environment-driven configuration via `.dotfiles.env` simplifies setup
+- Tiered approach (min-cli → mid-cli → mid-dev → max-dev) guides installation scope
 *** By OS Platform [0/0]
 **** Windows [4/4]
 ***** DONE Consider if =dploy= can be replaced by [[https://github.com/ralish/PSDotFiles][PSDotFiles]] or =Msys GNU Stow=

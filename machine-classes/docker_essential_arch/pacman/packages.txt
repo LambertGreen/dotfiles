@@ -1,0 +1,12 @@
+base-devel
+curl
+fastfetch
+git
+psmisc
+stow
+sudo
+vim
+wget
+zsh
+tldr
+vivid

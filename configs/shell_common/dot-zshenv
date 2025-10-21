@@ -1,0 +1,74 @@
+#!/usr/bin/env zsh
+# NOTE: Only put global env vars here
+
+# * Utility Functions
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+
+# * Platform-specific profiles (PATH and environment setup)
+# These must be sourced early so PATH is available to all shells
+lgreen_source_platform_profile() {
+    local uname_result="$(uname_cached)"
+
+    case "$uname_result" in
+        *"_NT"*)
+            # MSYS2/Windows
+            if [[ -f ~/.env_msys2 ]]; then
+                source ~/.env_msys2
+            fi
+            if [[ -f ~/.shell_msys2 ]]; then
+                source ~/.shell_msys2
+            fi
+            ;;
+        Darwin)
+            # macOS - source platform-specific environment
+            if [[ -f ~/.env_osx ]]; then
+                source ~/.env_osx
+            fi
+            ;;
+        Linux)
+            # Linux - source platform-specific environment
+            if [[ -f ~/.env_linux ]]; then
+                source ~/.env_linux
+            fi
+            ;;
+    esac
+}
+
+# Source platform profile first to set up PATH for all shells
+lgreen_source_platform_profile
+
+# Set locale to en_US.UTF-8 if available, otherwise use C.UTF-8
+if locale -a 2>/dev/null | grep -q "^en_US\.UTF-8\|^en_US\.utf8"; then
+    export LANG=en_US.UTF-8
+    export LC_CTYPE=en_US.UTF-8
+else
+    export LANG=C.UTF-8
+    export LC_CTYPE=C.UTF-8
+fi
+
+# User-local package directories
+# npm global packages - user directory
+if [[ -d "$HOME/.local/npm/bin" ]]; then
+    export PATH="$HOME/.local/npm/bin:$PATH"
+fi
+
+# pipx installed packages - user directory
+export PIPX_HOME="$HOME/.local/pipx"
+export PIPX_BIN_DIR="$HOME/.local/pipx/bin"
+if [[ -d "$HOME/.local/pipx/bin" ]]; then
+    export PATH="$HOME/.local/pipx/bin:$PATH"
+fi
+
+# gem user install directory
+if command -v ruby >/dev/null 2>&1 && command -v gem >/dev/null 2>&1; then
+    GEM_HOME="$(ruby -r rubygems -e 'puts Gem.user_dir')"
+    if [[ -d "$GEM_HOME/bin" ]]; then
+        export PATH="$GEM_HOME/bin:$PATH"
+        export GEM_HOME
+    fi
+fi

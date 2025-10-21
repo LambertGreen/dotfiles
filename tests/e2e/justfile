@@ -1,0 +1,288 @@
+# Testing workflows for dotfiles - Machine Class Based Testing
+
+# Default test platform
+test_platform := env_var_or_default("DOTFILES_TEST_PLATFORM", "arch")
+
+# Available platforms and machine classes
+docker_platforms := "arch ubuntu"
+docker_machine_classes := "essential developer gui"
+
+# Show test help
+default:
+    @echo "🧪 Dotfiles Testing Suite"
+    @echo ""
+    @echo "🐍 Python Tests:"
+    @echo "  just test                       - Run Python test suite"
+    @echo "  just test-coverage              - Run tests with coverage report"
+    @echo "  just test-e2e                   - End-to-end tests with fake PMs"
+    @echo "  just test-e2e-ci                - CI-safe end-to-end tests"
+    @echo ""
+    @echo "🐳 Docker Tests:"
+    @echo "  just test-essential-ubuntu      - Test minimal Ubuntu setup"
+    @echo "  just test-essential-arch        - Test minimal Arch setup"
+    @echo "  just test-developer-ubuntu      - Test full Ubuntu development setup"
+    @echo "  just test-developer-arch        - Test full Arch development setup"
+    @echo "  just test-gui-ubuntu            - Test Ubuntu desktop packages"
+    @echo "  just test-gui-arch              - Test Arch desktop packages"
+    @echo ""
+    @echo "🐚 Interactive Testing:"
+    @echo "  just run-essential-ubuntu       - Interactive Ubuntu shell"
+    @echo "  just run-essential-arch         - Interactive Arch shell"
+    @echo "  just run-developer-ubuntu       - Interactive Ubuntu dev shell"
+    @echo "  just run-developer-arch         - Interactive Arch dev shell"
+    @echo ""
+    @echo "📦 Batch Testing:"
+    @echo "  just test-all-ubuntu            - Test all Ubuntu machine classes"
+    @echo "  just test-all-arch              - Test all Arch machine classes"
+    @echo "  just test-all                   - Test everything (Python + Docker)"
+    @echo ""
+    @echo "📋 Log Management:"
+    @echo "  just show-test-summary          - Show latest test summary"
+    @echo "  just show-last-log              - Show most recent test output"
+    @echo "  just list-logs                  - List all available logs"
+    @echo "  just show-log <filename>        - Show specific log file"
+    @echo ""
+    @echo "🧹 Cache Management:"
+    @echo "  just clear-docker-cache         - Clear Docker build cache (force fresh rebuild)"
+    @echo "  just clean-logs                 - Move test log directories to trash"
+    @echo "  just clean-docker               - Remove dotfiles test images"
+    @echo "  just clean                      - Clean logs + images"
+    @echo ""
+    @echo "🔄 Return to main: exit"
+
+# =============================================================================
+# Python Testing
+# =============================================================================
+
+# Run Python test suite
+test:
+    @echo "🧪 Running Python test suite..."
+    @cd .. && python3 -m pytest tests/ -v
+
+# Run Python tests with coverage report
+test-coverage:
+    @echo "🧪 Running Python tests with coverage..."
+    @cd .. && python3 -m pytest tests/ --cov=src --cov-report=term-missing
+
+# Run end-to-end tests with fake package managers
+test-e2e:
+    @echo "🧪 Running end-to-end tests with fake PMs..."
+    @cd .. && export PATH="./test:$PATH" && export DOTFILES_PM_ONLY_FAKES="true" && python3 test/test_e2e_fake.py
+
+# Run end-to-end tests in CI mode (only fake PMs, no system impact)
+test-e2e-ci:
+    @echo "🤖 Running CI-safe end-to-end tests..."
+    @cd .. && export PATH="./test:$PATH" && export DOTFILES_PM_ONLY_FAKES="true" && export DOTFILES_PM_DISABLE_REAL="true" && python3 test/test_e2e_fake.py
+
+# Test with fake package managers
+test-fake-pms:
+    #!/usr/bin/env bash
+    cd ..
+    export PATH="$(pwd)/test:$PATH"
+    if command -v fake-pm1 >/dev/null 2>&1 && command -v fake-pm2 >/dev/null 2>&1; then
+        echo "🧪 Testing with fake package managers..."
+        echo "FakePM1 version: $(fake-pm1 version)"
+        echo "FakePM2 version: $(fake-pm2 version)"
+        echo "✅ Fake PMs are working"
+    else
+        echo "❌ Fake PMs not found"
+        exit 1
+    fi
+
+# =============================================================================
+# Essential Tier - Minimal system testing
+# =============================================================================
+
+# Test Ubuntu essential machine class
+test-essential-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_essential_ubuntu ubuntu
+
+# Test Arch essential machine class
+test-essential-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_essential_arch arch
+
+# Interactive Ubuntu essential
+run-essential-ubuntu:
+    @echo "🐳 Running docker_essential_ubuntu interactive shell..."
+    just _run-machine-class docker_essential_ubuntu ubuntu
+
+# Interactive Arch essential
+run-essential-arch:
+    @echo "🐳 Running docker_essential_arch interactive shell..."
+    just _run-machine-class docker_essential_arch arch
+
+# =============================================================================
+# Developer Tier - Multi-package manager testing
+# =============================================================================
+
+# Test Ubuntu developer machine class
+test-developer-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_developer_ubuntu ubuntu
+
+# Test Arch developer machine class
+test-developer-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_developer_arch arch
+
+# Interactive Ubuntu developer
+run-developer-ubuntu:
+    @echo "🐳 Running docker_developer_ubuntu interactive shell..."
+    just _run-machine-class docker_developer_ubuntu ubuntu
+
+# Interactive Arch developer
+run-developer-arch:
+    @echo "🐳 Running docker_developer_arch interactive shell..."
+    just _run-machine-class docker_developer_arch arch
+
+# =============================================================================
+# GUI Tier - Desktop environment validation
+# =============================================================================
+
+# Test Ubuntu GUI machine class
+test-gui-ubuntu:
+    @./test-helpers/docker-test-wrapper.sh docker_ubuntu_gui ubuntu
+
+# Test Arch GUI machine class
+test-gui-arch:
+    @./test-helpers/docker-test-wrapper.sh docker_arch_gui arch
+
+# Interactive Ubuntu GUI
+run-gui-ubuntu:
+    @echo "🐳 Running docker_ubuntu_gui interactive shell..."
+    just _run-machine-class docker_ubuntu_gui ubuntu
+
+# Interactive Arch GUI
+run-gui-arch:
+    @echo "🐳 Running docker_arch_gui interactive shell..."
+    just _run-machine-class docker_arch_gui arch
+
+# =============================================================================
+# Batch Testing
+# =============================================================================
+
+# Test all Ubuntu tiers
+test-all-ubuntu:
+    @echo "🧪 Testing all Ubuntu tiers..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    just test-essential-ubuntu
+    just test-developer-ubuntu
+    just test-gui-ubuntu
+
+# Test all Arch tiers
+test-all-arch:
+    @echo "🧪 Testing all Arch tiers..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    just test-essential-arch
+    just test-developer-arch
+    just test-gui-arch
+
+# Test everything (Python + Docker)
+test-all:
+    @echo "🧪 Testing everything (Python + Docker)..."
+    @echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    @echo "🐍 Python tests..."
+    just test
+    @echo ""
+    @echo "🐳 Docker tests..."
+    just test-all-ubuntu
+    just test-all-arch
+
+# =============================================================================
+# Implementation Helpers
+# =============================================================================
+
+# Helper: Build and run machine class test using shared Dockerfile
+_test-machine-class machine_class platform:
+    @echo "🔨 Building Docker image for {{machine_class}} ({{platform}} platform)..."
+    cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
+    @echo "🚀 Running test container..."
+    docker run --rm dotfiles-test-{{machine_class}}
+
+# Helper: Interactive machine class testing using shared Dockerfile
+_run-machine-class machine_class platform:
+    @echo "🔨 Building Docker image: dotfiles-test-{{machine_class}} (Docker will use cache if unchanged)..."
+    @cd .. && docker build --build-arg TZ=$(readlink /etc/localtime | sed 's|.*/zoneinfo/||' 2>/dev/null || date +%Z 2>/dev/null || echo "UTC") --build-arg MACHINE_CLASS={{machine_class}} -f test/dockerfiles/Dockerfile.multi --target {{machine_class}} -t dotfiles-test-{{machine_class}} .
+    @echo "🚀 Starting interactive shell (type 'exit' to return)..."
+    docker run -it --rm dotfiles-test-{{machine_class}} zsh -l
+
+# =============================================================================
+# Log Management
+# =============================================================================
+
+# Show the latest test summary
+@show-test-summary:
+    @if [ -d "test/.logs" ]; then \
+        latest=$(ls -t test/.logs/*/test-summary.md 2>/dev/null | head -1); \
+        if [ -n "$$latest" ]; then \
+            cat "$$latest"; \
+        else \
+            echo "No test summaries found"; \
+        fi \
+    else \
+        echo "No test/.logs directory found"; \
+    fi
+
+# Show the most recent test log
+@show-last-log:
+    echo "📄 Most recent test log:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ls -t *-output.log 2>/dev/null | head -1 | xargs -I {} sh -c 'echo "📝 File: {}" && echo "" && tail -50 {}'
+
+# Show all available test logs
+@list-logs:
+    echo "📄 Available test logs:"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━"
+    ls -lt *-output.log 2>/dev/null || echo "No log files found"
+
+# Show specific log file (usage: just show-log filename)
+@show-log file:
+    echo "📄 Showing log: {{file}}"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    tail -100 {{file}}
+
+# =============================================================================
+# Utility Commands
+# =============================================================================
+
+# Show git status
+@status:
+    echo "📊 Repository Status"
+    echo "━━━━━━━━━━━━━━━━━━━━"
+    cd .. && git status --short
+    echo ""
+    echo "📦 Submodules:"
+    cd .. && git submodule status
+
+# Update submodules
+update:
+    cd .. && git submodule update --init --recursive
+
+# Clean up test logs
+clean-logs:
+    @echo "🧹 Cleaning up test log directories..."
+    @if ls -d .logs/*/ >/dev/null 2>&1; then \
+        trash .logs/*/; \
+        echo "✅ Test log directories moved to trash"; \
+    else \
+        echo "✅ No test log directories to clean"; \
+    fi
+    @if ls *-output.log >/dev/null 2>&1; then \
+        trash *-output.log; \
+        echo "✅ Individual log files moved to trash"; \
+    fi
+
+# Clean up Docker images
+clean-docker:
+    @echo "🧹 Cleaning up Docker test images..."
+    docker images | grep dotfiles-test | awk '{print $3}' | xargs -r docker rmi -f
+    @echo "✅ Docker images cleaned"
+
+# Clear Docker build cache (forces complete rebuild from scratch)
+clear-docker-cache:
+    @echo "🧹 Clearing Docker build cache..."
+    @echo "This will force complete rebuilds - no cached layers will be used"
+    @docker builder prune -f
+    @echo "✅ Docker build cache cleared"
+
+# Clean everything
+clean: clean-logs clean-docker
+    @echo "✅ All test artifacts cleaned"

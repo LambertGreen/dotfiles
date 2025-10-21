@@ -1,0 +1,258 @@
+# CLI Utilities Package Definitions
+# Structured package definitions with cross-platform mappings and health checks
+
+[metadata]
+category = "cli-utils"
+description = "Essential command-line utilities for improved productivity"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# PACKAGE DEFINITIONS
+# =============================================================================
+
+[packages.ripgrep]
+description = "Fast line-oriented search tool (grep replacement)"
+health_check = "rg --version"
+executable = "rg"
+
+[packages.ripgrep.install]
+arch_pacman = "ripgrep"
+ubuntu_apt = "ripgrep" 
+osx_brew = "ripgrep"
+win_scoop = "ripgrep"
+
+[packages.fd]
+description = "Fast and user-friendly alternative to find"
+health_check = "fd --version"
+executable = "fd"
+
+[packages.fd.install]
+arch_pacman = "fd"
+ubuntu_apt = "fd-find"  # Note: Ubuntu has different package name
+osx_brew = "fd"
+win_scoop = "fd"
+
+[packages.bat]
+description = "Cat clone with syntax highlighting and git integration"
+health_check = "bat --version"
+executable = "bat"
+
+[packages.bat.install]
+arch_pacman = "bat"
+ubuntu_apt = "bat"
+osx_brew = "bat"
+win_scoop = "bat"
+
+[packages.jq]
+description = "Lightweight and flexible command-line JSON processor"
+health_check = "jq --version"
+executable = "jq"
+
+[packages.jq.install]
+arch_pacman = "jq"
+ubuntu_apt = "jq"
+osx_brew = "jq"
+win_scoop = "jq"
+
+[packages.htop]
+description = "Interactive process viewer (top replacement)"
+health_check = "htop --version"
+executable = "htop"
+
+[packages.htop.install]
+arch_pacman = "htop"
+ubuntu_apt = "htop"
+osx_brew = "htop"
+# Note: htop not available in scoop, use choco
+win_choco = "htop"
+
+[packages.tree]
+description = "Recursive directory listing in tree format"
+health_check = "tree --version"
+executable = "tree"
+
+[packages.tree.install]
+arch_pacman = "tree"
+ubuntu_apt = "tree"
+osx_brew = "tree"
+# Note: tree not in scoop main, use choco
+win_choco = "tree"
+
+[packages.unzip]
+description = "Archive extraction utility"
+health_check = "unzip -v | head -1"
+executable = "unzip"
+
+[packages.unzip.install]
+arch_pacman = "unzip"
+ubuntu_apt = "unzip"
+# Note: unzip usually comes with macOS, but can be installed via brew if needed
+osx_brew = "unzip"
+# Note: unzip not in scoop main, use choco
+win_choco = "unzip"
+
+[packages.zoxide]
+description = "Smart directory jumper"
+health_check = "zoxide --version"
+executable = "zoxide"
+priority = "p1"
+
+[packages.zoxide.install]
+arch_pacman = "zoxide"
+ubuntu_brew = "zoxide"
+osx_brew = "zoxide"
+win_scoop = "zoxide"
+
+[packages.fastfetch]
+description = "System information fetch tool"
+health_check = "fastfetch --version"
+executable = "fastfetch"
+priority = "p1"
+
+[packages.fastfetch.install]
+arch_pacman = "fastfetch"
+ubuntu_apt = "fastfetch"
+osx_brew = "fastfetch"
+win_scoop = "fastfetch"
+
+[packages.fzf]
+description = "Command-line fuzzy finder"
+health_check = "fzf --version"
+executable = "fzf"
+priority = "p1"
+
+[packages.fzf.install]
+arch_pacman = "fzf"
+ubuntu_apt = "fzf"
+osx_brew = "fzf"
+win_scoop = "fzf"
+
+[packages.coreutils]
+description = "GNU core utilities (macOS compatibility)"
+health_check = "gls --version"
+executable = "gls"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.coreutils.install]
+osx_brew = "coreutils"
+
+[packages.diffutils]
+description = "GNU diff, cmp, diff3, and sdiff utilities"
+health_check = "diff --version"
+executable = "diff"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.diffutils.install]
+osx_brew = "diffutils"
+
+[packages.fortune]
+description = "Display random quotations"
+health_check = "fortune --version || fortune -v"
+executable = "fortune"
+priority = "p1"
+
+[packages.fortune.install]
+arch_pacman = "fortune-mod"
+ubuntu_apt = "fortune-mod"
+osx_brew = "fortune"
+win_pip = "fortune"
+
+[packages.cowsay]
+description = "ASCII art cow that speaks"
+health_check = "cowsay --version || cowsay -h"
+executable = "cowsay"
+priority = "p1"
+
+[packages.cowsay.install]
+arch_pacman = "cowsay"
+ubuntu_apt = "cowsay"
+osx_brew = "cowsay"
+win_pip = "cowsay"
+
+[packages.tldr]
+description = "Simplified and community-driven man pages"
+health_check = "tldr --version"
+executable = "tldr"
+priority = "p1"
+
+[packages.tldr.install]
+arch_pacman = "tldr"
+ubuntu_apt = "tldr"
+osx_brew = "tldr"
+win_scoop = "tldr"
+
+[packages.cloc]
+description = "Count lines of code"
+health_check = "cloc --version"
+executable = "cloc"
+priority = "p1"
+
+[packages.cloc.install]
+arch_pacman = "cloc"
+ubuntu_apt = "cloc"
+osx_brew = "cloc"
+# Note: cloc failed in scoop install, use choco
+win_choco = "cloc"
+
+[packages.trash]
+description = "Safe rm replacement that moves files to trash"
+health_check = "command -v trash"
+executable = "trash"
+priority = "p1"
+
+[packages.trash.install]
+arch_pacman = "trash-cli"
+ubuntu_apt = "trash-cli"
+osx_brew = "trash"
+# Note: trash not in scoop, different approach needed for Windows
+win_choco = "recycle-bin"
+
+[packages.hyperfine]
+description = "Command-line benchmarking tool"
+health_check = "hyperfine --version"
+executable = "hyperfine"
+priority = "p2"
+
+[packages.hyperfine.install]
+arch_pacman = "hyperfine"
+ubuntu_apt = "hyperfine"
+osx_brew = "hyperfine"
+# Note: hyperfine not in scoop main, use choco
+win_choco = "hyperfine"
+
+[packages.btop]
+description = "Resource monitor that shows usage and stats"
+health_check = "btop --version"
+executable = "btop"
+priority = "p2"
+
+[packages.btop.install]
+arch_pacman = "btop"
+ubuntu_apt = "btop"
+osx_brew = "btop"
+# Note: btop not in scoop main, use choco
+win_choco = "btop"
+
+# =============================================================================
+# OSX-SPECIFIC ADDITIONAL PACKAGES
+# =============================================================================
+
+[packages.eza]
+description = "Modern ls replacement with better defaults"
+health_check = "eza --version"
+executable = "eza"
+platforms = ["osx"]  # OSX-specific for now
+
+[packages.eza.install]
+osx_brew = "eza"
+
+[packages.dust]
+description = "More intuitive version of du (disk usage analyzer)"
+health_check = "dust --version" 
+executable = "dust"
+platforms = ["osx"]  # OSX-specific for now
+
+[packages.dust.install]
+osx_brew = "dust"

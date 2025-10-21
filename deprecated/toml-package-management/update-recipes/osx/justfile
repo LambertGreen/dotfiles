@@ -1,0 +1,114 @@
+#!/usr/bin/env just
+# macOS System Maintenance Commands
+
+# Show available commands
+default:
+    @echo "🍎 macOS System Maintenance"
+    @echo "=========================="
+    @echo ""
+    @echo "📦 Homebrew:"
+    @echo "  brew-check      - Check outdated Homebrew packages"
+    @echo "  brew-update     - Update all Homebrew packages"
+    @echo "  brew-cleanup    - Clean up old versions and cache"
+    @echo ""
+    @echo "🛍️  Mac App Store:"
+    @echo "  mas-check       - Check outdated Mac App Store apps"
+    @echo "  mas-update      - Update all Mac App Store apps"
+    @echo ""
+    @echo "🖥️  macOS System:"
+    @echo "  os-check        - Check for macOS updates"
+    @echo "  os-update       - Install macOS updates (requires sudo)"
+    @echo ""
+    @echo "🚀 Quick Actions:"
+    @echo "  check-all       - Check all available updates"
+    @echo "  update-all      - Update everything (brew, mas, os)"
+    @echo "  quick-update    - Fast update (brew and mas only)"
+
+# =============================================================================
+# HOMEBREW
+# =============================================================================
+
+# Check outdated Homebrew packages
+brew-check:
+    @echo "🔍 Checking Homebrew packages..."
+    @brew outdated
+
+# Update Homebrew packages
+brew-update:
+    @echo "🍺 Updating Homebrew..."
+    @brew update
+    @echo ""
+    @echo "⬆️  Upgrading packages..."
+    @brew upgrade
+
+# Clean up Homebrew
+brew-cleanup:
+    @echo "🧹 Cleaning up Homebrew..."
+    @brew cleanup -s
+    @echo ""
+    @echo "🗑️  Removing old versions..."
+    @brew cleanup --prune=all
+
+# =============================================================================
+# MAC APP STORE
+# =============================================================================
+
+# Check outdated Mac App Store apps
+mas-check:
+    @echo "🔍 Checking Mac App Store apps..."
+    @mas outdated
+
+# Update Mac App Store apps
+mas-update:
+    @echo "📦 Updating Mac App Store apps..."
+    @mas upgrade
+
+# =============================================================================
+# MACOS SYSTEM
+# =============================================================================
+
+# Check macOS updates
+os-check:
+    @echo "🔍 Checking macOS updates..."
+    @softwareupdate -l
+
+# Install macOS updates
+os-update:
+    @echo "🖥️  Installing macOS updates (requires sudo)..."
+    @sudo softwareupdate -ia
+
+# =============================================================================
+# COMBINED OPERATIONS
+# =============================================================================
+
+# Check all updates
+check-all:
+    @echo "🔍 Checking all available updates..."
+    @echo ""
+    @echo "=== Homebrew ==="
+    @-just brew-check
+    @echo ""
+    @echo "=== Mac App Store ==="
+    @-just mas-check
+    @echo ""
+    @echo "=== macOS System ==="
+    @-just os-check
+
+# Update everything
+update-all:
+    @echo "🚀 Updating everything..."
+    @echo ""
+    @just brew-update
+    @echo ""
+    @just mas-update
+    @echo ""
+    @echo "💡 Run 'just os-update' separately for system updates"
+
+# Quick update (no system)
+quick-update:
+    @echo "⚡ Quick update (Homebrew and Mac App Store)..."
+    @just brew-update
+    @echo ""
+    @just mas-update
+    @echo ""
+    @just brew-cleanup

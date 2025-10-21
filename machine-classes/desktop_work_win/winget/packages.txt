@@ -1,0 +1,24 @@
+# Winget-specific packages (not available in scoop/choco)
+# Focus on Microsoft Store apps and packages unique to winget
+
+# Microsoft Store Apps
+Microsoft.PowerToys
+Microsoft.VisualStudioCode
+Microsoft.WindowsTerminal
+Microsoft.Edge
+
+# Development Tools not in scoop/choco
+Microsoft.DotNet.SDK.8
+Microsoft.VisualStudio.2022.Professional
+
+# Unique to winget
+GitHub.cli
+Docker.DockerDesktop
+Zoom.Zoom
+SlackTechnologies.Slack
+
+# Note: Most CLI tools and development packages should be installed via:
+# - Scoop: CLI tools, portable apps, development tools
+# - Chocolatey: System tools, installers requiring admin
+# - MSYS2: Unix/Linux tools and libraries
+# - Winget: Microsoft ecosystem and apps not available elsewhere

@@ -1,0 +1,121 @@
+#!/usr/bin/env zsh
+# NOTE: Only put login session setup here
+
+# * Utillity Functions
+uname_cached() {
+    if [ -z "${__cached_uname:-}" ]; then
+        __cached_uname=$(uname -s 2>/dev/null || echo unknown)
+    fi
+    printf '%s\n' "$__cached_uname"
+}
+
+# * GCC
+lgreen_setup_gcc_symlinks() {
+    if [[ -x /opt/homebrew/bin/brew ]] && command -v brew >/dev/null 2>&1; then
+        # Get the current GCC major version dynamically
+        local gcc_version=$(brew list --versions gcc 2>/dev/null | sed 's/gcc //' | awk '{print $1}' | cut -d. -f1)
+        if [[ -n "$gcc_version" && -f "/opt/homebrew/bin/gcc-${gcc_version}" ]]; then
+            # Check current symlinks and update if needed
+            local current_gcc_target=$(readlink /opt/homebrew/bin/gcc 2>/dev/null || echo "")
+            local current_gpp_target=$(readlink /opt/homebrew/bin/g++ 2>/dev/null || echo "")
+            local current_cpp_target=$(readlink /opt/homebrew/bin/cpp 2>/dev/null || echo "")
+
+            local updated=false
+
+            if [[ "$current_gcc_target" != "gcc-${gcc_version}" ]]; then
+                echo "Updating gcc symlink: gcc -> gcc-${gcc_version}"
+                ln -sf "gcc-${gcc_version}" /opt/homebrew/bin/gcc
+                updated=true
+            fi
+
+            if [[ "$current_gpp_target" != "g++-${gcc_version}" ]]; then
+                echo "Updating g++ symlink: g++ -> g++-${gcc_version}"
+                ln -sf "g++-${gcc_version}" /opt/homebrew/bin/g++
+                updated=true
+            fi
+
+            if [[ "$current_cpp_target" != "cpp-${gcc_version}" ]]; then
+                echo "Updating cpp symlink: cpp -> cpp-${gcc_version}"
+                ln -sf "cpp-${gcc_version}" /opt/homebrew/bin/cpp
+                updated=true
+            fi
+
+            if [[ "$updated" == true ]]; then
+                echo "GCC symlinks updated for version ${gcc_version}"
+            fi
+        fi
+    fi
+}
+
+lgreen_setup_gcc() {
+    if command -v brew >/dev/null 2>&1; then
+        export CC=$(brew --prefix)/bin/gcc
+        export CXX=$(brew --prefix)/bin/g++
+    fi
+}
+
+# * Agents (SSH/GPG)
+lgreen_start_agents() {
+    # Export GPG_TTY BEFORE keychain runs so pinentry can prompt properly
+    export GPG_TTY=$(tty)
+
+    # Build keychain flags - only allow forwarded agents in SSH sessions
+    local keychain_flags=(--nogui --quiet --ignore-missing --eval)
+    if [ -n "$SSH_TTY" ]; then
+        keychain_flags+=(--ssh-allow-forwarded)
+    fi
+
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        # Note: on macOS a one-time step needs to be done for keys with a passphrase:
+        # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
+        if command -v keychain >/dev/null; then
+            eval "$(keychain ${keychain_flags[@]} \
+                id_rsa_personal id_rsa id_ed25519 \
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
+            )"
+        fi
+    elif [ "$(uname_cached)" = "Linux" ]; then
+        if command -v keychain >/dev/null; then
+            eval "$(keychain ${keychain_flags[@]} \
+                id_rsa_personal id_rsa id_ed25519 \
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
+            )"
+        fi
+    fi
+}
+
+# * Ripgrep
+lgreen_export_ripgrep_config_path() {
+    export RIPGREP_CONFIG_PATH=~/.ripgreprc
+    export COLORTERM=truecolor
+}
+
+# * == MAIN ==
+# Note: Platform environments (.env_linux, .env_osx) are sourced from .zshenv
+# so PATH is available to all shells. Here we only do login-specific setup.
+lgreen_setup_gcc_symlinks
+lgreen_setup_gcc
+lgreen_start_agents
+lgreen_export_ripgrep_config_path
+
+# * Onetime Setup
+# Source onetime setup functions (platform-specific via stow)
+[ -f ~/.onetimesetup.sh ] && source ~/.onetimesetup.sh
+
+if [ "$(uname_cached)" = "Darwin" ]; then
+    [ -f ~/.onetimesetup_osx.sh ] && source ~/.onetimesetup_osx.sh
+elif [ "$(uname_cached)" = "Linux" ]; then
+    [ -f ~/.onetimesetup_linux.sh ] && source ~/.onetimesetup_linux.sh
+    [ -f ~/.onetimesetup_wsl.sh ] && source ~/.onetimesetup_wsl.sh
+fi
+
+# Warn if not complete (non-blocking)
+if command -v lgreen_onetimesetup_check_done >/dev/null 2>&1; then
+    if ! lgreen_onetimesetup_check_done; then
+        echo ""
+        echo "⚠  Onetime setup not complete. Run: lgreen_onetimesetup_run_all"
+        echo ""
+    fi
+fi

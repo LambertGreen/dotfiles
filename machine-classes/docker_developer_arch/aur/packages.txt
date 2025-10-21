@@ -1,0 +1,9 @@
+# Arch Docker Developer - AUR packages
+# Modern alternatives and additional tools
+
+# Modern CLI tools
+# Note: zoxide is handled by zinit
+# Note: bat moved to pacman (official repos)
+
+# Development tools
+tree-sitter-cli

@@ -1,3 +1,0 @@
-if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && command -v zsh >/dev/null 2>&1; then
-  exec zsh -l        # -l makes it a login zsh → .zprofile runs
-fi

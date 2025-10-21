@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+lgreen_add_scoop_bins_to_path() {
+    export PATH="$PATH:$HOME/scoop/shims"
+}
+
+lgreen_add_emacs_local_build_to_path() {
+    export PATH="$HOME/.local/emacs/bin:$PATH"
+}
+
+lgreen_add_git_to_path() {
+	# Add Git to front of path
+	export PATH="/c/Program Files/Git/cmd:$PATH"
+}
+
+lgreen_add_dev_utils_to_path() {
+	export PATH="$PATH:$HOME/scoop/apps/python/current/Scripts"
+	export PATH="$PATH:$HOME/scoop/apps/openjdk/current/bin"
+	export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current"
+	export PATH="$PATH:$HOME/scoop/apps/nodejs-lts/current/bin"
+}
+
+lgreen_add_work_python_to_path() {
+	export PATH="/c/Python313:$PATH"
+	export PATH="$HOME/AppData/Roaming/Python/Python313/Scripts:$PATH"
+}
+
+lgreen_add_emacs_local_build_to_path
+lgreen_add_git_to_path
+lgreen_add_scoop_bins_to_path
+lgreen_add_dev_utils_to_path
+lgreen_add_work_python_to_path

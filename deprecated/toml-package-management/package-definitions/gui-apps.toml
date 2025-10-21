@@ -1,0 +1,222 @@
+# GUI Applications Package Definitions
+# Desktop applications and graphical tools
+
+[metadata]
+category = "gui-apps"
+description = "Essential graphical applications for desktop productivity"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# WEB BROWSERS (P1)
+# =============================================================================
+
+[packages.firefox]
+description = "Mozilla Firefox web browser"
+health_check = "command -v firefox"
+executable = "firefox"
+priority = "p1"
+platforms = ["osx", "msys2"]
+
+[packages.firefox.install]
+osx_cask = "firefox"
+# Note: firefox not in scoop main, use choco
+win_choco = "firefox"
+
+# =============================================================================
+# TERMINAL EMULATORS (P1)
+# =============================================================================
+
+[packages.wezterm]
+description = "GPU-accelerated cross-platform terminal emulator"
+health_check = "command -v wezterm"
+executable = "wezterm"
+priority = "p1"
+platforms = ["osx", "msys2"]
+
+[packages.wezterm.install]
+osx_cask = "wezterm"
+win_scoop = "wezterm"
+
+# =============================================================================
+# PRODUCTIVITY & UTILITIES (P2)
+# =============================================================================
+
+[packages.alfred]
+description = "Application launcher and productivity tool"
+health_check = "brew-check:cask:alfred@4"
+executable = "alfred"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.alfred.install]
+osx_cask = "alfred@4"
+
+[packages.appcleaner]
+description = "Thoroughly uninstall unwanted apps"
+health_check = "brew-check:cask:appcleaner"
+executable = "appcleaner"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.appcleaner.install]
+osx_cask = "appcleaner"
+
+[packages.caffeine]
+description = "Prevent your Mac from going to sleep"
+health_check = "brew-check:cask:caffeine"
+executable = "caffeine"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.caffeine.install]
+osx_cask = "caffeine"
+
+# =============================================================================
+# WINDOW MANAGEMENT (P2)
+# =============================================================================
+
+[packages.contexts]
+description = "Window switcher for macOS"
+health_check = "brew-check:cask:contexts"
+executable = "contexts"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.contexts.install]
+osx_cask = "contexts"
+
+[packages.divvy]
+description = "Window management utility"
+health_check = "brew-check:cask:divvy"
+executable = "divvy"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.divvy.install]
+osx_cask = "divvy"
+
+[packages.amethyst]
+description = "Automatic tiling window manager"
+health_check = "brew-check:cask:amethyst"
+executable = "amethyst"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.amethyst.install]
+osx_cask = "amethyst"
+
+[packages.hammerspoon]
+description = "Powerful automation tool for macOS"
+health_check = "brew-check:cask:hammerspoon"
+executable = "hammerspoon"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.hammerspoon.install]
+osx_cask = "hammerspoon"
+
+# =============================================================================
+# SYSTEM ENHANCEMENT (P2)
+# =============================================================================
+
+[packages.karabiner-elements]
+description = "Powerful keyboard customizer"
+health_check = "brew-check:cask:karabiner-elements"
+executable = "karabiner-elements"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.karabiner-elements.install]
+osx_cask = "karabiner-elements"
+
+[packages.mos]
+description = "Smooth scrolling and set scroll direction independently"
+health_check = "brew-check:cask:mos"
+executable = "mos"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.mos.install]
+osx_cask = "mos"
+
+[packages.stats]
+description = "System monitor for the menu bar"
+health_check = "brew-check:cask:stats"
+executable = "stats"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.stats.install]
+osx_cask = "stats"
+
+[packages.vanilla]
+description = "Hide menu bar icons on macOS"
+health_check = "brew-check:cask:vanilla"
+executable = "vanilla"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.vanilla.install]
+osx_cask = "vanilla"
+
+# =============================================================================
+# DEVELOPMENT TOOLS (P2)
+# =============================================================================
+
+[packages.cursorcerer]
+description = "Cursor utility for developers"
+health_check = "brew-check:cask:cursorcerer"
+executable = "cursorcerer"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.cursorcerer.install]
+osx_cask = "cursorcerer"
+
+# =============================================================================
+# GRAPHICS & MEDIA (P2)
+# =============================================================================
+
+[packages.gimp]
+description = "GNU Image Manipulation Program"
+health_check = "brew-check:cask:gimp"
+executable = "gimp"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.gimp.install]
+osx_cask = "gimp"
+
+# =============================================================================
+# GAMING (P2)
+# =============================================================================
+
+[packages.steam]
+description = "Digital distribution platform for video games"
+health_check = "brew-check:cask:steam"
+executable = "steam"
+priority = "p2"
+platforms = ["osx"]
+
+[packages.steam.install]
+osx_cask = "steam"
+
+# =============================================================================
+# COMMUNICATION (P2)
+# =============================================================================
+
+[packages.whatsapp]
+description = "WhatsApp Desktop"
+health_check = "brew-check:cask:whatsapp"
+executable = "whatsapp"
+priority = "p1"
+platforms = ["osx"]
+
+[packages.whatsapp.install]
+osx_cask = "whatsapp"
+
+# =============================================================================
+# FONTS 
+# =============================================================================
+# NOTE: Fonts have been moved to a separate fonts.toml file
+# Fonts are treated as optional (P3) since applications should have fallbacks

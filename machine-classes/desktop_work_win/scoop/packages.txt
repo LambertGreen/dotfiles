@@ -1,0 +1,58 @@
+7zip
+aspell
+aws
+bat
+carnac
+coreutils
+# cygwin - REMOVED: Already installed on work machine + we use MSYS2.
+#          Risk: Multiple Unix environments cause PATH conflicts and tool confusion.
+#          Note: MSYS2 provides better Windows integration than Cygwin for our use case.
+dark
+delta
+emacs
+eza
+fastfetch
+fd
+fiddler
+fzf
+glow
+gpg4win
+hyperfine
+iosevka-nf
+iosevka-nf-mono
+iosevka-nf-propo
+jd-gui
+jq
+just
+# keypirinha - MOVED TO CHOCOLATEY: Scoop's portable paths conflict with stow symlinks.
+#              Install via: choco install keypirinha
+#              Reason: Stable AppData paths needed for config file symlinking.
+lazygit
+lua
+luarocks
+make
+meson
+neovim
+neovim-qt
+perl
+pwsh
+# python39 - REMOVED: Work machine already has Python installed.
+#           Risk: Installing different Python version could break work workflows.
+#           TODO: Future improvement - detect existing Python and only install if missing,
+#           or use virtual environments to avoid conflicts with work setup.
+#           Priority: Work stability > latest Python features
+rapidee
+ripgrep
+tesseract
+tldr
+unzip
+vivid
+wezterm
+windirstat
+zoxide
+clink
+main
+extras
+versions
+nerd-fonts
+java

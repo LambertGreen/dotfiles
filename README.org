@@ -1,870 +1,481 @@
 #+TITLE: Dotfiles
+#+AUTHOR: Lambert Green
+#+DESCRIPTION: Cross-platform system configuration management and package management system
+#+STARTUP: overview
 
-Contains config files and setup scripts for 3 platforms:
-1. macOS
-2. Windows
-3. Linux
 
-* Usage
-This README provides steps to setup various applications and their associated configurations (the configurations are my own personal ones). To install and setup a specific application simply search this document based on the application name, and one will then get results filtered to the application e.g. if one searches for =Tmux=, then one will find the following: how to install it; how to install the =Tmux Plugin Manager=; how to symlink the config file;
+* Introduction
 
-* Sync =Git= sub-modules
-This project makes use of sub-modules. After cloning the repository an additional step is needed to sync the sub-modules:
-#+begin_src sh
-git submodules update --init --recursive
-#+end_src
+This is a cross-platform dotfiles and unified package management system - think of it as a better, more flexible =Topgrade=. It provides a single interface to manage packages across multiple package managers, while also handling dotfiles deployment and system configuration.
 
-* Install apps
-On each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
-
-+ *Update (3/30/2022)*:
-   I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
-+ *Update (6/13/2022)*:
-  I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
-+ *Update (8/12/2024)*:
-  Now that I don't use a =CentOS 7= system there is no need for the workarounds of building apps locally nor a need for using =Nix=. Of course =Nix= is useful all on its own, but given I have to use =Scoop= and =Pacman= on Windows, it is simpler to also use =Homebrew= and Linux system package managers.
-
-** On =macOS=                                                          :macOS:
-*** using =Homebrew=
-**** Install =Homebrew=
-#+begin_src sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#+end_src
-**** Install =Taps=
-#+begin_src sh
-  brew tap adoptopenjdk/openjdk
-  brew tap buo/cask-upgrade
-  brew tap cartr/qt4
-  brew tap d12frosted/emacs-plus
-  brew tap homebrew/bundle
-  brew tap homebrew/cask
-  brew tap homebrew/cask-versions
-  brew tap homebrew/cask-fonts
-#+end_src
-**** Install =Packages=
-***** Common
-#+begin_src sh
-  brew install \
-       awscli \
-       bash-language-server \
-       bat \
-       black \
-       catch2 \
-       ccls \
-       clang-format \
-       cliclick \
-       cloc \
-       cmake \
-       cmake-docs \
-       coreutils \
-       cowsay \
-       curl \
-       d12frosted/emacs-plus/emacs-plus@31 \
-       direnv \
-       doxygen \
-       dust \
-       editorconfig \
-       enchant \
-       expat \
-       eza \
-       fd \
-       fortune \
-       gcc \
-       git \
-       git-delta \
-       gnu-sed \
-       gnu-typist \
-       gnupg \
-       gnuplot \
-       gradle \
-       graphviz \
-       htop \
-       hyperfine \
-       imagemagick \
-       jenv \
-       jq \
-       keychain \
-       mailutils \
-       markdown \
-       mas \
-       mermaid-cli \
-       neovim \
-       ninja \
-       node \
-       ntfy \
-       onefetch \
-       openjdk \
-       openssl@3 \
-       p7zip \
-       pcre2 \
-       poppler \
-       postgresql \
-       pstree \
-       pyenv \
-       pyenv-virtualenv \
-       python \
-       rbenv \
-       ripgrep \
-       ruby \
-       scc \
-       shellcheck \
-       shfmt \
-       sip \
-       stow \
-       stylua \
-       tldr \
-       tmux \
-       topgrade \
-       trash \
-       unixodbc \
-       vivid \
-       vscode-langservers-extracted \
-       wget \
-#+end_src
-***** Home
-#+begin_src sh
-  brew install \
-       exercism \
-       llvm \
-       mono \
-       speedtest-cli \
-       sword \
-       typespeed \
-#+end_src
-***** Work
-#+begin_src sh
-  brew install \
-       cartr/qt4/pyqt@4 \
-       freetds@0.91 \
-       rbtools \
-#+end_src
-**** Install =Casks=
-***** Common
-#+begin_src sh
-  brew install --cask \
-       alfred@4 \
-       appcleaner \
-       cursorcerer \
-       contexts \
-       caffeine \
-       divvy \
-       font-iosevka-nerd-font \
-       hammerspoon \
-       mos \
-       stats \
-       vanilla \
-       wezterm \
-#+end_src
-***** Home
-#+begin_src sh
-  brew install --cask \
-       amethyst \
-       gimp \
-       karabiner-elements \
-       steam \
-       whatsapp \
-#+end_src
-***** Work
-#+begin_src sh
-  brew install --cask \
-       1password \
-       p4 \
-       quip \
-       slack \
-#+end_src
-**** Install =Mac App Store= apps
-***** Common
-#+begin_src sh
-  # Install Microsoft Remote Desktop
-  mas install 1295203466
-#+end_src
-***** Home
-#+begin_src sh
-  # Install GrandPerspective
-  mas install 1111570163
-  # Install Kindle
-  mas install 405399194
-  # Intall feedly
-  mas install  865500966
-  # Install Giphy Capture
-  mas install 668208984
-#+end_src
-**** Validate using =Brewfile=
-***** For new machine
-Create a new directory for this machine under ~"./package_manager_exports/brewfiles"~ and create a new dump file:
-#+begin_src sh
-  # change directory to the exported brewfiles
-  cd ./package_manager_exports/brewfiles/
+** Key Features
 
-  # change directory for the relevant machine
-  mkdir <MachineType> && cd <MachineType>
+- **Unified Package Management** - Python-based orchestration layer manages all your package managers:
+  - System: brew/cask, pacman/AUR, apt, mas, choco, winget, scoop
+  - Development: npm, pip, pipx, gem, cargo
+  - Applications: zinit (zsh), elpaca (emacs), lazy.nvim (neovim)
+- **Cross-Platform** - Consistent experience across macOS, Linux (Arch/Ubuntu), and Windows
+- **Work-Friendly** - Separate work/personal contexts to handle corporate restrictions
+- **Modal Interface** - Clean main interface with specialized contexts for advanced operations
+- **Comprehensive Testing** - Docker validates multi-package-manager scenarios
 
-  # dump brewfile
-  brew bundle dump
-#+end_src
-***** For refresh machine
-Navigate to the existing =brewfile= for this machine under ~"./package_manager_exports/brewfiles"~ and force a new dump and then compare to old using ~git diff~:
-#+begin_src sh
-  # change directory to the exported brewfiles
-  cd ./package_manager_exports/brewfiles/
+** Key Technologies
 
-  # change directory for the relevant machine
-  cd <MachineType>
+- **Python** - Unified package management orchestration layer
+- **GNU Stow** - Symlink management for dotfiles deployment
+- **Just** - Command runner with modular contexts for clean interface
+- **Docker** - Automated testing including multi-package-manager validation
+- **Machine Classes** - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
-  # dump brewfile
-  brew bundle dump --force
-#+end_src
-** On =Windows=                                                      :Windows:
-*** Using =Scoop=
-**** Install =Scoop=
-#+begin_src ps
-Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-#+end_src
-**** Add =Buckets=
-#+begin_src ps
-  scoop bucket add extras
-  scoop bucket add nerd-fonts
-  scoop bucket add java
-#+end_src
-**** Install =main= packages
-***** Common
-#+begin_src ps
-  scoop install `
-      ack `
-      bat `
-      cacert `
-      clink `
-      cmake `
-      coreutils `
-      curl `
-      dark `
-      dust `
-      fd `
-      findutils `
-      fzf `
-      gawk `
-      git `
-      grep `
-      lessmsi `
-      neovim `
-      nodejs-lts `
-      pwsh `
-      python `
-      ripgrep `
-      sed `
-      sudo `
-      tldr `
-      touch `
-      wget `
-#+end_src
-**** Install =extras=
-***** Common
-#+begin_src ps
-  scoop install `
-      carnac `
-      dbeaver `
-      emacs `
-      everything `
-      jd-gui `
-      keypirinha `
-      rapidee `
-      switcheroo `
-      vcredist2022 `
-      vscode `
-      wezterm `
-      windirstat `
-#+end_src
-***** Home
-#+begin_src ps
-  scoop install `
-      irfanview `
-      processhacker `
-      switcheroo `
-      winrar `
-#+end_src
-***** Work
-#+begin_src ps
-  scoop install `
-    sysinternals `
-#+end_src
-**** Install =fonts=
-#+begin_src ps
-  scoop install `
-      iosevka-nf-mono `
-      iosevka-nf-propo `
-      iosevka-nf `
-#+end_src
-**** Validate using =export= file
-***** Bulk install using export file
-Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
-#+begin_src ps
-  # change directory to the exported scoop files
-  cd ./package_manager_exports/scoop/
-  # Edit scoop file if needed
-  scoop install windows_rig.scoop
-#+end_src
-***** Creating/Updating Scoop export
-#+begin_src ps
-scoop export <filename>
-#+end_src
-*** Using =Pacman= on =Msys2=
-**** Install =Pacman=
-We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
-+ We use ~-g~ flag to install globally instead of per user
-#+begin_src sh
-scoop install msys2 -g
-#+end_src
-**** Install Packages
-#+begin_src sh
-  pacman -S \
-         man-db \
-         stow \
-         tmux \
-         zsh \
-         ${MINGW_PACKAGE_PREFIX}-bat \
-         ${MINGW_PACKAGE_PREFIX}-emacs \
-         ${MINGW_PACKAGE_PREFIX}-gnupg \
-         ${MINGW_PACKAGE_PREFIX}-neovim \
-         ${MINGW_PACKAGE_PREFIX}-fd \
-         ${MINGW_PACKAGE_PREFIX}-jq \
-         ${MINGW_PACKAGE_PREFIX}-fastfetch \
-         ${MINGW_PACKAGE_PREFIX}-ripgrep \
-         ${MINGW_PACKAGE_PREFIX}-zoxide \
-         ${MINGW_PACKAGE_PREFIX}-eza \
-         ${MINGW_PACKAGE_PREFIX}-tree-sitter \
-         ${MINGW_PACKAGE_PREFIX}-oh-my-posh
-#+end_src
+* Machine Classes
 
-*** Using =Chocolatey=
-**** Install =Chocolatey=
-#+begin_src ps
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-#+end_src
-**** Install packages
-*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
-*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
-#+begin_src ps
-choco install AutoHotKey --install-arguments '/uiAccess=1'
-#+end_src
-*** Using =Winget=
-**** Install =Winget=
-+ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
-** On =Linux=                                                          :Linux:
-*** Using =Nix= & =Home Manager=
-**** Install =Nix= & =Home Manager=
-***** Install =Nix= first
-#+begin_src sh
-sh <(curl -L https://nixos.org/nix/install) --daemon
-
-# Note: for security reasons verify the installation script using GPG signatures
-curl -o install-nix-2.3.16 https://releases.nixos.org/nix/nix-2.3.16/install
-curl -o install-nix-2.3.16.asc https://releases.nixos.org/nix/nix-2.3.16/install.asc
-gpg2 --recv-keys B541D55301270E0BCF15CA5D8170B4726D7198DE
-gpg2 --verify ./install-nix-2.3.16.asc
-sh ./install-nix-2.3.16
-#+end_src
+Each machine class defines packages and configurations for specific use cases.
 
-****** Uninstalling
-+ https://nixos.org/manual/nix/stable/installation/uninstall.html
+** Laptop Classes
 
-***** Install =Home manager=
-#+begin_src sh
-nix-env -iA nixpkgs.home-manager
-#+end_src
+*** laptop_work_mac
+Corporate MacBook development environment.
+- Configuration: [[file:machine-classes/laptop_work_mac/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/laptop_work_mac/brew/Brewfile][Brewfile]] | [[file:machine-classes/laptop_work_mac/npm/packages.txt][npm packages.txt]]
 
-**** Edit ~home.nix~ file
-=Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
-#+begin_src nix
-{ pkgs, ... }:
-
-{
-  nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-    }))
-  ];
-
-  home.packages = [
-    pkgs.fd
-    pkgs.tmux
-  ];
-
-  programs.emacs = {
-    enable = true;
-    package = pkgs.emacsGcc;
-    extraPackages = (epkgs: [ epkgs.vterm ] );
-  };
-}
-#+end_src
+*** laptop_personal_mac
+Personal MacBook with full development setup.
+- Configuration: [[file:machine-classes/laptop_personal_mac/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/laptop_personal_mac/brew/Brewfile][Brewfile]] | [[file:machine-classes/laptop_personal_mac/npm/packages.txt][npm packages.txt]]
 
-**** Run sync command
-#+begin_src sh
-home-manager switch
-#+end_src
+** Desktop Classes
 
-*** Using =Python Index Package (PIP)= manager
-**** Install =PIP=
-It comes with =Python= and can be run using:
-#+begin_src sh
-python3 -m pip <PIP command params>
-#+end_src
-**** Install python apps with =pip=
-#+begin_src sh
-python3 -m pip install ntfy
-#+end_src
-**** Bulk install using export file
-The =python= =pip= export file is called a =requirments= file:
-#+begin_src sh
-python3 -m pip install -r <path-to-requirements.txt>
-#+end_src
-**** Creating/Updating PIP export
-#+begin_src sh
-python3 -m pip freeze > requirements.txt
-#+end_src
-*** TODO Add =apt= command-line for =Ubuntu=
-*** TODO Add =linuxbrew= command-line
-* Install app specific plugin managers
-** Install =Tmux Plugin Manager= :automated:
-The =Tmux= configuration file checks for the existence of the local directory, and if not present it runs the below command:
-#+begin_src sh
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-#+end_src
+*** desktop_work_win
+Windows desktop for work development.
+- Configuration: [[file:machine-classes/desktop_work_win/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/desktop_work_win/scoop/packages.txt][scoop]] | [[file:machine-classes/desktop_work_win/choco/packages.txt][choco]] | [[file:machine-classes/desktop_work_win/pacman/packages.txt][pacman]] | [[file:machine-classes/desktop_work_win/winget/packages.txt][winget]]
 
-** Install =Zinit= a =Zsh= plugin manager :automated:
-The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
-#+begin_src sh
-mkdir ~/.zinit
-git clone https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
-#+end_src
+*** desktop_gaming_win
+Gaming-focused Windows desktop.
+- Configuration: [[file:machine-classes/desktop_gaming_win/stow/stow.txt][stow.txt]]
 
-** Install =Sword='s =installmgr=
-#+begin_src sh
-export SWORD_PATH=~/.sword
-mkdir -p $SWORD_PATH/mods.d
-
-echo yes |installmgr -init               # create a basic user config file
-echo yes |installmgr -sc                 # sync config with list of known remote repos
-#+end_src
+*** desktop_home_ubuntu
+Ubuntu desktop for home use.
+- Configuration: [[file:machine-classes/desktop_home_ubuntu/stow/stow.txt][stow.txt]]
 
-** Install =Keypirinha='s =PackageControl= :Windows:
-1. Open the ~Keypirinha: Console~ (Shortcut: ~F2~)
-2. Enter the following:
-#+begin_src python
-import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-package";d=kpn.build_urllib_opener().open("https://github.com/ueffel/Keypirinha-PackageControl/releases/download/1.0.4/"+p);pb=d.read();d.close();f=open(os.path.join(kp.installed_package_dir(),p),"wb");f.write(pb);f.close()
-#+end_src
+** WSL/VM Classes
 
-* Install app integrations
-Some of these are auto-installed, by apps themselves according to their config, but the below are not.
-** Editor integrations
-*** Install =Neovim= integrations
-**** Install =npm= module
-#+begin_src sh
-npm install -g neovim
-#+end_src
-**** Install =python= module
-#+begin_src sh
-pip install pynvim
-#+end_src
-**** Install =perl= module
-#+begin_src sh
-cpanm Neovim::Ext
-#+end_src
-*** =Chemacs 2=                                                   :automated:
-Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
-The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
-
-*** Install =Doom Emacs= :automated:
-Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to. Automated via being checked in as a git submodule.
-#+begin_src sh
-git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
-~/.emacs.doom/bin/doom install
-#+end_src
+*** wsl_work_ubuntu
+Windows Subsystem for Linux development.
+- Configuration: [[file:machine-classes/wsl_work_ubuntu/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/wsl_work_ubuntu/brew/Brewfile][Brewfile]]
 
-*** Install =Latex tools=
-Note: The system should be installed via a package manager e.g. ~brew install basictex~, which provides the ~tlmgr~, which should then be used:
-#+begin_src sh
-sudo tlmgr update --self && \
-    sudo tlmgr install \
-    # for svg images
-    dvisvgm \
-    # for png images
-    dvipng \
-    # fonts
-    collection-fontsrecommended \
-    # source code highlighting
-    minted
-#+end_src
+*** vm_dev_windows_arm64
+ARM64 Windows development VM.
+- Configuration: [[file:machine-classes/vm_dev_windows_arm64/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/vm_dev_windows_arm64/scoop/packages.txt][scoop]] | [[file:machine-classes/vm_dev_windows_arm64/pacman/packages.txt][pacman]]
 
-I am not sure if the below is needed?
-#+begin_src sh
-sudo tlmgr install wrapfig marvosym wasy wasysym
-#+end_src
+** Docker Testing Classes
 
-*** Setup =Email tools=
-**** Authentication
-***** macOS
-****** Add mail app-password to =keychain=
-Acquire a new app-password from your email account e.g. for =gmail= you can find it in account settings of your =google= profile.
+*** docker_essential_ubuntu
+Minimal Ubuntu container with basic CLI tools.
+- Configuration: [[file:machine-classes/docker_essential_ubuntu/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/docker_essential_ubuntu/apt/packages.txt][apt]]
 
-******* Add app-password for mbsync from =IMAP=
-#+begin_src sh
-security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
-#+end_src
+*** docker_essential_arch
+Minimal Arch container with basic CLI tools.
+- Configuration: [[file:machine-classes/docker_essential_arch/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/docker_essential_arch/pacman/packages.txt][pacman]]
 
-******* Add app-password for =SMTP= server
-#+begin_src sh
-security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
-#+end_src
+*** docker_developer_ubuntu
+Ubuntu development container with multiple package managers.
+- Configuration: [[file:machine-classes/docker_developer_ubuntu/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/docker_developer_ubuntu/apt/packages.txt][apt]] | [[file:machine-classes/docker_developer_ubuntu/npm/packages.txt][npm]]
 
-****** Download certificates from email provider
-See ~.mbsyncrc~ file for location to put the certificates.  Below command will download the certificate chain, from which the public keys should be extracted into separate ~.crt~ files.
-#+begin_src sh
-openssl s_client -connect imap.gmail.com:993 -showcerts
-#+end_src
+*** docker_developer_arch
+Arch development container with AUR support.
+- Configuration: [[file:machine-classes/docker_developer_arch/stow/stow.txt][stow.txt]]
+- Packages: [[file:machine-classes/docker_developer_arch/pacman/packages.txt][pacman]] | [[file:machine-classes/docker_developer_arch/aur/packages.txt][aur]] | [[file:machine-classes/docker_developer_arch/npm/packages.txt][npm]]
 
-***** Linux
-****** TODO Add steps for setting up email on =ArchLinux= (on =WSL=)
-**** Setup
-#+begin_src sh
-mbsync -a
-mu init --maildir=~/.mail --my-address=lambert.green@gmail.com
-mu index
-#+end_src
+*** docker_ubuntu_gui
+Ubuntu container with GUI application support.
+- Configuration: [[file:machine-classes/docker_ubuntu_gui/stow/stow.txt][stow.txt]]
 
-*** Setup =Bible (KJV)=
-Dependencies: see installing of =Sword= in earlier section of this document.
-#+begin_src sh
-echo yes |installmgr -r CrossWire        # refresh remote source
-echo yes |installmgr -ri CrossWire KJV   # install module from remote source
-installmgr -l                            # list installed modules
-
-#Test
-diatheke -b KJV -k Jn 3:16
-#+end_src
+*** docker_arch_gui
+Arch container with GUI application support.
+- Configuration: [[file:machine-classes/docker_arch_gui/stow/stow.txt][stow.txt]]
 
-* Run setup scripts
-+ See folders: ~setup_win~, ~setup_linux~, ~setup_osx~
-* Symlink dotfiles
-Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
+* Architecture Documentation
 
-** Symlink dotfiles using =Gnu Stow= :Linux:macOS:Windows:
-*** Stow =Posix= configs
-#+begin_src sh
-  stow \
-      emacs \
-      git \
-      git_my \
-      git_work \
-      nvim \
-      shell \
-      spelling \
-      tmux \
-      vim \
-      wezterm
-#+end_src
+- [[file:docs/terminal-spawning.md][Terminal Spawning]] - Interactive package manager execution
+- [[file:docs/CLAUDE.md][Claude Code Integration]] - AI assistant workflows and validation
+- [[file:test/Testing.org][Testing Documentation]] - Docker-based validation system
 
-*** Stow =macOS= config
-#+begin_src sh
-    stow \
-        alacritty_osx \
-        git_osx \
-        hammerspoon \
-        shell_osx
-#+end_src
+* Quick Start
 
-*** Stow =Linux= config
-#+begin_src sh
-    stow \
-        alacritty_linux \
-        git_linux \
-        shell_linux
-#+end_src
+** Quick Reference (for returning users)
 
-*** Stow =Windows= config
-+ Run =mingw= as Administrator
 #+begin_src sh
-    stow \
-        Keypirinha \
-        WindowsPowerShell \
-        WindowsTerminal \
-        autohotkey \
-        clink \
-        emacs \
-        git \
-        git_my \
-        git_win \
-        git_work \
-        nvim_win \
-        tmux win_wsl
-#+end_src
+# Initial setup
+just configure                   # Configure machine class
+just bootstrap                   # Install essential tools (Python, Just, Stow)
+just stow                        # Deploy dotfiles
+just install                     # Install all packages
 
-* Special app configurations
-** Setting up =tmux-256color= support
-I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
+# Daily operations
+just update                      # Update registries & check for updates
+just upgrade                     # Upgrade packages (interactive PM selection)
+just check-health                # Verify system health
 
-The =tmux-256color= terminfo must be setup on the remote machine:
-#+begin_src sh
-tic -x ./tmux/dot-tmux-256color
+# Package manager control
+just register-package-managers   # Enable/disable package managers
+just list-package-managers       # Show available package managers
+just package-summary             # Show package counts
+
+# Advanced contexts (modal navigation)
+just package-managers            # Enter PM context for granular control
+just debugging                   # Enter debug context for troubleshooting
+just testing                     # Enter test context for validation
 #+end_src
 
-Note: the terminfo file was sourced from here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
+** 1. Clone the Repository
 
-Using new versions of =tmux= and the =tmux-256color= terminfo should be sufficient to get 24bit color in the terminal. Below is older information that is hopefully no longer needed:
-*** Setting up =24 bit true color= for =Emacs= in terminal mode
-The following file should be used to compile the appropriate terminfo
-#+begin_src sh
-# Use colon separators.
-xterm-24bit|xterm with 24-bit direct color mode,
-    use=xterm-256color,
-    setb24=\E[48:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
-    setf24=\E[38:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
-# Use semicolon separators.
-xterm-24bits|xterm with 24-bit direct color mode,
-    use=xterm-256color,
-    setb24=\E[48;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
-    setf24=\E[38;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
-#+end_src
+Clone to =~/dev/my/dotfiles= (recommended path):
 
-Save the above in a file e.g ~terminfo-24bit.src~ and then run the below:
 #+begin_src sh
-tic -x -o ~/.terminfo terminfo-24bit.src
+mkdir -p ~/dev/my
+git clone --recursive https://github.com/LambertGreen/dotfiles.git ~/dev/my/dotfiles
+cd ~/dev/my/dotfiles
 #+end_src
 
-Now =Emacs= can be started with true-color using:
-**** Using ~COLORTERM=truecolor~ (preferred way)
-We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
+** 2. Security Setup (Recommended)
 
-**** Using ~TERM=xterm-24bit~ (old way)
-This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
+Install the pre-commit hook to prevent accidentally committing sensitive tokens:
+
 #+begin_src sh
-TERM=xterm-24bit emacs -nw
+# Copy the pre-commit hook (if not already installed)
+cp hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
 #+end_src
 
-** Setting up fonts for =Doom Emacs= on Windows
-There are some manual steps that need to be done:
-1. Run the below interactive functions:
-#+begin_src elisp
-(all-the-icons-install-fonts)      ;; for icons
-(+ligatures/install-patched-font)  ;; for ligatures
-#+end_src
+The pre-commit hook automatically scans staged files for:
+- Anthropic API keys (sk-ant-*)
+- Claude OAuth tokens
+- GitHub tokens (ghp_, gho_, etc.)
+- AWS keys (AKIA*)
+- Private SSH keys
+- And other common secrets
 
-2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
-** Setting up =shell= completions
-Custom shell completions for both =Bash= and =ZSH= are located at ~"./shell/.config/bash/completions"~ and ~"./shell/.config/zsh/completions"~ respectively.
-They will get symlinked, when running ~stow shell~.
+If tokens are detected, the commit will be blocked with helpful guidance on how to fix the issue.
 
-** Fix =ZSH= ~fpath~ permissions
-The ~compaudit~ will complain about permissions, and they can be fixed by running the below:
-#+begin_src sh
-chmod 755 ~/.config/zsh
-chmod 755 ~/.config/zsh/completions
+*Note:* To bypass the hook in emergencies (not recommended): =git commit --no-verify=
 
-chmod 644 ~/.config/zsh/completions/*
-#+end_src
+** 3. Configure Your System
 
-** Update =ZSH= completion cache
-The cache may need to be updated to pickup newly created completions:
+Interactive configuration:
+
 #+begin_src sh
-rm -f ~/.zcompdump
-compinit
+./configure.sh
 #+end_src
 
-* Special local machine files
-Ideally we should find a better solution but for now there are some local overrides that are needed on each machine.
-** Local =Tmux= config
-This is for setting up a theme for the particular machine:
-+ Write the below to ~.tmux.local.conf~
-#+begin_src conf
-# Theme files
-setenv -g TMUX_THEME_DARK $HOME/.tmux/themes/tmux.green.dark.conf
-setenv -g TMUX_THEME_LIGHT $HOME/.tmux/themes/tmux.green.light.conf
-
-# Default theme
-setenv -g TMUX_THEME dark
-
-# Toggle theme
-# Below does not work because the shell that is spawned by run-shell does not
-# have access to the currently running instance of Tmux.
-# bind T run-shell '~/.tmux/scripts/tmux.sh toggle' \; display-message "Theme toggled."
-#+end_src
+The script will auto-detect your platform and present available machine classes to choose from.
 
-* Desktop Application Launch files
-Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
+Available machine classes include:
+- ~docker_essential_{arch|ubuntu}~: Minimal containers with basic CLI tools
+- ~docker_developer_{arch|ubuntu}~: Development containers with multiple package managers
+- ~laptop_personal_mac~: Personal MacBook with full development setup
+- ~laptop_work_mac~: Work MacBook with enterprise-appropriate tools
+- ~desktop_{gaming_win|home_ubuntu|work_win}~: Desktop systems with GUI applications
+- ~wsl_work_ubuntu~: Windows Subsystem for Linux development environment
 
-** Windows =Start Menu=
-*** Emacs (WSL)
-#+begin_src sh
-C:\Users\Lambert\dev\my\scripts\start-emacs-in-wsl.vbs
-#+end_src
+Each machine class defines specific package lists optimized for that use case.
 
-*** Emacs (MSYS2)
-#+begin_src sh
-C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe
-#+end_src
+Configuration is saved to =.dotfiles.env= for future use.
 
-*** Emacs Client (MSYS2)
-#+begin_src sh
-C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\emacsclientw.exe -c -n --server-file  c:/users/lambert/.emacs.doom/.local/etc/server/server
-#+end_src
+** 4. Bootstrap Your System
 
-*** Emacs Server (MSYS2)
-#+begin_src sh
-C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe --daemon
-#+end_src
+Install essential tools and package managers:
 
-*** Terminal - Alacritty
 #+begin_src sh
-C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory "%USERPROFILE%"
+just bootstrap
+# Or directly: ./bootstrap.sh
 #+end_src
 
-*** Unlock Desktop Session
-#+begin_src sh
-C:\Windows\System32\tscon.exe 8 /dest:console
-#+end_src
+This installs core tools:
+- Python 3 (required for package management)
+- Just (command runner)
+- Stow (symlink management)
+- Platform-specific package managers (brew, apt, pacman)
 
-* Setup base developer environment
-Our primary developer environment is =Doom Emacs=.  To validate that we have a good base install of =Doom Emacs= we can run:
-#+begin_src sh
-doom doctor
-#+end_src
+** 5. Deploy Configurations
 
-While we don't necessarily need to have all the things installed to have a clean report from ~doom doctor~, I like to have a clean report, and so below are the things that need to be installed to get such clean report.
+Deploy dotfiles using the stow system:
 
-** Python
-*** Upgrade system pip
 #+begin_src sh
-python3 -m pip install --upgrade pip
+just stow
 #+end_src
 
-*** Install global packages
-#+begin_src sh
-python3 -m pip install black pyflakes isort pytest nose pipenv
-#+end_src
+** 6. Install Packages
 
-*** Install =pyenv=
-#+begin_src sh
-brew install pyenv
-#+end_src
+Install packages defined in your machine class:
 
-**** Install some versions
 #+begin_src sh
-pyenv install -l  # list available options
-peynv install $some_version
+just install                  # Install everything (system, dev, and app packages)
 #+end_src
 
-** CPP
-#+begin_src sh
-brew install llvm
-#+end_src
+The Python-based system automatically:
+- Detects available package managers
+- Reads machine class configurations
+- Installs packages in proper order (system → dev → app)
+- Handles admin/user separation for system packages
 
-** CC
-#+begin_src sh
-brew install glslang
-#+end_src
+** 7. Verify Setup
 
-** Markdown
-#+begin_src sh
-brew install markdown
-#+end_src
+Check that everything is configured correctly:
 
-** Shell
 #+begin_src sh
-brew install shfmt shellcheck
+just check-health
 #+end_src
 
-** Node-JS
-*** Install packages using =npm=
-#+begin_src sh
-  npm install -g \
-      typescript \
-      typescript-language-server \
-      stylelint \
-      js-beautify \
-      js-tidy \
-      prettier
-#+end_src
+** 8. Configure Package Managers
 
-** Ruby
-#+begin_src sh
-gem install solargraph
-#+end_src
-** Org
+After installation, enable/disable specific package managers:
+
 #+begin_src sh
-brew install graphviz gnuplot
+just register-package-managers   # Interactive PM selection
+just list-package-managers       # Show detected PMs
 #+end_src
+
+* Package Management
+
+After initial setup, the system provides environment-driven package management with user/admin separation:
 
-* Upgrading System/Apps/Packages
-I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.
-** Use =topgrade=
-*** Dry run
+** Package Installation
+
+Install packages for your machine class:
+
 #+begin_src sh
-topgrade -n
+# Install everything (recommended)
+just install                   # Installs all packages via Python orchestration
 #+end_src
+
+For granular control, enter the package-managers context:
 
-** Manual update commands
-*** Homebrew :Linux:macOS:
 #+begin_src sh
-brew update
+just package-managers          # Enter PM context
+# Now in package-managers context:
+just install-brew              # Install only Homebrew packages
+just install-npm               # Install only npm packages
+just install-emacs             # Install only Emacs packages
+# Type 'exit' to return to main
 #+end_src
 
-*** Scoop :Windows:
-#+begin_src powershell
-scoop update; scoop upgrade *
-#+end_src
+The Python system manages:
+- **System packages**: brew, apt, pacman, choco, winget, scoop
+- **Development packages**: npm, pip, pipx, cargo, gem
+- **Application packages**: emacs (elpaca), neovim (lazy.nvim), zsh (zinit)
 
-*** Choco :Windows:
-#+begin_src powershell
-choco upgrade
-#+end_src
+** System Updates
+
+Keep your system and packages up to date with a two-step process:
 
-*** Pacman :Windows:Linux:
+*** Check for Available Updates
+
+First, update registries and see what updates are available:
+
 #+begin_src sh
-pacman -Syu
+just update             # Update registries & check for updates
 #+end_src
+
+This operation:
+- Updates package manager registries (fetches latest package info)
+- Prompts you to select which package managers to check
+- Shows which packages have updates available
+- Does NOT install anything
+
+*** Upgrade Packages
+
+After reviewing available updates, upgrade when ready:
 
-*** Nix/Home Manager :Linux:macOS:
 #+begin_src sh
-nix-channel --update
-home-manager switch
+just upgrade            # Interactive: select which PMs to upgrade
 #+end_src
 
-*** Python Index Package manager
+This will:
+- Upgrade packages to their latest versions
+- Clean up old versions where appropriate
+- Admin upgrades may prompt for your password
+
+*** Advanced Package Management
+
+For granular control over specific package managers:
+
 #+begin_src sh
-brew update
-pip3 -m install pip --upgrade
+just package-managers      # Enter package-managers context
+# Now you can:
+just check-brew           # Check only Homebrew
+just upgrade-npm          # Upgrade only npm packages
+just install-emacs        # Install only Emacs packages
+# Type 'exit' to return
 #+end_src
+
+* Platform-Specific Notes
+
+** macOS
+- Uses Homebrew as primary package manager (brew/cask)
+- GUI apps available in GUI_APPS categories
+- Emacs via homebrew tap (emacs-plus@31)
+- Platform-specific configs: git_osx, shell_osx, gnupg_osx
+
+** Linux (Arch/Ubuntu)
+- Arch: pacman (core) + AUR via yay helper
+- Ubuntu: apt (core) + Homebrew Linux (additional packages)
+- Emacs via AUR (emacs-plus) on Arch, apt on Ubuntu
+- Platform-specific configs: git_linux, shell_linux, gnupg_linux
 
-*** Linux OS :Linux:
-**** CentOS
+** Windows
+- Scoop as primary package manager
+- MSYS2 for Unix-like environment and additional packages
+- Limited GUI application support
+- Platform-specific configs: git_win, shell_msys2, gnupg_win
+
+* Modal Interface (Advanced)
+
+The system uses a modal interface with specialized contexts for advanced operations:
+
+** Main Context
+The main =just= interface shows only essential commands:
+- Setup: configure, bootstrap, stow
+- Package Management: install, update, upgrade
+- System: check-health
+- Info: show-config, package-summary
+
+** Specialized Contexts
+
+Enter contexts for advanced operations:
+
 #+begin_src sh
-sudo yum update
+# Testing context - Docker and Python tests
+just testing
+just test              # Run Python tests
+just test-all-ubuntu   # Run Docker tests
+exit                   # Return to main
+
+# Debugging context - Health, logs, troubleshooting
+just debugging
+just logs              # View recent logs
+just cleanup-broken-links  # Fix symlink issues
+exit                   # Return to main
+
+# Package managers context - Granular PM control
+just package-managers
+just check-brew        # Check only Homebrew
+just upgrade-npm       # Upgrade only npm
+exit                   # Return to main
 #+end_src
+
+* Health Check & Debugging
 
-**** Ubuntu
+** System Health Validation
+
+The health check tool validates your dotfiles setup:
+
 #+begin_src sh
-sudo apt update
+just check-health
 #+end_src
+
+It reports:
+- Total symlinks managed by stow
+- Any broken symlinks that need attention
+- Overall system health status
 
-**** Arch
+** Advanced Debugging
+
+For detailed troubleshooting, enter the debug context:
+
 #+begin_src sh
-pacman -Syu
+just debugging         # Enter debug context
+just logs              # View recent logs
+just logs-errors       # Show only errors
+just cleanup-broken-links      # Preview broken links
+just cleanup-broken-links-remove  # Remove broken links
+exit                   # Return to main
 #+end_src
+
+* Common Tasks
+
+** Update Package Lists
+
+The configuration system manages packages via machine class directories in `machine-classes/`. Each machine class contains package manager-specific files using native formats. To add new packages:
 
-* Testing using Docker
-** Pull docker base image
+1. Identify the appropriate machine class (e.g., `docker_developer_ubuntu`, `laptop_personal_mac`)
+2. Navigate to the appropriate package manager directory
+3. Edit the package manager's native format file
+
+Examples:
 #+begin_src sh
-docker pull archlinux/archlinux:base-devel
+# For Homebrew (macOS/Linux) - User packages (no sudo)
+echo 'brew "your-new-package"' >> machine-classes/laptop_work_mac/brew/packages.user
+
+# For Homebrew (macOS/Linux) - Admin packages (requires sudo)
+echo 'cask "your-gui-app"' >> machine-classes/laptop_work_mac/brew/packages.admin
+
+# For apt packages (Ubuntu)
+echo "your-new-package" >> machine-classes/docker_developer_ubuntu/apt/packages.txt
+
+# For pacman (Arch)
+echo "your-new-package" >> machine-classes/docker_developer_arch/pacman/packages.txt
 #+end_src
+
+** Restow Configurations
+
+If you've modified configs, restow to update symlinks:
 
-** Build docker image
 #+begin_src sh
-docker build --ssh default -t lambertgreen/dotfiles .
+just stow    # Uses your configured platform automatically
 #+end_src
 
-** Run docker container
+** Show Current Configuration
+
+View your current configuration settings:
+
 #+begin_src sh
-docker run -it lambertgreen/dotfiles
+just show-config
 #+end_src
+
+* Troubleshooting
+
+** Permission Denied Errors
+- Ensure you have sudo access for bootstrap phase
+- Package installation may require admin privileges
+- Use =just debugging= context for detailed logs
+
+** Symlink Conflicts
+- Use =just check-health= to identify issues
+- Enter debug context: =just debugging=
+- Use =just cleanup-broken-links= to preview issues
+- Remove conflicting files or use force install
+- Common conflicts: =.bashrc=, =.zshrc= from system defaults
+
+** Package Manager Issues
+- Use =just list-package-managers= to see detected PMs
+- Use =just register-package-managers= to enable/disable specific PMs
+- Enter PM context for granular control: =just package-managers=
+- Check Python cache: ensure no =__pycache__= directories are tracked
+
+** Work Machine Restrictions
+- Configure only the components you need on work machines
+- GUI applications may require admin access on some systems
+- Advanced window managers and system tools are in advanced categories for optional installation
+- Use machine class system to define work-appropriate package sets
+
+* Testing
+
+The dotfiles project includes comprehensive Docker-based testing to validate configurations across multiple platforms and machine classes.
+
+For detailed testing documentation, baselines, and success criteria, see [[file:test/Testing.org][Testing Documentation]].
+
+* Contributing
+
+1. Make changes in appropriate config directory (`configs/common/`, `configs/osx_only/`, etc.)
+2. Test using Docker test infrastructure: `cd test && just test-developer-arch`
+3. Run health check to verify changes: `just check-health`
+4. Update machine class package lists if adding new packages
+5. Submit PR with description of changes
 
-* TODOs
-For a detailed list of tasks and ongoing work, please refer to the [[file:TODO.org][TODOs file]].
+For more detailed information, see the comprehensive setup guide in [[file:README.old.org][README.old.org]].

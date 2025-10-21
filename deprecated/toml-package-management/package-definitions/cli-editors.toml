@@ -1,0 +1,81 @@
+# CLI Editors Package Definitions
+# Primary and advanced command-line text editors
+
+[metadata]
+category = "cli-editors"
+description = "Essential command-line text editors for development"
+priority = "p1"  # Essential packages
+
+# =============================================================================
+# PRIMARY EDITORS (P1)
+# =============================================================================
+
+[packages.neovim]
+description = "Hyperextensible Vim-based text editor"
+health_check = "nvim --version"
+executable = "nvim"
+priority = "p1"
+
+[packages.neovim.install]
+arch_pacman = "neovim"
+ubuntu_brew = "neovim"  # Ubuntu APT has old 0.6.1, using Homebrew for newer version
+osx_brew = "neovim"
+win_scoop = "neovim"
+
+[packages.emacs]
+description = "Extensible, customizable text editor and computing environment"
+health_check = "emacs --version"
+executable = "emacs"
+priority = "p1"
+
+[packages.emacs.install]
+arch_pacman = "emacs"  # Official Arch package with native compilation
+ubuntu_brew = "emacs"  # Ubuntu APT has old version, using Homebrew for newer version
+osx_brew = "emacs-mac-exp@31"  # Mac-specific Emacs build (railwaycat/emacsmacport)
+win_scoop = "emacs"
+
+# =============================================================================
+# ADVANCED/MODERN EDITORS (P2)
+# =============================================================================
+
+[packages.helix]
+description = "A post-modern modal text editor"
+health_check = "hx --version"
+executable = "hx"
+priority = "p2"
+
+[packages.helix.install]
+arch_pacman = "helix"
+ubuntu_brew = "helix"  # Note: Ubuntu uses homebrew for helix
+osx_brew = "helix"
+# Note: helix not in scoop main, use choco
+win_choco = "helix"
+
+# =============================================================================
+# TERMINAL TOOLS & DOCUMENT PROCESSING (P1)
+# =============================================================================
+
+[packages.tmux]
+description = "Terminal multiplexer for session management"
+health_check = "tmux -V"
+executable = "tmux"
+priority = "p1"
+
+[packages.tmux.install]
+arch_pacman = "tmux"
+ubuntu_apt = "tmux"
+osx_brew = "tmux"
+win_pacman = "tmux"
+
+[packages.pandoc]
+description = "Universal markup converter"
+health_check = "pandoc --version"
+executable = "pandoc"
+priority = "p1"
+
+[packages.pandoc.install]
+arch_pacman = "pandoc"
+ubuntu_apt = "pandoc"
+osx_brew = "pandoc"
+# Note: pandoc not in scoop main, use choco
+win_choco = "pandoc"

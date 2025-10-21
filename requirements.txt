@@ -1,0 +1,12 @@
+# Dotfiles Project Dependencies
+#
+# This project uses only Python standard library for runtime.
+# Dependencies listed here are for development and testing.
+
+# Testing framework
+pytest>=8.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Development tools
+pre-commit>=3.0.0

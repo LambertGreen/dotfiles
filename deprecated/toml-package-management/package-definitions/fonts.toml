@@ -1,0 +1,88 @@
+# Font Package Definitions
+# Fonts that are available via package managers use those
+# Fonts that require direct download use the font-installer tool
+
+[metadata]
+category = "fonts"
+description = "Programming and UI fonts"
+priority = "p3"  # Fonts are optional - apps should have fallbacks
+
+# =============================================================================
+# PROGRAMMING FONTS (via package managers on macOS)
+# =============================================================================
+
+[packages.font-iosevka-nerd-font]
+description = "Iosevka Nerd Font - programming font with ligatures and icons"
+health_check = "ls ~/Library/Fonts/IosevkaNerdFont*.ttf >/dev/null 2>&1 || ls ~/.local/share/fonts/IosevkaNerdFont*.ttf >/dev/null 2>&1"
+executable = "echo"  # No executable for fonts
+priority = "p3"
+notes = "Primary font for Linux systems in Emacs config"
+
+[packages.font-iosevka-nerd-font.install]
+# Available via Homebrew on macOS
+osx_cask = "font-iosevka-nerd-font"
+# Other platforms need manual installation
+arch_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh iosevka-nerd-font"
+ubuntu_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh iosevka-nerd-font"
+
+[packages.font-symbols-nerd-font]
+description = "Symbols Nerd Font Mono - icon font for terminal/editor"
+health_check = "ls ~/Library/Fonts/SymbolsNerdFont*.ttf >/dev/null 2>&1 || ls ~/.local/share/fonts/SymbolsNerdFont*.ttf >/dev/null 2>&1"
+executable = "echo"  # No executable for fonts
+priority = "p3"
+notes = "Used as fallback/icon font across all platforms"
+
+[packages.font-symbols-nerd-font.install]
+# Available via Homebrew on macOS
+osx_cask = "font-symbols-nerd-font-mono"
+# Direct download available for other platforms
+arch_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh symbols-nerd-font"
+ubuntu_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh symbols-nerd-font"
+
+# =============================================================================
+# MANUAL INSTALLATION FONTS
+# =============================================================================
+
+[packages.font-aporetic-sans-mono]
+description = "Aporetic Sans Mono - clean monospace font"
+health_check = "ls ~/Library/Fonts/Apo*Sans*Mono*.ttf >/dev/null 2>&1 || ls ~/.local/share/fonts/Apo*Sans*Mono*.ttf >/dev/null 2>&1"
+executable = "echo"  # No executable for fonts
+priority = "p3"
+notes = "Primary font for macOS in Emacs config"
+
+[packages.font-aporetic-sans-mono.install]
+# Available via Homebrew on macOS
+osx_brew = "font-aporetic"
+# Direct download available for other platforms
+arch_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh aporetic-sans-mono"
+ubuntu_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh aporetic-sans-mono"
+
+[packages.font-minimap]
+description = "Minimap font for code minimap views in editors"
+health_check = "ls ~/Library/Fonts/Minimap.ttf >/dev/null 2>&1 || ls ~/.local/share/fonts/Minimap.ttf >/dev/null 2>&1"
+executable = "echo"  # No executable for fonts
+priority = "p3"
+notes = "Specialized font for minimap views"
+
+[packages.font-minimap.install]
+# Direct download available on all platforms
+osx_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh minimap"
+arch_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh minimap"
+ubuntu_custom = "$DOTFILES_DIR/tools/font-installer/font-installer.sh minimap"
+
+# NOTE: The following fonts require manual installation:
+# 
+# 1. Aporetic Sans Mono (macOS primary font)
+#    - Not available via Homebrew
+#    - Download from: https://github.com/aporetic/aporetic-sans-mono
+#    - Install by copying to ~/Library/Fonts/
+#
+# 2. Platform-specific considerations:
+#    - macOS: Fonts go in ~/Library/Fonts/
+#    - Linux: Fonts go in ~/.local/share/fonts/ or /usr/share/fonts/
+#    - Windows: Fonts go in C:\Windows\Fonts\
+#
+# 3. After installing fonts manually:
+#    - macOS: No additional steps needed
+#    - Linux: Run 'fc-cache -fv' to update font cache
+#    - Windows: Fonts should be available immediately
