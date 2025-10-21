@@ -452,8 +452,8 @@ def main():
     print("🔍 Package Manager Check")
     print("=" * 25)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for check operations
+    available_pms = detect_all_pms(operation='check')
 
     if not available_pms:
         print("❌ No package managers detected")

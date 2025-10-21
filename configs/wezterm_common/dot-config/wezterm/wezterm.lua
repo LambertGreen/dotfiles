@@ -197,6 +197,12 @@ config.keys = {
     mods = 'LEADER',
     action = wezterm.action({ CloseCurrentPane = { confirm = true } }),
   },
+
+  -- Config from Claude Code Wezterm setup integration
+  {
+    key="Enter",
+    mods="SHIFT",
+    action=wezterm.action{SendString="\x1b\r"}},
 }
 
 return config

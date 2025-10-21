@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/bootstrap-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
@@ -138,10 +138,6 @@ fi
 
 log_output ""
 log_output "✅ Bootstrap completed!"
-log_output ""
-log_output "Next steps:"
-log_output "  just stow           # Deploy configurations"
-log_output "  just check-health   # Verify setup"
 
 log_output ""
 log_output "📝 Bootstrap session logged to: ${LOG_FILE}"

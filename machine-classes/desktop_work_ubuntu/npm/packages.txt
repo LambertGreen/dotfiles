@@ -1,0 +1,11 @@
+# NPM global packages for desktop work Ubuntu
+# Principle: Keep minimal - editors manage their own dependencies
+# Strategy: Start small, expand as needs are discovered
+
+# TypeScript compiler for standalone work (org-mode blocks, one-offs, REPL)
+typescript
+
+# MCP server development tool
+
+# Standalone formatter CLI for quick fixes
+prettier

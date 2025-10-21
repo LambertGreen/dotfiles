@@ -9,54 +9,6 @@ uname_cached() {
     printf '%s\n' "$__cached_uname"
 }
 
-# * Homebrew
-lgreen_setup_homebrew() {
-    export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
-
-    if [[ -x /opt/homebrew/bin/brew ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-
-         # Add compilation paths for native extensions
-        export CPATH="/opt/homebrew/include${CPATH:+:$CPATH}"
-        export COMPILER_PATH="/opt/homebrew/bin:${COMPILER_PATH}"
-        export LIBRARY_PATH="/opt/homebrew/lib:/opt/homebrew/lib/gcc/current:${LIBRARY_PATH}"
-        export PKG_CONFIG_PATH="/opt/homebrew/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-    fi
-
-    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
-        # TODO: Find a long-term fix for PATH env setting and build systems
-        #
-        # Instead of prepending linuxbrew we instead append it to
-        # the PATH so as not to disrupt some builds that need the
-        # system loader first in the path.
-        export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
-
-        # Homebrew writes out an error if the system versions of curl and git are
-        # old (this happens on CentOS 7). However I ran into issues when I installed
-        # these binaries via another package manager (e.g. nix/home-manager), where Homebrew
-        # could not find the cacerts.  So the workaround is to temporarily disable SSL checking
-        # for both curl and git (https://github.com/Linuxbrew/brew/wiki/FAQ#why-does-curl-fail), then
-        # use Homebrew to download latest versions, and removing the workaround, then pointing
-        # Homebrew to these versions.
-        # Only set these if the Homebrew versions exist, otherwise Homebrew commands will fail
-        if [ -x "/home/linuxbrew/.linuxbrew/bin/curl" ]; then
-            export HOMEBREW_CURL_PATH=/home/linuxbrew/.linuxbrew/bin/curl
-        fi
-        if [ -x "/home/linuxbrew/.linuxbrew/bin/git" ]; then
-            export HOMEBREW_GIT_PATH=/home/linuxbrew/.linuxbrew/bin/git
-        fi
-
-        # The below will update the shell environment:
-        # - Add some HOMEBREW environment variables
-        # - Update PATH, MANPATH, INFOPATH to have linuxbrew paths prepended
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-        # Ensure Homebrew's lib is in LD_LIBRARY_PATH without overriding system paths
-        DEFAULT_LD_LIBRARY_PATH="/usr/lib:/usr/lib/x86_64-linux-gnu:/lib:/lib/x86_64-linux-gnu"
-        export LD_LIBRARY_PATH="$DEFAULT_LD_LIBRARY_PATH:/home/linuxbrew/.linuxbrew/lib"
-    fi
-}
-
 # * GCC
 lgreen_setup_gcc_symlinks() {
     if [[ -x /opt/homebrew/bin/brew ]] && command -v brew >/dev/null 2>&1; then
@@ -104,33 +56,34 @@ lgreen_setup_gcc() {
 
 # * Agents (SSH/GPG)
 lgreen_start_agents() {
+    # Export GPG_TTY BEFORE keychain runs so pinentry can prompt properly
+    export GPG_TTY=$(tty)
+
+    # Build keychain flags - only allow forwarded agents in SSH sessions
+    local keychain_flags=(--nogui --quiet --ignore-missing --eval)
+    if [ -n "$SSH_TTY" ]; then
+        keychain_flags+=(--ssh-allow-forwarded)
+    fi
+
     if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
         if command -v keychain >/dev/null; then
-            eval "$(keychain \
-                --nogui --quiet --quick --ignore-missing \
-                --eval \
+            eval "$(keychain ${keychain_flags[@]} \
                 id_rsa_personal id_rsa id_ed25519 \
-                --ssh-allow-forwarded \
-                --ssh-allow-gpg
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
             )"
         fi
     elif [ "$(uname_cached)" = "Linux" ]; then
         if command -v keychain >/dev/null; then
-            eval "$(keychain \
-                --nogui --quiet --quick --ignore-missing \
-                --eval \
+            eval "$(keychain ${keychain_flags[@]} \
                 id_rsa_personal id_rsa id_ed25519 \
-                --ssh-allow-forwarded \
-                --ssh-allow-gpg
+                C1D12B816253EFFD \
+                66C09F6FD3D4A735
             )"
         fi
     fi
-}
-
-lgreen_export_gpg_tty() {
-    export GPG_TTY=$(tty)
 }
 
 # * Ripgrep
@@ -139,35 +92,30 @@ lgreen_export_ripgrep_config_path() {
     export COLORTERM=truecolor
 }
 
-# * Platform-specific profiles
-lgreen_source_platform_profile() {
-    # Source platform-specific profile files based on uname detection
-    local uname_result="$(uname_cached)"
-    
-    case "$uname_result" in
-        *"_NT"*)
-            # MSYS2/Windows
-            if [[ -f ~/.profile_msys2 ]]; then
-                source ~/.profile_msys2
-            fi
-            if [[ -f ~/.shell_msys2 ]]; then
-                source ~/.shell_msys2
-            fi
-            ;;
-        Darwin)
-            # macOS - could add macOS-specific profiles here if needed
-            ;;
-        Linux)
-            # Linux - could add Linux-specific profiles here if needed
-            ;;
-    esac
-}
-
 # * == MAIN ==
-lgreen_setup_homebrew
+# Note: Platform environments (.env_linux, .env_osx) are sourced from .zshenv
+# so PATH is available to all shells. Here we only do login-specific setup.
 lgreen_setup_gcc_symlinks
 lgreen_setup_gcc
 lgreen_start_agents
-lgreen_export_gpg_tty
 lgreen_export_ripgrep_config_path
-lgreen_source_platform_profile
+
+# * Onetime Setup
+# Source onetime setup functions (platform-specific via stow)
+[ -f ~/.onetimesetup.sh ] && source ~/.onetimesetup.sh
+
+if [ "$(uname_cached)" = "Darwin" ]; then
+    [ -f ~/.onetimesetup_osx.sh ] && source ~/.onetimesetup_osx.sh
+elif [ "$(uname_cached)" = "Linux" ]; then
+    [ -f ~/.onetimesetup_linux.sh ] && source ~/.onetimesetup_linux.sh
+    [ -f ~/.onetimesetup_wsl.sh ] && source ~/.onetimesetup_wsl.sh
+fi
+
+# Warn if not complete (non-blocking)
+if command -v lgreen_onetimesetup_check_done >/dev/null 2>&1; then
+    if ! lgreen_onetimesetup_check_done; then
+        echo ""
+        echo "⚠  Onetime setup not complete. Run: lgreen_onetimesetup_run_all"
+        echo ""
+    fi
+fi

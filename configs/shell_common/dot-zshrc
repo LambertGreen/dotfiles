@@ -420,6 +420,89 @@ uname_cached() {
     fi
     printf '%s\n' "$__cached_uname"
 }
+lgreen_checkhealth_ssh() {
+    echo "SSH Agent Health Check"
+    echo "======================"
+
+    if [ -z "$SSH_AUTH_SOCK" ]; then
+        echo "✗ SSH_AUTH_SOCK not set"
+        return 1
+    fi
+    echo "✓ SSH_AUTH_SOCK: $SSH_AUTH_SOCK"
+
+    if ! command -v ssh-add >/dev/null 2>&1; then
+        echo "✗ ssh-add not found"
+        return 1
+    fi
+
+    local ssh_keys
+    ssh_keys=$(ssh-add -l 2>&1)
+    local ret=$?
+
+    if [ $ret -eq 0 ]; then
+        echo "✓ SSH keys loaded:"
+        echo "$ssh_keys" | sed 's/^/  /'
+        return 0
+    elif [ $ret -eq 1 ]; then
+        echo "✗ No SSH keys loaded in agent"
+        return 1
+    else
+        echo "✗ SSH agent not running or not accessible"
+        return 1
+    fi
+}
+lgreen_checkhealth_gpg() {
+    echo "GPG Agent Health Check"
+    echo "======================"
+
+    if [ -z "$GPG_TTY" ]; then
+        echo "✗ GPG_TTY not set"
+        return 1
+    fi
+    echo "✓ GPG_TTY: $GPG_TTY"
+
+    if ! command -v gpg >/dev/null 2>&1; then
+        echo "✗ gpg not found"
+        return 1
+    fi
+
+    if ! pgrep -x gpg-agent >/dev/null 2>&1; then
+        echo "✗ gpg-agent not running"
+        return 1
+    fi
+    echo "✓ gpg-agent running (PID: $(pgrep -x gpg-agent))"
+
+    # Test if we can sign without passphrase prompt (cached)
+    if echo "test" | gpg --clearsign --local-user C1D12B816253EFFD >/dev/null 2>&1; then
+        echo "✓ GPG key C1D12B816253EFFD cached and working"
+    else
+        echo "⚠ GPG key C1D12B816253EFFD not cached (passphrase needed)"
+    fi
+
+    if echo "test" | gpg --clearsign --local-user 66C09F6FD3D4A735 >/dev/null 2>&1; then
+        echo "✓ GPG key 66C09F6FD3D4A735 cached and working"
+    else
+        echo "⚠ GPG key 66C09F6FD3D4A735 not cached (passphrase needed)"
+    fi
+
+    return 0
+}
+lgreen_checkhealth_agents() {
+    lgreen_checkhealth_ssh
+    local ssh_ret=$?
+    echo
+    lgreen_checkhealth_gpg
+    local gpg_ret=$?
+
+    echo
+    if [ $ssh_ret -eq 0 ] && [ $gpg_ret -eq 0 ]; then
+        echo "Overall Status: ✓ All agents healthy"
+        return 0
+    else
+        echo "Overall Status: ✗ Some agents have issues"
+        return 1
+    fi
+}
 lgreen_make_clean_zdotdir() {
   local tmpdir
   tmpdir=$(mktemp -d)
@@ -579,3 +662,9 @@ export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # For Claude Code
+# Added by dx-cli for Claude Code CA certificates
+# exportNODE_EXTRA_CA_CERTS="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+# # Added by lgreen trying to fix Claude issue: 400 API Error
+# export SSL_CERT_FILE="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+
+# export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0

@@ -6,7 +6,7 @@ set -euo pipefail
 
 # Set up logging
 DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/configure-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
@@ -43,11 +43,11 @@ prompt_with_timeout() {
     if read -t $PROMPT_TIMEOUT -p "$prompt" "$variable_name"; then
         # User provided input within timeout
         if [[ -z "${!variable_name}" ]]; then
-            declare -g "$variable_name"="$default"
+            eval "$variable_name=\"$default\""
         fi
     else
         # Timeout occurred, use default
-        declare -g "$variable_name"="$default"
+        eval "$variable_name=\"$default\""
         echo "$default"
         log_verbose "Timeout after ${PROMPT_TIMEOUT}s, using default: $default"
     fi
@@ -252,6 +252,15 @@ echo "# Generated on $(date)" >> ~/.dotfiles.env
 echo "export DOTFILES_PLATFORM=$PLATFORM" >> ~/.dotfiles.env
 echo "export DOTFILES_MACHINE_CLASS=$MACHINE_CLASS" >> ~/.dotfiles.env
 
+# WSL-specific configuration
+if grep -qi microsoft /proc/version 2>/dev/null || grep -qi wsl /proc/version 2>/dev/null; then
+    echo "" >> ~/.dotfiles.env
+    echo "# WSL-specific: Disable Windows package managers" >> ~/.dotfiles.env
+    echo "# Windows packages should be managed from Windows side" >> ~/.dotfiles.env
+    echo "export DOTFILES_PM_DISABLED=scoop,choco,winget" >> ~/.dotfiles.env
+    log_verbose "Detected WSL environment - disabled Windows package managers"
+fi
+
 echo ""
 
 # Show expected package managers for this machine class (informational only)
@@ -280,8 +289,8 @@ if [[ -n "$MACHINE_CLASS" ]]; then
                 echo "   • $pm"
             done
             echo ""
-            echo "ℹ️  Note: Package managers will be installed during 'just install-packages'"
-            echo "    After installation, run 'just register-pms' to enable/disable them"
+            echo "ℹ️  Note: Package managers will be installed during package installation"
+            echo "    After installation, run package manager registration to enable/disable them"
         else
             echo "⚠️  No package managers configured for machine class: $MACHINE_CLASS"
         fi
@@ -296,12 +305,6 @@ cat ~/.dotfiles.env
 echo ""
 echo "🎉 Configuration complete!"
 echo ""
-echo "Next steps:"
-echo "  just bootstrap        - Install core tools (Python, stow, just, etc.)"
-echo "  just stow            - Deploy configuration files"
-echo "  just install-packages - Install packages"
-echo "  just register-pms    - Enable/disable package managers"
-echo "  just check-health    - Validate system health"
 
 echo ""
 echo "📝 Configuration session logged to: ${LOG_FILE}"

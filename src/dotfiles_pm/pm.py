@@ -16,13 +16,14 @@ from .pm_select import select_pms
 from .pm_check import check_all_pms
 from .pm_upgrade import upgrade_all_pms
 from .pm_configure import configure_pms, save_pm_config
+from .terminal_executor import _save_terminal_registry
 
 
 def cmd_list(args):
     """List available package managers with selection numbers."""
     from .pm_executor import get_pm_priority
 
-    pms = detect_all_pms()
+    pms = detect_all_pms()  # cmd_list shows all PMs for display
 
     if not pms:
         print("No package managers detected")
@@ -53,11 +54,14 @@ def cmd_list(args):
 
 def cmd_check(args):
     """Check for outdated packages."""
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
     print("🔍 Package Manager Check")
     print("=" * 25)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for check operations
+    available_pms = detect_all_pms(operation='check')
 
     if not available_pms:
         print("❌ No package managers detected")
@@ -129,11 +133,14 @@ def cmd_check(args):
 
 def cmd_upgrade(args):
     """Upgrade packages."""
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
     print("⬆️ Package Manager Upgrade")
     print("=" * 27)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for upgrade operations
+    available_pms = detect_all_pms(operation='upgrade')
 
     if not available_pms:
         print("❌ No package managers detected")
@@ -232,15 +239,26 @@ def cmd_install(args):
     """Install packages."""
     from .pm_install import install_all_pms
 
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
     print("📦 Package Manager Installation")
     print("=" * 32)
 
-    # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for install operations
+    available_pms = detect_all_pms(operation='install')
 
     if not available_pms:
         print("❌ No package managers detected")
         return 1
+
+    # Filter out self-bootstrapping app PMs (they don't need install, just update/upgrade)
+    self_bootstrapping_pms = {'emacs', 'zinit', 'neovim'}
+    available_pms = [pm for pm in available_pms if pm not in self_bootstrapping_pms]
+
+    if not available_pms:
+        print("❌ No package managers need installation (app PMs bootstrap themselves)")
+        return 0
 
     # Filter by category if specified
     if args.category:
@@ -299,6 +317,10 @@ def cmd_install(args):
     print()
     print(f"📈 Total packages installed: {total_installed}")
     print(f"🎯 Successful installations: {successful_installs}/{len(selected_pms)}")
+
+    # Offer to close spawned terminals
+    from .terminal_executor import prompt_close_terminals
+    prompt_close_terminals()
 
     return 0 if successful_installs == len(selected_pms) else 1
 

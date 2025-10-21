@@ -366,6 +366,21 @@ _check_package_health() {
     local checked_packages=0
     local failed_packages=0
 
+    # Detect system PM and warn if not configured
+    local system_pm=""
+    if command -v apt >/dev/null 2>&1; then
+        system_pm="apt"
+    elif command -v pacman >/dev/null 2>&1; then
+        system_pm="pacman"
+    fi
+
+    if [[ -n "$system_pm" ]] && [[ ! -d "$machine_dir/$system_pm" ]]; then
+        $log_output "  • ⚠️  System PM '$system_pm' available but not configured"
+        $log_output "    💡 Tip: Export installed packages and add $system_pm/packages.txt to machine class"
+        $log_output "    💡 Run: $system_pm list --installed (or similar) to see what's installed"
+        WARNINGS+=("System PM $system_pm not configured - consider exporting installed packages")
+    fi
+
     # Check each package manager that has configuration
     for pm_dir in "$machine_dir"/*; do
         if [[ ! -d "$pm_dir" ]]; then
@@ -391,9 +406,48 @@ _check_package_health() {
         # Check packages based on package manager type
         case "$pm_name" in
             brew)
-                # Check for classified system first (preferred)
-                if [[ -f "$pm_dir/Brewfile.formulas.non_admin" ]]; then
-                    $log_output "    - ✅ Using classified Brewfile system"
+                # Check for single Brewfile first (current standard)
+                if [[ -f "$pm_dir/Brewfile" ]]; then
+                    $log_output "    - ✅ Using standard Brewfile"
+
+                    # Count packages in Brewfile
+                    local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    # Strip any newlines or carriage returns from grep output
+                    brew_count="${brew_count//[$'\r\n']/}"
+                    cask_count="${cask_count//[$'\r\n']/}"
+                    local total_brewfile=$((${brew_count:-0} + ${cask_count:-0}))
+
+                    # Get system info
+                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
+                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
+
+                    $log_output "    - 📊 $brew_info"
+                    $log_output "    - 📦 Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
+                    $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
+
+                    # Check if packages match Brewfile
+                    if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
+                        $log_output "    - ✅ All Brewfile packages installed"
+                        PACKAGE_PASSED+=("$pm_name (Brewfile)")
+                    else
+                        $log_output "    - ⚠️  Some Brewfile packages missing or outdated"
+                        WARNINGS+=("$pm_name: Some packages missing or outdated")
+                        PACKAGE_FAILED+=("$pm_name (Brewfile)")
+                        failed_packages=$((failed_packages + 1))
+                    fi
+                    checked_packages=$((checked_packages + 1))
+
+                # Experimental split format (used in some Docker tests)
+                elif [[ -f "$pm_dir/packages.user" ]] || [[ -f "$pm_dir/packages.admin" ]]; then
+                    $log_output "    - ℹ️  Using experimental split packages format (Docker testing)"
+                    PACKAGE_PASSED+=("$pm_name (split format)")
+                    checked_packages=$((checked_packages + 1))
+
+                # Brewfile.* split format (used on personal mac for sudo separation)
+                elif [[ -f "$pm_dir/Brewfile.formulas.non_admin" ]]; then
+                    $log_output "    - ℹ️  Using Brewfile.* split format (personal mac)"
 
                     # Count packages across all classified Brewfiles
                     local total_formulae=0 total_casks=0 total_mas=0
@@ -422,46 +476,10 @@ _check_package_health() {
                     local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
 
                     $log_output "    - 📊 $brew_info"
-                    $log_output "    - 📦 Classified Brewfiles: $total_formulae formulae, $total_casks casks, $total_mas mas ($brewfile_count files)"
+                    $log_output "    - 📦 Split Brewfiles: $total_formulae formulae, $total_casks casks, $total_mas mas ($brewfile_count files)"
                     $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
-
-                    # Note: Can't use brew bundle check with classified system, so consider it healthy if files exist
-                    $log_output "    - ✅ Classified Brewfiles structure validated"
-                    PACKAGE_PASSED+=("$pm_name (Classified Brewfiles)")
-                    checked_packages=$((checked_packages + 1))
-
-                # Fallback to legacy Brewfile system
-                elif [[ -f "$pm_dir/Brewfile" ]]; then
-                    $log_output "    - ⚠️  Using legacy Brewfile system"
-                    WARNINGS+=("$pm_name: Using legacy Brewfile system - consider migrating to classified system")
-
-                    # Count packages in Brewfile
-                    local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
-                    local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
-                    # Strip any newlines or carriage returns from grep output
-                    brew_count="${brew_count//[$'\r\n']/}"
-                    cask_count="${cask_count//[$'\r\n']/}"
-                    local total_brewfile=$((${brew_count:-0} + ${cask_count:-0}))
-
-                    # Get system info
-                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
-                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
-                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
-
-                    $log_output "    - 📊 $brew_info"
-                    $log_output "    - 📦 Legacy Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
-                    $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
-
-                    # Check if packages match Brewfile
-                    if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
-                        $log_output "    - ✅ All Brewfile packages installed"
-                        PACKAGE_PASSED+=("$pm_name (Legacy Brewfile)")
-                    else
-                        $log_output "    - ⚠️  Some Brewfile packages missing or outdated"
-                        WARNINGS+=("$pm_name: Some packages missing or outdated")
-                        PACKAGE_FAILED+=("$pm_name (Legacy Brewfile)")
-                        failed_packages=$((failed_packages + 1))
-                    fi
+                    $log_output "    - ✅ Brewfile.* structure validated"
+                    PACKAGE_PASSED+=("$pm_name (Brewfile.* split)")
                     checked_packages=$((checked_packages + 1))
                 fi
                 ;;
@@ -601,7 +619,26 @@ _check_package_health() {
         $log_output "  • ℹ️  No package managers configured for health checking"
     fi
 
+    # Check for disabled package managers
+    _check_disabled_package_managers "$log_output"
+
     $log_output
+}
+
+# Check for disabled package managers
+# Usage: _check_disabled_package_managers log_output
+_check_disabled_package_managers() {
+    local log_output="$1"
+
+    # Check if any package managers are disabled
+    if [[ -n "${DOTFILES_PM_DISABLED:-}" ]]; then
+        $log_output "🔧 Disabled Package Managers"
+        $log_output "  • ⚠️  The following package managers are disabled:"
+        $log_output "    - $DOTFILES_PM_DISABLED"
+        $log_output "  • 💡 This should only be temporary for debugging"
+        $log_output "  • 💡 To re-enable: unset DOTFILES_PM_DISABLED"
+        $log_output
+    fi
 }
 
 # Legacy TOML-based functions removed - now using native package management

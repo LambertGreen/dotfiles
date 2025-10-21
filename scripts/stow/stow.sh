@@ -4,8 +4,7 @@
 set -euo pipefail
 
 # Set up logging
-DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/.logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/stow-$(date +%Y%m%d-%H%M%S).log"
 
 # Create log directory if it doesn't exist
@@ -40,7 +39,7 @@ log_output "🔗 Stowing ${PLATFORM} configurations using environment-driven app
 
 # Check if configured
 if [ ! -f "$HOME/.dotfiles.env" ]; then
-    log_output "❌ Configuration file missing. Run: just configure"
+    log_output "❌ Configuration file missing. Run configuration first"
     exit 1
 fi
 
@@ -77,7 +76,14 @@ while IFS= read -r stow_entry; do
     fi
 
     if [ -d "$stow_package" ]; then
-        if stow --dotfiles --target="$HOME" "$stow_package" 2>>"${LOG_FILE}"; then
+        # Check if package has .stowrc with --no-folding (for file-level symlinking)
+        stow_opts="--dotfiles --target=$HOME"
+        if [ -f "$stow_package/.stowrc" ] && grep -q "no-folding" "$stow_package/.stowrc"; then
+            stow_opts="$stow_opts --no-folding"
+            log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
+        fi
+
+        if stow $stow_opts "$stow_package" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"
         else
             log_verbose "Failed to stow: $stow_package (exit code: $?)"
@@ -95,7 +101,7 @@ log_output ""
 log_output "✅ Stow operation completed (GNU Stow only reports errors)"
 log_output ""
 log_output "💡 To verify symlinks were created successfully, run:"
-log_output "   just check-health"
+log_output "   Run system health check to verify symlinks"
 log_output ""
 log_output "📝 Note: The health check will show:"
 log_output "   - Number of symlinks created"

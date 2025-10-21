@@ -18,7 +18,7 @@ if [[ -n "${DEFAULT_LOG_DIR:-}" ]]; then
     # Use provided override
     true
 elif [[ -n "${DOTFILES_DIR:-}" ]]; then
-    DEFAULT_LOG_DIR="${DOTFILES_DIR}/.logs"
+    DEFAULT_LOG_DIR="${HOME}/.dotfiles/logs"
 elif [[ -d "${PWD}/.logs" ]]; then
     DEFAULT_LOG_DIR="${PWD}/.logs"
 elif [[ -d "${HOME}/dotfiles/.logs" ]]; then

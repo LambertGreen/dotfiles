@@ -3,6 +3,8 @@
 
 from .apt import AptPM
 from .brew import BrewPM
+from .brew_cask import BrewCaskPM
+from .mas import MasPM
 from .npm import NpmPM
 from .pip import PipPM
 from .pipx import PipxPM
@@ -18,6 +20,8 @@ from .fake_sudo_pm import FakeSudoPM
 __all__ = [
     'AptPM',
     'BrewPM',
+    'BrewCaskPM',
+    'MasPM',
     'NpmPM',
     'PipPM',
     'PipxPM',

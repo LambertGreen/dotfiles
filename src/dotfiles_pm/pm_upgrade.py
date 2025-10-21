@@ -26,10 +26,15 @@ def upgrade_pm_packages(pm_name: str) -> Dict[str, Any]:
     Returns:
         Dict with status, output, and error information
     """
+    import os
     from .pm_executor import execute_pm_command
 
-    # Use unified executor for interactive upgrade
-    result = execute_pm_command(pm_name, 'upgrade', interactive=True)
+    # Use non-interactive mode for brew when in test mode or when it has lock recovery
+    interactive = True
+    if pm_name == 'brew' and os.getenv('DOTFILES_TEST_MODE'):
+        interactive = False
+
+    result = execute_pm_command(pm_name, 'upgrade', interactive=interactive)
 
     # Convert to expected format for compatibility
     if result['success']:
@@ -251,7 +256,8 @@ def main():
     print("=" * 27)
 
     # Detect available package managers
-    available_pms = detect_all_pms()
+    # Detect available package managers for upgrade operations
+    available_pms = detect_all_pms(operation='upgrade')
 
     if not available_pms:
         print("❌ No package managers detected")

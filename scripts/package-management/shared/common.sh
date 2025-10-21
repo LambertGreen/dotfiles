@@ -9,7 +9,7 @@ COMMON_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="${DOTFILES_ROOT:-$(cd "$COMMON_SCRIPT_DIR/../../.." && pwd)}"
 
 # Set default log configuration if not already set
-LOG_DIR="${LOG_DIR:-${DOTFILES_ROOT}/.logs}"
+LOG_DIR="${LOG_DIR:-${HOME}/.dotfiles/logs}"
 LOG_FILE="${LOG_FILE:-${LOG_DIR}/dev-package-init-$(date +%Y%m%d-%H%M%S).log}"
 
 # Set LOG_PREFIX if not already set (use calling script name)

@@ -2,7 +2,8 @@
 
 [core]
     editor = vim
-    pager = delta
+    # Use delta if available, fallback to less
+    pager = bash -c 'command -v delta >/dev/null && delta \"$@\" || less \"$@\"' -
     excludesfile = ~/.gitignore
     ignorecase = false
 	fsmonitor = true

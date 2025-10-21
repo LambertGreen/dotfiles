@@ -25,7 +25,10 @@ Keypirinha.history
 /.idea/
 *.exc
 .env
-.dotfiles.env
+.envrc.local
+
+# direnv
+.direnv/
 
 # Claude settings
 .claude/settings.local.json
@@ -33,11 +36,8 @@ Keypirinha.history
 # Runtime and build artifacts
 .runtime/
 .runtime_testing/
-*.log
-.logs/
-
-# Test logs
-test/.logs/
+# NOTE: We do NOT ignore *.log or .logs/ here - any logs written to the repo
+# are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
 
 # Python cache files
 __pycache__/
@@ -46,8 +46,15 @@ __pycache__/
 *.pyd
 .Python
 *.so
+.pytest_cache/
+
+# Test artifacts
+.test/
+.coverage
+coverage.xml
 
 # Clink runtime files
 clink_history*
 clink_errorlevel*
 clink.log
+.venv/

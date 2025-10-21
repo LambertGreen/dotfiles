@@ -13,8 +13,45 @@ import shutil
 import time
 import json
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Tuple, List
+from dataclasses import dataclass, asdict
+from typing import Dict, Any, Optional, Tuple, List, Literal
 from pathlib import Path
+
+
+@dataclass
+class TerminalSpawnResult:
+    """
+    Result of spawning a terminal with a command.
+
+    Attributes:
+        status: Whether spawn succeeded ('spawned') or failed ('failed')
+        platform: Platform identifier (darwin, linux, wsl, windows, test)
+        method: Terminal method used (Terminal.app, gnome-terminal, Windows Terminal, etc)
+        command: Command that was spawned (truncated for display)
+        error: Error message if status is 'failed'
+        window_id: Platform-specific window identifier (macOS: AppleScript ID)
+        title: Unique window title (Linux: for wmctrl)
+        pid: Process ID (Linux: terminal process, used for fallback closure)
+        log_file: Path to log file (when using tracked execution)
+        status_file: Path to status file (when using tracked execution)
+        operation: Operation name (when using tracked execution)
+    """
+    status: Literal['spawned', 'failed', 'completed']
+    platform: str
+    method: str
+    command: str
+    error: Optional[str] = None
+    window_id: Optional[str] = None  # macOS: AppleScript window ID
+    title: Optional[str] = None      # Linux: unique title for wmctrl
+    pid: Optional[int] = None        # Linux: process ID for fallback
+    log_file: Optional[str] = None   # Tracked execution
+    status_file: Optional[str] = None # Tracked execution
+    operation: Optional[str] = None  # Tracked execution
+    exit_code: Optional[int] = None  # Test mode
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dict for legacy compatibility"""
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 # Global registry to track spawned terminals
 _spawned_terminals: List[Dict[str, Any]] = []
@@ -44,11 +81,31 @@ class TerminalExecutor(ABC):
     """Abstract base class for terminal executors"""
 
     @abstractmethod
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in terminal"""
         pass
 
-    def spawn_tracked(self, command: str, operation: str, auto_close: bool = False) -> Dict[str, Any]:
+    @abstractmethod
+    def can_close_terminals(self) -> bool:
+        """
+        Declare whether this executor can programmatically close spawned terminals.
+
+        Returns:
+            True if close_terminal() is supported, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    def close_all_terminals(self) -> int:
+        """
+        Close all spawned terminals using platform-specific methods.
+
+        Returns:
+            Number of terminals successfully closed
+        """
+        pass
+
+    def spawn_tracked(self, command: str, operation: str, auto_close: bool = False) -> TerminalSpawnResult:
         """
         Spawn command with logging and status tracking.
 
@@ -63,28 +120,29 @@ class TerminalExecutor(ABC):
         tracked_cmd, log_file, status_file = self.create_tracked_command(command, operation, auto_close)
         result = self.spawn(tracked_cmd, title=operation)
 
-        # Register terminal for tracking
-        terminal_info = {
-            **result,
-            'log_file': log_file,
-            'status_file': status_file,
-            'operation': operation,
-            'executor': self
-        }
+        # Enhance result with tracking info
+        from dataclasses import replace
+        tracked_result = replace(
+            result,
+            log_file=log_file,
+            status_file=status_file,
+            operation=operation
+        )
+
+        # Register terminal for tracking (with executor for in-memory registry)
+        terminal_info = tracked_result.to_dict()
+        terminal_info['executor'] = self
 
         # Add to both in-memory and persistent registry
         global _spawned_terminals
         _spawned_terminals.append(terminal_info)
 
-        # Append to persistent registry
+        # Append to persistent registry (without executor - not serializable)
         current_registry = _load_terminal_registry()
-        # Create serializable version without executor
-        serializable_info = {k: v for k, v in terminal_info.items() if k != 'executor'}
-        current_registry.append(serializable_info)
+        current_registry.append(tracked_result.to_dict())
         _save_terminal_registry(current_registry)
 
-
-        return terminal_info
+        return tracked_result
 
     def create_tracked_command(self, base_cmd: str, operation: str, auto_close: bool = False) -> Tuple[str, str, str]:
         """
@@ -171,7 +229,11 @@ class TerminalExecutor(ABC):
 class DarwinTerminalExecutor(TerminalExecutor):
     """macOS Terminal.app executor"""
 
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def can_close_terminals(self) -> bool:
+        """Can close terminals via AppleScript"""
+        return True
+
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Terminal.app using osascript"""
         try:
             # Escape quotes in command for AppleScript
@@ -197,20 +259,21 @@ class DarwinTerminalExecutor(TerminalExecutor):
             if result.returncode == 0 and result.stdout.strip():
                 window_id = result.stdout.strip()
 
-            return {
-                'status': 'spawned' if result.returncode == 0 else 'failed',
-                'platform': 'darwin',
-                'method': 'Terminal.app',
-                'command': command[:50] + '...' if len(command) > 50 else command,
-                'window_id': window_id
-            }
+            return TerminalSpawnResult(
+                status='spawned' if result.returncode == 0 else 'failed',
+                platform='darwin',
+                method='Terminal.app',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                window_id=window_id
+            )
         except Exception as e:
-            return {
-                'status': 'failed',
-                'error': str(e),
-                'platform': 'darwin',
-                'method': 'Terminal.app'
-            }
+            return TerminalSpawnResult(
+                status='failed',
+                platform='darwin',
+                method='Terminal.app',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                error=str(e)
+            )
 
     def close_terminal(self, terminal_info: Dict[str, Any]) -> bool:
         """Close Terminal.app window using AppleScript"""
@@ -229,9 +292,26 @@ class DarwinTerminalExecutor(TerminalExecutor):
         except Exception:
             return False
 
+    def close_all_terminals(self) -> int:
+        """Close all spawned Terminal.app windows using registry"""
+        try:
+            # Use registry-based cleanup since we can't reliably identify windows by title
+            spawned_terminals = _load_terminal_registry()
+            closed_count = 0
+            for terminal_info in spawned_terminals:
+                if self.close_terminal(terminal_info):
+                    closed_count += 1
+            return closed_count
+        except Exception:
+            return 0
+
 
 class LinuxTerminalExecutor(TerminalExecutor):
     """Linux terminal executor with fallback chain"""
+
+    def can_close_terminals(self) -> bool:
+        """Can close terminals via wmctrl (if available)"""
+        return shutil.which('wmctrl') is not None
 
     def close_terminal(self, terminal_info: Dict[str, Any]) -> bool:
         """
@@ -310,7 +390,7 @@ class LinuxTerminalExecutor(TerminalExecutor):
         except Exception:
             return False
 
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Try various Linux terminals in order of preference"""
         # Get user's shell from SHELL environment variable
         # IMPORTANT: Many users have .bashrc that auto-execs to zsh when interactive
@@ -347,84 +427,199 @@ class LinuxTerminalExecutor(TerminalExecutor):
         # - The command after -- is executed directly (not parsed by gnome-terminal)
         # - We pass the user's shell with -c to run our command, then exec the shell to keep it open
 
-        # Note: We use shell -c "command; sleep" pattern to:
+        # Note: We use shell -c "command; exec shell" pattern to:
         # 1. Run the command
-        # 2. Sleep briefly so user can see output before automation closes it
-        # This prevents "Do you want to close?" prompts when automation closes the terminal
+        # 2. After command completes, replace the process with an interactive shell (keeps terminal open)
         terminals = [
-            ('gnome-terminal', ['gnome-terminal', '--title', unique_title, '--', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('konsole', ['konsole', '-e', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('xfce4-terminal', ['xfce4-terminal', '--title', unique_title, '-e', user_shell, '-c', f'{command}; sleep 0.5']),
-            ('xterm', ['xterm', '-T', unique_title, '-e', user_shell, '-c', f'{command}; sleep 0.5'])
+            ('gnome-terminal', ['gnome-terminal', '--title', unique_title, '--', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('konsole', ['konsole', '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xfce4-terminal', ['xfce4-terminal', '--title', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}']),
+            ('xterm', ['xterm', '-T', unique_title, '-e', user_shell, '-c', f'{command}; exec {user_shell}'])
         ]
 
         for terminal_name, cmd in terminals:
             if shutil.which(terminal_name.split()[0]):
                 try:
                     proc = subprocess.Popen(cmd)
-                    return {
-                        'status': 'spawned',
-                        'platform': 'linux',
-                        'method': terminal_name,
-                        'command': command[:50] + '...' if len(command) > 50 else command,
-                        'pid': proc.pid,
-                        'title': unique_title  # Store title for safe cleanup
-                    }
+                    return TerminalSpawnResult(
+                        status='spawned',
+                        platform='linux',
+                        method=terminal_name,
+                        command=command[:50] + '...' if len(command) > 50 else command,
+                        pid=proc.pid,
+                        title=unique_title  # Store title for safe cleanup
+                    )
                 except Exception:
                     continue
 
         # Fallback to blocking execution
         try:
             os.system(command)
-            return {
-                'status': 'spawned',
-                'platform': 'linux',
-                'method': 'os.system (blocking)',
-                'command': command[:50] + '...' if len(command) > 50 else command
-            }
+            return TerminalSpawnResult(
+                status='spawned',
+                platform='linux',
+                method='os.system (blocking)',
+                command=command[:50] + '...' if len(command) > 50 else command
+            )
         except Exception as e:
-            return {
-                'status': 'failed',
-                'error': str(e),
-                'platform': 'linux',
-                'method': 'none'
-            }
+            return TerminalSpawnResult(
+                status='failed',
+                platform='linux',
+                method='none',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                error=str(e)
+            )
+
+    def close_all_terminals(self) -> int:
+        """Close all DOTFILES-PM terminal windows using wmctrl"""
+        try:
+            # Find all DOTFILES-PM windows using wmctrl
+            result = subprocess.run(
+                ['wmctrl', '-l'],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+
+            if result.returncode != 0:
+                # wmctrl not available, fall back to registry-based cleanup
+                spawned_terminals = _load_terminal_registry()
+                closed_count = 0
+                for terminal_info in spawned_terminals:
+                    if self.close_terminal(terminal_info):
+                        closed_count += 1
+                return closed_count
+
+            # Use wmctrl to close all DOTFILES-PM windows
+            lines = result.stdout.strip().split('\n')
+            dotfiles_windows = [l for l in lines if 'DOTFILES-PM' in l and l.strip()]
+            closed_count = 0
+
+            for line in dotfiles_windows:
+                window_id = line.split()[0]
+                # Close window by ID
+                close_result = subprocess.run(
+                    ['wmctrl', '-ic', window_id],
+                    capture_output=True,
+                    check=False
+                )
+                if close_result.returncode == 0:
+                    closed_count += 1
+
+            return closed_count
+        except Exception:
+            return 0
 
 
 class WSLTerminalExecutor(TerminalExecutor):
     """Windows Subsystem for Linux terminal executor"""
 
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def can_close_terminals(self) -> bool:
+        """Cannot close Windows Terminal tabs from WSL"""
+        return False
+
+    def close_all_terminals(self) -> int:
+        """Cannot close terminals from WSL"""
+        return 0
+
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Windows Terminal from WSL"""
         try:
+            # Get current working directory in WSL format
+            cwd = os.getcwd()
+
+            # Get WSL distro name
+            distro_name = None
+            try:
+                with open('/etc/wsl.conf', 'r') as f:
+                    for line in f:
+                        if 'name' in line.lower():
+                            distro_name = line.split('=')[1].strip()
+                            break
+            except:
+                # Fallback: use WSL_DISTRO_NAME env var or hostname
+                distro_name = os.environ.get('WSL_DISTRO_NAME') or os.uname().nodename
+
             # Try Windows Terminal first
             if shutil.which('wt.exe'):
-                subprocess.Popen(['wt.exe', command])
-                method = 'Windows Terminal'
+                # Windows Terminal syntax for WSL:
+                # wt.exe -w 0 nt --title "title" wsl.exe --cd /path bash
+                # Then bash will start interactive shell and we source the command
+                #
+                # Alternative: Write command to temp script and execute that
+                import tempfile
+                import stat
+
+                # Create temp script file
+                fd, script_path = tempfile.mkstemp(suffix='.sh', prefix='dotfiles-pm-', text=True)
+                try:
+                    with os.fdopen(fd, 'w') as f:
+                        f.write('#!/usr/bin/env bash\n')
+                        f.write(command + '\n')
+                        f.write('exec bash\n')  # Keep terminal open after command
+
+                    # Make executable
+                    os.chmod(script_path, stat.S_IRWXU)
+
+                    wt_cmd = [
+                        'wt.exe',
+                        '-w', '0',  # Use new window in current terminal window group
+                        'nt',       # New tab
+                    ]
+
+                    if title:
+                        # Add DOTFILES-PM prefix for tracking
+                        unique_title = f"DOTFILES-PM-{title}"
+                        wt_cmd.extend(['--title', unique_title])
+
+                    wt_cmd.extend([
+                        'wsl.exe',
+                        '--cd', cwd,  # Start in current directory
+                        script_path
+                    ])
+
+                    subprocess.Popen(wt_cmd)
+                    method = 'Windows Terminal'
+                except Exception as e:
+                    # Clean up on error
+                    try:
+                        os.unlink(script_path)
+                    except:
+                        pass
+                    raise e
             else:
-                # Fallback to cmd
-                subprocess.Popen(['cmd.exe', '/c', 'start', command])
+                # Fallback to cmd (less ideal but works)
+                subprocess.Popen(['cmd.exe', '/c', 'start', 'wsl.exe', 'bash', '-c', command])
                 method = 'cmd.exe'
 
-            return {
-                'status': 'spawned',
-                'platform': 'wsl',
-                'method': method,
-                'command': command[:50] + '...' if len(command) > 50 else command
-            }
+            return TerminalSpawnResult(
+                status='spawned',
+                platform='wsl',
+                method=method,
+                command=command[:50] + '...' if len(command) > 50 else command
+            )
         except Exception as e:
-            return {
-                'status': 'failed',
-                'error': str(e),
-                'platform': 'wsl',
-                'method': 'none'
-            }
+            return TerminalSpawnResult(
+                status='failed',
+                platform='wsl',
+                method='none',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                error=str(e)
+            )
 
 
 class WindowsTerminalExecutor(TerminalExecutor):
     """Native Windows terminal executor"""
 
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def can_close_terminals(self) -> bool:
+        """Cannot close Windows Terminal tabs programmatically yet"""
+        return False
+
+    def close_all_terminals(self) -> int:
+        """Cannot close terminals on Windows yet"""
+        return 0
+
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Windows Terminal or cmd"""
         try:
             if shutil.which('wt'):
@@ -434,25 +629,36 @@ class WindowsTerminalExecutor(TerminalExecutor):
                 subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', command])
                 method = 'cmd.exe'
 
-            return {
-                'status': 'spawned',
-                'platform': 'windows',
-                'method': method,
-                'command': command[:50] + '...' if len(command) > 50 else command
-            }
+            return TerminalSpawnResult(
+                status='spawned',
+                platform='windows',
+                method=method,
+                command=command[:50] + '...' if len(command) > 50 else command
+            )
         except Exception as e:
-            return {
-                'status': 'failed',
-                'error': str(e),
-                'platform': 'windows',
-                'method': 'none'
-            }
+            return TerminalSpawnResult(
+                status='failed',
+                platform='windows',
+                method='none',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                error=str(e)
+            )
 
 
 class TmuxTerminalExecutor(TerminalExecutor):
     """Tmux-based terminal executor (future enhancement)"""
 
-    def spawn(self, command: str, title: Optional[str] = None) -> Dict[str, Any]:
+    def can_close_terminals(self) -> bool:
+        """Delegate to system executor for now"""
+        executor = create_terminal_executor(force_system=True)
+        return executor.can_close_terminals()
+
+    def close_all_terminals(self) -> int:
+        """Delegate to system executor for now"""
+        executor = create_terminal_executor(force_system=True)
+        return executor.close_all_terminals()
+
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """
         Spawn command in tmux window or pane
 
@@ -509,7 +715,7 @@ def create_terminal_executor(force_system: bool = False) -> TerminalExecutor:
 
 
 # Convenience functions
-def spawn_in_terminal(command: str, title: Optional[str] = None) -> Dict[str, Any]:
+def spawn_in_terminal(command: str, title: Optional[str] = None) -> TerminalSpawnResult:
     """
     Convenience function to spawn command in terminal.
 
@@ -518,7 +724,7 @@ def spawn_in_terminal(command: str, title: Optional[str] = None) -> Dict[str, An
         title: Optional title for the terminal
 
     Returns:
-        Dict with execution status
+        TerminalSpawnResult with execution status
     """
     executor = create_terminal_executor()
     return executor.spawn(command, title)
@@ -531,52 +737,13 @@ def get_spawned_terminals() -> List[Dict[str, Any]]:
 
 def close_all_terminals() -> int:
     """
-    Close all spawned terminals by finding all DOTFILES-PM windows.
-
-    This uses wmctrl to find all terminals we spawned (by title prefix),
-    which is more reliable than the registry since the registry can be cleared.
+    Close all spawned terminals using platform-specific methods.
 
     Returns:
         Number of terminals successfully closed
     """
-    closed_count = 0
-
-    try:
-        # Find all DOTFILES-PM windows using wmctrl
-        result = subprocess.run(
-            ['wmctrl', '-l'],
-            capture_output=True,
-            text=True,
-            check=False
-        )
-
-        if result.returncode != 0:
-            # wmctrl not available, fall back to registry-based cleanup
-            spawned_terminals = _load_terminal_registry()
-            for terminal_info in spawned_terminals:
-                executor = terminal_info.get('executor')
-                if not executor:
-                    executor = create_terminal_executor()
-                if executor and executor.close_terminal(terminal_info):
-                    closed_count += 1
-        else:
-            # Use wmctrl to close all DOTFILES-PM windows
-            lines = result.stdout.strip().split('\n')
-            dotfiles_windows = [l for l in lines if 'DOTFILES-PM' in l and l.strip()]
-
-            for line in dotfiles_windows:
-                window_id = line.split()[0]
-                # Close window by ID
-                close_result = subprocess.run(
-                    ['wmctrl', '-ic', window_id],
-                    stderr=subprocess.DEVNULL,
-                    check=False
-                )
-                if close_result.returncode == 0:
-                    closed_count += 1
-
-    except Exception:
-        pass
+    executor = create_terminal_executor()
+    closed_count = executor.close_all_terminals()
 
     # Clear registries regardless
     global _spawned_terminals
@@ -594,6 +761,10 @@ def prompt_close_terminals() -> None:
     DOTFILES_TERMINAL_CLOSE_TIMEOUT env var, default 10 seconds).
     User can press ESC to cancel auto-close and keep terminals open.
     """
+    # Check if current executor can close terminals
+    executor = create_terminal_executor()
+    can_close = executor.can_close_terminals()
+
     # Count actual DOTFILES-PM windows instead of using registry
     try:
         result = subprocess.run(['wmctrl', '-l'], capture_output=True, text=True, check=False)
@@ -607,10 +778,16 @@ def prompt_close_terminals() -> None:
     if num_terminals == 0:
         return
 
+    print(f"\n🖥️  {num_terminals} terminal(s) were opened during this session")
+
+    # Be honest about capabilities
+    if not can_close:
+        print(f"ℹ️  Please close terminals manually when done (auto-close not supported on this platform)")
+        return
+
     # Get timeout from environment variable (default 60 seconds)
     timeout = int(os.environ.get('DOTFILES_TERMINAL_CLOSE_TIMEOUT', '60'))
 
-    print(f"\n🖥️  {num_terminals} terminal(s) were opened during this session")
     print(f"⏱️  Auto-closing in {timeout} seconds... (press ESC to cancel)")
 
     import select
@@ -630,13 +807,19 @@ def prompt_close_terminals() -> None:
         while time.time() - start_time < timeout:
             remaining = int(timeout - (time.time() - start_time))
             # Update countdown
-            print(f"\r⏱️  Closing in {remaining} seconds... (press ESC to cancel)  ", end='', flush=True)
+            print(f"\r⏱️  Closing in {remaining} seconds... (ENTER=close now, ESC=cancel)  ", end='', flush=True)
 
             # Check for input (non-blocking)
             if select.select([sys.stdin], [], [], 0.1)[0]:
                 char = sys.stdin.read(1)
-                # ESC key is '\x1b'
-                if char == '\x1b':
+                # Enter is '\n' or '\r' - close immediately
+                if char in ('\n', '\r'):
+                    print(f"\n🗑️  Closing {num_terminals} terminal(s)...")
+                    closed = close_all_terminals()
+                    print(f"✅ Closed {closed} terminal(s)")
+                    return
+                # ESC key is '\x1b' - cancel countdown and keep open
+                elif char == '\x1b':
                     cancelled = True
                     print(f"\n📋 Auto-close cancelled - terminals left open for review")
                     break
@@ -676,7 +859,7 @@ def prompt_close_terminals() -> None:
                 pass
 
 
-def spawn_tracked(command: str, operation: str, auto_close: bool = False, test_mode: bool = False) -> Dict[str, Any]:
+def spawn_tracked(command: str, operation: str, auto_close: bool = False, test_mode: bool = False) -> TerminalSpawnResult:
     """
     Spawn command with logging and status tracking.
 
@@ -687,7 +870,7 @@ def spawn_tracked(command: str, operation: str, auto_close: bool = False, test_m
         test_mode: Run locally for testing instead of spawning terminal
 
     Returns:
-        Dict with status, log_file, and status_file paths
+        TerminalSpawnResult with status, log_file, and status_file paths
     """
     if test_mode or os.environ.get('DOTFILES_TEST_MODE') == 'true':
         # Run locally for testing
@@ -720,15 +903,16 @@ def spawn_tracked(command: str, operation: str, auto_close: bool = False, test_m
                     'test_mode': True
                 }, f)
 
-            return {
-                'status': 'completed',
-                'platform': 'test',
-                'method': 'local',
-                'log_file': log_file,
-                'status_file': status_file,
-                'operation': operation,
-                'exit_code': proc.returncode
-            }
+            return TerminalSpawnResult(
+                status='completed',
+                platform='test',
+                method='local',
+                command=command[:50] + '...' if len(command) > 50 else command,
+                log_file=log_file,
+                status_file=status_file,
+                operation=operation,
+                exit_code=proc.returncode
+            )
 
     executor = create_terminal_executor()
     return executor.spawn_tracked(command, operation, auto_close)

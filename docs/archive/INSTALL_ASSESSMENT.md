@@ -3,7 +3,7 @@
 ## Current Issues
 
 ### 1. Missing `stow-*-minimal` recipes
-- `just/install.just:50` references `stow-{{platform}}-minimal` 
+- `just/install.just:50` references `stow-{{platform}}-minimal`
 - These recipes don't exist in `configs/justfile`
 - Only full platform stowing recipes exist (`stow-osx`, `stow-ubuntu`, etc.)
 

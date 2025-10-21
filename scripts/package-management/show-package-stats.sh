@@ -37,7 +37,7 @@ total_packages=0
 for pm_dir in "${MACHINE_DIR}"/*; do
     if [[ -d "${pm_dir}" ]]; then
         pm_name=$(basename "${pm_dir}")
-        
+
         case "${pm_name}" in
             brew)
                 if [[ -f "${pm_dir}/Brewfile" ]]; then
@@ -123,5 +123,5 @@ echo ""
 echo "📊 Total: ${total_packages} packages across all package managers"
 echo ""
 echo "💡 To view package details:"
-echo "  just show-packages  # View detailed package lists"
+echo "  View detailed package lists"
 echo "  cd machine-classes/${DOTFILES_MACHINE_CLASS}  # View raw files"

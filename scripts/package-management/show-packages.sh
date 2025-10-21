@@ -128,4 +128,4 @@ for pm_dir in "${MACHINE_DIR}"/*; do
     fi
 done
 
-echo "💡 For summary stats: just show-package-stats"
+echo "💡 For summary stats: run package summary"

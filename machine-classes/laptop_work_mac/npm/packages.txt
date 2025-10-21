@@ -2,5 +2,4 @@
 corepack
 claude-code
 do-not-disturb-cli
-mcp-server-gus
 pdf2md

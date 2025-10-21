@@ -6,7 +6,7 @@ set -euo pipefail
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-LOG_DIR="${DOTFILES_ROOT}/.logs"
+LOG_DIR="${HOME}/.dotfiles/logs"
 
 # Load shared utilities
 source "${DOTFILES_ROOT}/scripts/package-management/shared/common.sh"

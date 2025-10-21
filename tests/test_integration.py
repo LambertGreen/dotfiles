@@ -137,7 +137,7 @@ read -t 1 -p "Select: " selection || selection="timeout"
 echo "You selected: $selection"
 
 # Now do logging
-echo "[LOG] Starting process..." >> logfile.log
+echo "[LOG] Starting process..." >> /tmp/test_logfile.log
 echo "Process completed"
 """)
         script.chmod(0o755)

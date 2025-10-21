@@ -1,0 +1,22 @@
+# APT packages for desktop work Ubuntu
+# System PM is preferred - use brew only for packages not in apt or need newer versions
+
+# TODO: Run `apt list --installed` on actual work machine and curate this list
+# TODO: Remove packages that were auto-installed as dependencies
+# TODO: Add any work-specific packages needed
+
+# Essential build tools
+build-essential
+curl
+git
+stow
+sudo
+vim
+wget
+zsh
+
+# System utilities
+psmisc
+tmux
+
+# Development tools (adjust based on actual work machine)
