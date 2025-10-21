@@ -24,10 +24,14 @@ $ErrorActionPreference = "Stop"
 
 # Set up logging
 $DOTFILES_ROOT = Split-Path -Parent $MyInvocation.MyCommand.Path
-$LOG_DIR = Join-Path $DOTFILES_ROOT "logs"
+$USER_LOG_ROOT = Join-Path $env:USERPROFILE ".dotfiles"
+$LOG_DIR = Join-Path $USER_LOG_ROOT "logs"
 $LOG_FILE = Join-Path $LOG_DIR ("configure-" + (Get-Date -Format "yyyyMMdd-HHmmss") + ".log")
 
 # Create log directory if it doesn't exist
+if (!(Test-Path $USER_LOG_ROOT)) {
+    New-Item -ItemType Directory -Force -Path $USER_LOG_ROOT | Out-Null
+}
 if (!(Test-Path $LOG_DIR)) {
     New-Item -ItemType Directory -Force -Path $LOG_DIR | Out-Null
 }
