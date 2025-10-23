@@ -53,3 +53,20 @@
 - Check for linting errors before committing
 - Verify functionality works as expected
 - Ask user before making significant changes
+
+## Fail Fast Principles
+- **NEVER** hide failures with silent fallbacks or default values
+- **ALWAYS** throw exceptions or assertions when encountering unexpected states
+- **NEVER** use `.get()` with defaults for critical configuration
+- **ALWAYS** validate platform/environment detection explicitly
+- **FAIL LOUDLY** when something is wrong - silent failures waste hours of debugging
+- **ASSERT PRECONDITIONS** - if a function expects certain state, validate it at entry
+- **NO SILENT DEFAULTS** - if platform is unknown, crash with clear error message
+- **EXAMPLES OF WHAT NOT TO DO**:
+  - `executors.get(platform, LinuxTerminalExecutor)` ❌ Silent fallback hides unknown platform
+  - `config.get('key', 'default')` ❌ when 'key' is required
+  - `try: ... except: pass` ❌ Swallowing exceptions
+- **EXAMPLES OF WHAT TO DO**:
+  - `if platform not in executors: raise RuntimeError(f"Unsupported platform: {platform}")` ✅
+  - `assert config['key'], "Required config missing"` ✅
+  - `try: ... except SpecificError as e: raise RuntimeError(f"Failed because: {e}")` ✅

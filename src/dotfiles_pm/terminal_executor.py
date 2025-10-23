@@ -619,13 +619,116 @@ class WindowsTerminalExecutor(TerminalExecutor):
         """Cannot close terminals on Windows yet"""
         return 0
 
+    def create_tracked_command(self, base_cmd: str, operation: str, auto_close: bool = False) -> Tuple[str, str, str]:
+        """
+        Create command for Windows using PowerShell wrapper script.
+
+        Overrides base class to use run_tracked.ps1 instead of run_tracked.sh
+        """
+        timestamp = int(time.time())
+        log_dir = Path.home() / '.dotfiles' / 'logs'
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+        # Sanitize operation name for filename
+        import re
+        safe_operation = re.sub(r'[^a-zA-Z0-9_-]+', '-', operation)
+        safe_operation = re.sub(r'-+', '-', safe_operation).strip('-')
+
+        log_file = str(log_dir / f"{safe_operation}-{timestamp}.log")
+        status_file = str(log_dir / f"{safe_operation}-{timestamp}.status")
+
+        # Get PowerShell wrapper script path
+        wrapper_script = None
+
+        # First try: DOTFILES_DIR environment variable
+        if 'DOTFILES_DIR' in os.environ:
+            wrapper_script = Path(os.environ['DOTFILES_DIR']) / 'scripts' / 'run_tracked.ps1'
+
+        # Second try: relative to this Python module
+        if not wrapper_script or not wrapper_script.exists():
+            wrapper_script = Path(__file__).parent.parent.parent / 'scripts' / 'run_tracked.ps1'
+
+        # Third try: ~/.dotfiles
+        if not wrapper_script.exists():
+            wrapper_script = Path.home() / '.dotfiles' / 'scripts' / 'run_tracked.ps1'
+
+        if not wrapper_script.exists():
+            raise RuntimeError(f"Cannot find run_tracked.ps1 script. Searched: {wrapper_script}")
+
+        # Convert Unix paths to Windows paths for PowerShell using cygpath
+        try:
+            result = subprocess.run(['cygpath', '-w', str(wrapper_script)],
+                                  capture_output=True, text=True, check=True)
+            wrapper_script_win = result.stdout.strip()
+
+            result = subprocess.run(['cygpath', '-w', log_file],
+                                  capture_output=True, text=True, check=True)
+            log_file_win = result.stdout.strip()
+
+            result = subprocess.run(['cygpath', '-w', status_file],
+                                  capture_output=True, text=True, check=True)
+            status_file_win = result.stdout.strip()
+        except:
+            # Fallback: assume paths are already in correct format
+            wrapper_script_win = str(wrapper_script)
+            log_file_win = log_file
+            status_file_win = status_file
+
+        # Return wrapper script path and arguments separately for cleaner invocation
+        auto_close_arg = 'true' if auto_close else 'false'
+
+        # We'll pass these as a dict for WindowsTerminalExecutor to use with -File
+        return (wrapper_script_win, operation, base_cmd, log_file_win, status_file_win, auto_close_arg), log_file, status_file
+
     def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Windows Terminal or cmd"""
         try:
-            if shutil.which('wt'):
-                subprocess.Popen(['wt', command])
+            # Get current working directory
+            cwd = os.getcwd()
+
+            # Try Windows Terminal first
+            if shutil.which('wt.exe') or shutil.which('wt'):
+                wt_cmd = [
+                    'wt.exe' if shutil.which('wt.exe') else 'wt',
+                    '-w', '0',  # Use new window in current terminal window group
+                    'nt',       # New tab
+                ]
+
+                if title:
+                    # Add DOTFILES-PM prefix for tracking
+                    unique_title = f"DOTFILES-PM-{title}"
+                    wt_cmd.extend(['--title', unique_title])
+
+                # Modern Windows stack: wt.exe (terminal) + pwsh.exe (shell)
+                # If command is a tuple, it's (script, arg1, arg2, ...) for -File invocation
+                # Otherwise it's a command string for -Command
+                if isinstance(command, tuple):
+                    # Unpack script path and arguments
+                    script_path, operation, base_cmd, log_file, status_file, auto_close = command
+                    wt_cmd.extend([
+                        'pwsh.exe',
+                        '-NoExit',
+                        '-File',
+                        script_path,
+                        '-Operation', operation,
+                        '-Command', base_cmd,
+                        '-LogFile', log_file,
+                        '-StatusFile', status_file,
+                        '-AutoClose', auto_close
+                    ])
+                else:
+                    # Legacy: command string
+                    wt_cmd.extend([
+                        'pwsh.exe',
+                        '-NoExit',
+                        '-Command',
+                        command
+                    ])
+
+                subprocess.Popen(wt_cmd)
                 method = 'Windows Terminal'
             else:
+                # Fallback to cmd
                 subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', command])
                 method = 'cmd.exe'
 
@@ -678,6 +781,9 @@ def detect_platform() -> str:
         return 'darwin'
     elif sys.platform == 'win32':
         return 'windows'
+    elif sys.platform == 'cygwin':
+        # MSYS2/Cygwin Python on Windows
+        return 'windows'
     elif sys.platform.startswith('linux'):
         # Check for WSL
         if 'microsoft' in os.uname().release.lower():
@@ -710,7 +816,10 @@ def create_terminal_executor(force_system: bool = False) -> TerminalExecutor:
         'windows': WindowsTerminalExecutor
     }
 
-    executor_class = executors.get(platform, LinuxTerminalExecutor)
+    if platform not in executors:
+        raise RuntimeError(f"Unsupported platform: {platform} (sys.platform={sys.platform}). Cannot create terminal executor.")
+
+    executor_class = executors[platform]
     return executor_class()
 
 

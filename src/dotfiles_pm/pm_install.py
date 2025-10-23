@@ -493,6 +493,88 @@ def install_gem_packages() -> Dict[str, Any]:
     return result
 
 
+
+
+def install_generic_packages(pm_name: str, install_cmd: str) -> Dict[str, Any]:
+    """
+    Generic installer for package managers that use packages.txt files.
+    
+    Args:
+        pm_name: Name of the package manager
+        install_cmd: Base install command (e.g., "pacman -S", "scoop install")
+    
+    Returns:
+        Dict with installation results
+    """
+    result = {
+        'pm': pm_name,
+        'success': False,
+        'output': '',
+        'error': '',
+        'installed_count': 0
+    }
+
+    config_dir = get_machine_config_dir(pm_name)
+    if not config_dir:
+        result['success'] = True
+        result['output'] = f'⚠️  No configuration directory found for {pm_name}'
+        return result
+
+    package_file = config_dir / 'packages.txt'
+    if not package_file.exists():
+        result['success'] = True
+        result['output'] = f'⚠️  No packages.txt file found in {config_dir}'
+        return result
+
+    # Read packages
+    with open(package_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+    if not packages:
+        result['output'] = 'No packages to install'
+        result['success'] = True
+        return result
+
+    print(f"  📦 Installing {len(packages)} {pm_name} packages...")
+
+    # Build command to install all packages
+    packages_str = ' '.join(packages)
+    cmd_str = f"{install_cmd} {packages_str}"
+
+    # Spawn terminal for interactive execution
+    terminal_result = spawn_tracked(
+        cmd_str,
+        operation=f"{pm_name}-install",
+        auto_close=False
+    )
+
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+        print(f"  📄 Log: {terminal_result.log_file}")
+    else:
+        result['success'] = False
+        result['error'] = terminal_result.error or 'Failed to spawn terminal'
+
+    return result
+
+
+# Windows PM installers
+def install_pacman_packages() -> Dict[str, Any]:
+    return install_generic_packages('pacman', 'pacman -S --needed --noconfirm')
+
+def install_scoop_packages() -> Dict[str, Any]:
+    return install_generic_packages('scoop', 'scoop install')
+
+def install_choco_packages() -> Dict[str, Any]:
+    return install_generic_packages('choco', 'choco install -y')
+
+def install_winget_packages() -> Dict[str, Any]:
+    return install_generic_packages('winget', 'winget install')
+
 def install_packages_for_pm(pm_name: str, level: str = 'all') -> Dict[str, Any]:
     """
     Install packages for a specific package manager.
@@ -512,6 +594,10 @@ def install_packages_for_pm(pm_name: str, level: str = 'all') -> Dict[str, Any]:
         'pipx': install_pipx_packages,
         'cargo': install_cargo_packages,
         'gem': install_gem_packages,
+        'pacman': install_pacman_packages,
+        'scoop': install_scoop_packages,
+        'choco': install_choco_packages,
+        'winget': install_winget_packages,
         # Add more installers as needed
     }
 

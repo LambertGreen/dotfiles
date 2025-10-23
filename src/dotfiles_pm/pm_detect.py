@@ -103,12 +103,13 @@ def detect_all_pms(operation: str = 'check') -> List[str]:
         pms.append('dnf')
     if shutil.which('zypper') and should_include('zypper'):
         pms.append('zypper')
+    # Windows PMs: scoop must come before choco (scoop installs 'sudo' package for choco)
+    if shutil.which('scoop') and should_include('scoop'):
+        pms.append('scoop')
     if shutil.which('choco') and should_include('choco'):
         pms.append('choco')
     if shutil.which('winget') and should_include('winget'):
         pms.append('winget')
-    if shutil.which('scoop') and should_include('scoop'):
-        pms.append('scoop')
 
     # Dev package managers (exclude system versions)
     npm_path = shutil.which('npm')
