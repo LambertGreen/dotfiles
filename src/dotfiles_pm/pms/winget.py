@@ -34,4 +34,4 @@ class WingetPM(PackageManager):
 
     @property
     def priority(self) -> int:
-        return 0
+        return 10  # Run last - only catches packages scoop/choco don't manage

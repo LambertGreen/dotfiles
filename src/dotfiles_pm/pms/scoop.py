@@ -34,4 +34,4 @@ class ScoopPM(PackageManager):
 
     @property
     def priority(self) -> int:
-        return 0
+        return 0  # Run first - user-level, cleanest installs

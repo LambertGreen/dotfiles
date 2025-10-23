@@ -34,4 +34,4 @@ class ChocoPM(PackageManager):
 
     @property
     def priority(self) -> int:
-        return 0
+        return 5  # Run after scoop (0) but before winget (10)
