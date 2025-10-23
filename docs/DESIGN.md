@@ -346,4 +346,94 @@ When working on this system:
 6. **Query-friendly structure** - Keep directory structure greppable
 7. **Modal interface** - Maintain two-tier just command structure
 
+## Critical Platform Issue: MSYS2 Environment Pollution
+
+### The Problem
+
+When running from **MSYS2 Python** (Cygwin Python on Windows), all Python subprocess APIs inherit a **polluted hybrid environment** that corrupts Windows process execution:
+
+**Symptoms:**
+- PATH becomes corrupted: `C:\Program Files;C;...` (extra `C;` separators)
+- Unix environment variables leak: `MSYSTEM=MINGW64`, `TERM=xterm-256color`
+- Commands fail: `scoop --version` shows incomplete output (missing git commit info)
+- Flash windows appear when MSYS2 executables (like git.exe) are called from PowerShell
+
+**Root Cause:**
+MSYS2 creates an **impedance mismatch** - it's a POSIX environment trying to call Windows APIs:
+- MSYS2 Python subprocess methods (Popen, run, system, spawnv) all inherit parent environment
+- Even passing `env={}` doesn't work - subprocess **merges** with parent
+- Environment variables get mangled during the MSYS2 → Windows boundary crossing
+- There's no pure way to get a clean Windows environment from MSYS2 Python
+
+### Why Other Platforms Work
+
+**Clean environment boundaries work perfectly:**
+
+| Platform | Boundary | Result |
+|----------|----------|--------|
+| **Mac/Linux** | POSIX → POSIX subprocess → POSIX shell | ✅ Clean |
+| **WSL** | Linux → `/init` interop → Windows Terminal | ✅ Clean (interop reads registry) |
+| **Native Windows** | Windows app → Windows subprocess → Windows shell | ✅ Clean |
+| **Keypirinha** | Native Windows → subprocess → Windows Terminal | ✅ Clean (reads registry) |
+| **MSYS2** | Hybrid POSIX/Windows → subprocess → Windows | ❌ **POLLUTED** |
+
+**The Pattern:** Native executables don't inherit - they query the OS (registry on Windows).
+
+### The Solution: Batch File Intermediary
+
+**Break the pollution chain with a native Windows intermediary:**
+
+```
+❌ BEFORE: MSYS2 Python → subprocess.Popen → wt.exe → PowerShell
+           (Environment pollution leaks through)
+
+✅ AFTER:  MSYS2 Python → spawn_wt_clean.bat → wt.exe → PowerShell
+           (Batch file reads fresh Windows registry, breaks chain)
+```
+
+**Implementation:**
+1. Create `scripts/spawn_wt_clean.bat` - native Windows batch file
+2. Batch file calls `wt.exe` directly (reads environment from Windows registry)
+3. Python calls batch file instead of `wt.exe` directly
+4. Result: Clean Windows environment, no MSYS2 pollution
+
+**Key Code (terminal_executor.py):**
+```python
+# Find batch file launcher
+batch_file = Path(__file__).parent.parent.parent / 'scripts' / 'spawn_wt_clean.bat'
+
+# Call via batch file (breaks MSYS2 chain)
+subprocess.Popen([batch_file, title, 'pwsh.exe', '-NoExit', '-Command', command])
+```
+
+### Why This Works
+
+1. **Native executables query the OS** - `.bat` files read environment from Windows registry
+2. **Breaks the inheritance chain** - No direct parent-child subprocess relationship
+3. **Platform-appropriate** - Uses Windows-native process spawning mechanisms
+4. **Similar to WSL/Keypirinha** - Matches how other clean boundaries work
+
+### Broader Lesson
+
+**When bridging between incompatible environments, use native intermediaries.**
+
+Don't try to make hybrid environments "speak native" - they will pollute. Instead:
+1. Identify the impedance mismatch (POSIX ↔ Windows in this case)
+2. Use a native intermediary that queries the OS directly
+3. Break the chain of environment inheritance
+4. Trust native tools to do what they're designed for
+
+**This pattern applies beyond MSYS2:**
+- Docker → host commands (use native Docker API, not subprocess)
+- Cygwin → Windows processes (use native .bat/.exe intermediaries)
+- WSL → Windows processes (already works via `/init` interop)
+- Any hybrid environment → native OS
+
+### Critical Reminders
+
+- **Never assume subprocess.Popen is clean** on hybrid platforms
+- **Test environment inheritance** when crossing platform boundaries
+- **Use native intermediaries** when pollution is detected
+- **Document the solution** so future developers don't waste cycles rediscovering this
+
 This design provides a solid foundation for native package management that's simple, reliable, and extensible.

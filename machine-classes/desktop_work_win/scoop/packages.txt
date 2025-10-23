@@ -51,8 +51,9 @@ wezterm
 windirstat
 zoxide
 clink
-main
-extras
-versions
-nerd-fonts
 java
+# Buckets (not packages, managed separately):
+# - main (default bucket)
+# - extras
+# - versions
+# - nerd-fonts

@@ -36,7 +36,8 @@ Keypirinha.history
 # Runtime and build artifacts
 .runtime/
 .runtime_testing/
-# NOTE: We do NOT ignore *.log or .logs/ here - any logs written to the repo
+logs/
+# NOTE: We do NOT ignore *.log files - any .log files written to the repo
 # are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
 
 # Python cache files

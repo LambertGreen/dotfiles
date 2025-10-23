@@ -16,7 +16,7 @@ from .pm_select import select_pms
 from .pm_check import check_all_pms
 from .pm_upgrade import upgrade_all_pms
 from .pm_configure import configure_pms, save_pm_config
-from .terminal_executor import _save_terminal_registry
+from .terminal_executor import _save_terminal_registry, spawn_tracked
 
 
 def cmd_list(args):
@@ -235,6 +235,110 @@ def cmd_audit(args):
     return 0
 
 
+def cmd_version(args):
+    """Check versions of all package managers."""
+    # Clear terminal registry at start of new session
+    _save_terminal_registry([])
+
+    print("🏥 Package Manager Doctor - Version Checks")
+    print("=" * 60)
+    print()
+    print("This spawns terminals to test PM availability and terminal launching.")
+    print("Check each terminal tab for the version output.")
+    print()
+
+    # Detect available PMs
+    available_pms = detect_all_pms(operation='check')
+
+    if not available_pms:
+        print("❌ No package managers detected")
+        return 1
+
+    print(f"📋 Detected {len(available_pms)} package managers: {', '.join(available_pms)}")
+    print()
+
+    # Map PM to version command
+    version_commands = {
+        'brew': 'brew --version',
+        'apt': 'apt --version',
+        'pacman': 'pacman --version',
+        'scoop': 'scoop --version',
+        'choco': 'choco --version',
+        'winget': 'winget --version',
+        'npm': 'npm --version',
+        'pip': 'pip --version',
+        'pipx': 'pipx --version',
+        'cargo': 'cargo --version',
+        'gem': 'gem --version',
+    }
+
+    results = []
+    for pm in available_pms:
+        print(f"Checking {pm}...")
+
+        result = {
+            'pm': pm,
+            'success': False,
+            'error': ''
+        }
+
+        if pm not in version_commands:
+            result['error'] = f'No version command defined for {pm}'
+            results.append(result)
+            print()
+            continue
+
+        cmd = version_commands[pm]
+
+        try:
+            # Spawn terminal with version check
+            terminal_result = spawn_tracked(
+                cmd,
+                operation=f"{pm}-version-check",
+                auto_close=False
+            )
+
+            if terminal_result.status in ['spawned', 'completed']:
+                result['success'] = True
+                print(f"  ✅ {pm}: Terminal spawned")
+                print(f"     📄 Log: {terminal_result.log_file}")
+            else:
+                result['error'] = terminal_result.error or 'Failed to spawn terminal'
+                print(f"  ❌ {pm}: Failed to spawn terminal")
+
+        except Exception as e:
+            result['error'] = str(e)
+            print(f"  ❌ {pm}: Error - {e}")
+
+        results.append(result)
+        print()
+
+    # Summary
+    print()
+    print("=" * 60)
+    print("📊 Summary")
+    print("=" * 60)
+
+    successful = [r for r in results if r['success']]
+    failed = [r for r in results if not r['success']]
+
+    for result in successful:
+        print(f"✅ {result['pm']}: Terminal spawned successfully")
+
+    for result in failed:
+        print(f"❌ {result['pm']}: {result['error']}")
+
+    print()
+    print(f"📈 Success: {len(successful)}/{len(results)}")
+
+    if failed:
+        print()
+        print("🔍 Check the spawned terminal tabs for version output.")
+        print("   If tabs are empty or show errors, terminal spawning may be broken.")
+
+    return 0 if not failed else 1
+
+
 def cmd_install(args):
     """Install packages."""
     from .pm_install import install_all_pms
@@ -334,6 +438,7 @@ def main():
 Examples:
   pm list                    # List all available package managers
   pm audit                   # Audit PMs for consistency (manifests vs installed)
+  pm version                 # Check versions of all package managers
   pm check                   # Check for outdated packages (interactive)
   pm check brew npm          # Check specific package managers
   pm upgrade                 # Upgrade packages (interactive)
@@ -362,6 +467,9 @@ Examples:
     # Audit command
     parser_audit = subparsers.add_parser('audit', help='Audit package managers for consistency')
 
+    # Version command
+    parser_version = subparsers.add_parser('version', help='Check versions of all package managers')
+
     # Install command
     parser_install = subparsers.add_parser('install', help='Install packages')
     parser_install.add_argument('pms', nargs='*', help='Specific PMs to install for (optional)')
@@ -383,6 +491,7 @@ Examples:
         'upgrade': cmd_upgrade,
         'configure': cmd_configure,
         'audit': cmd_audit,
+        'version': cmd_version,
         'install': cmd_install,
     }
 

@@ -245,6 +245,12 @@ doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
+# Check package manager versions (terminal spawning regression test)
+[group('4-👩‍⚕️-Doctor')]
+doctor-pm-versions:
+    @echo "👩‍⚕️ Checking package manager versions..."
+    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm version
+
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
 doctor-fix-broken-links:

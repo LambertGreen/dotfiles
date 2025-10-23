@@ -655,95 +655,146 @@ class WindowsTerminalExecutor(TerminalExecutor):
         if not wrapper_script.exists():
             raise RuntimeError(f"Cannot find run_tracked.ps1 script. Searched: {wrapper_script}")
 
-        # Convert Unix paths to Windows paths for PowerShell using cygpath
-        try:
-            result = subprocess.run(['cygpath', '-w', str(wrapper_script)],
-                                  capture_output=True, text=True, check=True)
-            wrapper_script_win = result.stdout.strip()
+        # Convert paths to forward slashes (works in MSYS2 Python subprocess)
+        # Use str() and replace() to ensure forward slashes
+        wrapper_script_win = str(wrapper_script).replace('\\', '/')
+        log_file_win = log_file.replace('\\', '/')
+        status_file_win = status_file.replace('\\', '/')
 
-            result = subprocess.run(['cygpath', '-w', log_file],
-                                  capture_output=True, text=True, check=True)
-            log_file_win = result.stdout.strip()
-
-            result = subprocess.run(['cygpath', '-w', status_file],
-                                  capture_output=True, text=True, check=True)
-            status_file_win = result.stdout.strip()
-        except:
-            # Fallback: assume paths are already in correct format
-            wrapper_script_win = str(wrapper_script)
-            log_file_win = log_file
-            status_file_win = status_file
-
-        # Return wrapper script path and arguments separately for cleaner invocation
+        # Return wrapper script path and arguments for PowerShell -File invocation
         auto_close_arg = 'true' if auto_close else 'false'
 
-        # We'll pass these as a dict for WindowsTerminalExecutor to use with -File
+        # Return tuple: (wrapper_script, operation, command, log_file, status_file, auto_close)
         return (wrapper_script_win, operation, base_cmd, log_file_win, status_file_win, auto_close_arg), log_file, status_file
 
-    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
-        """Spawn command in Windows Terminal or cmd"""
-        try:
-            # Get current working directory
-            cwd = os.getcwd()
+    def _get_clean_windows_environment(self) -> dict:
+        """
+        Get a clean Windows environment without MSYS2 Unix-path corruption.
 
-            # Try Windows Terminal first
-            if shutil.which('wt.exe') or shutil.which('wt'):
-                wt_cmd = [
-                    'wt.exe' if shutil.which('wt.exe') else 'wt',
-                    '-w', '0',  # Use new window in current terminal window group
-                    'nt',       # New tab
+        When running from MSYS2 Python, subprocess.Popen() inherits Unix-style PATH
+        (/c/Program Files/...) which causes PowerShell command resolution to break.
+        This method builds a clean Windows environment from registry values.
+        """
+        try:
+            # Get System PATH from Windows registry
+            result = subprocess.run(
+                ['powershell.exe', '-NoProfile', '-Command',
+                 "[System.Environment]::GetEnvironmentVariable('Path', 'Machine')"],
+                capture_output=True, text=True, check=True
+            )
+            system_path = result.stdout.strip()
+
+            # Get User PATH from Windows registry
+            result = subprocess.run(
+                ['powershell.exe', '-NoProfile', '-Command',
+                 "[System.Environment]::GetEnvironmentVariable('Path', 'User')"],
+                capture_output=True, text=True, check=True
+            )
+            user_path = result.stdout.strip()
+
+            # Combine System + User PATH (Windows convention)
+            clean_path = f"{system_path};{user_path}" if user_path else system_path
+
+            # Build minimal clean environment
+            # Copy critical Windows environment variables
+            clean_env = {
+                'PATH': clean_path,
+                'SYSTEMROOT': os.environ.get('SYSTEMROOT', 'C:\\Windows'),
+                'TEMP': os.environ.get('TEMP', 'C:\\Windows\\Temp'),
+                'TMP': os.environ.get('TMP', 'C:\\Windows\\Temp'),
+                'USERPROFILE': os.environ.get('USERPROFILE', os.path.expanduser('~')),
+                'HOMEDRIVE': os.environ.get('HOMEDRIVE', 'C:'),
+                'HOMEPATH': os.environ.get('HOMEPATH', '\\Users\\' + os.environ.get('USERNAME', '')),
+                'USERNAME': os.environ.get('USERNAME', ''),
+                'COMPUTERNAME': os.environ.get('COMPUTERNAME', ''),
+                'USERDOMAIN': os.environ.get('USERDOMAIN', ''),
+            }
+
+            return clean_env
+
+        except Exception as e:
+            # Fallback: use current environment (will have MSYS2 corruption)
+            print(f"Warning: Failed to build clean Windows environment: {e}")
+            print("Falling back to inherited environment (may have PATH issues)")
+            return None
+
+    def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
+        """
+        Spawn command in Windows Terminal using PowerShell.
+
+        Uses batch file intermediary to break MSYS2 environment pollution:
+        - MSYS2 Python → spawn_wt_clean.bat → wt.exe → pwsh.exe
+        - Batch file reads clean Windows environment from registry
+        - Avoids PATH corruption and MSYSTEM pollution
+        """
+        try:
+            # Find batch file launcher
+            batch_locations = [
+                Path(__file__).parent.parent.parent / 'scripts' / 'spawn_wt_clean.bat',
+                Path.home() / '.dotfiles' / 'scripts' / 'spawn_wt_clean.bat',
+            ]
+
+            batch_file = None
+            for loc in batch_locations:
+                if loc.exists():
+                    batch_file = str(loc).replace('\\', '/')
+                    break
+
+            if not batch_file:
+                raise RuntimeError("Batch file launcher (spawn_wt_clean.bat) not found")
+
+            # Build title
+            tab_title = f'DOTFILES-PM-{title}' if title else 'DOTFILES-PM'
+
+            # Build batch file arguments
+            if isinstance(command, tuple):
+                # Tuple: (script_path, operation, base_cmd, log_file, status_file, auto_close)
+                script_path, operation, base_cmd, log_file, status_file, auto_close = command
+                batch_args = [
+                    batch_file,
+                    tab_title,
+                    'pwsh.exe',
+                    '-NoExit',
+                    '-File', script_path,
+                    '-Operation', operation,
+                    '-Command', base_cmd,
+                    '-LogFile', log_file,
+                    '-StatusFile', status_file,
+                    '-AutoClose', auto_close
+                ]
+            else:
+                # Legacy: command string
+                batch_args = [
+                    batch_file,
+                    tab_title,
+                    'pwsh.exe',
+                    '-NoExit',
+                    '-Command', command
                 ]
 
-                if title:
-                    # Add DOTFILES-PM prefix for tracking
-                    unique_title = f"DOTFILES-PM-{title}"
-                    wt_cmd.extend(['--title', unique_title])
+            # Spawn via batch file (breaks MSYS2 environment chain)
+            subprocess.Popen(batch_args)
 
-                # Modern Windows stack: wt.exe (terminal) + pwsh.exe (shell)
-                # If command is a tuple, it's (script, arg1, arg2, ...) for -File invocation
-                # Otherwise it's a command string for -Command
-                if isinstance(command, tuple):
-                    # Unpack script path and arguments
-                    script_path, operation, base_cmd, log_file, status_file, auto_close = command
-                    wt_cmd.extend([
-                        'pwsh.exe',
-                        '-NoExit',
-                        '-File',
-                        script_path,
-                        '-Operation', operation,
-                        '-Command', base_cmd,
-                        '-LogFile', log_file,
-                        '-StatusFile', status_file,
-                        '-AutoClose', auto_close
-                    ])
-                else:
-                    # Legacy: command string
-                    wt_cmd.extend([
-                        'pwsh.exe',
-                        '-NoExit',
-                        '-Command',
-                        command
-                    ])
-
-                subprocess.Popen(wt_cmd)
-                method = 'Windows Terminal'
-            else:
-                # Fallback to cmd
-                subprocess.Popen(['cmd', '/c', 'start', 'cmd', '/k', command])
-                method = 'cmd.exe'
+            # Format command for display
+            cmd_display = str(command) if isinstance(command, tuple) else command
+            cmd_display = cmd_display[:50] + '...' if len(cmd_display) > 50 else cmd_display
 
             return TerminalSpawnResult(
                 status='spawned',
                 platform='windows',
-                method=method,
-                command=command[:50] + '...' if len(command) > 50 else command
+                method='Windows Terminal (batch)',
+                command=cmd_display
             )
         except Exception as e:
+            # Format command for display
+            cmd_display = str(command) if isinstance(command, tuple) else command
+            cmd_display = cmd_display[:50] + '...' if len(cmd_display) > 50 else cmd_display
+
             return TerminalSpawnResult(
                 status='failed',
                 platform='windows',
                 method='none',
-                command=command[:50] + '...' if len(command) > 50 else command,
+                command=cmd_display,
                 error=str(e)
             )
 
