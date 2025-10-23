@@ -74,12 +74,12 @@ def detect_all_pms(operation: str = 'check') -> List[str]:
         # Fake PMs must be explicitly enabled
         if is_fake:
             return pm_name in enabled_pms
+        # Disabled list takes precedence - always exclude disabled PMs
+        if pm_name in disabled_pms:
+            return False
         # If enabled_pms is set, only include PMs that are explicitly enabled
         if enabled_pms:
             return pm_name in enabled_pms
-        # If disabled_pms is set, exclude those PMs
-        if pm_name in disabled_pms:
-            return False
         # Default: include all PMs
         return True
 
