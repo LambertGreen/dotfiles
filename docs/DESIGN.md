@@ -436,4 +436,56 @@ Don't try to make hybrid environments "speak native" - they will pollute. Instea
 - **Use native intermediaries** when pollution is detected
 - **Document the solution** so future developers don't waste cycles rediscovering this
 
+### ⚠️ CRITICAL: Claude Code MSYS2 Sandbox Limitation
+
+**Environment Variables Do NOT Propagate to Child Processes in Claude Code Sessions**
+
+When running commands via Claude Code (claude.ai/code) in an MSYS2 environment on Windows, there is a **critical sandbox restriction**:
+
+**The Problem:**
+```bash
+# In a NORMAL MSYS2 terminal - WORKS:
+export TEST_VAR="hello" && python3 -c "import os; print(os.environ.get('TEST_VAR'))"
+# Output: hello ✅
+
+# In Claude Code MSYS2 bash session - FAILS:
+export TEST_VAR="hello" && python3 -c "import os; print(os.environ.get('TEST_VAR'))"
+# Output: None ❌
+```
+
+**Impact:**
+- ❌ **Configuration via env vars doesn't work** in Claude sessions
+- ❌ **`DOTFILES_PM_ENABLED` / `DOTFILES_PM_DISABLED` are ignored**
+- ❌ **UI selection testing via env vars is broken** (e.g., `DOTFILES_PM_UI_SELECT`)
+- ❌ **Any pytest hooks using env vars for test configuration fail**
+
+**Why This Happens:**
+Claude Code runs commands in a **sandboxed/restricted MSYS2 environment** where custom environment variables are blocked from propagating to child processes. This is a Claude Code-specific security/isolation restriction, NOT an MSYS2 or code bug.
+
+**Verification:**
+The same commands work perfectly in a normal MSYS2 terminal:
+```bash
+# Real terminal - env vars propagate correctly:
+$ . ~/.dotfiles.env && python3 -c "import os; print('DISABLED:', os.environ.get('DOTFILES_PM_DISABLED'))"
+DISABLED: pacman ✅
+
+# Claude Code - env vars blocked:
+$ . ~/.dotfiles.env && python3 -c "import os; print('DISABLED:', os.environ.get('DOTFILES_PM_DISABLED'))"
+DISABLED: <not set> ❌
+```
+
+**Workarounds for Testing in Claude Sessions:**
+1. **Direct Python testing** - Pass config via command-line args instead of env vars
+2. **Config files** - Use JSON/TOML files read by Python directly (not env vars)
+3. **Test in user's terminal** - Ask user to run tests in their own terminal, not via Claude
+4. **Hard-code for debugging** - Temporarily hard-code values in Python for Claude-based testing
+
+**Important Notes:**
+- This **ONLY affects Claude Code sessions** - real user workflows work normally
+- The code is correct - env vars work fine in production
+- Don't waste time debugging "env var propagation" in Claude sessions
+- When testing configuration changes, **ask the user to test in their own terminal**
+
+**Bottom Line:** Any testing that relies on environment variables for configuration (UI selection, PM filtering, test hooks) **MUST be done by the user in their own terminal**, not via Claude Code bash commands.
+
 This design provides a solid foundation for native package management that's simple, reliable, and extensible.
