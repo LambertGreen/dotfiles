@@ -5,6 +5,9 @@
 *.sh text eol=lf
 scripts/** text eol=lf
 
+# Stow configuration files read by bash scripts must use LF
+**/stow/stow.txt text eol=lf
+
  # Windows scripts keep CRLF endings
  *.ps1 text eol=crlf
  *.bat text eol=crlf
