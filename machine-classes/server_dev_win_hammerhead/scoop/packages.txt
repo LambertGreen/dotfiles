@@ -1,0 +1,42 @@
+# Personal overlay tools (scoop)
+
+# Core dotfiles management
+just
+
+# Elevation tool (gsudo)
+sudo
+
+# Dev editors with personal configs
+neovim
+neovide
+emacs
+
+# Dev workflow tools
+fzf
+ripgrep
+fd
+delta
+broot
+tldr
+
+# AWS CLI
+aws
+
+# GUI utilities
+everything
+windirstat
+caffeine
+rapidee
+sysinternals
+
+# Dev tools
+clink
+geckodriver
+innounp
+windsurf
+
+# Fonts
+Iosevka-NF
+
+# Browser
+firefox
