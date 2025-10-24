@@ -5,6 +5,7 @@
 7zip
 git
 curl
+gsudo
 
 # Development tools
 # emacs - Use pacman/MSYS2 instead (has 29.4, scoop may be older)

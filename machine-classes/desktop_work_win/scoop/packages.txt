@@ -1,6 +1,7 @@
 7zip
 aspell
 aws
+gsudo
 bat
 carnac
 coreutils
