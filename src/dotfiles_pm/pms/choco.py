@@ -18,15 +18,15 @@ class ChocoPM(PackageManager):
 
     @property
     def check_command(self) -> List[str]:
-        return ["choco", "outdated"]
+        return ["choco", "outdated"]  # Read-only, doesn't need elevation
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["choco", "upgrade", "all", "-y"]
+        return ["sudo", "choco", "upgrade", "all", "-y"]
 
     @property
     def install_command(self) -> List[str]:
-        return ["choco", "install", "-y"]
+        return ["sudo", "choco", "install", "-y"]
 
     @property
     def requires_sudo(self) -> bool:
