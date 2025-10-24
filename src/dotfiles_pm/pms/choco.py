@@ -22,11 +22,11 @@ class ChocoPM(PackageManager):
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["sudo", "choco", "upgrade", "all", "-y"]
+        return ["sudo", "choco", "upgrade", "all", "-y"]  # sudo = gsudo from scoop
 
     @property
     def install_command(self) -> List[str]:
-        return ["sudo", "choco", "install", "-y"]
+        return ["sudo", "choco", "install", "-y"]  # sudo = gsudo from scoop
 
     @property
     def requires_sudo(self) -> bool:

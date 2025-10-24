@@ -3,8 +3,8 @@
 # Core dotfiles management
 just
 
-# Elevation tool (gsudo)
-sudo
+# Elevation tool
+gsudo
 
 # Dev editors with personal configs
 neovim
