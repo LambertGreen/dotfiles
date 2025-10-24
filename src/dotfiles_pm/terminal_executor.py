@@ -12,6 +12,7 @@ import subprocess
 import shutil
 import time
 import json
+from datetime import datetime
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, asdict
 from typing import Dict, Any, Optional, Tuple, List, Literal
@@ -156,7 +157,7 @@ class TerminalExecutor(ABC):
         Returns:
             Tuple of (tracked_command, log_file_path, status_file_path)
         """
-        timestamp = int(time.time())
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         log_dir = Path.home() / '.dotfiles' / 'logs'
         log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -625,7 +626,7 @@ class WindowsTerminalExecutor(TerminalExecutor):
 
         Overrides base class to use run_tracked.ps1 instead of run_tracked.sh
         """
-        timestamp = int(time.time())
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         log_dir = Path.home() / '.dotfiles' / 'logs'
         log_dir.mkdir(parents=True, exist_ok=True)
 
