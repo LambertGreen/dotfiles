@@ -3,6 +3,7 @@
 
 from typing import List
 import sys
+import platform
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -16,17 +17,25 @@ class PacmanPM(PackageManager):
     def __init__(self):
         super().__init__('pacman')
 
+    def _get_pacman_exe(self) -> str:
+        """Get platform-specific pacman executable path"""
+        # On Windows (including MSYS2/Cygwin), use full path with forward slashes
+        # Forward slashes work in subprocess from MSYS2 Python, backslashes get mangled
+        if sys.platform in ('win32', 'cygwin'):
+            return 'C:/msys64/usr/bin/pacman.exe'
+        return 'pacman'
+
     @property
     def check_command(self) -> List[str]:
-        return ["pacman", "-Qu"]
+        return [self._get_pacman_exe(), "-Qu"]
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["pacman", "-Syu"]
+        return [self._get_pacman_exe(), "-Syu"]
 
     @property
     def install_command(self) -> List[str]:
-        return ["pacman", "-S", "--needed"]
+        return [self._get_pacman_exe(), "-S", "--needed"]
 
     @property
     def requires_sudo(self) -> bool:

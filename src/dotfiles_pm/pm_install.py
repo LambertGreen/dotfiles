@@ -8,6 +8,7 @@ Install packages across multiple package managers using native package files.
 import os
 import subprocess
 import sys
+import shlex
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -535,6 +536,28 @@ def install_generic_packages(pm_name: str, install_cmd: str) -> Dict[str, Any]:
         result['success'] = True
         return result
 
+    # Verify PM command is available before spawning terminal
+    import shutil
+    # Extract command (remove quotes if present from shlex.join)
+    pm_command = install_cmd.split()[0].strip('\'"')
+
+    # Check if it's a full path or just a command name
+    if '/' in pm_command or '\\' in pm_command:
+        # Full path - check if file exists directly (don't use shutil.which)
+        # Convert forward slashes to work with Path on Windows
+        from pathlib import Path
+        cmd_path = Path(pm_command)
+        if not cmd_path.exists():
+            result['success'] = False
+            result['error'] = f"Package manager command not found: {pm_command}"
+            raise RuntimeError(f"❌ {pm_name} command not available: {pm_command} not found")
+    else:
+        # Just command name - search PATH
+        if not shutil.which(pm_command):
+            result['success'] = False
+            result['error'] = f"Package manager command '{pm_command}' not found in PATH. Please ensure {pm_name} is installed and in your PATH."
+            raise RuntimeError(f"❌ {pm_name} command not available: {pm_command} not found in PATH")
+
     print(f"  📦 Installing {len(packages)} {pm_name} packages...")
 
     # Build command to install all packages
@@ -564,7 +587,12 @@ def install_generic_packages(pm_name: str, install_cmd: str) -> Dict[str, Any]:
 
 # Windows PM installers
 def install_pacman_packages() -> Dict[str, Any]:
-    return install_generic_packages('pacman', 'pacman -S --needed --noconfirm')
+    from .pms.pacman import PacmanPM
+    pm = PacmanPM()
+    # Build command string from PM's install_command list
+    cmd_list = pm.install_command + ['--noconfirm']
+    cmd_str = shlex.join(cmd_list)
+    return install_generic_packages('pacman', cmd_str)
 
 def install_scoop_packages() -> Dict[str, Any]:
     return install_generic_packages('scoop', 'scoop install')
