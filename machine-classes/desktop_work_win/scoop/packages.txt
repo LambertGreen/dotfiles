@@ -35,6 +35,7 @@ make
 meson
 neovim
 neovim-qt
+oh-my-posh
 perl
 pwsh
 # python39 - REMOVED: Work machine already has Python installed.

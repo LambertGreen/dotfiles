@@ -1,22 +1,149 @@
+# ============================================================================
+# Auto-Setup for PowerShell Modules (like zinit pattern in zsh)
+# ============================================================================
+function Initialize-PowerShellModules {
+    $RequiredModules = @(
+        @{Name='PSFzf'; Description='Fuzzy finder for files and command history (Ctrl+T, Ctrl+R)'},
+        @{Name='posh-git'; Description='Git integration and prompt enhancements'},
+        @{Name='z'; Description='Fast directory navigation based on frecency'},
+        @{Name='Get-ChildItemColor'; Description='Colorized ls/dir output'}
+    )
+
+    # Check for missing modules
+    $MissingModules = @()
+    foreach ($Module in $RequiredModules) {
+        if (-not (Get-Module -ListAvailable -Name $Module.Name)) {
+            $MissingModules += $Module
+        }
+    }
+
+    # Check for oh-my-posh separately (it's a command, not a module)
+    $OhMyPoshMissing = -not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)
+
+    if ($MissingModules.Count -eq 0 -and -not $OhMyPoshMissing) {
+        return  # All modules installed, nothing to do
+    }
+
+    # Display what's missing
+    Write-Host ""
+    Write-Host "PowerShell enhancement modules are not fully installed." -ForegroundColor Yellow
+    Write-Host ""
+
+    if ($MissingModules.Count -gt 0) {
+        Write-Host "Missing PowerShell modules:" -ForegroundColor Cyan
+        foreach ($Module in $MissingModules) {
+            Write-Host "  - $($Module.Name): $($Module.Description)" -ForegroundColor White
+        }
+        Write-Host ""
+    }
+
+    if ($OhMyPoshMissing) {
+        Write-Host "Missing tools:" -ForegroundColor Cyan
+        Write-Host "  - oh-my-posh: Modern prompt theme engine" -ForegroundColor White
+        Write-Host ""
+    }
+
+    # Prompt with timeout (like zinit)
+    Write-Host "Do you want to install them now? [Y/n] (auto-installs in 10s)" -ForegroundColor Green
+
+    $TimeoutSeconds = 10
+    $StartTime = Get-Date
+    $Response = $null
+
+    while (((Get-Date) - $StartTime).TotalSeconds -lt $TimeoutSeconds) {
+        if ([Console]::KeyAvailable) {
+            $Key = [Console]::ReadKey($true)
+            $Response = $Key.KeyChar
+            break
+        }
+        Start-Sleep -Milliseconds 100
+    }
+
+    if ($Response -eq 'n' -or $Response -eq 'N') {
+        Write-Host "Skipping installation. Modules will not be loaded." -ForegroundColor Yellow
+        return
+    }
+
+    if ($null -eq $Response) {
+        Write-Host "Y (timeout)" -ForegroundColor Green
+    } else {
+        Write-Host ""
+    }
+
+    # Install missing modules
+    if ($MissingModules.Count -gt 0) {
+        Write-Host ""
+        Write-Host "Installing PowerShell modules..." -ForegroundColor Cyan
+
+        foreach ($Module in $MissingModules) {
+            Write-Host "  Installing $($Module.Name)..." -ForegroundColor White
+            try {
+                Install-Module -Name $Module.Name -Scope CurrentUser -Force -AllowClobber -SkipPublisherCheck
+                Write-Host "  ✓ $($Module.Name) installed successfully" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to install $($Module.Name): $_" -ForegroundColor Red
+            }
+        }
+    }
+
+    # Install oh-my-posh via scoop if missing
+    if ($OhMyPoshMissing) {
+        Write-Host ""
+        if (Get-Command scoop -ErrorAction SilentlyContinue) {
+            Write-Host "  Installing oh-my-posh via scoop..." -ForegroundColor White
+            try {
+                scoop install oh-my-posh
+                Write-Host "  ✓ oh-my-posh installed successfully" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to install oh-my-posh: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "  ⚠ Scoop not found. Install oh-my-posh manually with: scoop install oh-my-posh" -ForegroundColor Yellow
+        }
+    }
+
+    Write-Host ""
+    Write-Host "Installation complete. Restart your shell to load the modules." -ForegroundColor Green
+    Write-Host "  (Close this window and open a new one, or run: & `$PROFILE)" -ForegroundColor Gray
+    Write-Host ""
+}
+
+# Run auto-setup check
+Initialize-PowerShellModules
+
+# ============================================================================
 # Readline settings
+# ============================================================================
 Set-PSReadlineOption -EditMode Emacs
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 
+# ============================================================================
+# Module Imports (with error handling)
+# ============================================================================
+
 # Enable Fzf for fast search for: files, and command history
-Import-Module PSFzf
-Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+if (Get-Module -ListAvailable -Name PSFzf) {
+    Import-Module PSFzf
+    Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+}
 
 # Enable git completions
-Import-Module posh-git
+if (Get-Module -ListAvailable -Name posh-git) {
+    Import-Module posh-git
+}
 
 # Enable fast directory navigation using z command
 # TODO: Consider using Zoxide
-Import-Module z
+if (Get-Module -ListAvailable -Name z) {
+    Import-Module z
+}
 
 # Enable ls colors
-Import-Module Get-ChildItemColor
-Set-Alias ll Get-ChildItemColor -option AllScope
-Set-Alias ls Get-ChildItemColorFormatWide -option AllScope
+if (Get-Module -ListAvailable -Name Get-ChildItemColor) {
+    Import-Module Get-ChildItemColor
+    Set-Alias ll Get-ChildItemColor -option AllScope
+    Set-Alias ls Get-ChildItemColorFormatWide -option AllScope
+}
 
 # Bat wrapper because less pager does not correctly show colors,
 # so set no paging
@@ -31,9 +158,13 @@ Set-Alias which get-command
 Set-Alias g git
 Set-Alias gw ./gradlew
 
-# Enable a cool prompt
+# ============================================================================
+# Prompt - Oh-My-Posh
+# ============================================================================
 # Using Oh-My-Posh v3: installed via scoop
-& ([ScriptBlock]::Create((oh-my-posh init pwsh --config "~/dev/pub/oh-my-posh/themes/amro.omp.json" --print) -join "`n"))
+if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
+    & ([ScriptBlock]::Create((oh-my-posh init pwsh --config "~/dev/pub/oh-my-posh/themes/amro.omp.json" --print) -join "`n"))
+}
 
 # Set code codepage so that unicode is correctly displayed in Vim
 chcp 65001 > $null
