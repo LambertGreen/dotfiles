@@ -755,6 +755,7 @@ class WindowsTerminalExecutor(TerminalExecutor):
                     batch_file,
                     tab_title,
                     'pwsh.exe',
+                    '-NoProfile',  # Skip user profile to avoid module import errors
                     '-NoExit',
                     '-File', script_path,
                     '-Operation', operation,
@@ -769,6 +770,7 @@ class WindowsTerminalExecutor(TerminalExecutor):
                     batch_file,
                     tab_title,
                     'pwsh.exe',
+                    '-NoProfile',  # Skip user profile to avoid module import errors
                     '-NoExit',
                     '-Command', command
                 ]
