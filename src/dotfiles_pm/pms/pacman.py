@@ -25,16 +25,37 @@ class PacmanPM(PackageManager):
             return 'C:/msys64/usr/bin/pacman.exe'
         return 'pacman'
 
+    def _wrap_for_windows(self, pacman_args: str) -> List[str]:
+        """
+        Wrap pacman command for Windows PowerShell execution via msys2_shell.cmd
+
+        Following chocolatey's msys2 package pattern:
+        https://github.com/chocolatey-community/chocolatey-packages/tree/master/automatic/msys2
+
+        msys2_shell.cmd invokes MSYS2 bash environment to run pacman properly.
+        """
+        if sys.platform in ('win32', 'cygwin'):
+            # Use msys2_shell.cmd to invoke pacman in proper MSYS2 environment
+            return ['C:/msys64/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_args]
+        # On native Linux/Arch, run pacman directly
+        return pacman_args.split()
+
     @property
     def check_command(self) -> List[str]:
+        if sys.platform in ('win32', 'cygwin'):
+            return self._wrap_for_windows('pacman -Qu')
         return [self._get_pacman_exe(), "-Qu"]
 
     @property
     def upgrade_command(self) -> List[str]:
+        if sys.platform in ('win32', 'cygwin'):
+            return self._wrap_for_windows('pacman --noconfirm -Syu')
         return [self._get_pacman_exe(), "-Syu"]
 
     @property
     def install_command(self) -> List[str]:
+        if sys.platform in ('win32', 'cygwin'):
+            return self._wrap_for_windows('pacman --noconfirm -S --needed')
         return [self._get_pacman_exe(), "-S", "--needed"]
 
     @property
