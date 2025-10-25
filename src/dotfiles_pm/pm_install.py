@@ -587,12 +587,60 @@ def install_generic_packages(pm_name: str, install_cmd: str) -> Dict[str, Any]:
 
 # Windows PM installers
 def install_pacman_packages() -> Dict[str, Any]:
+    """
+    Install pacman packages with special handling for msys2_shell.cmd wrapper.
+
+    Package names must be inside the -c '...' command string, not after it.
+    """
     from .pms.pacman import PacmanPM
+    import sys
+
     pm = PacmanPM()
-    # Build command string from PM's install_command list
-    cmd_list = pm.install_command + ['--noconfirm']
-    cmd_str = shlex.join(cmd_list)
-    return install_generic_packages('pacman', cmd_str)
+
+    # Get package list
+    config_dir = get_machine_config_dir('pacman')
+    if not config_dir:
+        return {'pm': 'pacman', 'success': True, 'output': '⚠️  No configuration directory found for pacman'}
+
+    package_file = config_dir / 'packages.txt'
+    if not package_file.exists():
+        return {'pm': 'pacman', 'success': True, 'output': f'⚠️  No packages.txt file found in {config_dir}'}
+
+    with open(package_file) as f:
+        packages = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+
+    if not packages:
+        return {'pm': 'pacman', 'success': True, 'output': 'No packages to install'}
+
+    # For Windows: build command with packages INSIDE the -c '...' string
+    if sys.platform in ('win32', 'cygwin'):
+        packages_str = ' '.join(packages)
+        # Build the pacman command with packages included
+        pacman_cmd = f"pacman --noconfirm -S --needed {packages_str}"
+        # Wrap in msys2_shell.cmd
+        cmd_list = ['C:/msys64/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_cmd]
+        cmd_str = shlex.join(cmd_list)
+    else:
+        # Linux/Arch: use regular command + packages
+        cmd_list = pm.install_command + ['--noconfirm']
+        cmd_str = shlex.join(cmd_list)
+        packages_str = ' '.join(packages)
+        cmd_str = f"{cmd_str} {packages_str}"
+
+    # Spawn terminal
+    result = {'pm': 'pacman', 'success': False}
+    print(f"  📦 Installing {len(packages)} pacman packages...")
+
+    terminal_result = spawn_tracked(cmd_str, operation="pacman-install", auto_close=False)
+
+    if terminal_result.status in ['spawned', 'completed']:
+        result['success'] = True
+        result['log_file'] = terminal_result.log_file
+        result['status_file'] = terminal_result.status_file
+        result['installed_count'] = len(packages)
+        print(f"  🖥️  Executing in new terminal window...")
+
+    return result
 
 def install_scoop_packages() -> Dict[str, Any]:
     return install_generic_packages('scoop', 'scoop install')
