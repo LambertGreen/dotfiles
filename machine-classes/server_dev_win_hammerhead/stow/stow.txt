@@ -1,5 +1,5 @@
 # -*- mode: conf -*-
-# Windows Work Desktop Stow Configuration
+# Windows Server Development Stow Configuration (Hammerhead)
 # Based on Windows work machine with scoop + chocolatey + winget + MSYS2
 
 # Common configs (truly universal)

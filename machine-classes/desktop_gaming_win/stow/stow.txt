@@ -34,5 +34,6 @@ autohotkey
 WindowsCommand
 WindowsPowerShell
 powershell_win
+WindowsTerminal
 clink
 mintty
