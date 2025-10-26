@@ -1,0 +1,7 @@
+# Ignore all runtime GPG files
+*
+
+# But track the static config files
+!gpg.conf
+!gpg-agent.conf
+!.gitignore

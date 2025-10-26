@@ -1,0 +1,24 @@
+# Personal tools (choco)
+
+# Compression
+7zip
+
+# Launcher
+keypirinha
+
+# Window management
+switcheroo
+divvy
+
+# CLI utilities
+rsync
+wget
+diffutils
+hunspell.portable
+syspin
+
+# Kubernetes
+kubernetes-cli
+
+# MSYS2 environment
+msys2

@@ -1,0 +1,5 @@
+# Ubuntu Docker Developer - NPM packages
+# Essential development servers for testing
+
+live-server
+http-server

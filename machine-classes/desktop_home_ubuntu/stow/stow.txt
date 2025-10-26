@@ -1,0 +1,36 @@
+# -*- mode: conf -*-
+# Home Ubuntu Desktop Stow Configuration
+# Personal Ubuntu desktop with apt + homebrew + snap
+
+# Common configs (truly universal)
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
+
+# Personal configs (home desktop is personal)
+git_my
+
+# Platform-specific Linux configs
+git_linux
+shell_linux
+gnupg_linux
+xdg-autostart
+xdg-desktop
+XWindows

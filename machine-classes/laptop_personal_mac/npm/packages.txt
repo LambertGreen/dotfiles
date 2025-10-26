@@ -1,0 +1,10 @@
+corepack
+do-not-disturb-cli
+js-beautify
+js-tidy
+neovim
+pdf2md
+prettier
+stylelint
+typescript-language-server
+typescript

@@ -1,0 +1,11 @@
+# MSYS2 packages (pacman)
+
+# Development
+python
+vim
+
+# Terminal multiplexer
+tmux
+
+# Network tools
+inetutils

@@ -1,0 +1,5 @@
+# Admin-level packages for Docker developer tier testing
+# In Docker these won't actually prompt for password, but we can test the logic
+
+# Simulated admin packages (in real systems these might need privileges)
+brew "postgresql@14"

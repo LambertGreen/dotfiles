@@ -1,0 +1,53 @@
+# Pre-commit hooks for dotfiles repository
+# Install with: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Whitespace and formatting
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+      # File integrity
+      - id: check-merge-conflict
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+
+      # Security
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+
+      # Shell scripts
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+        exclude: '^\.envrc$'
+
+  # Shell script linting
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.9.0
+    hooks:
+      - id: shellcheck
+        args: [-e, SC1091, -e, SC2034]  # Ignore source/unused vars common in dotfiles
+        exclude: '^\.envrc$'
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]  # Ignore apt/apk version pinning for dotfiles
+
+  # Custom local hooks
+  - repo: local
+    hooks:
+      - id: detect-sensitive-tokens
+        name: Detect sensitive tokens
+        entry: .githooks/pre-commit
+        language: script
+        always_run: true

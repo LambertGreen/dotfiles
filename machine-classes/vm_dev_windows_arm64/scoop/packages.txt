@@ -1,0 +1,50 @@
+# Windows ARM64 Development - Scoop packages
+# Extracted from legacy exports/scoop/windows_arm64/scoopfile.json
+
+# Essential tools
+7zip
+git
+curl
+gsudo
+
+# Development tools
+# emacs - Use pacman/MSYS2 instead (has 29.4, scoop may be older)
+cmake
+nodejs
+python
+rustup
+
+# CLI utilities
+bat
+eza
+fastfetch
+fd
+fzf
+jq
+just
+ripgrep
+tree-sitter
+zoxide
+tldr
+vivid
+
+# Terminal and shell
+wezterm
+oh-my-posh
+
+# Development utilities
+editorconfig
+lua
+luarocks
+grep
+findutils
+coreutils
+
+# Fonts
+iosevka-nf
+
+# GUI applications
+vscode
+lazygit
+everything
+dbeaver

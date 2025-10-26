@@ -1,0 +1,5 @@
+# Essential cross-project CLI tools only
+corepack
+claude-code
+do-not-disturb-cli
+pdf2md

@@ -1,0 +1,870 @@
+#+TITLE: Dotfiles
+
+Contains config files and setup scripts for 3 platforms:
+1. macOS
+2. Windows
+3. Linux
+
+* Usage
+This README provides steps to setup various applications and their associated configurations (the configurations are my own personal ones). To install and setup a specific application simply search this document based on the application name, and one will then get results filtered to the application e.g. if one searches for =Tmux=, then one will find the following: how to install it; how to install the =Tmux Plugin Manager=; how to symlink the config file;
+
+* Sync =Git= sub-modules
+This project makes use of sub-modules. After cloning the repository an additional step is needed to sync the sub-modules:
+#+begin_src sh
+git submodules update --init --recursive
+#+end_src
+
+* Install apps
+On each OS platform there are multiple options for package management. On Linux there is often a system package manager that comes with the specific Linux distribution, and on the other hand for macOS/Windows, there is no decent command-line based system package manager, but instead a GUI based app store. My preference is =Homebrew= for macOS/Linux and =Scoop= for Windows, because they both allow usage without the need for root/admin privileges on the machine.
+
++ *Update (3/30/2022)*:
+   I have now starting using =Nix= and =Home Manager= as it enabled me to install =Emacs= and =Tmux= with much less fuss on Linux.
++ *Update (6/13/2022)*:
+  I updated WSL on my home Windows machine to use =Arch Linux= which uses =Pacman=, which has new enough Emacs version, however we still need the =Nix= option for the work =CentoOS 7= system.
++ *Update (8/12/2024)*:
+  Now that I don't use a =CentOS 7= system there is no need for the workarounds of building apps locally nor a need for using =Nix=. Of course =Nix= is useful all on its own, but given I have to use =Scoop= and =Pacman= on Windows, it is simpler to also use =Homebrew= and Linux system package managers.
+
+** On =macOS=                                                          :macOS:
+*** using =Homebrew=
+**** Install =Homebrew=
+#+begin_src sh
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+#+end_src
+**** Install =Taps=
+#+begin_src sh
+  brew tap adoptopenjdk/openjdk
+  brew tap buo/cask-upgrade
+  brew tap cartr/qt4
+  brew tap d12frosted/emacs-plus
+  brew tap homebrew/bundle
+  brew tap homebrew/cask
+  brew tap homebrew/cask-versions
+  brew tap homebrew/cask-fonts
+#+end_src
+**** Install =Packages=
+***** Common
+#+begin_src sh
+  brew install \
+       awscli \
+       bash-language-server \
+       bat \
+       black \
+       catch2 \
+       ccls \
+       clang-format \
+       cliclick \
+       cloc \
+       cmake \
+       cmake-docs \
+       coreutils \
+       cowsay \
+       curl \
+       d12frosted/emacs-plus/emacs-plus@31 \
+       direnv \
+       doxygen \
+       dust \
+       editorconfig \
+       enchant \
+       expat \
+       eza \
+       fd \
+       fortune \
+       gcc \
+       git \
+       git-delta \
+       gnu-sed \
+       gnu-typist \
+       gnupg \
+       gnuplot \
+       gradle \
+       graphviz \
+       htop \
+       hyperfine \
+       imagemagick \
+       jenv \
+       jq \
+       keychain \
+       mailutils \
+       markdown \
+       mas \
+       mermaid-cli \
+       neovim \
+       ninja \
+       node \
+       ntfy \
+       onefetch \
+       openjdk \
+       openssl@3 \
+       p7zip \
+       pcre2 \
+       poppler \
+       postgresql \
+       pstree \
+       pyenv \
+       pyenv-virtualenv \
+       python \
+       rbenv \
+       ripgrep \
+       ruby \
+       scc \
+       shellcheck \
+       shfmt \
+       sip \
+       stow \
+       stylua \
+       tldr \
+       tmux \
+       topgrade \
+       trash \
+       unixodbc \
+       vivid \
+       vscode-langservers-extracted \
+       wget \
+#+end_src
+***** Home
+#+begin_src sh
+  brew install \
+       exercism \
+       llvm \
+       mono \
+       speedtest-cli \
+       sword \
+       typespeed \
+#+end_src
+***** Work
+#+begin_src sh
+  brew install \
+       cartr/qt4/pyqt@4 \
+       freetds@0.91 \
+       rbtools \
+#+end_src
+**** Install =Casks=
+***** Common
+#+begin_src sh
+  brew install --cask \
+       alfred@4 \
+       appcleaner \
+       cursorcerer \
+       contexts \
+       caffeine \
+       divvy \
+       font-iosevka-nerd-font \
+       hammerspoon \
+       mos \
+       stats \
+       vanilla \
+       wezterm \
+#+end_src
+***** Home
+#+begin_src sh
+  brew install --cask \
+       amethyst \
+       gimp \
+       karabiner-elements \
+       steam \
+       whatsapp \
+#+end_src
+***** Work
+#+begin_src sh
+  brew install --cask \
+       1password \
+       p4 \
+       quip \
+       slack \
+#+end_src
+**** Install =Mac App Store= apps
+***** Common
+#+begin_src sh
+  # Install Microsoft Remote Desktop
+  mas install 1295203466
+#+end_src
+***** Home
+#+begin_src sh
+  # Install GrandPerspective
+  mas install 1111570163
+  # Install Kindle
+  mas install 405399194
+  # Intall feedly
+  mas install  865500966
+  # Install Giphy Capture
+  mas install 668208984
+#+end_src
+**** Validate using =Brewfile=
+***** For new machine
+Create a new directory for this machine under ~"./package_manager_exports/brewfiles"~ and create a new dump file:
+#+begin_src sh
+  # change directory to the exported brewfiles
+  cd ./package_manager_exports/brewfiles/
+
+  # change directory for the relevant machine
+  mkdir <MachineType> && cd <MachineType>
+
+  # dump brewfile
+  brew bundle dump
+#+end_src
+***** For refresh machine
+Navigate to the existing =brewfile= for this machine under ~"./package_manager_exports/brewfiles"~ and force a new dump and then compare to old using ~git diff~:
+#+begin_src sh
+  # change directory to the exported brewfiles
+  cd ./package_manager_exports/brewfiles/
+
+  # change directory for the relevant machine
+  cd <MachineType>
+
+  # dump brewfile
+  brew bundle dump --force
+#+end_src
+** On =Windows=                                                      :Windows:
+*** Using =Scoop=
+**** Install =Scoop=
+#+begin_src ps
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#+end_src
+**** Add =Buckets=
+#+begin_src ps
+  scoop bucket add extras
+  scoop bucket add nerd-fonts
+  scoop bucket add java
+#+end_src
+**** Install =main= packages
+***** Common
+#+begin_src ps
+  scoop install `
+      ack `
+      bat `
+      cacert `
+      clink `
+      cmake `
+      coreutils `
+      curl `
+      dark `
+      dust `
+      fd `
+      findutils `
+      fzf `
+      gawk `
+      git `
+      grep `
+      lessmsi `
+      neovim `
+      nodejs-lts `
+      pwsh `
+      python `
+      ripgrep `
+      sed `
+      sudo `
+      tldr `
+      touch `
+      wget `
+#+end_src
+**** Install =extras=
+***** Common
+#+begin_src ps
+  scoop install `
+      carnac `
+      dbeaver `
+      emacs `
+      everything `
+      jd-gui `
+      keypirinha `
+      rapidee `
+      switcheroo `
+      vcredist2022 `
+      vscode `
+      wezterm `
+      windirstat `
+#+end_src
+***** Home
+#+begin_src ps
+  scoop install `
+      irfanview `
+      processhacker `
+      switcheroo `
+      winrar `
+#+end_src
+***** Work
+#+begin_src ps
+  scoop install `
+    sysinternals `
+#+end_src
+**** Install =fonts=
+#+begin_src ps
+  scoop install `
+      iosevka-nf-mono `
+      iosevka-nf-propo `
+      iosevka-nf `
+#+end_src
+**** Validate using =export= file
+***** Bulk install using export file
+Navigate to the ~scoop~ folder for the particular machine where the export file was generated, and run the import command e.g.:
+#+begin_src ps
+  # change directory to the exported scoop files
+  cd ./package_manager_exports/scoop/
+  # Edit scoop file if needed
+  scoop install windows_rig.scoop
+#+end_src
+***** Creating/Updating Scoop export
+#+begin_src ps
+scoop export <filename>
+#+end_src
+*** Using =Pacman= on =Msys2=
+**** Install =Pacman=
+We need to use =msys2= to install some =GNU= and =Unix= tools for Windows e.g. ~aspell~ and ~tmux~.
++ We use ~-g~ flag to install globally instead of per user
+#+begin_src sh
+scoop install msys2 -g
+#+end_src
+**** Install Packages
+#+begin_src sh
+  pacman -S \
+         man-db \
+         stow \
+         tmux \
+         zsh \
+         ${MINGW_PACKAGE_PREFIX}-bat \
+         ${MINGW_PACKAGE_PREFIX}-emacs \
+         ${MINGW_PACKAGE_PREFIX}-gnupg \
+         ${MINGW_PACKAGE_PREFIX}-neovim \
+         ${MINGW_PACKAGE_PREFIX}-fd \
+         ${MINGW_PACKAGE_PREFIX}-jq \
+         ${MINGW_PACKAGE_PREFIX}-fastfetch \
+         ${MINGW_PACKAGE_PREFIX}-ripgrep \
+         ${MINGW_PACKAGE_PREFIX}-zoxide \
+         ${MINGW_PACKAGE_PREFIX}-eza \
+         ${MINGW_PACKAGE_PREFIX}-tree-sitter \
+         ${MINGW_PACKAGE_PREFIX}-oh-my-posh
+#+end_src
+
+*** Using =Chocolatey=
+**** Install =Chocolatey=
+#+begin_src ps
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#+end_src
+**** Install packages
+*Note* We prefer to use =Chocolatey= over =Scoop= for =Msys= and =Git= to avoid any performance impact due to =Scoop= shims.
+*Update (6/13/2022)*: Actually it is preferred to use =Pacman= packages for =Emacs=, so =Scoop= is again preferred over =Chocolatey=. Note: =Scoop= also supports installing applications system wide rather than per user which can provide a shorter path prefix for =Msys= installation.
+#+begin_src ps
+choco install AutoHotKey --install-arguments '/uiAccess=1'
+#+end_src
+*** Using =Winget=
+**** Install =Winget=
++ Either install via =Windows Store= or from https://github.com/microsoft/winget-cli
+** On =Linux=                                                          :Linux:
+*** Using =Nix= & =Home Manager=
+**** Install =Nix= & =Home Manager=
+***** Install =Nix= first
+#+begin_src sh
+sh <(curl -L https://nixos.org/nix/install) --daemon
+
+# Note: for security reasons verify the installation script using GPG signatures
+curl -o install-nix-2.3.16 https://releases.nixos.org/nix/nix-2.3.16/install
+curl -o install-nix-2.3.16.asc https://releases.nixos.org/nix/nix-2.3.16/install.asc
+gpg2 --recv-keys B541D55301270E0BCF15CA5D8170B4726D7198DE
+gpg2 --verify ./install-nix-2.3.16.asc
+sh ./install-nix-2.3.16
+#+end_src
+
+****** Uninstalling
++ https://nixos.org/manual/nix/stable/installation/uninstall.html
+
+***** Install =Home manager=
+#+begin_src sh
+nix-env -iA nixpkgs.home-manager
+#+end_src
+
+**** Edit ~home.nix~ file
+=Nix= enables one to specify applications to be installed inside a config file: ~$HOME/.nixpkgs/home.nix~
+#+begin_src nix
+{ pkgs, ... }:
+
+{
+  nixpkgs.overlays = [
+    (import (builtins.fetchTarball {
+      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
+    }))
+  ];
+
+  home.packages = [
+    pkgs.fd
+    pkgs.tmux
+  ];
+
+  programs.emacs = {
+    enable = true;
+    package = pkgs.emacsGcc;
+    extraPackages = (epkgs: [ epkgs.vterm ] );
+  };
+}
+#+end_src
+
+**** Run sync command
+#+begin_src sh
+home-manager switch
+#+end_src
+
+*** Using =Python Index Package (PIP)= manager
+**** Install =PIP=
+It comes with =Python= and can be run using:
+#+begin_src sh
+python3 -m pip <PIP command params>
+#+end_src
+**** Install python apps with =pip=
+#+begin_src sh
+python3 -m pip install ntfy
+#+end_src
+**** Bulk install using export file
+The =python= =pip= export file is called a =requirments= file:
+#+begin_src sh
+python3 -m pip install -r <path-to-requirements.txt>
+#+end_src
+**** Creating/Updating PIP export
+#+begin_src sh
+python3 -m pip freeze > requirements.txt
+#+end_src
+*** TODO Add =apt= command-line for =Ubuntu=
+*** TODO Add =linuxbrew= command-line
+* Install app specific plugin managers
+** Install =Tmux Plugin Manager= :automated:
+The =Tmux= configuration file checks for the existence of the local directory, and if not present it runs the below command:
+#+begin_src sh
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+#+end_src
+
+** Install =Zinit= a =Zsh= plugin manager :automated:
+The ~./shell/dot-zshrc~ checks if =Zinit= is installed and prompts user to run below steps:
+#+begin_src sh
+mkdir ~/.zinit
+git clone https://github.com/zdharma-continuum/zinit.git ~/.zinit/bin
+#+end_src
+
+** Install =Sword='s =installmgr=
+#+begin_src sh
+export SWORD_PATH=~/.sword
+mkdir -p $SWORD_PATH/mods.d
+
+echo yes |installmgr -init               # create a basic user config file
+echo yes |installmgr -sc                 # sync config with list of known remote repos
+#+end_src
+
+** Install =Keypirinha='s =PackageControl= :Windows:
+1. Open the ~Keypirinha: Console~ (Shortcut: ~F2~)
+2. Enter the following:
+#+begin_src python
+import keypirinha as kp,keypirinha_net as kpn,os;p="PackageControl.keypirinha-package";d=kpn.build_urllib_opener().open("https://github.com/ueffel/Keypirinha-PackageControl/releases/download/1.0.4/"+p);pb=d.read();d.close();f=open(os.path.join(kp.installed_package_dir(),p),"wb");f.write(pb);f.close()
+#+end_src
+
+* Install app integrations
+Some of these are auto-installed, by apps themselves according to their config, but the below are not.
+** Editor integrations
+*** Install =Neovim= integrations
+**** Install =npm= module
+#+begin_src sh
+npm install -g neovim
+#+end_src
+**** Install =python= module
+#+begin_src sh
+pip install pynvim
+#+end_src
+**** Install =perl= module
+#+begin_src sh
+cpanm Neovim::Ext
+#+end_src
+*** =Chemacs 2=                                                   :automated:
+Note: Using =Chemacs= means one has to run modified instructions for installing an Emacs distribution e.g. =Doom= or =Spacemacs=
+The install instructions for =Chemacs 2= state to clone the repository, but we add it as a git submodule into the ~dot-emacs.d~ directory, ready for usage with =stow=.
+
+*** Install =Doom Emacs= :automated:
+Note: If using =Chemacs= then the below is slightly different from the instructions from the web-site i.e. the target directory should not be ~.emacs.d~ since this is where =Chemacs= will be installed to. Automated via being checked in as a git submodule.
+#+begin_src sh
+git clone --depth 1 https://github.com/hlissner/doom-emacs ~/.emacs.doom
+~/.emacs.doom/bin/doom install
+#+end_src
+
+*** Install =Latex tools=
+Note: The system should be installed via a package manager e.g. ~brew install basictex~, which provides the ~tlmgr~, which should then be used:
+#+begin_src sh
+sudo tlmgr update --self && \
+    sudo tlmgr install \
+    # for svg images
+    dvisvgm \
+    # for png images
+    dvipng \
+    # fonts
+    collection-fontsrecommended \
+    # source code highlighting
+    minted
+#+end_src
+
+I am not sure if the below is needed?
+#+begin_src sh
+sudo tlmgr install wrapfig marvosym wasy wasysym
+#+end_src
+
+*** Setup =Email tools=
+**** Authentication
+***** macOS
+****** Add mail app-password to =keychain=
+Acquire a new app-password from your email account e.g. for =gmail= you can find it in account settings of your =google= profile.
+
+******* Add app-password for mbsync from =IMAP=
+#+begin_src sh
+security add-generic-password -a lgreen -s mbsync-gmail-password -w <PASS>
+#+end_src
+
+******* Add app-password for =SMTP= server
+#+begin_src sh
+security add-internet-password -a lambert.green@gmail.com -l smtp.gmail.com -P 587 -r smtp -s smtp.gmail.com -w <PASS> -U
+#+end_src
+
+****** Download certificates from email provider
+See ~.mbsyncrc~ file for location to put the certificates.  Below command will download the certificate chain, from which the public keys should be extracted into separate ~.crt~ files.
+#+begin_src sh
+openssl s_client -connect imap.gmail.com:993 -showcerts
+#+end_src
+
+***** Linux
+****** TODO Add steps for setting up email on =ArchLinux= (on =WSL=)
+**** Setup
+#+begin_src sh
+mbsync -a
+mu init --maildir=~/.mail --my-address=lambert.green@gmail.com
+mu index
+#+end_src
+
+*** Setup =Bible (KJV)=
+Dependencies: see installing of =Sword= in earlier section of this document.
+#+begin_src sh
+echo yes |installmgr -r CrossWire        # refresh remote source
+echo yes |installmgr -ri CrossWire KJV   # install module from remote source
+installmgr -l                            # list installed modules
+
+#Test
+diatheke -b KJV -k Jn 3:16
+#+end_src
+
+* Run setup scripts
++ See folders: ~setup_win~, ~setup_linux~, ~setup_osx~
+* Symlink dotfiles
+Initially I had some hand written scripts for doing the symlinking, but am now using =GNU Stow= since it is a more standardized approach.
+
+** Symlink dotfiles using =Gnu Stow= :Linux:macOS:Windows:
+*** Stow =Posix= configs
+#+begin_src sh
+  stow \
+      emacs \
+      git \
+      git_my \
+      git_work \
+      nvim \
+      shell \
+      spelling \
+      tmux \
+      vim \
+      wezterm
+#+end_src
+
+*** Stow =macOS= config
+#+begin_src sh
+    stow \
+        alacritty_osx \
+        git_osx \
+        hammerspoon \
+        shell_osx
+#+end_src
+
+*** Stow =Linux= config
+#+begin_src sh
+    stow \
+        alacritty_linux \
+        git_linux \
+        shell_linux
+#+end_src
+
+*** Stow =Windows= config
++ Run =mingw= as Administrator
+#+begin_src sh
+    stow \
+        Keypirinha \
+        WindowsPowerShell \
+        WindowsTerminal \
+        autohotkey \
+        clink \
+        emacs \
+        git \
+        git_my \
+        git_win \
+        git_work \
+        nvim_win \
+        tmux win_wsl
+#+end_src
+
+* Special app configurations
+** Setting up =tmux-256color= support
+I have run into variations of issues trying to setup =24 bit true color= support, and so I am starting to capture specific info here.
+
+The =tmux-256color= terminfo must be setup on the remote machine:
+#+begin_src sh
+tic -x ./tmux/dot-tmux-256color
+#+end_src
+
+Note: the terminfo file was sourced from here: https://gist.github.com/nicm/ea9cf3c93f22e0246ec858122d9abea1
+
+Using new versions of =tmux= and the =tmux-256color= terminfo should be sufficient to get 24bit color in the terminal. Below is older information that is hopefully no longer needed:
+*** Setting up =24 bit true color= for =Emacs= in terminal mode
+The following file should be used to compile the appropriate terminfo
+#+begin_src sh
+# Use colon separators.
+xterm-24bit|xterm with 24-bit direct color mode,
+    use=xterm-256color,
+    setb24=\E[48:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+    setf24=\E[38:2:%p1%{65536}%/%d:%p1%{256}%/%{255}%&%d:%p1%{255}%&%dm,
+# Use semicolon separators.
+xterm-24bits|xterm with 24-bit direct color mode,
+    use=xterm-256color,
+    setb24=\E[48;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+    setf24=\E[38;2;%p1%{65536}%/%d;%p1%{256}%/%{255}%&%d;%p1%{255}%&%dm,
+#+end_src
+
+Save the above in a file e.g ~terminfo-24bit.src~ and then run the below:
+#+begin_src sh
+tic -x -o ~/.terminfo terminfo-24bit.src
+#+end_src
+
+Now =Emacs= can be started with true-color using:
+**** Using ~COLORTERM=truecolor~ (preferred way)
+We can safely set this value in the environment so that we don't have to clutter the Emacs commandline.
+
+**** Using ~TERM=xterm-24bit~ (old way)
+This is the older way I was using, but it was safe to add this to the environment and hence I had created an alias to ensure it was set on the Emacs command-line.  Using ~COLORTERM~ is much better since it is safe to add the environment.
+#+begin_src sh
+TERM=xterm-24bit emacs -nw
+#+end_src
+
+** Setting up fonts for =Doom Emacs= on Windows
+There are some manual steps that need to be done:
+1. Run the below interactive functions:
+#+begin_src elisp
+(all-the-icons-install-fonts)      ;; for icons
+(+ligatures/install-patched-font)  ;; for ligatures
+#+end_src
+
+2. Navigate to the directory where the fonts are downloaded to, and double-click each font file, and install them.
+** Setting up =shell= completions
+Custom shell completions for both =Bash= and =ZSH= are located at ~"./shell/.config/bash/completions"~ and ~"./shell/.config/zsh/completions"~ respectively.
+They will get symlinked, when running ~stow shell~.
+
+** Fix =ZSH= ~fpath~ permissions
+The ~compaudit~ will complain about permissions, and they can be fixed by running the below:
+#+begin_src sh
+chmod 755 ~/.config/zsh
+chmod 755 ~/.config/zsh/completions
+
+chmod 644 ~/.config/zsh/completions/*
+#+end_src
+
+** Update =ZSH= completion cache
+The cache may need to be updated to pickup newly created completions:
+#+begin_src sh
+rm -f ~/.zcompdump
+compinit
+#+end_src
+
+* Special local machine files
+Ideally we should find a better solution but for now there are some local overrides that are needed on each machine.
+** Local =Tmux= config
+This is for setting up a theme for the particular machine:
++ Write the below to ~.tmux.local.conf~
+#+begin_src conf
+# Theme files
+setenv -g TMUX_THEME_DARK $HOME/.tmux/themes/tmux.green.dark.conf
+setenv -g TMUX_THEME_LIGHT $HOME/.tmux/themes/tmux.green.light.conf
+
+# Default theme
+setenv -g TMUX_THEME dark
+
+# Toggle theme
+# Below does not work because the shell that is spawned by run-shell does not
+# have access to the currently running instance of Tmux.
+# bind T run-shell '~/.tmux/scripts/tmux.sh toggle' \; display-message "Theme toggled."
+#+end_src
+
+* Desktop Application Launch files
+Most application installers will write desktop shortcut files automatically, however there are some special cases where need to create these ourselves.
+
+** Windows =Start Menu=
+*** Emacs (WSL)
+#+begin_src sh
+C:\Users\Lambert\dev\my\scripts\start-emacs-in-wsl.vbs
+#+end_src
+
+*** Emacs (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe
+#+end_src
+
+*** Emacs Client (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\emacsclientw.exe -c -n --server-file  c:/users/lambert/.emacs.doom/.local/etc/server/server
+#+end_src
+
+*** Emacs Server (MSYS2)
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\msys2\current\mingw64\bin\runemacs.exe --daemon
+#+end_src
+
+*** Terminal - Alacritty
+#+begin_src sh
+C:\Users\Lambert\scoop\apps\alacritty\current\alacritty.exe --working-directory "%USERPROFILE%"
+#+end_src
+
+*** Unlock Desktop Session
+#+begin_src sh
+C:\Windows\System32\tscon.exe 8 /dest:console
+#+end_src
+
+* Setup base developer environment
+Our primary developer environment is =Doom Emacs=.  To validate that we have a good base install of =Doom Emacs= we can run:
+#+begin_src sh
+doom doctor
+#+end_src
+
+While we don't necessarily need to have all the things installed to have a clean report from ~doom doctor~, I like to have a clean report, and so below are the things that need to be installed to get such clean report.
+
+** Python
+*** Upgrade system pip
+#+begin_src sh
+python3 -m pip install --upgrade pip
+#+end_src
+
+*** Install global packages
+#+begin_src sh
+python3 -m pip install black pyflakes isort pytest nose pipenv
+#+end_src
+
+*** Install =pyenv=
+#+begin_src sh
+brew install pyenv
+#+end_src
+
+**** Install some versions
+#+begin_src sh
+pyenv install -l  # list available options
+peynv install $some_version
+#+end_src
+
+** CPP
+#+begin_src sh
+brew install llvm
+#+end_src
+
+** CC
+#+begin_src sh
+brew install glslang
+#+end_src
+
+** Markdown
+#+begin_src sh
+brew install markdown
+#+end_src
+
+** Shell
+#+begin_src sh
+brew install shfmt shellcheck
+#+end_src
+
+** Node-JS
+*** Install packages using =npm=
+#+begin_src sh
+  npm install -g \
+      typescript \
+      typescript-language-server \
+      stylelint \
+      js-beautify \
+      js-tidy \
+      prettier
+#+end_src
+
+** Ruby
+#+begin_src sh
+gem install solargraph
+#+end_src
+** Org
+#+begin_src sh
+brew install graphviz gnuplot
+#+end_src
+
+* Upgrading System/Apps/Packages
+I have being remembering the commands to run to make the primary package manager run its update e.g. ~brew update~, ~pacman -Syu~, ~scoop update~.  However sometimes there is more than package manager in use e.g. ~home-manager~ on Linux work machine.
+** Use =topgrade=
+*** Dry run
+#+begin_src sh
+topgrade -n
+#+end_src
+
+** Manual update commands
+*** Homebrew :Linux:macOS:
+#+begin_src sh
+brew update
+#+end_src
+
+*** Scoop :Windows:
+#+begin_src powershell
+scoop update; scoop upgrade *
+#+end_src
+
+*** Choco :Windows:
+#+begin_src powershell
+choco upgrade
+#+end_src
+
+*** Pacman :Windows:Linux:
+#+begin_src sh
+pacman -Syu
+#+end_src
+
+*** Nix/Home Manager :Linux:macOS:
+#+begin_src sh
+nix-channel --update
+home-manager switch
+#+end_src
+
+*** Python Index Package manager
+#+begin_src sh
+brew update
+pip3 -m install pip --upgrade
+#+end_src
+
+*** Linux OS :Linux:
+**** CentOS
+#+begin_src sh
+sudo yum update
+#+end_src
+
+**** Ubuntu
+#+begin_src sh
+sudo apt update
+#+end_src
+
+**** Arch
+#+begin_src sh
+pacman -Syu
+#+end_src
+
+* Testing using Docker
+** Pull docker base image
+#+begin_src sh
+docker pull archlinux/archlinux:base-devel
+#+end_src
+
+** Build docker image
+#+begin_src sh
+docker build --ssh default -t lambertgreen/dotfiles .
+#+end_src
+
+** Run docker container
+#+begin_src sh
+docker run -it lambertgreen/dotfiles
+#+end_src
+
+* TODOs
+For a detailed list of tasks and ongoing work, please refer to the [[file:TODO.org][TODOs file]].

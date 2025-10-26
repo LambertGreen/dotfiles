@@ -1,0 +1,27 @@
+# Chocolatey packages (Windows system tools and installers)
+# Focus on tools requiring admin/system integration not available in scoop
+
+# Window management and productivity
+divvy
+keypirinha
+switcheroo
+
+# Search and file management
+Everything
+
+# System components (keep for reference)
+# .NET frameworks: dotnetfx, DotNet4.5, DotNet4.5.1, dotnet4.7.2
+# Visual C++ redistributables: vcredist140, vcredist2015
+# Windows SDKs: windows-sdk-10.0
+# System updates: KB packages
+
+# Development environment
+msys2
+openssh
+
+# Spelling/language tools
+hunspell.portable
+
+# Note: Avoid duplicating packages available in scoop
+# - Most CLI tools should be installed via scoop
+# - Use chocolatey for system-level installs requiring admin

@@ -1,0 +1,34 @@
+# -*- mode: gitconfig; -*-
+
+[include]
+	path = ~/.common.gitconfig
+
+[core]
+	autocrlf = true
+	sshCommand = C:/Program\\ Files/OpenSSH-Win64/ssh.exe
+	fsmonitor = true
+
+	compression = 0
+[credential "helperselector"]
+	selected = wincred
+
+[safe]
+	directory = D:/dev/work/nerv/third-party/google-breakpad
+	directory = D:/dev/work/setup
+	directory = d:/dev/work/nerv/google-crashpad
+	directory = D:/dev/work/nerv/google-crashpad
+	directory = D:/dev/work/tableaubuild/bazel/blitz/repositories/tabcrash
+	directory = %(prefix)///wsl.localhost/Ubuntu-20.04/home/lgreen/dev/work/tabcrash
+	directory = D:/dev/work/monolith
+	directory = C:/Users/lambert.green/dev/work2/monolith
+	directory = d:/dev/work/monolith3
+
+[http]
+	postBuffer = 524288000
+	sslVersion = tlsv1.2
+
+	lowSpeedLimit = 0
+	lowSpeedTime = 999999
+	maxRequestBuffer = 100M
+[gpg]
+	program = C:/Program Files (x86)/GnuPG/bin/gpg.exe

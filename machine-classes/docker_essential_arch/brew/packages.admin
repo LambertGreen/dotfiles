@@ -1,0 +1,3 @@
+# Admin-level packages for Docker Arch testing
+# In Docker these won't actually prompt for password, but we can test the logic
+# Currently empty for essential tier

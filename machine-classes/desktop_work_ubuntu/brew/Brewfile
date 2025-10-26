@@ -1,0 +1,7 @@
+tap "homebrew/bundle"
+
+# TODO: Run `brew bundle dump` on actual work machine to get accurate list
+# TODO: Remove packages that are available via apt (prefer system PM)
+
+# Packages not available in apt or need newer versions
+brew "fastfetch"

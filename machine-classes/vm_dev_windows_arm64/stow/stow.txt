@@ -1,0 +1,43 @@
+# -*- mode: conf -*-
+# Windows ARM64 Development Stow Configuration
+# Windows development with MSYS2 pacman + scoop
+
+# Common configs (truly universal)
+git_common
+shell_common
+tmux_common
+vim_common
+wezterm_common
+spelling_common
+emacs_common
+nvim_common
+ripgrep_common
+fd_common
+ctags_common
+flake8_common
+fortune_common
+gdb_common
+htop_common
+idea_common
+just_common
+lldb_common
+email_common
+nix_common
+
+# Personal configs
+git_my
+
+# Platform-specific Windows configs
+git_win
+shell_msys2
+autohotkey
+WindowsCommand
+WindowsPowerShell
+powershell_win
+clink
+mintty
+tmux_msys2
+alacritty_win
+cursor_win
+nvim_win
+vsvim

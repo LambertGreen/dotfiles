@@ -1,0 +1,174 @@
+#!/usr/bin/env just
+# Ubuntu System Maintenance Commands
+
+# Show available commands
+default:
+    @echo "🐧 Ubuntu System Maintenance"
+    @echo "============================"
+    @echo ""
+    @echo "📦 APT:"
+    @echo "  apt-check       - Check for updates"
+    @echo "  apt-update      - Update package lists and upgrade"
+    @echo "  apt-cleanup     - Clean package cache and autoremove"
+    @echo ""
+    @echo "📸 Snap (if installed):"
+    @echo "  snap-check      - List installed snaps"
+    @echo "  snap-update     - Update all snaps"
+    @echo ""
+    @echo "📦 Flatpak (if installed):"
+    @echo "  flatpak-check   - Check Flatpak updates"
+    @echo "  flatpak-update  - Update Flatpak apps"
+    @echo ""
+    @echo "🍺 Homebrew (if installed):"
+    @echo "  brew-check      - Check Homebrew updates"
+    @echo "  brew-update     - Update Homebrew packages"
+    @echo ""
+    @echo "🚀 Quick Actions:"
+    @echo "  check-all       - Check all available updates"
+    @echo "  update-all      - Update everything"
+    @echo "  system-maintain - Full system maintenance"
+
+# =============================================================================
+# APT
+# =============================================================================
+
+# Check for updates
+apt-check:
+    @echo "🔍 Checking for APT updates..."
+    @sudo apt update
+    @apt list --upgradable
+
+# Update packages
+apt-update:
+    @echo "📦 Updating APT packages..."
+    @sudo apt update
+    @sudo apt upgrade -y
+
+# Clean up APT
+apt-cleanup:
+    @echo "🧹 Cleaning up APT..."
+    @sudo apt autoremove -y
+    @sudo apt autoclean
+
+# =============================================================================
+# SNAP
+# =============================================================================
+
+# Check snap packages
+snap-check:
+    @if command -v snap >/dev/null 2>&1; then \
+        echo "🔍 Checking snap packages..."; \
+        snap list; \
+    else \
+        echo "⚠️  Snap not installed"; \
+    fi
+
+# Update snap packages
+snap-update:
+    @if command -v snap >/dev/null 2>&1; then \
+        echo "📸 Updating snap packages..."; \
+        sudo snap refresh; \
+    else \
+        echo "❌ Snap not installed"; \
+        exit 1; \
+    fi
+
+# =============================================================================
+# FLATPAK
+# =============================================================================
+
+# Check Flatpak updates
+flatpak-check:
+    @if command -v flatpak >/dev/null 2>&1; then \
+        echo "🔍 Checking Flatpak updates..."; \
+        flatpak remote-ls --updates; \
+    else \
+        echo "⚠️  Flatpak not installed"; \
+    fi
+
+# Update Flatpak apps
+flatpak-update:
+    @if command -v flatpak >/dev/null 2>&1; then \
+        echo "📦 Updating Flatpak apps..."; \
+        flatpak update -y; \
+    else \
+        echo "❌ Flatpak not installed"; \
+        exit 1; \
+    fi
+
+# =============================================================================
+# HOMEBREW (optional)
+# =============================================================================
+
+# Check Homebrew updates
+brew-check:
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🔍 Checking Homebrew updates..."; \
+        brew outdated; \
+    else \
+        echo "⚠️  Homebrew not installed"; \
+    fi
+
+# Update Homebrew packages
+brew-update:
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "🍺 Updating Homebrew..."; \
+        brew update && brew upgrade; \
+    else \
+        echo "❌ Homebrew not installed"; \
+        exit 1; \
+    fi
+
+# =============================================================================
+# COMBINED OPERATIONS
+# =============================================================================
+
+# Check all updates
+check-all:
+    @echo "🔍 Checking all available updates..."
+    @echo ""
+    @echo "=== APT ==="
+    @just apt-check
+    @echo ""
+    @if command -v snap >/dev/null 2>&1; then \
+        echo "=== Snap ==="; \
+        just snap-check; \
+        echo ""; \
+    fi
+    @if command -v flatpak >/dev/null 2>&1; then \
+        echo "=== Flatpak ==="; \
+        just flatpak-check; \
+        echo ""; \
+    fi
+    @if command -v brew >/dev/null 2>&1; then \
+        echo "=== Homebrew ==="; \
+        just brew-check; \
+    fi
+
+# Update everything
+update-all:
+    @echo "🚀 Updating everything..."
+    @echo ""
+    @just apt-update
+    @echo ""
+    @if command -v snap >/dev/null 2>&1; then \
+        just snap-update; \
+        echo ""; \
+    fi
+    @if command -v flatpak >/dev/null 2>&1; then \
+        just flatpak-update; \
+        echo ""; \
+    fi
+    @if command -v brew >/dev/null 2>&1; then \
+        just brew-update; \
+    fi
+
+# Full system maintenance
+system-maintain:
+    @echo "🔧 Full system maintenance..."
+    @echo ""
+    @just update-all
+    @echo ""
+    @just apt-cleanup
+    @echo ""
+    @echo "✅ Maintenance complete!"

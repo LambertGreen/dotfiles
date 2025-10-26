@@ -1,0 +1,6 @@
+# Homebrew Formulas - Requires Admin
+# CLI tools that require admin privileges (services, privileged helpers, etc.)
+
+# Docker tools (may require privileged helpers)
+brew "docker", link: false
+brew "docker-machine"

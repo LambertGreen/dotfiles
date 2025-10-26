@@ -1,0 +1,12 @@
+# Personal tools (winget)
+
+# Development
+Microsoft.VisualStudioCode
+Microsoft.DotNet.SDK.8
+Microsoft.DotNet.SDK
+Python.Python.3.14
+
+# Productivity
+Microsoft.PowerToys
+Microsoft.WindowsTerminal
+Microsoft.PowerShell
