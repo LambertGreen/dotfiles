@@ -108,8 +108,77 @@ function Initialize-PowerShellModules {
     Write-Host ""
 }
 
-# Run auto-setup check
+function Initialize-OhMyPoshThemes {
+    $ThemesPath = "$HOME/dev/pub/oh-my-posh"
+
+    # Check if themes directory exists
+    if (Test-Path $ThemesPath) {
+        return  # Already exists
+    }
+
+    # Check if oh-my-posh is installed
+    if (-not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
+        return  # oh-my-posh not installed, skip
+    }
+
+    # Check if git is available
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+        Write-Host "⚠ Git not found. Cannot clone oh-my-posh themes." -ForegroundColor Yellow
+        return
+    }
+
+    Write-Host ""
+    Write-Host "Oh-My-Posh themes repository not found at: $ThemesPath" -ForegroundColor Yellow
+    Write-Host "Do you want to clone it now? [Y/n] (auto-clones in 10s)" -ForegroundColor Green
+
+    $TimeoutSeconds = 10
+    $StartTime = Get-Date
+    $Response = $null
+
+    while (((Get-Date) - $StartTime).TotalSeconds -lt $TimeoutSeconds) {
+        if ([Console]::KeyAvailable) {
+            $Key = [Console]::ReadKey($true)
+            $Response = $Key.KeyChar
+            break
+        }
+        Start-Sleep -Milliseconds 100
+    }
+
+    if ($Response -eq 'n' -or $Response -eq 'N') {
+        Write-Host "Skipping. Oh-My-Posh will show CONFIG ERROR until themes are installed." -ForegroundColor Yellow
+        return
+    }
+
+    if ($null -eq $Response) {
+        Write-Host "Y (timeout)" -ForegroundColor Green
+    } else {
+        Write-Host ""
+    }
+
+    Write-Host ""
+    Write-Host "Cloning oh-my-posh themes..." -ForegroundColor Cyan
+
+    try {
+        New-Item -ItemType Directory -Path "$HOME/dev/pub" -Force | Out-Null
+
+        $CloneResult = git clone --depth 1 https://github.com/JanDeDobbeleer/oh-my-posh.git $ThemesPath 2>&1
+
+        if (Test-Path "$ThemesPath/themes") {
+            Write-Host "✓ Oh-My-Posh themes cloned successfully" -ForegroundColor Green
+            Write-Host "  Location: $ThemesPath/themes" -ForegroundColor Gray
+        } else {
+            Write-Host "✗ Clone appeared to succeed but themes directory not found" -ForegroundColor Red
+        }
+    } catch {
+        Write-Host "✗ Failed to clone oh-my-posh themes: $_" -ForegroundColor Red
+    }
+
+    Write-Host ""
+}
+
+# Run auto-setup checks
 Initialize-PowerShellModules
+Initialize-OhMyPoshThemes
 
 # ============================================================================
 # Readline settings
