@@ -24,11 +24,8 @@ lgreen_setup_homebrew() {
     # TODO Get woman in Emacs working by setting MANPATH by calling 'manpath' executable
     # TODO Consider not calling 'brew shellenv' since it will set MANPATH, but that does not
     # set a comprehensive value... really for macOS the 'manpath' value should be used.
-    if [  -f "/usr/local/bin/brew" ]; then
-        eval "$(/usr/local/bin/brew shellenv)"
-    fi
 
-    # Brew is installed in a different location on mac aarm64
+    # Apple Silicon Mac (arm64) - /opt/homebrew
     if [  -f "/opt/homebrew/bin/brew" ]; then
         eval "$(/opt/homebrew/bin/brew shellenv)"
 

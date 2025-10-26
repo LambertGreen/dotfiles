@@ -245,6 +245,12 @@ doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
+# Check Emacs version compatibility and suggest elpaca cleanup if needed
+[group('4-👩‍⚕️-Doctor')]
+doctor-check-emacs-version:
+    @echo "👩‍⚕️ Checking Emacs version compatibility..."
+    @bash -c "source scripts/health/doctor-emacs-version-change.sh && doctor_emacs_version_change"
+
 # Check package manager versions (terminal spawning regression test)
 [group('4-👩‍⚕️-Doctor')]
 doctor-pm-versions:

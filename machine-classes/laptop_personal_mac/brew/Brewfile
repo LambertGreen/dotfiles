@@ -1,104 +1,281 @@
-tap "adoptopenjdk/openjdk"
-tap "cartr/qt4"
-tap "d12frosted/emacs-plus"
+# Taps
+tap "buo/cask-upgrade"
+tap "equalsraf/neovim-qt"
 tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/cask-fonts"
-tap "homebrew/core"
+tap "kegworks-app/kegworks"
+tap "koekeishiya/formulae"
 tap "martido/graph"
-brew "aspell"
+tap "mongodb/brew"
+tap "nikitabobko/tap"
+tap "nlohmann/json"
+tap "pkryger/emacsmacport-exp"
+
+# Core Development Tools
+brew "autoconf"
 brew "automake"
-brew "bat"
-brew "python@3.9"
-# brew "black"  # Let projects manage formatters via dev dependencies
-brew "glib"
-brew "pkg-config"
-# brew "clang-format"  # Let projects manage formatters via dev dependencies
 brew "cmake"
-brew "coreutils"
-brew "ctags"
-brew "direnv"
-brew "docker", link: false
-brew "docker-machine"
-brew "dust"
-brew "editorconfig"
-brew "exercism"
-brew "fd"
-brew "freetds@0.91", link: true
-brew "gdk-pixbuf"
-brew "git"
-brew "glslang"
-brew "gnu-sed"
-brew "gobject-introspection"
-brew "harfbuzz"
-brew "gnuplot"
-brew "guile"
-brew "nghttp2"
-brew "unbound"
-brew "openjdk"
-brew "gradle"
-brew "python@3.8"
-brew "librsvg"
-brew "graphviz"
-brew "htop"
-brew "libheif"
-brew "imagemagick"
-brew "ipython"
-brew "ispell"
-brew "jenv"
-brew "jq"
-brew "keychain"
+brew "gcc"
 brew "llvm"
-brew "markdown"
-brew "mas"
-brew "mono"
-brew "fastfetch"
-brew "lua@5.1"
-brew "luarocks"
-brew "neovim"
+brew "llvm@16"
+brew "make"
+brew "meson"
 brew "ninja"
+brew "pkgconf"
+
+# Programming Languages & Runtimes
+brew "go"
+brew "openjdk"
+brew "mono"
 brew "node"
-brew "poppler"
-brew "postgresql"
-brew "pstree"
-brew "pyenv"
-brew "pyenv-virtualenv"
-brew "ruby-build"
+brew "python"  # Latest stable Python 3.x - use pyenv for project-specific versions
+brew "ruby"
+brew "rust"
+
+# Language Tooling
+brew "bash-language-server"
+brew "ccls"
+brew "clang-format"
+brew "jdtls"
+brew "python-lsp-server"
+brew "rust-analyzer"
+brew "vscode-langservers-extracted"
+
+# Python Tools
+brew "pyenv"            # Python version management
+brew "pyenv-virtualenv" # Virtual environment management for pyenv
+brew "uv"               # Fast Python package installer
+brew "ipython"          # Interactive Python shell
+
+# Ruby/Java Tools
+brew "cocoapods"
+brew "gradle"
+brew "gradle-completion"
+brew "jenv"
 brew "rbenv"
 brew "rbtools"
+brew "ruby-build"
+brew "rustup"
+
+# Editors & Language Servers
+brew "neovim"
+brew "tree-sitter"
+brew "pkryger/emacsmacport-exp/emacs-mac-exp@31", args: ["HEAD", "with-optimization-flags", "with-arc", "with-modern-icon"]
+brew "equalsraf/neovim-qt/neovim-qt"
+
+# Git & Version Control
+brew "git"
+brew "git-delta"
+
+# Shell & Terminal Tools
+brew "bat"
+brew "btop"
+brew "coreutils"
+brew "cowsay"
+brew "direnv"
+brew "dust"
+brew "eza"
+brew "fd"
+brew "fortune"
+brew "fzf"
 brew "ripgrep"
-brew "ruby"
-brew "scc"
-brew "shellcheck"
-brew "speedtest-cli"
 brew "stow"
 brew "tldr"
 brew "tmux"
+brew "trash", link: true
 brew "tree"
-brew "unixodbc"
+brew "zellij"
+brew "zoxide"
+
+# System Utilities
+brew "ctags"
+brew "diffutils"
+brew "editorconfig"
+brew "fastfetch"
+brew "gnu-sed"
+brew "just"
+brew "keychain"
+brew "mas"
+brew "onefetch"
+brew "pstree"
+brew "scc"
+brew "terminal-notifier"
+brew "vbindiff"
+brew "vivid"
+brew "wakeonlan"
+
+# Networking & Web
+brew "curl"
 brew "wget"
-brew "cartr/qt4/pyqt@4"
-brew "d12frosted/emacs-plus/emacs-plus@30", args: ["with-debug", "with-elrumo2-icon", "with-native-comp"]
-cask "adoptopenjdk8"
-cask "amethyst"
+brew "nghttp2"
+brew "unbound"
+brew "speedtest-cli"
+
+# Database & Data Tools
+brew "freetds"
+brew "postgresql@14", restart_service: :changed
+brew "sqliteodbc"
+brew "unixodbc"
+
+# Development Containers & VMs
+brew "docker", link: false
+brew "qemu"
+
+# Graphics & Media Libraries
+brew "aom"
+brew "gd"
+brew "gdk-pixbuf"
+brew "ghostscript"
+brew "gobject-introspection"
+brew "graphviz"
+brew "harfbuzz"
+brew "imagemagick"
+brew "jpeg-xl"
+brew "libheif"
+brew "librsvg"
+brew "netpbm"
+brew "openjpeg"
+brew "pango"
+brew "poppler"
+brew "webp"
+
+# System Libraries
+brew "catch2"
+brew "expat"
+brew "gflags"
+brew "glib"
+brew "gnutls"
+brew "glslang"
+brew "guile"
+brew "icu4c@76"
+brew "libgccjit"
+brew "libiconv"
+brew "libslirp"
+brew "luarocks"
+brew "nlohmann-json"
+brew "openssl@3"
+brew "pcre2"
+brew "qt"
+brew "qt@5"
+brew "sip", link: false
+brew "zstd"
+
+# Documentation & Text Processing
+brew "aspell"
+brew "doxygen"
+brew "enchant"
+brew "gnuplot"
+brew "ispell"
+brew "markdown"
+brew "pandoc"
+brew "sword"
+
+# Email & Communication
+brew "gpgme"
+brew "gnupg"
+brew "isync"
+brew "msmtp"
+brew "mu"
+brew "notmuch"
+brew "pinentry-mac"
+
+# Code Quality & Testing
+brew "cloc"
+brew "exercism"
+brew "flake"
+brew "gnu-typist"
+brew "hyperfine"
+brew "shellcheck"
+brew "shfmt"
+brew "stylua"
+
+# Miscellaneous
+brew "jq"
+
+# GUI Applications - Productivity
+cask "alfred@4"
 cask "appcleaner"
-cask "brave-browser"
 cask "caffeine"
+cask "contexts"
 cask "cursorcerer"
-cask "firefox"
-cask "font-iosevka-nerd-font"
-cask "gimp"
-cask "karabiner-elements"
-cask "mos"
+cask "divvy"
+cask "grandperspective"
+cask "hiddenbar"
+cask "homerow"
+cask "keycastr"
+cask "platypus"
+cask "shortcat"
 cask "stats"
 cask "vanilla"
+
+# GUI Applications - Window Management
+cask "aerospace"
+cask "amethyst"
+cask "hammerspoon"
+cask "karabiner-elements"
+
+# GUI Applications - Browsers
+cask "brave-browser"
+cask "firefox"
+cask "google-chrome@beta"
+
+# GUI Applications - Communication
+cask "discord"
+cask "whatsapp"
+
+# GUI Applications - Development
+cask "claude"
+cask "claude-code"
+cask "jd-gui"
+cask "mongodb-compass"
+cask "odbc-manager"
+cask "pgadmin4"
 cask "vimr"
+cask "wezterm@nightly"
+
+# GUI Applications - Terminals
+# (wezterm listed above in development)
+
+# GUI Applications - Graphics & Media
+cask "blender"
+cask "gimp"
+cask "loopback"
+cask "vlc"
+cask "yt-music"
+
+# GUI Applications - Gaming & Windows Compatibility
+cask "crossover"
+cask "kegworks"
+cask "steam"
+cask "steamcmd"
+cask "whisky"
+
+# GUI Applications - Utilities
+cask "basictex"
+cask "fx-cast-bridge"
+cask "google-drive"
+cask "kindle"
+cask "mos"
+cask "neovide"
+cask "openmtp"
+cask "osquery"
 cask "virtualbox"
+cask "windows-app"
 cask "xquartz"
-mas "feedly", id: 865500966
+
+# Fonts
+cask "font-aporetic"
+cask "font-fontawesome"
+cask "font-iosevka"
+cask "font-iosevka-aile"
+cask "font-iosevka-nerd-font"
+cask "font-iosevka-ss15"
+cask "font-liga-comic-mono"
+cask "font-montserrat"
+
+# Mac App Store Applications
+mas "AmorphousDiskMark", id: 1168254295
 mas "GIPHY CAPTURE", id: 668208984
-mas "Kindle", id: 405399194
-mas "LinCastor Browser", id: 1037256618
-mas "Windows App", id: 1295203466
+mas "iMovie", id: 408981434
 mas "Time Out", id: 402592703
+mas "Windows App", id: 1295203466
 mas "Xcode", id: 497799835

@@ -1,7 +1,6 @@
 # Homebrew Formulas - Non-Admin
 # CLI tools and libraries that don't require admin privileges
 
-tap "homebrew/core"
 tap "microsoft/mssql-release", "https://github.com/Microsoft/homebrew-mssql-release"
 tap "pkryger/emacsmacport-exp"
 
@@ -100,13 +99,14 @@ brew "pandoc"
 brew "pinentry-mac"
 brew "pipenv"
 brew "pipx"
-brew "pkryger/emacsmacport-exp/emacs-mac-exp@31"
+brew "pkryger/emacsmacport-exp/emacs-mac-exp@31", args: ["HEAD", "with-optimization-flags", "with-arc", "with-modern-icon"]
 brew "poppler"
 brew "protoc-gen-go-grpc"
 brew "pstree"
+brew "pyenv"
 brew "pyenv-virtualenv"
 # brew "pyright"  # Let editors manage Python language servers
-brew "python3"
+brew "python"  # Latest stable Python 3.x - use pyenv for project-specific versions
 brew "qemu"
 brew "qt@5"
 brew "rbenv"
@@ -195,8 +195,6 @@ mas "Windows App", id: 1295203466
 # Homebrew Formulas - Requires Admin
 # CLI tools that may require admin privileges (system integration, services, etc.)
 
-tap "homebrew/core"
-
 # Containerization & Virtualization (may require system integration)
 brew "docker"
 brew "docker-compose"
@@ -207,8 +205,6 @@ brew "postgresql@14"
 
 # Homebrew Casks - Requires Admin
 # GUI applications that may require admin privileges (services, system integration, etc.)
-
-tap "homebrew/cask"
 
 # Development Tools with Services
 cask "docker"
