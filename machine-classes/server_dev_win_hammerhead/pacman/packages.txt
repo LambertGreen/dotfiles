@@ -22,5 +22,5 @@ inetutils
 dos2unix
 
 # MinGW packages (Windows native, architecture-specific)
-# x86_64 for Intel/AMD, use mingw-w64-aarch64-* for ARM64
-mingw-w64-x86_64-gcc
+# UCRT64 for x86_64 (recommended default), CLANGARM64 for ARM64
+mingw-w64-ucrt-x86_64-gcc

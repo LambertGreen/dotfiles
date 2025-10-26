@@ -65,13 +65,39 @@ Write-Host "Configuring MSYS2 environment variables..." -ForegroundColor Cyan
 $currentPath = [Environment]::GetEnvironmentVariable("Path", "User")
 $msys2BinPath = "C:\msys64\usr\bin"
 
+# Detect architecture and choose appropriate MinGW environment
+$arch = [System.Environment]::GetEnvironmentVariable("PROCESSOR_ARCHITECTURE")
+if ($arch -eq "ARM64") {
+    $mingwBinPath = "C:\msys64\clangarm64\bin"
+    $mingwEnv = "CLANGARM64"
+} else {
+    # x86_64/AMD64 - use UCRT64 (recommended default since Oct 2022)
+    $mingwBinPath = "C:\msys64\ucrt64\bin"
+    $mingwEnv = "UCRT64"
+}
+
+Write-Host "Detected architecture: $arch -> Using $mingwEnv environment" -ForegroundColor Cyan
+
+# Add MinGW environment bin (Windows-native compilers and tools)
+# Must come BEFORE msys64\usr\bin to avoid calling wrong gcc
+if ($currentPath -notlike "*$mingwBinPath*") {
+    Write-Host "Adding $mingwBinPath to User PATH..." -ForegroundColor Cyan
+    $newPath = "$currentPath;$mingwBinPath"
+    [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+    $currentPath = $newPath
+    Write-Host "✅ $mingwEnv bin added to PATH" -ForegroundColor Green
+} else {
+    Write-Host "✅ $mingwEnv bin already in PATH" -ForegroundColor Green
+}
+
+# Add MSYS2 usr/bin (POSIX utilities)
 if ($currentPath -notlike "*$msys2BinPath*") {
     Write-Host "Adding $msys2BinPath to User PATH..." -ForegroundColor Cyan
     $newPath = "$currentPath;$msys2BinPath"
     [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
-    Write-Host "✅ MSYS2 added to PATH" -ForegroundColor Green
+    Write-Host "✅ MSYS2 usr/bin added to PATH" -ForegroundColor Green
 } else {
-    Write-Host "✅ MSYS2 already in PATH" -ForegroundColor Green
+    Write-Host "✅ MSYS2 usr/bin already in PATH" -ForegroundColor Green
 }
 
 # Set MSYS environment variable for native symlink support (required for GNU Stow)
