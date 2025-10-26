@@ -19,3 +19,7 @@ curl
 
 # Text processing
 dos2unix
+
+# MinGW packages (Windows native, architecture-specific)
+# x86_64 for Intel/AMD, use mingw-w64-aarch64-* for ARM64
+mingw-w64-x86_64-gcc

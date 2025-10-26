@@ -1,11 +1,26 @@
-# MSYS2 packages (pacman)
+# MSYS2 packages - POSIX gap filler (not primary shell)
+# Only leaf applications - pacman handles dependencies
 
-# Development
-python
-vim
-
-# Terminal multiplexer
+# Core POSIX utilities
+git
 tmux
+vim
+stow
+
+# Development tools
+python
+python-pip
 
 # Network tools
+openssh
+rsync
+wget
+curl
 inetutils
+
+# Text processing
+dos2unix
+
+# MinGW packages (Windows native, architecture-specific)
+# x86_64 for Intel/AMD, use mingw-w64-aarch64-* for ARM64
+mingw-w64-x86_64-gcc

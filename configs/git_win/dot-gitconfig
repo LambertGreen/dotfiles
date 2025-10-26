@@ -5,7 +5,7 @@
 
 [core]
 	autocrlf = true
-	sshCommand = C:/Program\\ Files/OpenSSH-Win64/ssh.exe
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
 	fsmonitor = true
 
 	compression = 0
