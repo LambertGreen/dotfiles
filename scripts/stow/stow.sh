@@ -83,7 +83,14 @@ while IFS= read -r stow_entry; do
             log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
         fi
 
-        if stow $stow_opts "$stow_package" 2>>"${LOG_FILE}"; then
+        # On Windows, use MSYS2's stow explicitly to avoid Git's perl
+        if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
+            STOW_CMD="/c/msys64/usr/bin/stow"
+        else
+            STOW_CMD="stow"
+        fi
+
+        if $STOW_CMD $stow_opts "$stow_package" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"
         else
             log_verbose "Failed to stow: $stow_package (exit code: $?)"
