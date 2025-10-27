@@ -3,7 +3,9 @@
 
 # Essential tools
 7zip
-git
+# git - REMOVED: Use MSYS2 git instead to avoid Unix environment conflicts
+#       Git for Windows brings its own bash/perl/ssh which conflicts with MSYS2
+#       MSYS2 git is in pacman packages
 curl
 gsudo
 

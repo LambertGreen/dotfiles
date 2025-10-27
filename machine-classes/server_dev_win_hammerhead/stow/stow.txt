@@ -33,6 +33,7 @@ shell_msys2
 autohotkey
 clink
 divvy
+keypirinha_choco
 powershell_win
 WindowsTerminal
 vscode_win
