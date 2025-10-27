@@ -1,4 +1,3 @@
-#!/usr/bin/env zsh
 # NOTE: Only put login session setup here
 
 # * Utillity Functions
@@ -95,8 +94,15 @@ lgreen_export_ripgrep_config_path() {
 # * == MAIN ==
 # Note: Platform environments (.env_linux, .env_osx) are sourced from .zshenv
 # so PATH is available to all shells. Here we only do login-specific setup.
-lgreen_setup_gcc_symlinks
-lgreen_setup_gcc
+
+# TODO: DEPRECATED: We should not be setting up compiler stuff like this here
+# Instead setup the compiler for projects in .envrc files.
+# I think I added the below for getting Emacs native compilation
+# to work, but Emacs should handle its needs in it's own config.
+#
+# lgreen_setup_gcc_symlinks
+# lgreen_setup_gcc
+
 lgreen_start_agents
 lgreen_export_ripgrep_config_path
 
