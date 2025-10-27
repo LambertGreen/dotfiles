@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Pacman Package Manager (MSYS2/Arch Linux)"""
 
-from typing import List
+from typing import List, Optional
 import sys
+import os
 import platform
 from pathlib import Path
 
@@ -16,13 +17,44 @@ class PacmanPM(PackageManager):
 
     def __init__(self):
         super().__init__('pacman')
+        self._msys2_root: Optional[str] = None
+
+    def _get_msys2_root(self) -> str:
+        """
+        Detect MSYS2 root directory from environment or common locations.
+
+        Checks in order:
+        1. MSYS2_ROOT environment variable (set by bootstrap)
+        2. C:/msys64 (default install location)
+        3. C:/tools/msys64 (chocolatey install location)
+        """
+        if self._msys2_root:
+            return self._msys2_root
+
+        # Check environment variable first
+        if env_root := os.environ.get('MSYS2_ROOT'):
+            self._msys2_root = env_root.replace('\\', '/')
+            return self._msys2_root
+
+        # Check common locations
+        common_locations = ['C:/msys64', 'C:/tools/msys64']
+        for location in common_locations:
+            pacman_path = Path(location) / 'usr' / 'bin' / 'pacman.exe'
+            if pacman_path.exists():
+                self._msys2_root = location
+                return self._msys2_root
+
+        # Fallback to default
+        self._msys2_root = 'C:/msys64'
+        return self._msys2_root
 
     def _get_pacman_exe(self) -> str:
         """Get platform-specific pacman executable path"""
         # On Windows (including MSYS2/Cygwin), use full path with forward slashes
         # Forward slashes work in subprocess from MSYS2 Python, backslashes get mangled
         if sys.platform in ('win32', 'cygwin'):
-            return 'C:/msys64/usr/bin/pacman.exe'
+            root = self._get_msys2_root()
+            return f'{root}/usr/bin/pacman.exe'
         return 'pacman'
 
     def _wrap_for_windows(self, pacman_args: str) -> List[str]:
@@ -36,7 +68,8 @@ class PacmanPM(PackageManager):
         """
         if sys.platform in ('win32', 'cygwin'):
             # Use msys2_shell.cmd to invoke pacman in proper MSYS2 environment
-            return ['C:/msys64/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_args]
+            root = self._get_msys2_root()
+            return [f'{root}/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_args]
         # On native Linux/Arch, run pacman directly
         return pacman_args.split()
 

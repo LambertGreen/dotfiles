@@ -617,8 +617,9 @@ def install_pacman_packages() -> Dict[str, Any]:
         packages_str = ' '.join(packages)
         # Build the pacman command with packages included
         pacman_cmd = f"pacman --noconfirm -S --needed {packages_str}"
-        # Wrap in msys2_shell.cmd
-        cmd_list = ['C:/msys64/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_cmd]
+        # Wrap in msys2_shell.cmd (use detected MSYS2 root from PacmanPM)
+        msys2_root = pm._get_msys2_root()
+        cmd_list = [f'{msys2_root}/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_cmd]
         cmd_str = shlex.join(cmd_list)
     else:
         # Linux/Arch: use regular command + packages

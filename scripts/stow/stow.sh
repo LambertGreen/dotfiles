@@ -85,7 +85,17 @@ while IFS= read -r stow_entry; do
 
         # On Windows, use MSYS2's stow explicitly to avoid Git's perl
         if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
-            STOW_CMD="/c/msys64/usr/bin/stow"
+            # Detect MSYS2 root from .dotfiles.env or common locations
+            if [ -n "${MSYS2_ROOT:-}" ]; then
+                STOW_CMD="$MSYS2_ROOT/usr/bin/stow"
+            elif [ -f "/c/msys64/usr/bin/stow" ]; then
+                STOW_CMD="/c/msys64/usr/bin/stow"
+            elif [ -f "/c/tools/msys64/usr/bin/stow" ]; then
+                STOW_CMD="/c/tools/msys64/usr/bin/stow"
+            else
+                log_output "❌ Cannot find MSYS2 stow. Tried: \$MSYS2_ROOT, C:\\msys64, C:\\tools\\msys64"
+                exit 1
+            fi
         else
             STOW_CMD="stow"
         fi
