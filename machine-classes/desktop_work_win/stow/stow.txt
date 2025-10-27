@@ -32,6 +32,7 @@ git_win
 shell_msys2
 autohotkey
 clink
+divvy
 powershell_win
 WindowsTerminal
 vscode_win
