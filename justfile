@@ -245,6 +245,12 @@ doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
+# Check PATH for broken entries, version-specific paths, and duplicates (cross-platform)
+[group('4-👩‍⚕️-Doctor')]
+doctor-check-path:
+    @echo "👩‍⚕️ Checking PATH health (cross-platform)..."
+    @python3 src/dotfiles_pm/doctor.py
+
 # Check Emacs version compatibility and suggest elpaca cleanup if needed
 [group('4-👩‍⚕️-Doctor')]
 doctor-check-emacs-version:
