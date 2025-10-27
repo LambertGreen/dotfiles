@@ -83,24 +83,31 @@ while IFS= read -r stow_entry; do
             log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
         fi
 
-        # On Windows, use MSYS2's stow explicitly to avoid Git's perl
+        # On Windows, use MSYS2's perl explicitly via msys2_shell.cmd to avoid Git's perl
         if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
             # Detect MSYS2 root from .dotfiles.env or common locations
+            msys2_root=""
             if [ -n "${MSYS2_ROOT:-}" ]; then
-                STOW_CMD="$MSYS2_ROOT/usr/bin/stow"
+                msys2_root="$MSYS2_ROOT"
             elif [ -f "/c/msys64/usr/bin/stow" ]; then
-                STOW_CMD="/c/msys64/usr/bin/stow"
+                msys2_root="/c/msys64"
             elif [ -f "/c/tools/msys64/usr/bin/stow" ]; then
-                STOW_CMD="/c/tools/msys64/usr/bin/stow"
+                msys2_root="/c/tools/msys64"
             else
                 log_output "❌ Cannot find MSYS2 stow. Tried: \$MSYS2_ROOT, C:\\msys64, C:\\tools\\msys64"
                 exit 1
             fi
+
+            # Build stow command to run via msys2_shell.cmd (ensures MSYS2 perl is used)
+            stow_cmd_str="cd $(pwd) && stow $stow_opts $(printf %q "$stow_package")"
+            STOW_CMD="$msys2_root/msys2_shell.cmd"
+            STOW_ARGS=('-defterm' '-no-start' '-c' "$stow_cmd_str")
         else
             STOW_CMD="stow"
+            STOW_ARGS=($stow_opts "$stow_package")
         fi
 
-        if $STOW_CMD $stow_opts "$stow_package" 2>>"${LOG_FILE}"; then
+        if "${STOW_CMD}" "${STOW_ARGS[@]}" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"
         else
             log_verbose "Failed to stow: $stow_package (exit code: $?)"
