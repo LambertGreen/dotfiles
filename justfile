@@ -14,7 +14,7 @@ default:
     @echo ""
     @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just install"
     @echo ""
-    @just --list | awk '/^    \[.*\]$/{if($0 ~ /Advanced-Testing/) skip=1; else skip=0} !skip'
+    @just --list | awk -v OS="{{ os() }}" '/^    \[.*\]$/{if($0 ~ /Advanced-Testing/){skip=1} else if($0 ~ /Windows-Only/ && OS!="windows"){skip=1} else {skip=0}} !skip'
     @echo ""
     @echo "💡 For advanced testing commands: just --list"
 
@@ -49,6 +49,20 @@ stow:
     @echo ""
     @echo "Next step:"
     @echo "  just install"
+
+# Generate Windows Start Menu shortcuts (Windows-Only)
+[group('1-🚀-Setup (Windows-Only)')]
+gen-win-startmenu-links:
+    @echo "🔗 Generating Windows Start Menu shortcuts..."
+    @{{ if os() == "windows" { "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/gen-win-startmenu-links.ps1" } else { "echo '❌ Windows-only task (gen-win-startmenu-links)'" } }}
+    @echo "✅ Start Menu shortcuts ensured"
+
+# Generate Windows Startup shortcuts (Windows-Only)
+[group('1-🚀-Setup (Windows-Only)')]
+gen-win-startup-links:
+    @echo "🔗 Generating Windows Startup shortcuts..."
+    @{{ if os() == "windows" { "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/gen-win-startup-links.ps1" } else { "echo '❌ Windows-only task (gen-win-startup-links)'" } }}
+    @echo "✅ Startup shortcuts ensured"
 
 # Install packages via all package managers
 [group('2-📦-Package-Management')]

@@ -5,7 +5,6 @@
 # Common configs (truly universal)
 git_common
 shell_common
-tmux_common
 vim_common
 wezterm_common
 spelling_common

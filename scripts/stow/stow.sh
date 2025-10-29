@@ -22,6 +22,10 @@ mkdir -p "${LOG_DIR}"
     echo ""
 } > "${LOG_FILE}"
 
+# Track results for summary
+successes=()
+failures=()
+
 # Function to log both to console and file
 log_output() {
     echo "$1" | tee -a "${LOG_FILE}"
@@ -72,7 +76,11 @@ while IFS= read -r stow_entry; do
 
     # Backup conflicting shell files before stowing shell_common
     if [ "$stow_package" = "shell_common" ]; then
-        for f in .bashrc .bash_profile .profile .zshenv .zprofile .zlogin .zshrc; do [ -f "$HOME/$f" ] && mv "$HOME/$f" "$HOME/$f.backup-$(date +%Y%m%d)" || true; done
+        for f in .bashrc .bash_profile .profile .zshenv .zprofile .zlogin .zshrc; do
+            if [ -f "$HOME/$f" ] && [ ! -L "$HOME/$f" ]; then
+                mv "$HOME/$f" "$HOME/$f.backup-$(date +%Y%m%d)"
+            fi
+        done
     fi
 
     if [ -d "$stow_package" ]; then
@@ -83,8 +91,11 @@ while IFS= read -r stow_entry; do
             log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
         fi
 
-        # On Windows, use MSYS2's perl explicitly via msys2_shell.cmd to avoid Git's perl
-        if [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
+        # Allow explicit override via environment: STOW_CMD="/path/to/stow"
+        if [ -n "${STOW_CMD:-}" ]; then
+            STOW_ARGS=($stow_opts "$stow_package")
+        # On Windows, prefer MSYS2's perl via msys2_shell.cmd to avoid Git's perl
+        elif [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
             # Detect MSYS2 root from .dotfiles.env or common locations
             msys2_root=""
             if [ -n "${MSYS2_ROOT:-}" ]; then
@@ -93,25 +104,40 @@ while IFS= read -r stow_entry; do
                 msys2_root="/c/msys64"
             elif [ -f "/c/tools/msys64/usr/bin/stow" ]; then
                 msys2_root="/c/tools/msys64"
-            else
-                log_output "❌ Cannot find MSYS2 stow. Tried: \$MSYS2_ROOT, C:\\msys64, C:\\tools\\msys64"
-                exit 1
             fi
 
-            # Build stow command to run via msys2_shell.cmd (ensures MSYS2 perl is used)
-            stow_cmd_str="cd $(pwd) && stow $stow_opts $(printf %q "$stow_package")"
-            STOW_CMD="$msys2_root/msys2_shell.cmd"
-            STOW_ARGS=('-defterm' '-no-start' '-c' "$stow_cmd_str")
+            if [ -n "$msys2_root" ]; then
+                # Build stow command to run via msys2_shell.cmd (ensures MSYS2 perl is used)
+                # Note: avoid adding extra quotes around package name to prevent stow seeing literal quotes
+                stow_cmd_str="cd $(pwd) && stow $stow_opts $stow_package"
+                STOW_CMD="$msys2_root/msys2_shell.cmd"
+                STOW_ARGS=('-defterm' '-no-start' '-c' "$stow_cmd_str")
+            else
+                # Fallback: if plain stow exists on PATH, use it instead of hard failing
+                if command -v stow >/dev/null 2>&1; then
+                    log_output "⚠️  MSYS2 not found; using stow from PATH"
+                    STOW_CMD="stow"
+                    STOW_ARGS=($stow_opts "$stow_package")
+                else
+                    log_output "❌ Cannot find MSYS2 stow and no 'stow' on PATH. Install MSYS2+stow or set STOW_CMD"
+                    exit 1
+                fi
+            fi
         else
+            # Non-Windows: use stow from PATH
             STOW_CMD="stow"
             STOW_ARGS=($stow_opts "$stow_package")
         fi
 
+        log_verbose "STOW_CMD: ${STOW_CMD}"
+        log_verbose "STOW_ARGS: ${STOW_ARGS[*]}"
         if "${STOW_CMD}" "${STOW_ARGS[@]}" 2>>"${LOG_FILE}"; then
             log_verbose "Successfully stowed: $stow_package"
+            successes+=("$stow_package")
         else
             log_verbose "Failed to stow: $stow_package (exit code: $?)"
             log_output "⚠️  Some configs may not apply"
+            failures+=("$stow_package")
         fi
     else
         log_verbose "Directory not found, skipping: $stow_package"
@@ -120,6 +146,18 @@ done < "../${STOW_FILE}"
 
 cd ..
 log_verbose "Returned to root directory"
+
+# Summary UI
+log_output ""
+log_output "📊 Stow summary"
+log_output "   • Succeeded: ${#successes[@]}"
+log_output "   • Failed:    ${#failures[@]}"
+if [ ${#failures[@]} -gt 0 ]; then
+    log_output "   • Failed packages: ${failures[*]}"
+    log_output ""
+    log_output "💡 For diagnostics and fixes:"
+    log_output "   just doctor-check-health"
+fi
 
 log_output ""
 log_output "✅ Stow operation completed (GNU Stow only reports errors)"
