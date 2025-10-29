@@ -47,3 +47,6 @@
 	path = configs/alfred-settings/Library/Application Support/Alfred
 	url = git@github.com-personal:LambertGreen/alfred-settings.git
 	branch = main
+[submodule "win_reg_configs"]
+	path = win_reg_configs
+	url = git@github.com-personal:LambertGreen/win_reg_configs.git
