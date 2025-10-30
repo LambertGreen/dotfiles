@@ -27,7 +27,6 @@ This is a cross-platform dotfiles and unified package management system - think 
 - =Docker= - Automated testing including multi-package-manager validation
 - =Machine Classes= - Package definitions using native package manager formats (Brewfile, packages.txt, requirements.txt)
 
-
 * Architecture Documentation
 
 - [[file:docs/terminal-spawning.md][Terminal Spawning]] - Interactive package manager execution
@@ -78,7 +77,6 @@ Browse the directory for concrete examples and native package lists:
 - ~machine-classes/~
 
 
-
 * Platform-Specific Notes
 
 ** macOS
@@ -98,7 +96,6 @@ Browse the directory for concrete examples and native package lists:
 - MSYS2 for Unix-like environment and additional packages
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
-
 
 
 * Health Check & Debugging
