@@ -39,5 +39,4 @@ mintty
 tmux_msys2
 alacritty_win
 cursor_win
-nvim_win
 vsvim

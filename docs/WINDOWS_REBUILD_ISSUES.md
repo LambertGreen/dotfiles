@@ -834,6 +834,52 @@ setup/
 
 ---
 
+## Neovim XDG_CONFIG_HOME Integration
+
+**Issue**: Neovim on Windows uses `%APPDATA%\Local\nvim` by default instead of the Unix-standard `~/.config/nvim`, requiring separate Windows-specific configuration.
+
+**Problem**:
+- Windows Neovim doesn't follow XDG Base Directory specification
+- Separate `nvim_win` config needed for Windows-specific paths
+- Duplicate configuration maintenance between `nvim_common` and `nvim_win`
+- Inconsistent behavior across platforms
+
+**Solution**: Use Windows registry to set `XDG_CONFIG_HOME` environment variable.
+
+**Implementation**:
+- Registry config: `win_reg_configs/xdg-config/xdg-config.reg`
+- Sets `XDG_CONFIG_HOME=%USERPROFILE%\.config` in user environment
+- Removes `nvim_win` from Windows machine classes
+- Neovim now uses `~/.config/nvim` on Windows (same as POSIX)
+
+**Registry Configuration**:
+```registry
+[HKEY_CURRENT_USER\Environment]
+"XDG_CONFIG_HOME"="%USERPROFILE%\\.config"
+```
+
+**Benefits**:
+- Single `nvim_common` configuration works across all platforms
+- Consistent Neovim behavior on Windows and POSIX
+- Eliminates duplicate configuration maintenance
+- Follows XDG Base Directory specification
+
+**Usage**:
+```bash
+# Import XDG environment variables (must be first)
+just import-win-regkeys
+
+# Deploy Neovim configuration (now uses ~/.config/nvim)
+just stow
+```
+
+**Related Files**:
+- `win_reg_configs/xdg-config/xdg-config.reg` - Registry configuration
+- `machine-classes/*/win-reg/manifest.txt` - Includes xdg-config
+- `configs/nvim_common/` - Single Neovim configuration for all platforms
+
+---
+
 ## Additional Issues
 
 *More issues will be documented here as they are encountered during Windows rebuilds.*

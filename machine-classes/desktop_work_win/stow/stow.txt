@@ -41,7 +41,6 @@ WindowsCommand
 WindowsPowerShell
 alacritty_win
 cursor_win
-nvim_win
 vsvim
 mintty
 tmux_msys2

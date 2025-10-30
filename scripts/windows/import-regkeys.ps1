@@ -17,7 +17,7 @@ function Write-Log {
 # Resolve Home and dotfiles dir
 $UserHome = $HOME
 if (-not $UserHome) { $UserHome = $env:USERPROFILE }
-$DotfilesDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)  # scripts/windows -> repo root
+$DotfilesDir = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))  # scripts/windows -> repo root
 
 # Prepare logs dir under ~/.dotfiles/logs
 $LogsDir = Join-Path $UserHome ".dotfiles/logs"
@@ -89,14 +89,18 @@ foreach ($appEntry in $entries) {
         continue
     }
 
-    # Find all .reg files in app directory (recursive allowed for future growth)
+    # Find all .reg and .ps1 files in app directory (recursive allowed for future growth)
     $regFiles = Get-ChildItem -Path $appDir -Filter *.reg -Recurse -File | Sort-Object FullName
-    if ($regFiles.Count -eq 0) {
-        Write-Log "⚠ No .reg files found for app '$appEntry' in $appDir"
+    $ps1Files = Get-ChildItem -Path $appDir -Filter *.ps1 -Recurse -File | Sort-Object FullName
+    
+    if ($regFiles.Count -eq 0 -and $ps1Files.Count -eq 0) {
+        Write-Log "⚠ No .reg or .ps1 files found for app '$appEntry' in $appDir"
         continue
     }
 
     Write-Log "==> Importing app: $appEntry"
+    
+    # Process .reg files
     foreach ($reg in $regFiles) {
         Write-Log "Importing: $($reg.FullName)"
         if ($WhatIf) {
@@ -111,6 +115,23 @@ foreach ($appEntry in $entries) {
             Write-Log "❌ reg import failed (exit $exit) for: $($reg.FullName)"
         } else {
             Write-Log "✅ Imported: $($reg.Name)"
+        }
+    }
+    
+    # Process .ps1 files
+    foreach ($ps1 in $ps1Files) {
+        Write-Log "Executing: $($ps1.FullName)"
+        if ($WhatIf) {
+            Write-Log "  (dry-run) powershell -File \"$($ps1.FullName)\""
+            continue
+        }
+        try {
+            $ps1Out = & powershell -NoProfile -ExecutionPolicy Bypass -File $ps1.FullName 2>&1
+            if ($ps1Out) { Write-Log ($ps1Out | Out-String).TrimEnd() }
+            Write-Log "✅ Executed: $($ps1.Name)"
+        } catch {
+            Write-Log "❌ PowerShell script failed for: $($ps1.FullName)"
+            Write-Log "Error: $($_.Exception.Message)"
         }
     }
 }
