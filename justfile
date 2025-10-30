@@ -64,6 +64,13 @@ gen-win-startup-links:
     @{{ if os() == "windows" { "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/gen-win-startup-links.ps1" } else { "echo '❌ Windows-only task (gen-win-startup-links)'" } }}
     @echo "✅ Startup shortcuts ensured"
 
+# Import Windows registry keys for current machine class (Windows-Only)
+[group('1-🚀-Setup (Windows-Only)')]
+import-win-regkeys:
+    @echo "🧩 Importing Windows registry keys for machine class..."
+    @{{ if os() == "windows" { "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/import-regkeys.ps1" } else { "echo '❌ Windows-only task (import-win-regkeys)'" } }}
+    @echo "✅ Registry import completed (see ~/.dotfiles/logs/ for details)"
+
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
 install:

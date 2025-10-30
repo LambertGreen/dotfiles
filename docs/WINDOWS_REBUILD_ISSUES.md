@@ -681,6 +681,28 @@ This affects other Windows applications that use registry instead of config file
 
 ---
 
+### Implementation (Current)
+
+- **Config source**: Top-level Git submodule at `win_reg_configs/` (per-app folders, e.g., `win_reg_configs/divvy/settings.reg`).
+- **Machine class manifest**: `machine-classes/<class>/win-reg/manifest.txt` lists apps to import.
+- **Importer**: `scripts/windows/import-regkeys.ps1` (Windows-only)
+  - Dry-run:
+    ```powershell
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/import-regkeys.ps1 -WhatIf
+    ```
+  - Import all apps for current machine class:
+    ```bash
+    just import-win-regkeys
+    ```
+  - Import single app:
+    ```powershell
+    powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/import-regkeys.ps1 -App divvy
+    ```
+  - Logs: `~/.dotfiles/logs/import-regkeys-*.log`
+
+> Note: Keep `.reg` content in the `win_reg_configs/` submodule to minimize risk of exposing license-related data in the public repo.
+
+
 ## Windows Steals Ctrl+N from Divvy Workflow
 
 **Issue**: Windows system shortcuts interfere with Divvy's local keybinds, specifically `Ctrl+N`.

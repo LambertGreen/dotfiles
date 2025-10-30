@@ -1,0 +1,5 @@
+# List of Windows registry app configs to import for this machine class
+# Each entry corresponds to a directory under win_reg_configs/<app>
+# Order matters.
+
+divvy
