@@ -13,7 +13,7 @@ Refactor dotfiles repository to use a new organized structure with the `configs/
 ## Old vs New System Detection
 **Old System Indicators:**
 - Symlinks pointing directly to ~/dotfiles/{package} (no configs/ in path)
-- Packages at root level: emacs, hammerspoon, nvim, alfred-settings, autohotkey, nvim_win
+- Packages at root level: emacs, hammerspoon, nvim, alfred-settings, autohotkey
 
 **New System Indicators:**
 - Symlinks containing ~/dotfiles/configs/ in their path

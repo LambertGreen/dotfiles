@@ -213,10 +213,12 @@ test_windows_paths() {
     # Create Windows-style paths
     mkdir -p "$TEST_HOME/AppData/Local/nvim"
     mkdir -p "$TEST_HOME/AppData/Roaming/Code"
-    mkdir -p "$DOTFILES_DIR/configs/nvim_win"
+    # nvim_win removed - now using nvim_common with XDG_CONFIG_HOME
+    # Test nvim_common instead
+    mkdir -p "$DOTFILES_DIR/configs/nvim_common/dot-config/nvim"
 
-    echo "nvim config" > "$DOTFILES_DIR/configs/nvim_win/init.vim"
-    ln -s "$DOTFILES_DIR/configs/nvim_win/init.vim" "$TEST_HOME/AppData/Local/nvim/init.vim"
+    echo "-- nvim config" > "$DOTFILES_DIR/configs/nvim_common/dot-config/nvim/init.lua"
+    ln -s "$DOTFILES_DIR/configs/nvim_common/dot-config/nvim/init.lua" "$TEST_HOME/.config/nvim/init.lua"
 
     local output
     local exit_code=0

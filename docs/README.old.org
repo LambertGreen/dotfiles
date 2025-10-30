@@ -594,7 +594,6 @@ Initially I had some hand written scripts for doing the symlinking, but am now u
         git_my \
         git_win \
         git_work \
-        nvim_win \
         tmux win_wsl
 #+end_src
 

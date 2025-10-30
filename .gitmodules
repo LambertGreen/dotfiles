@@ -32,9 +32,6 @@
 	path = configs/nvim_common/dot-config/nvim
 	url = git@github.com-personal:LambertGreen/dot-nvim.git
 	branch = main
-[submodule "configs/nvim_win/AppData/Local/nvim"]
-	path = configs/nvim_win/AppData/Local/nvim
-	url = git@github.com-personal:LambertGreen/dot-nvim.git
 [submodule "configs/hammerspoon/dot-hammerspoon"]
 	path = configs/hammerspoon/dot-hammerspoon
 	url = git@github.com-personal:LambertGreen/dot-hammerspoon

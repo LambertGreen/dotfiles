@@ -32,7 +32,7 @@ if [[ "$TEST_HOME" == "/c/users/"* ]]; then
     TEST_HOME="/c/Users${TEST_HOME#/c/users}"
 fi
 
-OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey nvim_win)
+OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey)
 
 # =============================================================================
 # SHARED SYMLINK DETECTION
