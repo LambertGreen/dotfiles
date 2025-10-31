@@ -34,8 +34,8 @@ if (-not $MachineClass) {
     if (Test-Path $DotfilesEnvPath) {
         $envLines = Get-Content -LiteralPath $DotfilesEnvPath -ErrorAction SilentlyContinue
         foreach ($line in $envLines) {
-            if ($line -match '^(DOTFILES_MACHINE_CLASS)=(.*)$') {
-                $MachineClass = $Matches[2].Trim()
+            if ($line -match '^\s*export\s+DOTFILES_MACHINE_CLASS="?([^"]+)"?') {
+                $MachineClass = $Matches[1].Trim()
             }
         }
     }
@@ -108,8 +108,13 @@ foreach ($appEntry in $entries) {
             continue
         }
         # Invoke reg.exe directly; PowerShell will pass the path as a single argument even with spaces
+        # reg.exe writes to stderr even on success, so temporarily allow errors
+        $prevErrorPref = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
         $regOut = & reg.exe import $reg.FullName 2>&1
         $exit = $LASTEXITCODE
+        $ErrorActionPreference = $prevErrorPref
+
         if ($regOut) { Write-Log ($regOut | Out-String).TrimEnd() }
         if ($exit -ne 0) {
             Write-Log "❌ reg import failed (exit $exit) for: $($reg.FullName)"
