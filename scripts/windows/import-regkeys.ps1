@@ -108,9 +108,9 @@ foreach ($appEntry in $entries) {
             continue
         }
         # Invoke reg.exe directly; PowerShell will pass the path as a single argument even with spaces
-        # reg.exe writes to stderr even on success, so temporarily allow errors
+        # reg.exe writes to stderr even on success, so suppress error display while capturing output
         $prevErrorPref = $ErrorActionPreference
-        $ErrorActionPreference = 'Continue'
+        $ErrorActionPreference = 'SilentlyContinue'
         $regOut = & reg.exe import $reg.FullName 2>&1
         $exit = $LASTEXITCODE
         $ErrorActionPreference = $prevErrorPref
