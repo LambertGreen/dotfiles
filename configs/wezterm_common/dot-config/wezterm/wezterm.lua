@@ -205,4 +205,37 @@ config.keys = {
     action=wezterm.action{SendString="\x1b\r"}},
 }
 
+-- Launch Menu (access with Ctrl+Shift+L by default)
+-- TODO: Create a Keypirinha plugin (similar to keypirinha-terminal-profiles) that reads
+-- WezTerm's launch_menu configuration and provides direct launch shortcuts in Keypirinha.
+-- This would enable launching specific shell+terminal combinations via Keypirinha launcher.
+if wezterm.target_triple:find('windows') then
+  config.launch_menu = {
+    {
+      label = 'MSYS2 UCRT64',
+      args = { 'C:\\msys64\\msys2_shell.cmd', '-defterm', '-here', '-no-start', '-ucrt64' },
+    },
+    {
+      label = 'MSYS2 MINGW64',
+      args = { 'C:\\msys64\\msys2_shell.cmd', '-defterm', '-here', '-no-start', '-mingw64' },
+    },
+    {
+      label = 'MSYS2 MSYS',
+      args = { 'C:\\msys64\\msys2_shell.cmd', '-defterm', '-here', '-no-start', '-msys2' },
+    },
+    {
+      label = 'PowerShell',
+      args = { 'pwsh.exe' },
+    },
+    {
+      label = 'CMD with Clink',
+      args = { 'cmd.exe', '/K', '%USERPROFILE%\\WindowsCommand\\dev.cmd' },
+    },
+    {
+      label = 'WSL',
+      args = { 'wsl.exe', '~' },
+    },
+  }
+end
+
 return config

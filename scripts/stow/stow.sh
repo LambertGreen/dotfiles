@@ -85,7 +85,7 @@ while IFS= read -r stow_entry; do
 
     if [ -d "$stow_package" ]; then
         # Check if package has .stowrc with --no-folding (for file-level symlinking)
-        stow_opts="--dotfiles --target=$HOME"
+        stow_opts="--restow --dotfiles --target=$HOME"
         if [ -f "$stow_package/.stowrc" ] && grep -q "no-folding" "$stow_package/.stowrc"; then
             stow_opts="$stow_opts --no-folding"
             log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
