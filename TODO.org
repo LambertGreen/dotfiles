@@ -1,7 +1,29 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/6]
+** Open [0/7]
+*** BUG Pacman check command not executing properly on Windows
+**** Context
+When running `just update` on Windows (MSYS2), the pacman check command is not executing properly:
+- Command is generated correctly: `C:/msys64/msys2_shell.cmd -defterm -no-start -msys -c "pacman -Qu"`
+- PowerShell script receives the command but execution fails
+- Terminal windows do not close after execution
+- No output is captured in log files
+**** Root Cause
+PowerShell's parameter parser misinterprets quoted command strings when passed via `-Command` parameter, even when using `subprocess.Popen` with a list of arguments.
+**** Attempted Fixes
+- Tried using temp batch file approach in `scripts/run_tracked.ps1` to avoid parameter parsing
+- Modified command quoting in `src/dotfiles_pm/pm_executor.py` 
+- Updated `src/dotfiles_pm/pms/pacman.py` to always wrap with msys2_shell.cmd on Windows
+- Added exit code handling for pacman (exit code 1 = no updates = success)
+**** Status
+Temp batch file approach implemented but not fully working. Needs further investigation.
+**** Next Steps
+1. Verify temp batch file is being created correctly
+2. Check if output is being captured but not displayed
+3. Test with simpler command first (e.g., `pacman --version`)
+4. Consider alternative: write command to temp file from Python side instead of PowerShell
+
 *** TODO Install remaining missing packages via correct package managers
 **** Context
 After implementing pip package manager support, several packages still fail health checks.

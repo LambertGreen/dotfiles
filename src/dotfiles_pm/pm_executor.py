@@ -114,6 +114,10 @@ def is_success_exit_code(pm_name: str, operation: str, exit_code: int, has_outpu
     if pm_name == 'npm' and operation == 'check' and exit_code == 1 and has_output:
         return True
 
+    # pacman -Qu returns 1 when there are no updates (which is success - all up to date)
+    if pm_name == 'pacman' and operation == 'check' and exit_code == 1:
+        return True  # Exit code 1 means no updates available, which is success
+
     # All other non-zero exit codes are failures
     return False
 
@@ -147,7 +151,19 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
         }
 
     cmd_list = commands[pm_name][operation]
-    cmd_str = ' '.join(cmd_list)
+    # Join command for Windows - quote arguments with spaces for cmd.exe
+    import platform
+    if platform.system() == 'Windows' or sys.platform in ('win32', 'cygwin'):
+        # Windows: quote arguments that have spaces (cmd.exe style)
+        def quote_arg(arg):
+            if ' ' in arg:
+                return '"' + arg + '"'
+            return arg
+        cmd_str = ' '.join(quote_arg(arg) for arg in cmd_list)
+    else:
+        # Unix: use shlex.join (single quotes work fine)
+        import shlex
+        cmd_str = shlex.join(cmd_list)
 
     # Check if the PM has a custom execute_command method (like BrewPM for lock recovery)
     pm_instance = get_pm(pm_name)

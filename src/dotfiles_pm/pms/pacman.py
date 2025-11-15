@@ -50,11 +50,15 @@ class PacmanPM(PackageManager):
 
     def _get_pacman_exe(self) -> str:
         """Get platform-specific pacman executable path"""
-        # On Windows (including MSYS2/Cygwin), use full path with forward slashes
-        # Forward slashes work in subprocess from MSYS2 Python, backslashes get mangled
-        if sys.platform in ('win32', 'cygwin'):
+        # If we're already in MSYS2 (cygwin platform with MSYSTEM set), use 'pacman' directly
+        # It's in PATH and will work correctly in spawned terminals
+        if sys.platform == 'cygwin' and os.environ.get('MSYSTEM'):
+            return 'pacman'
+        # On native Windows (win32) without MSYS2, use full path
+        if sys.platform == 'win32':
             root = self._get_msys2_root()
             return f'{root}/usr/bin/pacman.exe'
+        # Native Linux/Arch
         return 'pacman'
 
     def _wrap_for_windows(self, pacman_args: str) -> List[str]:
@@ -75,8 +79,11 @@ class PacmanPM(PackageManager):
 
     @property
     def check_command(self) -> List[str]:
+        # On Windows (including when Python runs from MSYS2), always wrap with msys2_shell.cmd
+        # because spawned terminals (PowerShell) don't have pacman in PATH
         if sys.platform in ('win32', 'cygwin'):
             return self._wrap_for_windows('pacman -Qu')
+        # Native Linux/Arch - run directly
         return [self._get_pacman_exe(), "-Qu"]
 
     @property

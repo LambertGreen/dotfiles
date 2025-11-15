@@ -22,7 +22,8 @@ Clear-Host
 # Header
 Write-Host "🚀 $Operation" -ForegroundColor Cyan
 Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-Write-Host "💻 Command: $Command"
+Write-Host "Command: $Command"
+Write-Host "Command length: $($Command.Length)"
 Write-Host ""
 
 # Ensure log and status directories exist
@@ -43,9 +44,20 @@ Set-Content -Path $StatusFile -Value $startStatus
 # Run command with output capture (like tee)
 $exitCode = 0
 try {
-    Invoke-Expression $Command 2>&1 | Tee-Object -FilePath $LogFile
-    $exitCode = $LASTEXITCODE
-    if ($null -eq $exitCode) { $exitCode = 0 }
+    # Write command to temporary batch file to avoid PowerShell parameter parsing issues
+    $tempBatch = [System.IO.Path]::GetTempFileName() -replace '\.tmp$', '.bat'
+    $Command | Out-File -FilePath $tempBatch -Encoding ASCII -NoNewline
+    try {
+        # Execute the batch file
+        cmd.exe /c $tempBatch 2>&1 | Tee-Object -FilePath $LogFile
+        $exitCode = $LASTEXITCODE
+        if ($null -eq $exitCode) { $exitCode = 0 }
+    } finally {
+        # Clean up temp file
+        if (Test-Path $tempBatch) {
+            Remove-Item $tempBatch -Force -ErrorAction SilentlyContinue
+        }
+    }
 } catch {
     Write-Host "Error executing command: $_" -ForegroundColor Red
     $exitCode = 1
