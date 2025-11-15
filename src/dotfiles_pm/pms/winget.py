@@ -18,7 +18,7 @@ class WingetPM(PackageManager):
 
     @property
     def check_command(self) -> List[str]:
-        return ["winget", "upgrade", "--list"]
+        return ["winget", "upgrade"]  # No --list flag, just 'upgrade' lists outdated packages
 
     @property
     def upgrade_command(self) -> List[str]:

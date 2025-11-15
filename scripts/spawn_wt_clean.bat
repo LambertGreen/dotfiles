@@ -33,4 +33,19 @@ goto loop
 
 REM Spawn Windows Terminal
 REM The batch file reads environment from Windows registry (no MSYS2 pollution)
-"C:\Users\lgreen\AppData\Local\Microsoft\WindowsApps\wt.exe" -w 0 nt --title "%WT_TITLE%" %SHELL% %SHELL_ARGS%
+REM Find wt.exe dynamically (Windows Terminal can be in different locations)
+where wt.exe >nul 2>&1
+if errorlevel 1 goto :try_fallback
+wt.exe -w 0 nt --title "%WT_TITLE%" %SHELL% %SHELL_ARGS%
+goto :end_spawn
+
+:try_fallback
+REM Fallback: try common locations
+if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe" (
+    "%LOCALAPPDATA%\Microsoft\WindowsApps\wt.exe" -w 0 nt --title "%WT_TITLE%" %SHELL% %SHELL_ARGS%
+) else (
+    echo ERROR: Windows Terminal (wt.exe) not found
+    exit /b 1
+)
+
+:end_spawn
