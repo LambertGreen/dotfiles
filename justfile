@@ -1,5 +1,28 @@
 # Dotfiles Management System
 # Note: Configuration loaded from ~/.dotfiles.env via shell sourcing in commands
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# IMPORTANT: Windows Execution Environment
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# On Windows, all `just` commands MUST be run from MSYS2 bash environment.
+# This ensures:
+#   - Consistent POSIX tool behavior (bash, python3, stow, etc.)
+#   - Proper PATH inheritance from Windows
+#   - Cross-platform compatibility with macOS/Linux workflows
+#
+# How to run on Windows:
+#   1. Open MSYS2 terminal (not PowerShell, not CMD, not Cygwin)
+#   2. Navigate to dotfiles directory
+#   3. Run: just <command>
+#
+# Detection: The justfile checks for MSYSTEM environment variable to detect MSYS2.
+# If running from wrong environment on Windows, you'll see a helpful error message.
+#
+# For AI Assistants: When testing in sandbox environments, ensure you're in MSYS2
+# bash, not PowerShell or other Windows shells. Check with: echo $MSYSTEM
+#
+# ═══════════════════════════════════════════════════════════════════════════════
 
 # Environment variables (will be loaded from ~/.dotfiles.env in commands)
 platform := env_var_or_default("DOTFILES_PLATFORM", "")
@@ -7,14 +30,18 @@ platform := env_var_or_default("DOTFILES_PLATFORM", "")
 # Set DOTFILES_DIR for all commands
 export DOTFILES_DIR := justfile_directory()
 
-# Show configuration and available commands
+# Check Windows execution environment (only on Windows)
+# This check ensures just commands are run from MSYS2 bash on Windows
+# Detection: MSYSTEM variable OR uname contains MSYS/MINGW OR /usr/bin/pacman exists
 [private]
+_check-windows-env:
+    @bash -c 'if [ "{{ os() }}" = "windows" ]; then IS_MSYS2=false; if [ -n "${MSYSTEM:-}" ]; then IS_MSYS2=true; elif command -v uname >/dev/null 2>&1 && uname -s 2>/dev/null | grep -qiE "(MSYS|MINGW)"; then IS_MSYS2=true; elif [ -f /usr/bin/pacman ] || command -v pacman >/dev/null 2>&1; then IS_MSYS2=true; fi; if [ "$IS_MSYS2" = "false" ]; then echo "" >&2; echo "❌ ERROR: Wrong execution environment on Windows" >&2; echo "" >&2; echo "This justfile must be run from MSYS2 bash, not PowerShell/CMD/Cygwin." >&2; echo "" >&2; echo "MSYSTEM variable: ${MSYSTEM:-not set}" >&2; if command -v uname >/dev/null 2>&1; then echo "uname -s: $(uname -s 2>/dev/null || echo unknown)" >&2; fi; echo "" >&2; echo "How to fix:" >&2; echo "  1. Open MSYS2 terminal (not PowerShell/CMD/Cygwin)" >&2; echo "  2. Navigate to dotfiles directory" >&2; echo "  3. Run: just <command>" >&2; echo "" >&2; echo "Why MSYS2?" >&2; echo "  - Inherits Windows PATH (MSYS2_PATH_TYPE=inherit)" >&2; echo "  - Provides POSIX-compatible bash environment" >&2; echo "" >&2; exit 1; fi; fi'
+
+# Show configuration and available commands
 default:
-    @./scripts/show-config.sh
-    @echo ""
     @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just install"
     @echo ""
-    @just --list | awk -v OS="{{ os() }}" '/^    \[.*\]$/{if($0 ~ /Advanced-Testing/){skip=1} else if($0 ~ /Windows-Only/ && OS!="windows"){skip=1} else {skip=0}} !skip'
+    @just --list
     @echo ""
     @echo "💡 For advanced testing commands: just --list"
 
@@ -74,41 +101,29 @@ import-win-regkeys:
 # Install packages via all package managers
 [group('2-📦-Package-Management')]
 install:
+    @just _check-windows-env
     @echo "📦 Installing packages for current machine class..."
-    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm install || \
-    if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
-        exit 1; \
-    fi
+    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm install; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
 
 # Update package registries and check for available updates
 [group('2-📦-Package-Management')]
 update:
+    @just _check-windows-env
     @echo "🔄 Updating package registries and checking for updates..."
-    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm check || \
-    if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
-        exit 1; \
-    fi
+    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm check; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
 
 # Upgrade packages across package managers
 [group('2-📦-Package-Management')]
 upgrade:
+    @just _check-windows-env
     @echo "🔄 Upgrading packages (interactive)..."
-    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm upgrade || \
-    if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
-        exit 1; \
-    fi
+    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm upgrade; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
 
 # Show available package managers
 [group('3-ℹ️-Info')]
 show-package-managers:
-    @python3 -m src.dotfiles_pm.pm list || \
-    if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
-        exit 1; \
-    fi
+    @just _check-windows-env
+    @bash -c 'EXIT_CODE=0; python3 -m src.dotfiles_pm.pm list; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
 
 # Show package counts summary
 [group('3-ℹ️-Info')]
@@ -250,15 +265,9 @@ doctor-fix-brew-lock:
 # Disable problematic package managers
 [group('4-👩‍⚕️-Doctor')]
 doctor-disable-a-package-manager:
+    @just _check-windows-env
     @echo "👩‍⚕️ Disabling problematic package managers..."
-    @python3 -m src.dotfiles_pm.pm configure || \
-    if [ $$? -eq 41 ]; then \
-        echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; \
-        exit 1; \
-    fi
-    @echo ""
-    @echo "Next steps:"
-    @echo "  just doctor-check-health   # Verify symlinks were created successfully"
+    @bash -c 'EXIT_CODE=0; python3 -m src.dotfiles_pm.pm configure; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; if [ "$EXIT_CODE" -eq 0 ]; then echo ""; echo "Next steps:"; echo "  just doctor-check-health   # Verify symlinks were created successfully"; fi; exit "$EXIT_CODE"'
 
 # Check system health
 [group('4-👩‍⚕️-Doctor')]
@@ -269,6 +278,7 @@ doctor-check-health:
 # Check PATH for broken entries, version-specific paths, and duplicates (cross-platform)
 [group('4-👩‍⚕️-Doctor')]
 doctor-check-path:
+    @just _check-windows-env
     @echo "👩‍⚕️ Checking PATH health (cross-platform)..."
     @python3 src/dotfiles_pm/doctor.py
 
@@ -281,8 +291,9 @@ doctor-check-emacs-version:
 # Check package manager versions (terminal spawning regression test)
 [group('4-👩‍⚕️-Doctor')]
 doctor-pm-versions:
+    @just _check-windows-env
     @echo "👩‍⚕️ Checking package manager versions..."
-    @if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi && python3 -m src.dotfiles_pm.pm version
+    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; python3 -m src.dotfiles_pm.pm version'
 
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
