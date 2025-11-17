@@ -205,6 +205,7 @@ if (Get-Module -ListAvailable -Name posh-git) {
 }
 
 # Enable fast directory navigation using z command
+# TODO: Consider using Zoxide
 if (Get-Module -ListAvailable -Name z) {
     Import-Module z
 }
@@ -227,10 +228,16 @@ Set-Alias tree lgreen-run-tree
 
 Set-Alias which get-command
 Set-Alias g git
+Set-Alias gw ./gradlew
 
 # ============================================================================
 # Prompt - Oh-My-Posh
 # ============================================================================
+# Ensure Windows temp paths so oh-my-posh doesn't emit POSIX-style paths
+if ($env:TEMP -like 'C:\msys64*' -or $env:TMP -like 'C:\msys64*') {
+    $env:TEMP = Join-Path $env:LOCALAPPDATA 'Temp'
+    $env:TMP = $env:TEMP
+}
 if (Get-Command oh-my-posh -ErrorAction SilentlyContinue) {
     try {
         oh-my-posh init pwsh | Invoke-Expression
@@ -257,7 +264,7 @@ function lgreen-enable-dark-mode {
 }
 
 # Disable Windows dark mode
-function lgreen-disable-dark-mode {
+function lgreen-enable-light-mode {
   Set-ItemProperty `
     -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize `
     -Name AppsUseLightTheme `
