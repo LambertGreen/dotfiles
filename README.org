@@ -76,7 +76,6 @@ Browse the directory for concrete examples and native package lists:
 
 - ~machine-classes/~
 
-
 * Platform-Specific Notes
 
 ** macOS
@@ -96,7 +95,6 @@ Browse the directory for concrete examples and native package lists:
 - MSYS2 for Unix-like environment and additional packages
 - Limited GUI application support
 - Platform-specific configs: git_win, shell_msys2, gnupg_win
-
 
 * Health Check & Debugging
 
