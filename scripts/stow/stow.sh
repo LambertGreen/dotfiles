@@ -131,13 +131,81 @@ while IFS= read -r stow_entry; do
 
         log_verbose "STOW_CMD: ${STOW_CMD}"
         log_verbose "STOW_ARGS: ${STOW_ARGS[*]}"
-        if "${STOW_CMD}" "${STOW_ARGS[@]}" 2>>"${LOG_FILE}"; then
+
+        # Try to stow the package
+        # Use a temporary file to capture output since set -e would exit on command substitution failure
+        stow_temp=$(mktemp)
+        set +e  # Temporarily disable exit on error to capture stow failure
+        "${STOW_CMD}" "${STOW_ARGS[@]}" > "$stow_temp" 2>&1
+        stow_exit_code=$?
+        set -e  # Re-enable exit on error
+        stow_output=$(cat "$stow_temp")
+        rm -f "$stow_temp"
+
+        if [ $stow_exit_code -eq 0 ]; then
             log_verbose "Successfully stowed: $stow_package"
             successes+=("$stow_package")
         else
-            log_verbose "Failed to stow: $stow_package (exit code: $?)"
-            log_output "⚠️  Some configs may not apply"
-            failures+=("$stow_package")
+            # Check if failure is due to conflicts (existing files)
+            if echo "$stow_output" | grep -q "would cause conflicts"; then
+                log_verbose "Conflict detected for $stow_package, attempting to resolve..."
+
+                # Extract conflicting target paths from stow output
+                # Format: "cannot stow ... over existing target <path> since ..."
+                # Paths may contain spaces, so we need to extract carefully
+                resolved=false
+                while IFS= read -r conflict_line; do
+                    # Extract the target path - everything between "over existing target " and " since"
+                    target_path=$(echo "$conflict_line" | sed -n 's/.*over existing target \(.*\) since.*/\1/p')
+
+                    if [ -n "$target_path" ]; then
+                        # Resolve relative to HOME (stow targets are relative to HOME)
+                        if [[ "$target_path" != /* ]]; then
+                            full_path="$HOME/$target_path"
+                        else
+                            full_path="$target_path"
+                        fi
+
+                        # Check if it's a real file (not a symlink)
+                        if [ -f "$full_path" ] && [ ! -L "$full_path" ]; then
+                            backup_path="${full_path}.backup-$(date +%Y%m%d-%H%M%S)"
+                            log_verbose "Backing up conflicting file: $full_path -> $backup_path"
+                            mkdir -p "$(dirname "$backup_path")"
+                            mv "$full_path" "$backup_path"
+                            resolved=true
+                        elif [ -d "$full_path" ] && [ ! -L "$full_path" ]; then
+                            # Handle directory conflicts too
+                            backup_path="${full_path}.backup-$(date +%Y%m%d-%H%M%S)"
+                            log_verbose "Backing up conflicting directory: $full_path -> $backup_path"
+                            mv "$full_path" "$backup_path"
+                            resolved=true
+                        fi
+                    fi
+                done < <(echo "$stow_output" | grep "over existing target")
+
+                # Retry stowing after backing up conflicts
+                if [ "$resolved" = true ]; then
+                    log_verbose "Retrying stow for $stow_package after conflict resolution..."
+                    if "${STOW_CMD}" "${STOW_ARGS[@]}" 2>>"${LOG_FILE}"; then
+                        log_verbose "Successfully stowed: $stow_package (after conflict resolution)"
+                        successes+=("$stow_package")
+                    else
+                        log_verbose "Failed to stow: $stow_package after conflict resolution (exit code: $?)"
+                        log_output "⚠️  Some configs may not apply"
+                        failures+=("$stow_package")
+                    fi
+                else
+                    log_verbose "Failed to resolve conflicts for: $stow_package"
+                    log_output "⚠️  Some configs may not apply"
+                    failures+=("$stow_package")
+                fi
+            else
+                # Other types of failures
+                echo "$stow_output" >> "${LOG_FILE}"
+                log_verbose "Failed to stow: $stow_package (exit code: $stow_exit_code)"
+                log_output "⚠️  Some configs may not apply"
+                failures+=("$stow_package")
+            fi
         fi
     else
         log_verbose "Directory not found, skipping: $stow_package"
