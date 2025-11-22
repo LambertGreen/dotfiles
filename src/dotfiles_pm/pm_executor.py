@@ -151,19 +151,34 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
         }
 
     cmd_list = commands[pm_name][operation]
+    # Check if command contains shell operators (needs special handling)
+    shell_operators = ['&&', '||', '|', ';', '>', '<']
+    has_shell_ops = any(op in cmd_list for op in shell_operators)
+
     # Join command for Windows - quote arguments with spaces for cmd.exe
     import platform
     if platform.system() == 'Windows' or sys.platform in ('win32', 'cygwin'):
         # Windows: quote arguments that have spaces (cmd.exe style)
         def quote_arg(arg):
-            if ' ' in arg:
+            if ' ' in arg and arg not in shell_operators:
                 return '"' + arg + '"'
             return arg
         cmd_str = ' '.join(quote_arg(arg) for arg in cmd_list)
     else:
-        # Unix: use shlex.join (single quotes work fine)
-        import shlex
-        cmd_str = shlex.join(cmd_list)
+        # Unix: handle shell operators specially
+        if has_shell_ops:
+            # For commands with shell operators, join without quoting operators
+            # This allows shell to interpret &&, ||, etc. correctly
+            def quote_arg(arg):
+                if arg in shell_operators:
+                    return arg  # Don't quote operators
+                import shlex
+                return shlex.quote(arg)  # Quote other args for safety
+            cmd_str = ' '.join(quote_arg(arg) for arg in cmd_list)
+        else:
+            # No shell operators - safe to use shlex.join
+            import shlex
+            cmd_str = shlex.join(cmd_list)
 
     # Check if the PM has a custom execute_command method (like BrewPM for lock recovery)
     pm_instance = get_pm(pm_name)
