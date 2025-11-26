@@ -12,3 +12,5 @@ if [ -z "$ZSH_VERSION" ]; then
     source "$HOME/.env_osx"
   fi
 fi
+
+source /home/lambert.green/.config/broot/launcher/bash/br

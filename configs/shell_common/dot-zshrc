@@ -681,3 +681,5 @@ export PATH="$HOME/.local/bin:$PATH"
 # export SSL_CERT_FILE="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
 
 # export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0
+
+source /home/lambert.green/.config/broot/launcher/bash/br
