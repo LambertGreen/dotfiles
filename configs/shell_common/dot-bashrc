@@ -5,3 +5,5 @@ export PATH="$PATH:/opt/mssql-tools/bin"
 
 # Added by dx-cli for Claude Code CA certificates
 # export NODE_EXTRA_CA_CERTS="/home/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+
+source /home/lambert.green/.config/broot/launcher/bash/br

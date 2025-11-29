@@ -6,6 +6,7 @@ git
 tmux
 vim
 stow
+zsh
 
 # Development tools
 python

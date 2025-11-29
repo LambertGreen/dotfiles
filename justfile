@@ -38,6 +38,7 @@ _check-windows-env:
     @bash -c 'if [ "{{ os() }}" = "windows" ]; then IS_MSYS2=false; if [ -n "${MSYSTEM:-}" ]; then IS_MSYS2=true; elif command -v uname >/dev/null 2>&1 && uname -s 2>/dev/null | grep -qiE "(MSYS|MINGW)"; then IS_MSYS2=true; elif [ -f /usr/bin/pacman ] || command -v pacman >/dev/null 2>&1; then IS_MSYS2=true; fi; if [ "$IS_MSYS2" = "false" ]; then echo "" >&2; echo "❌ ERROR: Wrong execution environment on Windows" >&2; echo "" >&2; echo "This justfile must be run from MSYS2 bash, not PowerShell/CMD/Cygwin." >&2; echo "" >&2; echo "MSYSTEM variable: ${MSYSTEM:-not set}" >&2; if command -v uname >/dev/null 2>&1; then echo "uname -s: $(uname -s 2>/dev/null || echo unknown)" >&2; fi; echo "" >&2; echo "How to fix:" >&2; echo "  1. Open MSYS2 terminal (not PowerShell/CMD/Cygwin)" >&2; echo "  2. Navigate to dotfiles directory" >&2; echo "  3. Run: just <command>" >&2; echo "" >&2; echo "Why MSYS2?" >&2; echo "  - Inherits Windows PATH (MSYS2_PATH_TYPE=inherit)" >&2; echo "  - Provides POSIX-compatible bash environment" >&2; echo "" >&2; exit 1; fi; fi'
 
 # Show configuration and available commands
+[default]
 default:
     @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just onetimesetup → just install"
     @echo ""

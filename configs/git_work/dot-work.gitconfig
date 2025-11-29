@@ -23,3 +23,6 @@
 	deltaCacheSize = 2047m
 	packSizeLimit = 2047m
 	windowMemory = 2047m
+
+[github]
+  user = lambert-green_sfemu

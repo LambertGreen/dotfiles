@@ -183,6 +183,9 @@ Initialize-OhMyPoshThemes
 # ============================================================================
 # Readline settings
 # ============================================================================
+if (Get-Module -ListAvailable -Name PSReadLine) {
+    Import-Module PSReadLine
+}
 Set-PSReadlineOption -EditMode Emacs
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 
@@ -260,3 +263,4 @@ function lgreen-enable-light-mode {
     -Value 1
 }
 Set-Alias okta-aws C:\okta-aws.bat
+
