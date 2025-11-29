@@ -23,6 +23,7 @@ just_common
 lldb_common
 email_common
 nix_common
+onetimesetup_common
 
 # Personal configs (still needed for basic personal git identity)
 git_my
@@ -45,3 +46,4 @@ skhd
 yabai
 vscode_osx
 cursor_osx
+onetimesetup_osx

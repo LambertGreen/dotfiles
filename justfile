@@ -39,7 +39,7 @@ _check-windows-env:
 
 # Show configuration and available commands
 default:
-    @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just install"
+    @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just onetimesetup → just install"
     @echo ""
     @just --list
     @echo ""
@@ -73,6 +73,25 @@ stow:
         exit 1; \
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
+    @echo ""
+    @echo "Next step:"
+    @echo "  just onetimesetup"
+
+# Run platform-specific one-time setup tasks
+[group('1-🚀-Setup')]
+onetimesetup:
+    @if [ ! -f "$HOME/.onetimesetup.sh" ]; then \
+        echo "❌ Onetimesetup not stowed. Run: just stow"; \
+        exit 1; \
+    fi
+    @bash -c 'source ~/.onetimesetup.sh && \
+        if [ "$(uname)" = "Darwin" ]; then \
+            [ -f ~/.onetimesetup_osx.sh ] && source ~/.onetimesetup_osx.sh; \
+        elif [ "$(uname)" = "Linux" ]; then \
+            [ -f ~/.onetimesetup_linux.sh ] && source ~/.onetimesetup_linux.sh; \
+            [ -f ~/.onetimesetup_wsl.sh ] && source ~/.onetimesetup_wsl.sh; \
+        fi; \
+        lgreen_onetimesetup_run_all'
     @echo ""
     @echo "Next step:"
     @echo "  just install"
