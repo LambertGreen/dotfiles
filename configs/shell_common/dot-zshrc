@@ -173,10 +173,10 @@ lgreen_setup_aliases() {
     fi
 
     if [ "$(command -v eza)" ]; then
-        alias ls='eza --icons'
-        alias ll='eza -lh --icons'
-        alias lla='eza -lha --icons'
-        alias llm='eza -lh -s=modified  --icons'
+        alias ls='eza --icons=auto'
+        alias ll='eza -lh --icons=auto'
+        alias lla='eza -lha --icons=auto'
+        alias llm='eza -lh -s=modified  --icons=auto'
     else
         if [ "$(uname_cached)" = "Darwin" ]; then
             alias ls='gls --color'
