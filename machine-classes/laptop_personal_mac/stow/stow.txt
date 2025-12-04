@@ -23,6 +23,7 @@ just_common
 lldb_common
 email_common
 nix_common
+onetimesetup_common
 
 # Personal configs
 git_my
@@ -43,3 +44,4 @@ yabai
 vscode_osx
 cursor_osx
 alfred-settings
+onetimesetup_osx

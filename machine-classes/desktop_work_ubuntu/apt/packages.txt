@@ -20,3 +20,4 @@ psmisc
 tmux
 
 # Development tools (adjust based on actual work machine)
+windsurf

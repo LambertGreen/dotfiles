@@ -166,6 +166,63 @@ lgreen_onetimesetup_gpg_trust() {
     lgreen_onetimesetup_record_task "gpg_trust"
 }
 
+lgreen_onetimesetup_windsurf_apt_repo() {
+    _onetimesetup_log "==> Windsurf APT Repository Setup"
+
+    # Only relevant on Ubuntu where DOTFILES_PLATFORM is set
+    if [ "${DOTFILES_PLATFORM:-}" != "ubuntu" ]; then
+        _onetimesetup_log "  ⚠ Not Ubuntu (DOTFILES_PLATFORM=${DOTFILES_PLATFORM:-}), skipping"
+        return 0
+    fi
+
+    local keyring="/usr/share/keyrings/windsurf-stable-archive-keyring.gpg"
+    local listfile="/etc/apt/sources.list.d/windsurf.list"
+    local repo_url="https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/apt"
+
+    if [ -f "$listfile" ]; then
+        _onetimesetup_log "  ✓ Windsurf APT repo already configured ($listfile)"
+        lgreen_onetimesetup_record_task "windsurf_apt_repo"
+        return 0
+    fi
+
+    if _onetimesetup_is_dryrun; then
+        _onetimesetup_log "  DRYRUN: Would install Windsurf GPG key to $keyring"
+        _onetimesetup_log "  DRYRUN: Would write APT source to $listfile"
+        _onetimesetup_log "  DRYRUN: Would run apt-get update"
+        lgreen_onetimesetup_record_task "windsurf_apt_repo"
+        return 0
+    fi
+
+    _onetimesetup_log "  Downloading Windsurf GPG key..."
+    if curl -fsSL "https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/windsurf.gpg" \
+        | sudo gpg --dearmor -o "$keyring"; then
+        _onetimesetup_log "  ✓ GPG key installed to $keyring"
+    else
+        _onetimesetup_log "  ✗ Failed to install GPG key"
+        return 1
+    fi
+
+    _onetimesetup_log "  Writing APT source to $listfile..."
+    if echo "deb [signed-by=$keyring arch=amd64] $repo_url stable main" \
+        | sudo tee "$listfile" >/dev/null; then
+        _onetimesetup_log "  ✓ APT source written"
+    else
+        _onetimesetup_log "  ✗ Failed to write APT source"
+        return 1
+    fi
+
+    _onetimesetup_log "  Updating apt package list..."
+    if sudo apt-get update; then
+        _onetimesetup_log "  ✓ apt-get update completed"
+    else
+        _onetimesetup_log "  ✗ apt-get update failed"
+        return 1
+    fi
+
+    lgreen_onetimesetup_record_task "windsurf_apt_repo"
+    _onetimesetup_log "  ✓ Windsurf APT repository configured"
+}
+
 lgreen_onetimesetup_git_remotes() {
     _onetimesetup_log "==> Git Remote URL Configuration"
 
@@ -313,6 +370,7 @@ lgreen_onetimesetup_run_all() {
     # Run common tasks
     lgreen_onetimesetup_wezterm_completions
     lgreen_onetimesetup_gpg_trust
+    lgreen_onetimesetup_windsurf_apt_repo
     lgreen_onetimesetup_git_remotes
 
     # Platform-specific tasks run from their respective files
