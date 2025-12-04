@@ -1,21 +1,10 @@
 # Ignore runtime and generated files that shouldn't be stowed
 \.DS_Store
 
-# Exclude entire doom installation (only stow the config in dot-doom.d)
-dot-emacs\.doom
-
-# Exclude spacemacs runtime files  
-dot-emacs\.spacemacs
-
-# Exclude runtime directories from all emacs configs
+# Exclude runtime directories
 dot-emacs\.d/elpa
-dot-emacs\.d/auto-save-list  
+dot-emacs\.d/auto-save-list
 dot-emacs\.d/backups
 dot-emacs\.d/\.cache
 dot-emacs\.d/\.local
 dot-emacs\.d/eln-cache
-
-# Exclude all runtime data from default config
-dot-emacs\.default/var
-dot-emacs\.default/\.cache
-dot-emacs\.default/elpa
