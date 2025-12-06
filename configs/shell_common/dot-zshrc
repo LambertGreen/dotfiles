@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+
 # Interactive shell config
 
 # * Profiler
@@ -55,6 +56,12 @@ lgreen_zsh_init_completions() {
     fi
 }
 
+# * Line Editing
+lgreen_setup_word_style() {
+    # Make Ctrl-W delete sub-words
+    autoload -U select-word-style
+    select-word-style bash
+}
 # * Plugins
 lgreen_setup_zinit() {
     if [ ! -f "$HOME/.zinit/bin/zinit.zsh" ]; then
@@ -600,47 +607,9 @@ lgreen_fix_compaudit_insecure_directories() {
 
     echo "Done."
 }
-
 lgreen_fix_stale_terminal_title() {
     echo -ne "\033]0;\007"
 }
-
-lgreen_setup_word_style() {
-    # Make Ctrl-W delete sub-words
-    autoload -U select-word-style
-    select-word-style bash
-}
-
-# * == MAIN ==
-lgreen_conditionally_start_profiler
-
-if [[ -o interactive ]]; then
-    lgreen_setup_zsh_settings
-    lgreen_setup_zinit
-    lgreen_setup_plugins
-    lgreen_setup_p10k
-
-    lgreen_setup_custom_completions
-    lgreen_zsh_init_completions
-    lgreen_init_p10k
-    lgreen_setup_aliases
-
-    lgreen_setup_shell_theme_mode
-    lgreen_setup_tmux_theme_switcher
-    lgreen_setup_fzf-tab_styles
-
-    lgreen_setup_fzf
-    lgreen_setup_direnv
-    lgreen_setup_zoxide
-    lgreen_setup_windsurf
-    lgreen_setup_claude_code
-    lgreen_setup_broot
-
-    lgreen_setup_running_inside_emacs_eat
-    lgreen_setup_running_inside_emacs_vterm
-
-    lgreen_setup_word_style
-fi
 
 # * Dotfiles API Functions
 lgreen_shell_status() {
@@ -675,7 +644,6 @@ lgreen_shell_status() {
     echo "$message"
     [[ "$status" = "ready" ]] && return 0 || return 1
 }
-
 lgreen_await_shell_ready() {
     local timeout=${1:-30}
     local elapsed=0
@@ -694,7 +662,6 @@ lgreen_await_shell_ready() {
     lgreen_shell_status
     return 0
 }
-
 lgreen_ensure_plugins_updated() {
     if command -v zinit &>/dev/null; then
         zinit update --all
@@ -706,5 +673,36 @@ lgreen_ensure_plugins_updated() {
         return 1
     fi
 }
+
+# * == MAIN ==
+lgreen_conditionally_start_profiler
+
+if [[ -o interactive ]]; then
+    lgreen_setup_zsh_settings
+    lgreen_setup_zinit
+    lgreen_setup_plugins
+    lgreen_setup_p10k
+
+    lgreen_setup_custom_completions
+    lgreen_zsh_init_completions
+    lgreen_init_p10k
+    lgreen_setup_aliases
+
+    lgreen_setup_shell_theme_mode
+    lgreen_setup_tmux_theme_switcher
+    lgreen_setup_fzf-tab_styles
+
+    lgreen_setup_fzf
+    lgreen_setup_direnv
+    lgreen_setup_zoxide
+    lgreen_setup_windsurf
+    lgreen_setup_claude_code
+    lgreen_setup_broot
+
+    lgreen_setup_running_inside_emacs_eat
+    lgreen_setup_running_inside_emacs_vterm
+
+    lgreen_setup_word_style
+fi
 
 lgreen_conditionally_stop_profiler
