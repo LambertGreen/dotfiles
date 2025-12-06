@@ -34,7 +34,7 @@ repos:
     hooks:
       - id: shellcheck
         args: [-e, SC1091, -e, SC2034]  # Ignore source/unused vars common in dotfiles
-        exclude: '^\.envrc$'
+        exclude: '^\.envrc$|dot-zsh'
 
   # Dockerfile linting
   - repo: https://github.com/hadolint/hadolint

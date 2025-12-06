@@ -217,6 +217,4 @@ cask "alfred@4"             # System-wide shortcuts, may need accessibility perm
 cask "hammerspoon"          # System automation, accessibility permissions
 cask "microsoft-auto-update"
 cask "microsoft-word"
-cask "p4"                   # Perforce client, system integration
-cask "tableau"              # Professional software, licensing integration
 cask "xquartz"              # X11 system integration

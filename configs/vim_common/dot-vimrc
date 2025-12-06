@@ -530,10 +530,6 @@ if v:version >= 800
         " gv.vim examples {{{
         " :GV   open commit browser
         " }}}
-        Plug 'nfvs/vim-perforce'
-        " vim-perforce exmaple usage {{{
-        " :P4info, P4edit, P4revert
-        " }}}
         " }}}
         " Linting {{{
         " TODO: Look for lighter wait, or just remove linting

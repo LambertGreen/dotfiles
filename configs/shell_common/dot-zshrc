@@ -173,10 +173,10 @@ lgreen_setup_aliases() {
     fi
 
     if [ "$(command -v eza)" ]; then
-        alias ls='eza --icons'
-        alias ll='eza -lh --icons'
-        alias lla='eza -lha --icons'
-        alias llm='eza -lh -s=modified  --icons'
+        alias ls='eza --icons=auto'
+        alias ll='eza -lh --icons=auto'
+        alias lla='eza -lha --icons=auto'
+        alias llm='eza -lh -s=modified  --icons=auto'
     else
         if [ "$(uname_cached)" = "Darwin" ]; then
             alias ls='gls --color'
@@ -373,6 +373,42 @@ lgreen_setup_zoxide() {
     # zoxide installed via brew, initialize for shell
     if command -v zoxide >/dev/null 2>&1; then
         eval "$(zoxide init zsh)"
+    fi
+}
+# ** Windsurf
+lgreen_setup_windsurf() {
+    # Add Windsurf to PATH if installed
+    local windsurf_bin="$HOME/.codeium/windsurf/bin"
+    if [ -d "$windsurf_bin" ]; then
+        export PATH="$windsurf_bin:$PATH"
+    fi
+}
+# ** Claude Code
+lgreen_setup_claude_code() {
+    # Set up Claude Code CA certificates if present
+    local claude_cert="$HOME/.claude/certs/internal.pem"
+    if [ -f "$claude_cert" ]; then
+        export NODE_EXTRA_CA_CERTS="$claude_cert"
+    fi
+
+    # Add local bin to PATH for Claude Code CLI tools
+    if [ -d "$HOME/.local/bin" ]; then
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+# ** broot
+lgreen_setup_broot() {
+    # Set up broot launcher (cross-platform)
+    local broot_launcher=""
+
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        broot_launcher="$HOME/.config/broot/launcher/bash/br"
+    else
+        broot_launcher="$HOME/.config/broot/launcher/bash/br"
+    fi
+
+    if [ -f "$broot_launcher" ]; then
+        source "$broot_launcher"
     fi
 }
 # ** Emacs
@@ -598,6 +634,9 @@ if [[ -o interactive ]]; then
     lgreen_setup_fzf
     lgreen_setup_direnv
     lgreen_setup_zoxide
+    lgreen_setup_windsurf
+    lgreen_setup_claude_code
+    lgreen_setup_broot
 
     lgreen_setup_running_inside_emacs_eat
     lgreen_setup_running_inside_emacs_vterm
@@ -671,15 +710,3 @@ lgreen_ensure_plugins_updated() {
 }
 
 lgreen_conditionally_stop_profiler
-
-# Added by Windsurf
-export PATH="/Users/lambert.green/.codeium/windsurf/bin:$PATH"
-export PATH="$HOME/.local/bin:$PATH"
-
-# For Claude Code
-# Added by dx-cli for Claude Code CA certificates
-# exportNODE_EXTRA_CA_CERTS="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
-# # Added by lgreen trying to fix Claude issue: 400 API Error
-# export SSL_CERT_FILE="/Users/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
-
-# export ANTHROPIC_MODEL=us.anthropic.claude-sonnet-4-20250514-v1:0

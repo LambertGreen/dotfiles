@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # Onetime setup tasks - macOS specific
 #
 # Prerequisites:
@@ -78,6 +78,45 @@ lgreen_onetimesetup_macos_scroll() {
     lgreen_onetimesetup_record_task "macos_scroll"
 }
 
+lgreen_onetimesetup_macos_minimap_font() {
+    _onetimesetup_log "==> Installing Minimap Font"
+
+    if ! command -v curl >/dev/null 2>&1; then
+        _onetimesetup_log "  ⚠ curl not installed, skipping"
+        return 0
+    fi
+
+    local font_dir="$HOME/Library/Fonts"
+    local font_file="Minimap.ttf"
+    local font_path="$font_dir/$font_file"
+
+    if [ -f "$font_path" ]; then
+        _onetimesetup_log "  ✓ Already installed: $font_path"
+        return 0
+    fi
+
+    if _onetimesetup_is_dryrun; then
+        _onetimesetup_log "  DRYRUN: Would create $font_dir"
+        _onetimesetup_log "  DRYRUN: Would download to $font_path"
+        lgreen_onetimesetup_record_task "macos_minimap_font"
+        return 0
+    fi
+
+    _onetimesetup_log "  Creating fonts directory..."
+    mkdir -p "$font_dir"
+
+    _onetimesetup_log "  Downloading Minimap font..."
+    if curl -fLo "$font_path" \
+        "https://github.com/davestewart/minimap-font/raw/master/src/Minimap.ttf"; then
+
+        _onetimesetup_log "  ✓ Minimap font installed: $font_path"
+        lgreen_onetimesetup_record_task "macos_minimap_font"
+    else
+        _onetimesetup_log "  ✗ Download failed"
+        return 1
+    fi
+}
+
 lgreen_onetimesetup_macos_tcc_reset() {
     _onetimesetup_log "==> macOS TCC Database Reset (Accessibility)"
     _onetimesetup_log ""
@@ -108,6 +147,7 @@ lgreen_onetimesetup_run_platform() {
     lgreen_onetimesetup_macos_ssh_keychain
     lgreen_onetimesetup_macos_finder
     lgreen_onetimesetup_macos_scroll
+    lgreen_onetimesetup_macos_minimap_font
 
     # Note: TCC reset available as lgreen_onetimesetup_macos_tcc_reset
     # but not run automatically due to destructive nature
