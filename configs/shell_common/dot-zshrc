@@ -418,8 +418,20 @@ lgreen_setup_broot() {
 }
 # ** Emacs
 lgreen_setup_running_inside_emacs_eat() {
-    [ -n "$EAT_SHELL_INTEGRATION_DIR" ] &&
+    if [ -n "$EAT_SHELL_INTEGRATION_DIR" ]; then
         source "$EAT_SHELL_INTEGRATION_DIR/zsh"
+
+        # Update GPG_TTY after EAT initialization
+        # EAT provides a real PTY, but it's only available after integration scripts load
+        if command -v tty >/dev/null 2>&1; then
+            local current_tty=$(tty 2>/dev/null || echo "")
+            if [ -n "$current_tty" ] && [ "$current_tty" != "not a tty" ]; then
+                export GPG_TTY="$current_tty"
+                # Notify gpg-agent of the updated TTY
+                gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+            fi
+        fi
+    fi
 }
 lgreen_setup_running_inside_emacs_vterm() {
     if [[ "$INSIDE_EMACS" = 'vterm' ]] \
@@ -434,6 +446,17 @@ lgreen_setup_running_inside_emacs_vterm() {
         message() {
             vterm_cmd message "%s" "$*"
         }
+
+        # Update GPG_TTY after vterm initialization
+        # Vterm provides a real PTY, but it's only available after integration scripts load
+        if command -v tty >/dev/null 2>&1; then
+            local current_tty=$(tty 2>/dev/null || echo "")
+            if [ -n "$current_tty" ] && [ "$current_tty" != "not a tty" ]; then
+                export GPG_TTY="$current_tty"
+                # Notify gpg-agent of the updated TTY
+                gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+            fi
+        fi
     fi
 
     # Workaround for % being written always by ZSH in Vterm

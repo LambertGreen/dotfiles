@@ -58,6 +58,13 @@ lgreen_start_agents() {
     # Export GPG_TTY BEFORE keychain runs so pinentry can prompt properly
     export GPG_TTY=$(tty)
 
+    # Check if keychain is installed
+    if ! command -v keychain >/dev/null 2>&1; then
+        echo "⚠  keychain not installed - SSH/GPG agent management unavailable"
+        echo "   Install with: brew install keychain"
+        return 1
+    fi
+
     # Build keychain flags - only allow forwarded agents in SSH sessions
     local keychain_flags=(--nogui --quiet --ignore-missing --eval)
     if [ -n "$SSH_TTY" ]; then
@@ -67,21 +74,17 @@ lgreen_start_agents() {
     if [ "$(uname_cached)" = "Darwin" ]; then
         # Note: on macOS a one-time step needs to be done for keys with a passphrase:
         # ssh-add --apple-use-keychain ~/.ssh/id_rsa_personal
-        if command -v keychain >/dev/null; then
-            eval "$(keychain ${keychain_flags[@]} \
-                id_rsa_personal id_rsa id_ed25519 \
-                C1D12B816253EFFD \
-                66C09F6FD3D4A735
-            )"
-        fi
+        eval "$(keychain ${keychain_flags[@]} \
+            id_rsa_personal id_rsa id_ed25519 \
+            C1D12B816253EFFD \
+            66C09F6FD3D4A735
+        )"
     elif [ "$(uname_cached)" = "Linux" ]; then
-        if command -v keychain >/dev/null; then
-            eval "$(keychain ${keychain_flags[@]} \
-                id_rsa_personal id_rsa id_ed25519 \
-                C1D12B816253EFFD \
-                66C09F6FD3D4A735
-            )"
-        fi
+        eval "$(keychain ${keychain_flags[@]} \
+            id_rsa_personal id_rsa id_ed25519 \
+            C1D12B816253EFFD \
+            66C09F6FD3D4A735
+        )"
     fi
 }
 
