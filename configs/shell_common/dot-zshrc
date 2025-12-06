@@ -356,14 +356,16 @@ lgreen_setup_fzf-tab_styles() {
 lgreen_setup_fzf() {
     # fzf installed via brew, set up shell integration
     if command -v fzf >/dev/null 2>&1; then
-        # Set up key bindings (Ctrl-R history, Ctrl-T files, Alt-C directories)
-        if [ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh" ]; then
-            source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
-        fi
-        # Set up completion
-        if [ -f "$(brew --prefix)/opt/fzf/shell/completion.zsh" ]; then
-            source "$(brew --prefix)/opt/fzf/shell/completion.zsh"
-        fi
+      if command -v brew >/dev/null 2>&1; then
+          # Set up key bindings (Ctrl-R history, Ctrl-T files, Alt-C directories)
+          if [ -f "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh" ]; then
+              source "$(brew --prefix)/opt/fzf/shell/key-bindings.zsh"
+          fi
+          # Set up completion
+          if [ -f "$(brew --prefix)/opt/fzf/shell/completion.zsh" ]; then
+              source "$(brew --prefix)/opt/fzf/shell/completion.zsh"
+          fi
+      fi
     fi
 }
 # ** direnv
