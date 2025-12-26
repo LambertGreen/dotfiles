@@ -1,4 +1,6 @@
-if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && command -v zsh >/dev/null 2>&1; then
+# Auto-exec to zsh for interactive sessions
+# Skip if DOTFILES_NO_EXEC_ZSH is set (used by dotfiles-pm terminal spawning)
+if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && [ -z "$DOTFILES_NO_EXEC_ZSH" ] && command -v zsh >/dev/null 2>&1; then
   exec zsh -l        # -l makes it a login zsh → .zprofile runs
 fi
 export PATH="$PATH:/opt/mssql-tools/bin"

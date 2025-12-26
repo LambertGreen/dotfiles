@@ -612,21 +612,11 @@ def install_pacman_packages() -> Dict[str, Any]:
     if not packages:
         return {'pm': 'pacman', 'success': True, 'output': 'No packages to install'}
 
-    # For Windows: build command with packages INSIDE the -c '...' string
-    if sys.platform in ('win32', 'cygwin'):
-        packages_str = ' '.join(packages)
-        # Build the pacman command with packages included
-        pacman_cmd = f"pacman --noconfirm -S --needed {packages_str}"
-        # Wrap in msys2_shell.cmd (use detected MSYS2 root from PacmanPM)
-        msys2_root = pm._get_msys2_root()
-        cmd_list = [f'{msys2_root}/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_cmd]
-        cmd_str = shlex.join(cmd_list)
-    else:
-        # Linux/Arch: use regular command + packages
-        cmd_list = pm.install_command + ['--noconfirm']
-        cmd_str = shlex.join(cmd_list)
-        packages_str = ' '.join(packages)
-        cmd_str = f"{cmd_str} {packages_str}"
+    # Build pacman command with packages
+    # On Windows, terminal executor handles MSYS2 bash wrapping via run_tracked.sh
+    packages_str = ' '.join(packages)
+    pacman_cmd = f"pacman --noconfirm -S --needed {packages_str}"
+    cmd_str = pacman_cmd
 
     # Spawn terminal
     result = {'pm': 'pacman', 'success': False}

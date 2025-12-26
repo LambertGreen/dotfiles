@@ -50,9 +50,9 @@ class PacmanPM(PackageManager):
 
     def _get_pacman_exe(self) -> str:
         """Get platform-specific pacman executable path"""
-        # If we're already in MSYS2 (cygwin platform with MSYSTEM set), use 'pacman' directly
+        # If we're already in MSYS2 (msys/cygwin platform with MSYSTEM set), use 'pacman' directly
         # It's in PATH and will work correctly in spawned terminals
-        if sys.platform == 'cygwin' and os.environ.get('MSYSTEM'):
+        if sys.platform in ('msys', 'cygwin') and os.environ.get('MSYSTEM'):
             return 'pacman'
         # On native Windows (win32) without MSYS2, use full path
         if sys.platform == 'win32':
@@ -61,41 +61,39 @@ class PacmanPM(PackageManager):
         # Native Linux/Arch
         return 'pacman'
 
-    def _wrap_for_windows(self, pacman_args: str) -> List[str]:
+    def _get_windows_command(self, pacman_args: str) -> List[str]:
         """
-        Wrap pacman command for Windows PowerShell execution via msys2_shell.cmd
+        Get pacman command for Windows.
 
-        Following chocolatey's msys2 package pattern:
-        https://github.com/chocolatey-community/chocolatey-packages/tree/master/automatic/msys2
+        Returns the raw pacman command - the terminal executor handles
+        MSYS2 bash wrapping via run_tracked.sh.
 
-        msys2_shell.cmd invokes MSYS2 bash environment to run pacman properly.
+        The command string includes 'pacman' which triggers MSYS2 detection
+        in WindowsTerminalExecutor._is_msys2_command().
         """
-        if sys.platform in ('win32', 'cygwin'):
-            # Use msys2_shell.cmd to invoke pacman in proper MSYS2 environment
-            root = self._get_msys2_root()
-            return [f'{root}/msys2_shell.cmd', '-defterm', '-no-start', '-c', pacman_args]
-        # On native Linux/Arch, run pacman directly
+        # Return raw pacman command - terminal executor will wrap with MSYS2 bash
         return pacman_args.split()
 
     @property
     def check_command(self) -> List[str]:
-        # On Windows (including when Python runs from MSYS2), always wrap with msys2_shell.cmd
-        # because spawned terminals (PowerShell) don't have pacman in PATH
-        if sys.platform in ('win32', 'cygwin'):
-            return self._wrap_for_windows('pacman -Qu')
+        # On Windows, return raw pacman command - terminal executor handles MSYS2 wrapping
+        if sys.platform in ('win32', 'cygwin', 'msys'):
+            return self._get_windows_command('pacman -Qu')
         # Native Linux/Arch - run directly
         return [self._get_pacman_exe(), "-Qu"]
 
     @property
     def upgrade_command(self) -> List[str]:
-        if sys.platform in ('win32', 'cygwin'):
-            return self._wrap_for_windows('pacman --noconfirm -Syu')
+        # On Windows, return raw pacman command - terminal executor handles MSYS2 wrapping
+        if sys.platform in ('win32', 'cygwin', 'msys'):
+            return self._get_windows_command('pacman --noconfirm -Syu')
         return [self._get_pacman_exe(), "-Syu"]
 
     @property
     def install_command(self) -> List[str]:
-        if sys.platform in ('win32', 'cygwin'):
-            return self._wrap_for_windows('pacman --noconfirm -S --needed')
+        # On Windows, return raw pacman command - terminal executor handles MSYS2 wrapping
+        if sys.platform in ('win32', 'cygwin', 'msys'):
+            return self._get_windows_command('pacman --noconfirm -S --needed')
         return [self._get_pacman_exe(), "-S", "--needed"]
 
     @property

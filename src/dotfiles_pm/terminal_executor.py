@@ -612,6 +612,37 @@ class WSLTerminalExecutor(TerminalExecutor):
 class WindowsTerminalExecutor(TerminalExecutor):
     """Native Windows terminal executor"""
 
+    # MSYS2 root detection (cached)
+    _msys2_root: Optional[str] = None
+
+    def _get_msys2_root(self) -> Optional[str]:
+        """Detect MSYS2 root directory."""
+        if self._msys2_root:
+            return self._msys2_root
+
+        # Check environment variable first
+        if env_root := os.environ.get('MSYS2_ROOT'):
+            self._msys2_root = env_root.replace('\\', '/')
+            return self._msys2_root
+
+        # Check common locations
+        for location in ['C:/msys64', 'C:/tools/msys64']:
+            if Path(location.replace('/', '\\')).exists():
+                self._msys2_root = location
+                return self._msys2_root
+
+        return None
+
+    def _is_msys2_command(self, cmd: str) -> bool:
+        """Check if command requires MSYS2 environment (e.g., pacman)."""
+        msys2_indicators = [
+            'pacman ',
+            'pacman.exe',
+            '/msys64/',
+            '/msys2/',
+        ]
+        return any(indicator in cmd for indicator in msys2_indicators)
+
     def can_close_terminals(self) -> bool:
         """Cannot close Windows Terminal tabs programmatically yet"""
         return False
@@ -638,35 +669,64 @@ class WindowsTerminalExecutor(TerminalExecutor):
         log_file = str(log_dir / f"{safe_operation}-{timestamp}.log")
         status_file = str(log_dir / f"{safe_operation}-{timestamp}.status")
 
-        # Get PowerShell wrapper script path
-        wrapper_script = None
+        # Check if this is an MSYS2 command (e.g., pacman)
+        is_msys2 = self._is_msys2_command(base_cmd)
 
-        # First try: DOTFILES_DIR environment variable
-        if 'DOTFILES_DIR' in os.environ:
-            wrapper_script = Path(os.environ['DOTFILES_DIR']) / 'scripts' / 'run_tracked.ps1'
+        if is_msys2:
+            # Use run_tracked.sh with MSYS2 bash
+            wrapper_script = None
 
-        # Second try: relative to this Python module
-        if not wrapper_script or not wrapper_script.exists():
-            wrapper_script = Path(__file__).parent.parent.parent / 'scripts' / 'run_tracked.ps1'
+            # First try: DOTFILES_DIR environment variable
+            if 'DOTFILES_DIR' in os.environ:
+                wrapper_script = Path(os.environ['DOTFILES_DIR']) / 'scripts' / 'run_tracked.sh'
 
-        # Third try: ~/.dotfiles
-        if not wrapper_script.exists():
-            wrapper_script = Path.home() / '.dotfiles' / 'scripts' / 'run_tracked.ps1'
+            # Second try: relative to this Python module
+            if not wrapper_script or not wrapper_script.exists():
+                wrapper_script = Path(__file__).parent.parent.parent / 'scripts' / 'run_tracked.sh'
 
-        if not wrapper_script.exists():
-            raise RuntimeError(f"Cannot find run_tracked.ps1 script. Searched: {wrapper_script}")
+            # Third try: ~/.dotfiles
+            if not wrapper_script.exists():
+                wrapper_script = Path.home() / '.dotfiles' / 'scripts' / 'run_tracked.sh'
 
-        # Convert paths to forward slashes (works in MSYS2 Python subprocess)
-        # Use str() and replace() to ensure forward slashes
-        wrapper_script_win = str(wrapper_script).replace('\\', '/')
-        log_file_win = log_file.replace('\\', '/')
-        status_file_win = status_file.replace('\\', '/')
+            if not wrapper_script.exists():
+                raise RuntimeError(f"Cannot find run_tracked.sh script. Searched: {wrapper_script}")
 
-        # Return wrapper script path and arguments for PowerShell -File invocation
-        auto_close_arg = 'true' if auto_close else 'false'
+            # Convert paths to forward slashes for MSYS2
+            wrapper_script_path = str(wrapper_script).replace('\\', '/')
+            log_file_path = log_file.replace('\\', '/')
+            status_file_path = status_file.replace('\\', '/')
+            auto_close_arg = 'true' if auto_close else 'false'
 
-        # Return tuple: (wrapper_script, operation, command, log_file, status_file, auto_close)
-        return (wrapper_script_win, operation, base_cmd, log_file_win, status_file_win, auto_close_arg), log_file, status_file
+            # Return tuple with 'msys2' marker: (shell_type, wrapper_script, operation, command, log_file, status_file, auto_close)
+            return ('msys2', wrapper_script_path, operation, base_cmd, log_file_path, status_file_path, auto_close_arg), log_file, status_file
+
+        else:
+            # Use run_tracked.ps1 with PowerShell (existing behavior)
+            wrapper_script = None
+
+            # First try: DOTFILES_DIR environment variable
+            if 'DOTFILES_DIR' in os.environ:
+                wrapper_script = Path(os.environ['DOTFILES_DIR']) / 'scripts' / 'run_tracked.ps1'
+
+            # Second try: relative to this Python module
+            if not wrapper_script or not wrapper_script.exists():
+                wrapper_script = Path(__file__).parent.parent.parent / 'scripts' / 'run_tracked.ps1'
+
+            # Third try: ~/.dotfiles
+            if not wrapper_script.exists():
+                wrapper_script = Path.home() / '.dotfiles' / 'scripts' / 'run_tracked.ps1'
+
+            if not wrapper_script.exists():
+                raise RuntimeError(f"Cannot find run_tracked.ps1 script. Searched: {wrapper_script}")
+
+            # Convert paths to forward slashes (works in MSYS2 Python subprocess)
+            wrapper_script_win = str(wrapper_script).replace('\\', '/')
+            log_file_win = log_file.replace('\\', '/')
+            status_file_win = status_file.replace('\\', '/')
+            auto_close_arg = 'true' if auto_close else 'false'
+
+            # Return tuple: (shell_type, wrapper_script, operation, command, log_file, status_file, auto_close)
+            return ('powershell', wrapper_script_win, operation, base_cmd, log_file_win, status_file_win, auto_close_arg), log_file, status_file
 
     def _get_clean_windows_environment(self) -> dict:
         """
@@ -749,21 +809,83 @@ class WindowsTerminalExecutor(TerminalExecutor):
 
             # Build batch file arguments
             if isinstance(command, tuple):
-                # Tuple: (script_path, operation, base_cmd, log_file, status_file, auto_close)
-                script_path, operation, base_cmd, log_file, status_file, auto_close = command
-                batch_args = [
-                    batch_file,
-                    tab_title,
-                    'pwsh.exe',
-                    '-NoProfile',  # Skip user profile to avoid module import errors
-                    '-NoExit',
-                    '-File', script_path,
-                    '-Operation', operation,
-                    '-Command', base_cmd,
-                    '-LogFile', log_file,
-                    '-StatusFile', status_file,
-                    '-AutoClose', auto_close
-                ]
+                # Check shell type (first element)
+                shell_type = command[0] if len(command) > 0 else 'powershell'
+
+                if shell_type == 'msys2':
+                    # MSYS2 command: use bash.exe with run_tracked.sh
+                    # Tuple: ('msys2', wrapper_script, operation, base_cmd, log_file, status_file, auto_close)
+                    _, wrapper_script, operation, base_cmd, log_file, status_file, auto_close = command
+
+                    msys2_root = self._get_msys2_root()
+                    if not msys2_root:
+                        raise RuntimeError("MSYS2 not found - required for pacman commands")
+
+                    bash_exe = f'{msys2_root}/usr/bin/bash.exe'
+
+                    # Write command to temp shell script
+                    import tempfile
+                    fd, temp_script = tempfile.mkstemp(suffix='.sh', prefix='dotfiles-pm-', dir=os.environ.get('TEMP'), text=True)
+                    with os.fdopen(fd, 'w', newline='\n') as f:  # Use Unix line endings
+                        f.write('#!/usr/bin/env bash\n')
+                        f.write(f'{wrapper_script} "{operation}" "{base_cmd}" "{log_file}" "{status_file}" {auto_close}\n')
+
+                    # Convert to forward slashes for MSYS2
+                    temp_script_path = temp_script.replace('\\', '/')
+
+                    # Create a wrapper batch file that sets DOTFILES_NO_EXEC_ZSH before calling bash
+                    # This is needed because:
+                    # 1. wt.exe spawns a new process that doesn't inherit Python's env
+                    # 2. The env var must be set BEFORE bash sources .bash_profile
+                    fd2, temp_batch = tempfile.mkstemp(suffix='.bat', prefix='dotfiles-pm-', dir=os.environ.get('TEMP'), text=True)
+                    with os.fdopen(fd2, 'w') as f:
+                        f.write('@echo off\n')
+                        f.write('set DOTFILES_NO_EXEC_ZSH=1\n')
+                        f.write(f'"{bash_exe}" -l "{temp_script_path}"\n')
+
+                    temp_batch_path = temp_batch.replace('\\', '/')
+
+                    # Use cmd.exe to run our wrapper batch file
+                    batch_args = [
+                        batch_file,
+                        tab_title,
+                        'cmd.exe',
+                        '/c',
+                        temp_batch_path
+                    ]
+                elif shell_type == 'powershell':
+                    # PowerShell command (existing behavior)
+                    # Tuple: ('powershell', script_path, operation, base_cmd, log_file, status_file, auto_close)
+                    _, script_path, operation, base_cmd, log_file, status_file, auto_close = command
+                    batch_args = [
+                        batch_file,
+                        tab_title,
+                        'pwsh.exe',
+                        '-NoProfile',  # Skip user profile to avoid module import errors
+                        '-NoExit',
+                        '-File', script_path,
+                        '-Operation', operation,
+                        '-Command', base_cmd,
+                        '-LogFile', log_file,
+                        '-StatusFile', status_file,
+                        '-AutoClose', auto_close
+                    ]
+                else:
+                    # Legacy tuple format (backwards compatibility)
+                    script_path, operation, base_cmd, log_file, status_file, auto_close = command
+                    batch_args = [
+                        batch_file,
+                        tab_title,
+                        'pwsh.exe',
+                        '-NoProfile',
+                        '-NoExit',
+                        '-File', script_path,
+                        '-Operation', operation,
+                        '-Command', base_cmd,
+                        '-LogFile', log_file,
+                        '-StatusFile', status_file,
+                        '-AutoClose', auto_close
+                    ]
             else:
                 # Legacy: command string
                 batch_args = [
@@ -835,7 +957,7 @@ def detect_platform() -> str:
         return 'darwin'
     elif sys.platform == 'win32':
         return 'windows'
-    elif sys.platform == 'cygwin':
+    elif sys.platform in ('cygwin', 'msys'):
         # MSYS2/Cygwin Python on Windows
         return 'windows'
     elif sys.platform.startswith('linux'):

@@ -30,12 +30,12 @@ platform := env_var_or_default("DOTFILES_PLATFORM", "")
 # Set DOTFILES_DIR for all commands
 export DOTFILES_DIR := justfile_directory()
 
-# Check Windows execution environment (only on Windows)
-# This check ensures just commands are run from MSYS2 bash on Windows
-# Detection: MSYSTEM variable OR uname contains MSYS/MINGW OR /usr/bin/pacman exists
+# Check Windows execution environment - now supports both MSYS2 and PowerShell/CMD
+# When running from PowerShell/CMD, we use 'py -3' for Python invocation
+# When running from MSYS2, we use 'python3' as before
 [private]
 _check-windows-env:
-    @bash -c 'if [ "{{ os() }}" = "windows" ]; then IS_MSYS2=false; if [ -n "${MSYSTEM:-}" ]; then IS_MSYS2=true; elif command -v uname >/dev/null 2>&1 && uname -s 2>/dev/null | grep -qiE "(MSYS|MINGW)"; then IS_MSYS2=true; elif [ -f /usr/bin/pacman ] || command -v pacman >/dev/null 2>&1; then IS_MSYS2=true; fi; if [ "$IS_MSYS2" = "false" ]; then echo "" >&2; echo "❌ ERROR: Wrong execution environment on Windows" >&2; echo "" >&2; echo "This justfile must be run from MSYS2 bash, not PowerShell/CMD/Cygwin." >&2; echo "" >&2; echo "MSYSTEM variable: ${MSYSTEM:-not set}" >&2; if command -v uname >/dev/null 2>&1; then echo "uname -s: $(uname -s 2>/dev/null || echo unknown)" >&2; fi; echo "" >&2; echo "How to fix:" >&2; echo "  1. Open MSYS2 terminal (not PowerShell/CMD/Cygwin)" >&2; echo "  2. Navigate to dotfiles directory" >&2; echo "  3. Run: just <command>" >&2; echo "" >&2; echo "Why MSYS2?" >&2; echo "  - Inherits Windows PATH (MSYS2_PATH_TYPE=inherit)" >&2; echo "  - Provides POSIX-compatible bash environment" >&2; echo "" >&2; exit 1; fi; fi'
+    @echo "" > /dev/null
 
 # Show configuration and available commands
 [default]
@@ -123,21 +123,21 @@ import-win-regkeys:
 install:
     @just _check-windows-env
     @echo "📦 Installing packages for current machine class..."
-    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm install; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
+    @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm install" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm install; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Update package registries and check for available updates
 [group('2-📦-Package-Management')]
 update:
     @just _check-windows-env
     @echo "🔄 Updating package registries and checking for updates..."
-    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm check; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
+    @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm check" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm check; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Upgrade packages across package managers
 [group('2-📦-Package-Management')]
 upgrade:
     @just _check-windows-env
     @echo "🔄 Upgrading packages (interactive)..."
-    @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm upgrade; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
+    @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm upgrade" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm upgrade; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Show available package managers
 [group('3-ℹ️-Info')]

@@ -157,7 +157,7 @@ def execute_pm_command(pm_name: str, operation: str, interactive: bool = True) -
 
     # Join command for Windows - quote arguments with spaces for cmd.exe
     import platform
-    if platform.system() == 'Windows' or sys.platform in ('win32', 'cygwin'):
+    if platform.system() == 'Windows' or sys.platform in ('win32', 'cygwin', 'msys'):
         # Windows: quote arguments that have spaces (cmd.exe style)
         def quote_arg(arg):
             if ' ' in arg and arg not in shell_operators:

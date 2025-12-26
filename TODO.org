@@ -1,28 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/7]
-*** BUG Pacman check command not executing properly on Windows
-**** Context
-When running `just update` on Windows (MSYS2), the pacman check command is not executing properly:
-- Command is generated correctly: `C:/msys64/msys2_shell.cmd -defterm -no-start -msys -c "pacman -Qu"`
-- PowerShell script receives the command but execution fails
-- Terminal windows do not close after execution
-- No output is captured in log files
-**** Root Cause
-PowerShell's parameter parser misinterprets quoted command strings when passed via `-Command` parameter, even when using `subprocess.Popen` with a list of arguments.
-**** Attempted Fixes
-- Tried using temp batch file approach in `scripts/run_tracked.ps1` to avoid parameter parsing
-- Modified command quoting in `src/dotfiles_pm/pm_executor.py` 
-- Updated `src/dotfiles_pm/pms/pacman.py` to always wrap with msys2_shell.cmd on Windows
-- Added exit code handling for pacman (exit code 1 = no updates = success)
-**** Status
-Temp batch file approach implemented but not fully working. Needs further investigation.
-**** Next Steps
-1. Verify temp batch file is being created correctly
-2. Check if output is being captured but not displayed
-3. Test with simpler command first (e.g., `pacman --version`)
-4. Consider alternative: write command to temp file from Python side instead of PowerShell
+** Open [0/6]
 
 *** TODO Install remaining missing packages via correct package managers
 **** Context
@@ -92,7 +71,21 @@ Following the successful implementation of the Dotfiles API architecture for zsh
 **** Reference:
 See =docs/DOTFILES_API_ARCHITECTURE.md= for the architectural philosophy and implementation patterns.
 
-** Completed [13/13]
+** Completed [14/14]
+*** DONE Fix Pacman command execution on Windows
+CLOSED: [2025-12-26 Thu]
+**** Problem
+Pacman commands failed with "The syntax of the command is incorrect" when running from PowerShell.
+**** Root Cause
+The execution chain was too complex: Python → spawn_wt_clean.bat → wt.exe → pwsh.exe → run_tracked.ps1 → cmd.exe → msys2_shell.cmd → bash → pacman. PowerShell's parameter parsing mangled the quoted command strings.
+**** Solution
+1. Modified WindowsTerminalExecutor to detect MSYS2 commands (pacman) and route them through bash.exe + run_tracked.sh instead of PowerShell + run_tracked.ps1
+2. Created wrapper batch file to set DOTFILES_NO_EXEC_ZSH=1 before launching bash (prevents .bash_profile from exec'ing to zsh)
+3. Added DOTFILES_NO_EXEC_ZSH guard to dot-bashrc and dot-bash_profile
+4. Simplified pacman.py to return raw pacman commands (terminal executor handles MSYS2 wrapping)
+**** New execution chain
+Python → spawn_wt_clean.bat → wt.exe → cmd.exe /c wrapper.bat → bash.exe -l script.sh → run_tracked.sh → pacman
+
 *** DONE Consider using =make= or =just= file for machine setup
 CLOSED: [2025-07-29 Tue]
 - Implemented justfile with comprehensive system maintenance commands
