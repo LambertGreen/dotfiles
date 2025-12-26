@@ -39,4 +39,11 @@ lgreen_setup_homebrew() {
     export HOMEBREW_CASK_OPTS="--appdir=~/Applications"
 }
 
+lgreen_setup-local-bin() {
+    if [ -d "$HOME/.local/bin" ]; then
+        export PATH="$HOME/.local/bin":$PATH
+    fi
+}
+
 lgreen_setup_homebrew
+lgreen_setup-local-bin
