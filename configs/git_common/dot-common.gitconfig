@@ -28,6 +28,10 @@
     pu = push --tags
     un = reset --hard HEAD
     uh = reset --hard HEAD^
+    wl = worktree list
+    wa = worktree add
+    wr = worktree remove
+    wm = worktree move
 
 # Personal dev folder
 [includeIf "gitdir:**/dev/my/**"]
