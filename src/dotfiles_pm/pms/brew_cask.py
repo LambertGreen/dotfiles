@@ -3,6 +3,7 @@
 
 from typing import List, Dict, Any
 import sys
+import os
 import subprocess
 from pathlib import Path
 
@@ -43,11 +44,20 @@ class BrewCaskPM(PackageManager):
 
     @property
     def check_command(self) -> List[str]:
-        return ["bash", "-c", "echo 'N' | brew cu -a --no-brew-update"]
+        # Force flag is enabled by default for check (to show all outdated casks)
+        force_flag = "-f" if os.environ.get('DOTFILES_BREW_CASK_NO_FORCE', '').lower() != 'true' else ""
+        cmd = f"echo 'N' | brew cu -a {force_flag} --no-brew-update".strip()
+        return ["bash", "-c", cmd]
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["brew", "cu", "-a", "-y", "--no-brew-update"]
+        # Force flag is enabled by default for upgrade
+        # Set DOTFILES_BREW_CASK_NO_FORCE=true to disable force updates
+        args = ["brew", "cu", "-a", "-y"]
+        if os.environ.get('DOTFILES_BREW_CASK_NO_FORCE', '').lower() != 'true':
+            args.append("-f")
+        args.append("--no-brew-update")
+        return args
 
     @property
     def install_command(self) -> List[str]:
