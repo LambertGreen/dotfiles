@@ -403,6 +403,13 @@ lgreen_setup_claude_code() {
         export PATH="$HOME/.local/bin:$PATH"
     fi
 }
+# ** Private Environment Variables
+lgreen_source_private_env() {
+    # Source GPG-encrypted private environment variables
+    if [ -f "$HOME/.private_env.gpg" ]; then
+        eval "$(gpg --quiet --decrypt "$HOME/.private_env.gpg" 2>/dev/null)"
+    fi
+}
 # ** broot
 lgreen_setup_broot() {
     # Set up broot launcher (cross-platform)
@@ -722,6 +729,7 @@ if [[ -o interactive ]]; then
     lgreen_setup_zoxide
     lgreen_setup_windsurf
     lgreen_setup_claude_code
+    lgreen_source_private_env
     lgreen_setup_broot
 
     lgreen_setup_running_inside_emacs_eat
