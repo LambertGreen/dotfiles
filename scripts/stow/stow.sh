@@ -145,6 +145,14 @@ while IFS= read -r stow_entry; do
         if [ $stow_exit_code -eq 0 ]; then
             log_verbose "Successfully stowed: $stow_package"
             successes+=("$stow_package")
+
+            # Fix SSH config permissions (SSH requires restrictive permissions)
+            if [ "$stow_package" = "ssh_common" ]; then
+                if [ -f "$HOME/.ssh/config" ]; then
+                    chmod 600 "$HOME/.ssh/config"
+                    log_verbose "Fixed SSH config permissions: chmod 600 ~/.ssh/config"
+                fi
+            fi
         else
             # Check if failure is due to conflicts (existing files)
             if echo "$stow_output" | grep -q "would cause conflicts"; then
@@ -189,6 +197,14 @@ while IFS= read -r stow_entry; do
                     if "${STOW_CMD}" "${STOW_ARGS[@]}" 2>>"${LOG_FILE}"; then
                         log_verbose "Successfully stowed: $stow_package (after conflict resolution)"
                         successes+=("$stow_package")
+
+                        # Fix SSH config permissions (SSH requires restrictive permissions)
+                        if [ "$stow_package" = "ssh_common" ]; then
+                            if [ -f "$HOME/.ssh/config" ]; then
+                                chmod 600 "$HOME/.ssh/config"
+                                log_verbose "Fixed SSH config permissions: chmod 600 ~/.ssh/config"
+                            fi
+                        fi
                     else
                         log_verbose "Failed to stow: $stow_package after conflict resolution (exit code: $?)"
                         log_output "⚠️  Some configs may not apply"

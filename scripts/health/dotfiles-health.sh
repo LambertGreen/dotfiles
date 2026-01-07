@@ -697,6 +697,7 @@ dotfiles_check_health() {
 
     _check_git_status log_output
     _check_stow_availability log_output
+    _check_ssh_config_permissions log_output
     _check_package_health log_output
 
     log_output "🔍 Checking symlinks..."
@@ -916,6 +917,37 @@ _check_stow_availability() {
     else
         $log_output "  • ⚠️  Just: not found (optional but recommended)"
         WARNINGS+=("Just command runner not installed")
+    fi
+    $log_output
+}
+
+_check_ssh_config_permissions() {
+    local log_output="$1"
+
+    $log_output "🔐 Security Checks"
+
+    # Check SSH config permissions (follow symlinks to check actual file)
+    if [[ -f "$TEST_HOME/.ssh/config" ]] || [[ -L "$TEST_HOME/.ssh/config" ]]; then
+        local perms=$(stat -f "%Lp" -L "$TEST_HOME/.ssh/config" 2>/dev/null || stat -c "%a" -L "$TEST_HOME/.ssh/config" 2>/dev/null)
+
+        # SSH requires config to be readable only by owner (600 or 644)
+        # Group and world write permissions are not allowed
+        if [[ "$perms" == "600" ]] || [[ "$perms" == "644" ]]; then
+            $log_output "  • ✅ SSH config permissions: $perms (secure)"
+        else
+            # Check if group/world writable (security issue)
+            local group_write=$(echo "$perms" | cut -c2)
+            local world_write=$(echo "$perms" | cut -c3)
+            if [[ "$group_write" -ge 2 ]] || [[ "$world_write" -ge 2 ]]; then
+                $log_output "  • ❌ SSH config permissions: $perms (insecure - group/world writable)"
+                ERRORS+=("SSH config has insecure permissions: $perms (should be 600 or 644)")
+            else
+                $log_output "  • ⚠️  SSH config permissions: $perms (unusual but may work)"
+                WARNINGS+=("SSH config has unusual permissions: $perms (recommend 600)")
+            fi
+        fi
+    else
+        $log_output "  • ℹ️  SSH config not found (not yet stowed)"
     fi
     $log_output
 }
