@@ -54,6 +54,7 @@ windirstat
 zoxide
 clink
 java
+localstack
 # Buckets (not packages, managed separately):
 # - main (default bucket)
 # - extras
