@@ -23,6 +23,11 @@ lldb_common
 email_common
 nix_common
 
+# AI tool configs
+ai_claude
+ai_cursor
+ai_windsurf
+
 # Personal configs (gaming is personal context)
 git_my
 

@@ -38,7 +38,11 @@ finicky
 gnupg_osx
 Xresources_osx
 osx_common
-alacritty_osx
+
+# AI tool configs
+ai_claude
+ai_cursor
+ai_windsurfalacritty_osx
 skhd
 yabai
 vscode_osx
