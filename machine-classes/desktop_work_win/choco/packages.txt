@@ -16,8 +16,10 @@ Everything
 # System updates: KB packages
 
 # Development environment
-msys2
+# msys2 - REMOVED: Installed during bootstrap (install-msys2-windows.ps1)
+#         Bootstrap provides proper PATH setup and environment configuration
 openssh
+docker-desktop
 
 # Spelling/language tools
 hunspell.portable
