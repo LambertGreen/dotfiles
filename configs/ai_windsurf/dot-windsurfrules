@@ -31,6 +31,21 @@ The note system receives and preserves insights. Tables are the crucible where p
 | Analysis | SQL + org-babel (DuckDB/SQLite) | Text-based, AI-legible, integrates with planning |
 | Visualization | Generated (or Tableau for sharing) | Output format, not thinking tool |
 
+## Development Environment
+
+When running bash commands, prefer these modern tools (installed system-wide via dotfiles):
+
+| Instead of | Use | Why |
+|------------|-----|-----|
+| grep | rg (ripgrep) | Faster, respects .gitignore, better output |
+| find | fd | Faster, simpler syntax, respects .gitignore |
+
+Notes:
+- Use rg for content search in files
+- Use fd for finding files by name/path
+- Both tools are available on all my systems via dotfiles package management
+- Both respect .gitignore by default for speed - use `-uu` flag when searching for files outside version control (build artifacts, system configs, etc.)
+
 ## Goals
 
 Building a formal self-improving system applicable across work, games, and life.
