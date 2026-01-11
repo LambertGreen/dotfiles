@@ -1,0 +1,11 @@
+# Packages not available in apt or need newer versions
+brew "fastfetch"
+
+# Python version management (required for dotfiles development)
+brew "pyenv"
+brew "pyenv-virtualenv"
+brew "lazygit"
+brew "eza"
+brew "bat"
+brew "delta"
+brew "gh"
