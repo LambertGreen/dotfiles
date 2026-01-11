@@ -4,6 +4,7 @@
 
 # Common configs (truly universal)
 git_common
+ssh_common
 shell_common
 tmux_common
 vim_common
