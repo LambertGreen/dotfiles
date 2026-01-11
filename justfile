@@ -40,7 +40,7 @@ _check-windows-env:
 # Show configuration and available commands
 [default]
 default:
-    @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just onetimesetup → just install"
+    @echo "🚀 New user? Start with: just configure → just bootstrap → just submodules → just stow → just onetimesetup → just install"
     @echo ""
     @just --list
     @echo ""
@@ -64,7 +64,61 @@ bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
     @echo ""
     @echo "Next step:"
-    @echo "  just stow"
+    @echo "  just submodules"
+
+# Initialize git submodules (required before stow)
+# This step handles the SSH config chicken-and-egg problem:
+# - SSH config is stored in a private submodule (ssh_common)
+# - Submodule uses git@github.com-personal: which requires SSH config
+# - This recipe creates a bootstrap SSH config if needed to break the cycle
+[group('1-🚀-Setup')]
+submodules:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🔗 Initializing git submodules..."
+
+    # Check if SSH config exists with github.com-personal host
+    if [ -f ~/.ssh/config ] && grep -q "github.com-personal" ~/.ssh/config; then
+        echo "✅ SSH config with github.com-personal found"
+    else
+        echo "⚠️  No SSH config with github.com-personal found"
+
+        # Check for SSH keys
+        if [ -f ~/.ssh/id_ed25519 ] || [ -f ~/.ssh/id_rsa ]; then
+            echo "📝 Creating bootstrap SSH config..."
+
+            # Backup existing config if present
+            if [ -f ~/.ssh/config ]; then
+                cp ~/.ssh/config ~/.ssh/config.backup-$(date +%Y%m%d%H%M%S)
+                echo "   Backed up existing config"
+            fi
+
+            # Create bootstrap config
+            mkdir -p ~/.ssh
+            cp scripts/bootstrap/ssh-config-bootstrap ~/.ssh/config
+            chmod 600 ~/.ssh/config
+            echo "✅ Bootstrap SSH config created"
+            echo "   (Will be replaced by full config after 'just stow')"
+        else
+            echo "❌ No SSH keys found in ~/.ssh/"
+            echo "   Please set up SSH keys first:"
+            echo "   1. Generate: ssh-keygen -t ed25519 -C 'your_email@example.com'"
+            echo "   2. Add to GitHub: https://github.com/settings/keys"
+            echo "   3. Run: just submodules"
+            exit 1
+        fi
+    fi
+
+    # Initialize submodules
+    echo ""
+    echo "📦 Cloning submodules..."
+    git submodule update --init --recursive
+
+    echo ""
+    echo "✅ Submodules initialized"
+    echo ""
+    echo "Next step:"
+    echo "  just stow"
 
 # Deploy configuration files
 [group('1-🚀-Setup')]
