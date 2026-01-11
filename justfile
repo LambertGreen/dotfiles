@@ -40,7 +40,7 @@ _check-windows-env:
 # Show configuration and available commands
 [default]
 default:
-    @echo "🚀 New user? Start with: just configure → just bootstrap → just submodules → just stow → just onetimesetup → just install"
+    @echo "🚀 New user? Start with: just configure → just bootstrap → just sync-submodules → just stow → just onetimesetup → just install"
     @echo ""
     @just --list
     @echo ""
@@ -64,18 +64,14 @@ bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
     @echo ""
     @echo "Next step:"
-    @echo "  just submodules"
+    @echo "  just sync-submodules"
 
-# Initialize git submodules (required before stow)
-# This step handles the SSH config chicken-and-egg problem:
-# - SSH config is stored in a private submodule (ssh_common)
-# - Submodule uses git@github.com-personal: which requires SSH config
-# - This recipe creates a bootstrap SSH config if needed to break the cycle
+# Sync git submodules (clone/update private config repos, required before stow)
 [group('1-🚀-Setup')]
-submodules:
+sync-submodules:
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "🔗 Initializing git submodules..."
+    echo "🔗 Syncing git submodules..."
 
     # Check if SSH config exists with github.com-personal host
     if [ -f ~/.ssh/config ] && grep -q "github.com-personal" ~/.ssh/config; then
@@ -104,28 +100,33 @@ submodules:
             echo "   Please set up SSH keys first:"
             echo "   1. Generate: ssh-keygen -t ed25519 -C 'your_email@example.com'"
             echo "   2. Add to GitHub: https://github.com/settings/keys"
-            echo "   3. Run: just submodules"
+            echo "   3. Run: just sync-submodules"
             exit 1
         fi
     fi
 
-    # Initialize submodules
+    # Sync and initialize submodules
     echo ""
-    echo "📦 Cloning submodules..."
+    echo "📦 Syncing submodules (clone new, update existing)..."
+    git submodule sync --recursive
     git submodule update --init --recursive
 
     echo ""
-    echo "✅ Submodules initialized"
+    echo "✅ Submodules synced"
     echo ""
     echo "Next step:"
     echo "  just stow"
 
-# Deploy configuration files
+# Deploy configuration files (symlink configs to home directory)
 [group('1-🚀-Setup')]
 stow:
     @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
+    fi
+    @if git submodule status | grep -q "^-"; then \
+        echo "⚠️  Some submodules not initialized. Run: just sync-submodules"; \
+        echo "   (Continuing anyway - some configs may be empty)"; \
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
     @echo ""
@@ -136,7 +137,8 @@ stow:
 [group('1-🚀-Setup')]
 onetimesetup:
     @if [ ! -f "$HOME/.onetimesetup.sh" ]; then \
-        echo "❌ Onetimesetup not stowed. Run: just stow"; \
+        echo "❌ Onetimesetup script not found at ~/.onetimesetup.sh"; \
+        echo "   Run the setup flow: just sync-submodules → just stow"; \
         exit 1; \
     fi
     @bash -c 'source ~/.onetimesetup.sh && \
