@@ -1,7 +1,6 @@
 # Taps
 tap "buo/cask-upgrade"
 tap "equalsraf/neovim-qt"
-tap "homebrew/bundle"
 tap "kegworks-app/kegworks"
 tap "koekeishiya/formulae"
 tap "martido/graph"
