@@ -20,9 +20,12 @@ lgreen_onetimesetup_macos_ssh_keychain() {
     local key
 
     for key in "$HOME"/.ssh/id_*; do
-        # Skip public keys
+        # Skip public keys and backup files
         case "$key" in
             *.pub) continue ;;
+            *.BAK) continue ;;
+            *.bak) continue ;;
+            *.old) continue ;;
         esac
 
         # Skip if not a file
