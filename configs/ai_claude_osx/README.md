@@ -8,11 +8,26 @@ This directory contains Claude Code MCP server configuration template for macOS.
 
 ## Usage
 
-The template file will be stowed to `~/.claude.json.template`. To use it:
+The template file will be stowed to `~/.claude.json.template`. To sync it:
 
+### Quick Start
+```bash
+just stow          # Stows the template to ~/.claude.json.template
+just sync-configs  # Shows sync instructions and commands
+```
+
+### Manual Sync
 1. Review the MCP server configurations in `~/.claude.json.template`
-2. Manually merge the `mcpServers` section into your active `~/.claude.json` file
+2. Merge the `mcpServers` section into your active `~/.claude.json`:
+   ```bash
+   jq -s '.[0] * {mcpServers: .[1].mcpServers}' ~/.claude.json ~/.claude.json.template > /tmp/merged.json && mv /tmp/merged.json ~/.claude.json
+   ```
 3. Note: Do NOT copy the entire template file - `~/.claude.json` contains runtime state
+
+### When to Sync
+- After `just stow` when you first set up
+- After updating MCP server configs in the dotfiles repo
+- When you need to restore MCP servers after Claude Code config issues
 
 ## Why a template?
 

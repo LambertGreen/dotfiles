@@ -76,7 +76,26 @@ stow:
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
     @echo ""
     @echo "Next step:"
+    @echo "  just sync-configs  # Sync configs that don't auto-update via stow"
     @echo "  just onetimesetup"
+
+# Sync configuration templates into live config files (apps that don't support separate config files)
+[group('1-🚀-Setup')]
+sync-configs:
+    @echo "🔄 Syncing configuration templates to live config files..."
+    @echo ""
+    @echo "⚠️  The following apps mix config with runtime state:"
+    @echo ""
+    @echo "📝 Claude Code (~/.claude.json):"
+    @echo "   Template: ~/.claude.json.template"
+    @echo "   Action: Manually merge 'mcpServers' section from template into ~/.claude.json"
+    @echo "   Why: Claude Code mixes MCP config with runtime state (tips history, session data)"
+    @echo "   Command: jq -s '.[0] * {mcpServers: .[1].mcpServers}' ~/.claude.json ~/.claude.json.template > /tmp/merged.json && mv /tmp/merged.json ~/.claude.json"
+    @echo ""
+    @echo "💡 Future: We could automate this with jq merge scripts"
+    @echo "💡 Shame: These apps should separate config from runtime state!"
+    @echo ""
+    @echo "✅ Done reviewing config sync needs"
 
 # Run platform-specific one-time setup tasks
 [group('1-🚀-Setup')]
