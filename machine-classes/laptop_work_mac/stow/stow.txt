@@ -27,6 +27,7 @@ onetimesetup_common
 
 # AI tool configs
 ai_claude
+ai_claude_osx
 ai_cursor
 ai_cursor_osx
 ai_windsurf

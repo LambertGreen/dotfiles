@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "mcp-adaptor": {
+      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor-go-v2.0.5-darwin-arm64",
+      "args": [],
+      "transport": "stdio",
+      "env": {
+        "GW_PROFILE": "default",
+        "MCP_ADAPTOR_ENV": "prod"
+      }
+    },
+    "GUS MCP Server": {
+      "command": "node",
+      "args": [
+        "/Users/lambert.green/dev/work/mcp-server-gus/mcp-server.js"
+      ],
+      "env": {
+        "SFDX_TARGET_ALIAS": "GUS"
+      }
+    }
+  }
+}
