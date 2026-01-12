@@ -28,6 +28,7 @@ onetimesetup_common
 # AI tool configs
 ai_claude
 ai_cursor
+ai_cursor_osx
 ai_windsurf
 
 # Personal configs (still needed for basic personal git identity)

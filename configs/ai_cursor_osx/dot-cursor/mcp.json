@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "mcp-adaptor": {
+      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor-go-v2.0.12-darwin-arm64",
+      "args": [],
+      "transport": "stdio",
+      "env": {
+        "AGENT_ENV": "STAGE",
+        "GW_PROFILE": "search",
+        "MCP_ADAPTOR_ENV": "prod"
+      }
+    },
+    "GUS MCP Server": {
+      "command": "node",
+      "args": [
+        "/Users/lambert.green/dev/work/mcp-server-gus/mcp-server.js"
+      ],
+      "env": {
+        "SFDX_TARGET_ALIAS": "GUS"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "tableau": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@tableau/mcp-server@latest"
+      ],
+      "env": {
+        "SERVER": "https://10ax.online.tableau.com",
+        "SITE_NAME": "mcp-test",
+        "PAT_NAME": "mcp",
+        "PAT_VALUE": "<redacted>"
+      }
+    }
+  }
+}
