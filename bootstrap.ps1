@@ -47,6 +47,21 @@ try {
 }
 
 Write-Host ""
+Write-Host "???? Phase 1.5: Installing Python 3" -ForegroundColor Yellow
+Write-Host ""
+
+# Install Python 3 (required for unified package management)
+try {
+    & "$scriptDir\install-python3-windows.ps1"
+} catch {
+    Write-Error "Python 3 installation failed: $_"
+    Write-Host ""
+    Write-Host "??????  Python 3 is required for the unified package management system." -ForegroundColor Yellow
+    Write-Host "   Please install it manually and re-run bootstrap." -ForegroundColor Yellow
+    exit 1
+}
+
+Write-Host ""
 Write-Host "???? Phase 2: Installing Essential POSIX Tools" -ForegroundColor Yellow
 Write-Host ""
 
