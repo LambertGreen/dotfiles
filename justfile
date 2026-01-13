@@ -40,7 +40,7 @@ _check-windows-env:
 # Show configuration and available commands
 [default]
 default:
-    @echo "🚀 New user? Start with: just configure → just bootstrap → just stow → just onetimesetup → just install"
+    @echo "🚀 New user? Start with: just configure → just bootstrap → just sync-submodules → just stow → just onetimesetup → just install"
     @echo ""
     @just --list
     @echo ""
@@ -64,14 +64,69 @@ bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
     @echo ""
     @echo "Next step:"
-    @echo "  just stow"
+    @echo "  just sync-submodules"
 
-# Deploy configuration files
+# Sync git submodules (clone/update private config repos, required before stow)
+[group('1-🚀-Setup')]
+sync-submodules:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "🔗 Syncing git submodules..."
+
+    # Check if SSH config exists with github.com-personal host
+    if [ -f ~/.ssh/config ] && grep -q "github.com-personal" ~/.ssh/config; then
+        echo "✅ SSH config with github.com-personal found"
+    else
+        echo "⚠️  No SSH config with github.com-personal found"
+
+        # Check for SSH keys
+        if [ -f ~/.ssh/id_ed25519 ] || [ -f ~/.ssh/id_rsa ]; then
+            echo "📝 Creating bootstrap SSH config..."
+
+            # Backup existing config if present
+            if [ -f ~/.ssh/config ]; then
+                cp ~/.ssh/config ~/.ssh/config.backup-$(date +%Y%m%d%H%M%S)
+                echo "   Backed up existing config"
+            fi
+
+            # Create bootstrap config
+            mkdir -p ~/.ssh
+            cp scripts/bootstrap/ssh-config-bootstrap ~/.ssh/config
+            chmod 600 ~/.ssh/config
+            echo "✅ Bootstrap SSH config created"
+            echo "   (Will be replaced by full config after 'just stow')"
+        else
+            echo "❌ No SSH keys found in ~/.ssh/"
+            echo "   Please set up SSH keys first:"
+            echo "   1. Generate: ssh-keygen -t ed25519 -C 'your_email@example.com'"
+            echo "   2. Add to GitHub: https://github.com/settings/keys"
+            echo "   3. Run: just sync-submodules"
+            exit 1
+        fi
+    fi
+
+    # Sync and initialize submodules
+    echo ""
+    echo "📦 Syncing submodules (clone new, update existing)..."
+    git submodule sync --recursive
+    git submodule update --init --recursive
+
+    echo ""
+    echo "✅ Submodules synced"
+    echo ""
+    echo "Next step:"
+    echo "  just stow"
+
+# Deploy configuration files (symlink configs to home directory)
 [group('1-🚀-Setup')]
 stow:
     @if [ ! -f "$HOME/.dotfiles.env" ]; then \
         echo "❌ Platform not configured. Run: just configure"; \
         exit 1; \
+    fi
+    @if git submodule status | grep -q "^-"; then \
+        echo "⚠️  Some submodules not initialized. Run: just sync-submodules"; \
+        echo "   (Continuing anyway - some configs may be empty)"; \
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
     @echo ""
@@ -101,7 +156,8 @@ sync-configs:
 [group('1-🚀-Setup')]
 onetimesetup:
     @if [ ! -f "$HOME/.onetimesetup.sh" ]; then \
-        echo "❌ Onetimesetup not stowed. Run: just stow"; \
+        echo "❌ Onetimesetup script not found at ~/.onetimesetup.sh"; \
+        echo "   Run the setup flow: just sync-submodules → just stow"; \
         exit 1; \
     fi
     @bash -c 'source ~/.onetimesetup.sh && \

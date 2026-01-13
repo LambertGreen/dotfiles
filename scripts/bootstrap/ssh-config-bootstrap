@@ -1,0 +1,29 @@
+# Bootstrap SSH Config for Dotfiles Setup
+# =========================================
+# This minimal config allows cloning private submodules during initial setup.
+# It will be replaced by the full SSH config from the ssh_common submodule
+# after 'just stow' runs.
+#
+# This config defines github.com-personal and github.com-work hosts that
+# map to github.com with appropriate identity files for multi-account setups.
+
+# Personal GitHub account
+Host github.com-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+
+# Work GitHub account (uses different key)
+Host github.com-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa
+    IdentitiesOnly yes
+
+# Default GitHub (fallback)
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes

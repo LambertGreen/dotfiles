@@ -1,6 +1,6 @@
 # -*- mode: conf -*-
-# Docker Arch Developer Stow Configuration
-# Development environment with pacman + AUR/yay + homebrew + pip + npm
+# Personal Ubuntu ARM64 VM Stow Configuration
+# Personal development environment on Ubuntu ARM64 (Parallels VM on macOS)
 
 # Common configs (truly universal)
 git_common
@@ -29,9 +29,11 @@ nix_common
 ai_claude
 ai_cursor
 ai_windsurf
+
 # Personal configs
 git_my
 
 # Platform-specific Linux configs
 git_linux
 shell_linux
+gnupg_linux

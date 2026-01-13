@@ -1,0 +1,57 @@
+# APT packages for personal Ubuntu ARM64 VM
+# System PM is preferred - use brew only for packages not in apt or needing newer versions
+
+# Essential build tools
+build-essential
+curl
+git
+stow
+sudo
+vim
+wget
+zsh
+
+# System utilities
+psmisc
+tmux
+htop
+
+# Development tools
+cmake
+ninja-build
+pkg-config
+autoconf
+automake
+libtool
+
+# Python development
+python3
+python3-pip
+python3-venv
+
+# Libraries commonly needed for building
+libssl-dev
+libffi-dev
+zlib1g-dev
+libbz2-dev
+libreadline-dev
+libsqlite3-dev
+libncurses5-dev
+libncursesw5-dev
+xz-utils
+tk-dev
+libxml2-dev
+libxmlsec1-dev
+liblzma-dev
+
+# Editors (system versions)
+neovim
+
+# Utilities
+ripgrep
+fd-find
+fzf
+jq
+tree
+unzip
+zip
