@@ -1,10 +1,8 @@
 {
   "mcpServers": {
-    "GUS MCP Server": {
-      "command": "node",
-      "args": [
-        "C:\\Users\\lambert.green\\dev\\work\\mcp-server-gus\\mcp-server.js"
-      ],
+    "MCP Server GUS": {
+      "command": "C:\\Users\\lambert.green\\scoop\\apps\\nvm\\current\\nodejs\\nodejs\\node.exe",
+      "args": ["D:\\dev\\work\\mcp-server-gus\\mcp-server.js"],
       "env": {
         "SFDX_TARGET_ALIAS": "GUS"
       }

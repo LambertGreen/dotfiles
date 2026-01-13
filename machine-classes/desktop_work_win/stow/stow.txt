@@ -26,7 +26,8 @@ nix_common
 
 # AI tool configs
 ai_claude
-ai_cursor
+ai_claude_win
+ai_cursor_win
 ai_windsurf
 
 # Work configs (work context)
