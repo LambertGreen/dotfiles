@@ -1,44 +1,65 @@
 tap "universal-ctags/universal-ctags"
-brew "gcc"
-brew "ruby"
+
+# Build tools
 brew "automake"
+brew "cmake"
+brew "gcc"
+brew "llvm"
+brew "ninja"
+brew "swig"
+
+# Shell & terminal
 brew "bash"
 brew "bat"
-brew "cmake"
-brew "curl"
+brew "broot"
+brew "btop"
+brew "direnv"
 brew "dust"
+brew "eza"
+brew "fastfetch"
+brew "fzf"
+brew "htop"
+brew "hyperfine"
+brew "pstree"
+brew "tldr"
+brew "tmux"
+brew "tree"
+brew "vivid"
+brew "zoxide"
+brew "zsh"
+
+# Git & dev tools
+brew "gh"
+brew "git-delta"
+brew "jq"
+brew "just"
+brew "lazygit"
+brew "ripgrep"
+
+# Editors
 brew "editorconfig"
 brew "emacs"  # Homebrew Linux typically provides 30+
-brew "fswatch"
-brew "fzf"
-brew "gradle"
-brew "htop"
-brew "ispell"
+brew "neovim"
+
+# Languages & runtimes
 brew "jenv"
-brew "jq"
-brew "keychain"
-brew "llvm"
-# brew "lua@5.3"  # Deprecated upstream as of 2024-12-14
 brew "luajit"
 brew "luarocks"
-brew "markdown"
-brew "fastfetch"
-brew "neovim"
-brew "ninja"
-brew "pstree"
 brew "node"
 brew "nvm"
 brew "openjdk"
 brew "pyenv"
 brew "pyenv-virtualenv"
-brew "ripgrep"
-# brew "shellcheck"  # Let projects manage linters via dev dependencies
+brew "ruby"
+
+# Other tools
+brew "curl"
+brew "fswatch"
+brew "gradle"
+brew "ispell"
+brew "keychain"
+brew "markdown"
 brew "stow"
-brew "swig"
-brew "tldr"
-brew "tmux"
-brew "tree"
 brew "unixodbc"
-brew "vivid"
-brew "zsh"
+
 brew "universal-ctags/universal-ctags/universal-ctags", args: ["HEAD"]
