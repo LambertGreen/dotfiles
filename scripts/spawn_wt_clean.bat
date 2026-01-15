@@ -8,9 +8,8 @@ REM
 REM Example:
 REM   spawn_wt_clean.bat "MyTab" "pwsh.exe" "-NoExit" "-Command" "scoop --version"
 REM
-REM For MSYS2 bash commands, set DOTFILES_NO_EXEC_ZSH to prevent bash->zsh exec:
-REM   set DOTFILES_NO_EXEC_ZSH=1
-REM   spawn_wt_clean.bat "MyTab" "C:/msys64/usr/bin/bash.exe" "-l" "script.sh"
+REM Note: bash no longer auto-execs to zsh by default.
+REM Set DOTFILES_BASH_EXEC_ZSH=1 if you want bash to exec zsh.
 
 setlocal EnableDelayedExpansion
 

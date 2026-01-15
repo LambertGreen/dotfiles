@@ -833,14 +833,11 @@ class WindowsTerminalExecutor(TerminalExecutor):
                     # Convert to forward slashes for MSYS2
                     temp_script_path = temp_script.replace('\\', '/')
 
-                    # Create a wrapper batch file that sets DOTFILES_NO_EXEC_ZSH before calling bash
-                    # This is needed because:
-                    # 1. wt.exe spawns a new process that doesn't inherit Python's env
-                    # 2. The env var must be set BEFORE bash sources .bash_profile
+                    # Create a wrapper batch file to call bash
+                    # Note: bash no longer auto-execs to zsh by default (opt-in via DOTFILES_BASH_EXEC_ZSH)
                     fd2, temp_batch = tempfile.mkstemp(suffix='.bat', prefix='dotfiles-pm-', dir=os.environ.get('TEMP'), text=True)
                     with os.fdopen(fd2, 'w') as f:
                         f.write('@echo off\n')
-                        f.write('set DOTFILES_NO_EXEC_ZSH=1\n')
                         f.write(f'"{bash_exe}" -l "{temp_script_path}"\n')
 
                     temp_batch_path = temp_batch.replace('\\', '/')
