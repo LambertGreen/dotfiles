@@ -72,3 +72,4 @@ if command -v ruby >/dev/null 2>&1 && command -v gem >/dev/null 2>&1; then
         export GEM_HOME
     fi
 fi
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
