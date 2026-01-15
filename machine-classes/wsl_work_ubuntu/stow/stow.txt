@@ -41,3 +41,8 @@ git_linux
 shell_linux
 gnupg_linux
 win_wsl
+
+# One-time setup scripts
+onetimesetup_common
+onetimesetup_linux
+onetimesetup_wsl
