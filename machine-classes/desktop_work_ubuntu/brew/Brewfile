@@ -3,3 +3,6 @@
 
 # Packages not available in apt or need newer versions
 brew "fastfetch"
+
+# Node.js 20+ required for SFDX CLI and mcp-server-gus
+brew "node@20"

@@ -145,6 +145,13 @@ lgreen_setup-increase-ulimit-n() {
     fi
 }
 
+lgreen_setup-node20() {
+    # Use node@20 from Homebrew (required for SFDX CLI and mcp-server-gus)
+    if [ -d "/home/linuxbrew/.linuxbrew/opt/node@20/bin" ]; then
+        export PATH="/home/linuxbrew/.linuxbrew/opt/node@20/bin:$PATH"
+    fi
+}
+
 lgreen_setup-increase-ulimit-n
 lgreen_setup-sss-preload-when-on-domain
 lgreen_setup-package-config
@@ -154,6 +161,7 @@ lgreen_setup-fix-wsl2-interop
 lgreen_setup-add-windows-path-to-wsl
 lgreen_setup-nix-profile
 lgreen_setup-homebrew-on-linux
+lgreen_setup-node20
 lgreen_setup-local-bin
 lgreen_setup-perl
 

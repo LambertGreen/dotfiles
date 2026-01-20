@@ -3,3 +3,6 @@ corepack
 claude-code
 do-not-disturb-cli
 pdf2md
+
+# Salesforce CLI (provides sfdx executable) for GUS integration and mcp-server-gus
+@salesforce/cli
