@@ -29,6 +29,7 @@ nix_common
 ai_claude
 ai_cursor
 ai_windsurf
+ai_windsurf_linux
 
 # Personal configs (still needed for basic personal git identity)
 git_my

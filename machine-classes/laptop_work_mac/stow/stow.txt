@@ -32,6 +32,7 @@ ai_claude_osx
 ai_cursor
 ai_cursor_osx
 ai_windsurf
+ai_windsurf_osx
 
 # Personal configs (still needed for basic personal git identity)
 git_my
