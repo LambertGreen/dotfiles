@@ -59,7 +59,11 @@ lgreen_setup_gcc() {
 # * Agents (SSH/GPG)
 lgreen_start_agents() {
     # Export GPG_TTY BEFORE keychain runs so pinentry can prompt properly
-    export GPG_TTY=$(tty)
+    # Only set GPG_TTY if we have a valid TTY (not "not a tty")
+    local current_tty=$(tty 2>/dev/null || echo "")
+    if [ -n "$current_tty" ] && [ "$current_tty" != "not a tty" ]; then
+        export GPG_TTY="$current_tty"
+    fi
 
     # Check if keychain is installed
     if ! command -v keychain >/dev/null 2>&1; then

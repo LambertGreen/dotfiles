@@ -475,6 +475,20 @@ lgreen_setup_running_inside_emacs_vterm() {
         export PROMPT_EOL_MARK=""
     fi
 }
+# ** GPG TTY Setup
+lgreen_setup_gpg_tty() {
+    # Ensure GPG_TTY is set correctly for interactive shells
+    # Only set if we have a valid TTY (not "not a tty" or empty)
+    # This is important for GPG agent to work properly without repeated prompts
+    if [[ -o interactive ]]; then
+        local current_tty=$(tty 2>/dev/null || echo "")
+        if [ -n "$current_tty" ] && [ "$current_tty" != "not a tty" ]; then
+            export GPG_TTY="$current_tty"
+            # Notify gpg-agent of the TTY (important for non-login shells)
+            gpg-connect-agent updatestartuptty /bye >/dev/null 2>&1
+        fi
+    fi
+}
 # ** Tmux Integration
 lgreen_ssh_tmux() {
     ssh -t "$@" "tmux -u attach-session || tmux -u new-session -s Alpha"
@@ -734,6 +748,7 @@ if [[ -o interactive ]]; then
 
     lgreen_setup_running_inside_emacs_eat
     lgreen_setup_running_inside_emacs_vterm
+    lgreen_setup_gpg_tty
 
     lgreen_setup_word_style
 fi
