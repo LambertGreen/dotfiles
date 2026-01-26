@@ -68,7 +68,7 @@ lgreen_start_agents() {
     # Check if keychain is installed
     if ! command -v keychain >/dev/null 2>&1; then
         echo "⚠  keychain not installed - SSH/GPG agent management unavailable"
-        echo "   Install with: brew install keychain"
+        echo "   Install via package manager (e.g., brew install keychain on macOS/Linux with Homebrew)"
         return 1
     fi
 
