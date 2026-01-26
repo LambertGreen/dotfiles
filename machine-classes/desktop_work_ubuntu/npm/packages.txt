@@ -5,6 +5,9 @@
 # TypeScript compiler for standalone work (org-mode blocks, one-offs, REPL)
 typescript
 
+# Salesforce CLI (provides sfdx executable) for GUS integration and mcp-server-gus
+@salesforce/cli
+
 # MCP server development tool
 
 # Standalone formatter CLI for quick fixes

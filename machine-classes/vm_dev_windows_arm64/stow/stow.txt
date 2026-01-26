@@ -28,6 +28,7 @@ nix_common
 ai_claude
 ai_cursor
 ai_windsurf
+ai_windsurf_win
 
 # Personal configs
 git_my

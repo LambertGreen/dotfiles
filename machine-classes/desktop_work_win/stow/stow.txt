@@ -29,6 +29,7 @@ ai_claude
 ai_claude_win
 ai_cursor_win
 ai_windsurf
+ai_windsurf_win
 
 # Work configs (work context)
 git_work

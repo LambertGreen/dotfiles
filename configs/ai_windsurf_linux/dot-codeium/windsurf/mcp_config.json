@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "GUS MCP Server": {
+      "command": "node",
+      "args": [
+        "/home/lambert.green/dev/work/mcp-server-gus/mcp-server.js"
+      ],
+      "env": {
+        "SFDX_TARGET_ALIAS": "GUS"
+      }
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "tableau": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@tableau/mcp-server@latest"
+      ],
+      "env": {
+        "SERVER": "https://10ax.online.tableau.com",
+        "SITE_NAME": "mcp-test",
+        "PAT_NAME": "mcp",
+        "PAT_VALUE": "<redacted>"
+      }
+    }
+  }
+}
