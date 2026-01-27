@@ -45,6 +45,10 @@ elseif wezterm.target_triple:find('apple') then
   config.window_background_opacity = 0.95
   config.macos_window_background_blur = 20
   config.window_decorations = 'TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
+  config.default_prog = { 'zsh', '-l' }
+else
+  -- Linux: explicitly use zsh as login shell
+  config.default_prog = { 'zsh', '-l' }
 end
 
 -- Tab bar
