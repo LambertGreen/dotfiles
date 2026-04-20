@@ -53,10 +53,13 @@ class BrewCaskPM(PackageManager):
     def upgrade_command(self) -> List[str]:
         # Force flag is enabled by default for upgrade
         # Set DOTFILES_BREW_CASK_NO_FORCE=true to disable force updates
-        args = ["brew", "cu", "-a", "-y"]
+        # Pre-authenticate sudo to reduce password prompts during cask upgrades
+        args = ["bash", "-c", "sudo -v && brew cu -a -y"]
         if os.environ.get('DOTFILES_BREW_CASK_NO_FORCE', '').lower() != 'true':
-            args.append("-f")
-        args.append("--no-brew-update")
+            # Insert -f flag before --no-brew-update
+            args[2] = "sudo -v && brew cu -a -y -f --no-brew-update"
+        else:
+            args[2] += " --no-brew-update"
         return args
 
     @property
