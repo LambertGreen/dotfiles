@@ -754,3 +754,9 @@ if [[ -o interactive ]]; then
 fi
 
 lgreen_conditionally_stop_profiler
+
+# DevBar: AI agent management tool (Salesforce internal)
+# Only enable if DevBar is installed on this system
+if [[ -d "$HOME/.devbar" ]]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+fi
