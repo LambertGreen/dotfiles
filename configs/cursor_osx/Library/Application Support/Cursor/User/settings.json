@@ -54,5 +54,7 @@
     "cursor.experimentalClaudeCode.enabled": false,
     "cursor.featureFlags.experimentalClaudeCode": false,
     "editor.fontFamily": "'Aporetic Sans Mono', 'Symbols Nerd Font Mono'",
-    "workbench.colorTheme": "Default Light Modern",
+    "workbench.colorTheme": "Visual Studio Light",
+    "java.server.launchMode": "LightWeight",
+    "salesforce-internal-dx.claudeCodeMarketplaceConfigured": true
 }

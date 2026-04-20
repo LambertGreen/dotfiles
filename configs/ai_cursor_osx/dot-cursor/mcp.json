@@ -1,13 +1,14 @@
 {
   "mcpServers": {
     "mcp-adaptor": {
-      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor-go-v2.0.12-darwin-arm64",
+      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor-go-v2.0.22-darwin-arm64",
       "args": [],
       "transport": "stdio",
       "env": {
         "AGENT_ENV": "STAGE",
         "GW_PROFILE": "search",
-        "MCP_ADAPTOR_ENV": "prod"
+        "MCP_ADAPTOR_ENV": "prod",
+        "MCP_IDE_CLIENT": "cursor"
       }
     },
     "GUS MCP Server": {
