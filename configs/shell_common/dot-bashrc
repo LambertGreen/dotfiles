@@ -17,3 +17,10 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 if [ -d "$HOME/.devbar" ]; then
   export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
 fi
+
+# >>> aisuite >>>
+# Minimal aisuite setup - only add PATH
+if [ -d "$HOME/.aisuite/bin" ]; then
+  export PATH="$HOME/.aisuite/bin:$PATH"
+fi
+# <<< aisuite <<<
