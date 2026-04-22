@@ -232,12 +232,16 @@ class BrewLockManager:
             if any(indicator in error_output.lower() for indicator in
                    ['already locked', 'lockf:', 'another brew']):
                 # Raise specific error with exit code for justfile to handle
-                raise BrewLockError(f"Brew locked: {error_output}")
+                error_msg = f"Brew locked: {error_output}\n"
+                error_msg += "💡 Fix with: just doctor-fix-brew-lock"
+                raise BrewLockError(error_msg)
 
             return result
 
         except subprocess.TimeoutExpired as e:
-            raise BrewLockError("Brew command timed out (likely locked)") from e
+            error_msg = "Brew command timed out (likely locked)\n"
+            error_msg += "💡 Fix with: just doctor-fix-brew-lock"
+            raise BrewLockError(error_msg) from e
 
 
 # Global instance for easy access
