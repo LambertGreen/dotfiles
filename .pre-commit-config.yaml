@@ -16,6 +16,7 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
       - id: check-json
+        exclude: '(vscode|cursor|ai_cursor).*\.(json|jsonc)$'  # Exclude VSCode/Cursor JSONC files
       - id: check-toml
 
       # Security

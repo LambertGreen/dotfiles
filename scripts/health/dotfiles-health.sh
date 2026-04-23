@@ -928,7 +928,12 @@ _check_ssh_config_permissions() {
 
     # Check SSH config permissions (follow symlinks to check actual file)
     if [[ -f "$TEST_HOME/.ssh/config" ]] || [[ -L "$TEST_HOME/.ssh/config" ]]; then
-        local perms=$(stat -f "%Lp" -L "$TEST_HOME/.ssh/config" 2>/dev/null || stat -c "%a" -L "$TEST_HOME/.ssh/config" 2>/dev/null)
+        local perms
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            perms=$(stat -f "%Lp" -L "$TEST_HOME/.ssh/config" 2>/dev/null)
+        else
+            perms=$(stat -c "%a" -L "$TEST_HOME/.ssh/config" 2>/dev/null)
+        fi
 
         # SSH requires config to be readable only by owner (600 or 644)
         # Group and world write permissions are not allowed
@@ -938,7 +943,7 @@ _check_ssh_config_permissions() {
             # Check if group/world writable (security issue)
             local group_write=$(echo "$perms" | cut -c2)
             local world_write=$(echo "$perms" | cut -c3)
-            if [[ "$group_write" -ge 2 ]] || [[ "$world_write" -ge 2 ]]; then
+            if [[ "${group_write:-0}" -ge 2 ]] || [[ "${world_write:-0}" -ge 2 ]]; then
                 $log_output "  • ❌ SSH config permissions: $perms (insecure - group/world writable)"
                 ERRORS+=("SSH config has insecure permissions: $perms (should be 600 or 644)")
             else

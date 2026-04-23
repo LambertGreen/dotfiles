@@ -1,15 +1,5 @@
 {
   "mcpServers": {
-    "mcp-adaptor": {
-      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor-go-v2.0.12-darwin-arm64",
-      "args": [],
-      "transport": "stdio",
-      "env": {
-        "AGENT_ENV": "STAGE",
-        "GW_PROFILE": "search",
-        "MCP_ADAPTOR_ENV": "prod"
-      }
-    },
     "GUS MCP Server": {
       "command": "node",
       "args": [
@@ -19,11 +9,76 @@
         "SFDX_TARGET_ALIAS": "GUS"
       }
     },
+    "a11y_expert": {
+      "url": "http://127.0.0.1:29051/mcp/servers/a11y_expert",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "aisuite": {
+      "url": "http://127.0.0.1:29051/mcp",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "browser": {
+      "url": "http://127.0.0.1:29051/mcp/servers/browser",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "codesearch": {
+      "url": "http://127.0.0.1:29051/mcp/servers/codesearch",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "columbo": {
+      "url": "http://127.0.0.1:29051/mcp/servers/columbo",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "gmail": {
+      "url": "http://127.0.0.1:29051/mcp/servers/gmail",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "google": {
+      "url": "http://127.0.0.1:29051/mcp/servers/google",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "mcp-adaptor": {
+      "command": "/Users/lambert.green/.local/bin/mcp-adaptor",
+      "args": [],
+      "transport": "stdio",
+      "env": {
+        "AGENT_ENV": "STAGE",
+        "GW_PROFILE": "search",
+        "MCP_ADAPTOR_ENV": "prod",
+        "MCP_IDE_CLIENT": "cursor"
+      }
+    },
     "playwright": {
       "command": "npx",
       "args": [
         "@playwright/mcp@latest"
       ]
+    },
+    "search": {
+      "url": "http://127.0.0.1:29051/mcp/servers/search",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "slack": {
+      "url": "http://127.0.0.1:29051/mcp/servers/slack",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
     },
     "tableau": {
       "command": "npx",
@@ -35,7 +90,7 @@
         "SERVER": "https://10ax.online.tableau.com",
         "SITE_NAME": "mcp-test",
         "PAT_NAME": "mcp",
-        "PAT_VALUE": "<redacted>"
+        "PAT_VALUE": "\u003credacted\u003e"
       }
     }
   }

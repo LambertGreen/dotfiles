@@ -182,16 +182,18 @@ lgreen_setup_aliases() {
     if [ "$(command -v eza)" ]; then
         alias ls='eza --icons=auto'
         alias ll='eza -lh --icons=auto'
+        alias lt='eza -lh --sort=modified --icons=auto'
         alias lla='eza -lha --icons=auto'
-        alias llm='eza -lh -s=modified  --icons=auto'
     else
         if [ "$(uname_cached)" = "Darwin" ]; then
             alias ls='gls --color'
             alias ll='gls -lh --color'
+            alias lt='gls -lhtr --color'
             alias lla='gls -lha --color'
         else
             alias ls='ls --color'
             alias ll='ls -lh --color'
+            alias lt='ls -lhtr --color'
             alias lla='ls -lha --color'
         fi
     fi
@@ -754,3 +756,16 @@ if [[ -o interactive ]]; then
 fi
 
 lgreen_conditionally_stop_profiler
+
+# DevBar: AI agent management tool (Salesforce internal)
+# Only enable if DevBar is installed on this system
+if [[ -d "$HOME/.devbar" ]]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+fi
+
+# >>> aisuite >>>
+# Minimal aisuite setup - only add PATH
+if [[ -d "$HOME/.aisuite/bin" ]]; then
+  export PATH="$HOME/.aisuite/bin:$PATH"
+fi
+# <<< aisuite <<<

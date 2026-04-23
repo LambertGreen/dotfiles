@@ -1,3 +1,5 @@
+#!/usr/bin/env zsh
+
 # Auto-exec to zsh for interactive sessions (opt-in)
 # Set DOTFILES_BASH_EXEC_ZSH=1 to exec zsh (e.g., in .profile or Windows env)
 if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && [ -n "$DOTFILES_BASH_EXEC_ZSH" ] && command -v zsh >/dev/null 2>&1; then
@@ -14,3 +16,16 @@ if [ -z "$ZSH_VERSION" ]; then
     source "$HOME/.env_osx"
   fi
 fi
+
+# DevBar: AI agent management tool (Salesforce internal)
+# Only enable if DevBar is installed on this system
+if [ -d "$HOME/.devbar" ]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+fi
+
+# >>> aisuite >>>
+# Minimal aisuite setup - only add PATH
+if [ -d "$HOME/.aisuite/bin" ]; then
+  export PATH="$HOME/.aisuite/bin:$PATH"
+fi
+# <<< aisuite <<<
