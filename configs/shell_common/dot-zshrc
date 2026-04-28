@@ -407,6 +407,17 @@ lgreen_setup_claude_code() {
 }
 # ** Private Environment Variables
 lgreen_source_private_env() {
+    # TODO: Evaluate if GPG-encrypted file approach is still needed
+    # RECOMMENDATION: Follow the pattern used for GH_TOKEN where the variable
+    # is referenced directly in shell config but value comes from calling a utility:
+    #   export GH_TOKEN=$(gh auth token)
+    #   export AWS_KEY=$(aws configure get aws_access_key_id)
+    #   export SOME_TOKEN=$(security find-generic-password -s service_name -w)  # macOS Keychain
+    #   export SOME_TOKEN=$(secret-tool lookup service name type token)         # Linux libsecret
+    #   export SOME_TOKEN=$(op read "op://Private/Item/field")                 # 1Password CLI
+    # This makes variables searchable in code while keeping values secure in system stores.
+    # See: configs/shell_common/dot-private_env.manifest for current encrypted contents.
+
     # Source GPG-encrypted private environment variables
     if [ -f "$HOME/.private_env.gpg" ]; then
         eval "$(gpg --quiet --decrypt "$HOME/.private_env.gpg" 2>/dev/null)"

@@ -1,0 +1,17 @@
+# -*- mode: markdown; -*-
+# Manifest: Contents of dot-private_env.gpg (encrypted)
+# This file is plain text and searchable - update when adding/removing secrets
+# Last updated: 2026-04-28
+
+# GitHub Authentication
+GH_TOKEN - GitHub personal access token (classic format)
+  - Used by: gh CLI, git operations, GitHub API calls
+  - Regenerate at: https://github.com/settings/tokens
+  - Note: Consider migrating to `export GH_TOKEN=$(gh auth token)` pattern
+
+# How to manage encrypted secrets:
+#   View:   gpg --decrypt ~/.private_env.gpg
+#   Edit:   $EDITOR ~/.private_env.gpg  (Emacs/Vim auto-decrypt via EasyPG/vim-gnupg)
+#   Encrypt: gpg --encrypt --recipient your@email.com -o ~/.private_env.gpg plainfile
+
+# See function lgreen_source_private_env() in dot-zshrc for loading mechanism
