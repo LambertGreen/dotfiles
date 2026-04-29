@@ -1,16 +1,18 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
+# Landing pad for tool auto-injection (aisuite, devbar, etc.)
+# Machine-specific: tracked but expected to diverge
+# User configuration lives in ~/.bashrc.user
 
-# Auto-exec to zsh for interactive sessions (opt-in)
-# Set DOTFILES_BASH_EXEC_ZSH=1 to exec zsh (e.g., in .profile or Windows env)
-if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && [ -n "$DOTFILES_BASH_EXEC_ZSH" ] && command -v zsh >/dev/null 2>&1; then
-  exec zsh -l        # -l makes it a login zsh → .zprofile runs
-fi
-export PATH="$PATH:/opt/mssql-tools/bin"
+# Load user configuration FIRST (for proper precedence)
+[ -f ~/.bashrc.user ] && source ~/.bashrc.user
 
-# export NODE_EXTRA_CA_CERTS="/home/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+# Load machine-local overrides (machine-specific, gitignored if exists)
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
-source /home/lambert.green/.config/broot/launcher/bash/br
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# ========================================
+# TOOL INJECTION ZONE
+# Tools may auto-modify below this line
+# ========================================
 
 # DevBar: AI agent management tool (Salesforce internal)
 # Only enable if DevBar is installed on this system
@@ -19,8 +21,9 @@ if [ -d "$HOME/.devbar" ]; then
 fi
 
 # >>> aisuite >>>
-# Minimal aisuite setup - only add PATH
-if [ -d "$HOME/.aisuite/bin" ]; then
-  export PATH="$HOME/.aisuite/bin:$PATH"
-fi
+export NODE_EXTRA_CA_CERTS="/Users/lambert.green/.aisuite/conf/npm-sfdc-certs.pem"
+export PATH="$PATH:/Users/lambert.green/.aisuite/bin:/Users/lambert.green/.aisuite/bin/aliases"
 # <<< aisuite <<<
+# devbar-managed-start
+export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+# devbar-managed-end

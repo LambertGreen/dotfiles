@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+# Auto-exec to zsh for interactive sessions (opt-in)
+# Set DOTFILES_BASH_EXEC_ZSH=1 to exec zsh (e.g., in .profile or Windows env)
+if [ -t 1 ] && [ -z "$ZSH_VERSION" ] && [ -n "$DOTFILES_BASH_EXEC_ZSH" ] && command -v zsh >/dev/null 2>&1; then
+  exec zsh -l        # -l makes it a login zsh → .zprofile runs
+fi
+export PATH="$PATH:/opt/mssql-tools/bin"
+
+# export NODE_EXTRA_CA_CERTS="/home/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
+
+source /home/lambert.green/.config/broot/launcher/bash/br
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
