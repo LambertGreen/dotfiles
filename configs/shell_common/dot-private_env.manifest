@@ -1,13 +1,12 @@
 # -*- mode: markdown; -*-
 # Manifest: Contents of dot-private_env.gpg (encrypted)
 # This file is plain text and searchable - update when adding/removing secrets
-# Last updated: 2026-04-28
+# Last updated: 2026-05-07
 
 # GitHub Authentication
-GH_TOKEN - GitHub personal access token (classic format)
-  - Used by: gh CLI, git operations, GitHub API calls
-  - Regenerate at: https://github.com/settings/tokens
-  - Note: Consider migrating to `export GH_TOKEN=$(gh auth token)` pattern
+# GH_TOKEN - REMOVED (migrated to using `gh auth token` via system keychain)
+#   - No longer stored here; gh CLI uses system keychain authentication
+#   - Legacy note: Previously stored GitHub personal access token (classic format)
 
 # How to manage encrypted secrets:
 #   View:   gpg --decrypt ~/.private_env.gpg
