@@ -7,11 +7,11 @@
 **** Context
 After implementing pip package manager support, several packages still fail health checks.
 **** Missing Windows packages by package manager:
-***** Chocolatey packages (11 packages): 
+***** Chocolatey packages (11 packages):
 - black, btop, cloc, cowsay, firefox, fortune, helix, pandoc, ruby, shellcheck
 - trash → choco install recycle-bin
 ***** Scoop packages (3 packages):
-- nodejs → provides npm automatically  
+- nodejs → provides npm automatically
 - cmake
 - rust → scoop install rustup → provides cargo automatically
 ***** Missing/No Windows Support (4 packages):
@@ -24,23 +24,30 @@ After implementing pip package manager support, several packages still fail heal
 2. Update any packages that fail to install
 3. Add missing TOML entries for isort/rust-analyzer if needed
 
-*** TODO Add npm package manager support  
+*** TODO Wire npm into Windows machine classes
 **** Context
-Following the pip implementation pattern, add npm support for Node.js packages.
-**** Implementation:
-- Add npm case to package-management-config.sh
-- Use 'npm install -g' for global packages
-- Add npm to Windows platform package managers
+The =npm= package manager is fully implemented (=src/dotfiles_pm/pms/npm.py=) and works on macOS, Linux, and WSL where machine classes have an =npm/packages.txt=. Windows machine classes do not yet wire npm in. (The legacy =package-management-config.sh= referenced by the original TODO no longer exists; the project migrated to Python-based PM modules in =src/dotfiles_pm/pms/=.)
+**** Status
+- [X] Python PM module: check/upgrade/install commands implemented (=npm.py=)
+- [X] macOS, Ubuntu, Arch, WSL machine classes have =npm/packages.txt=
+- [ ] No =npm/= directory in any of: =desktop_work_win=, =desktop_gaming_win=, =server_dev_win_hammerhead=, =vm_dev_windows_arm64=
+**** Implementation
+- Add =npm/packages.txt= to each Windows machine class (depends on =nodejs= via scoop — see "Install remaining missing packages" TODO)
 - Test through MSYS2 environment
 
-*** TODO Add cargo package manager support
-**** Context  
-Following the pip implementation pattern, add cargo support for Rust packages.
-**** Implementation:
-- Add cargo case to package-management-config.sh  
-- Use 'cargo install' for Rust packages
-- Add cargo to platform package managers
-- May need to handle Rust toolchain installation first
+*** TODO Wire cargo into machine classes
+**** Context
+The =cargo= package manager is fully implemented (=src/dotfiles_pm/pms/cargo.py=) using =cargo install-update= for check/upgrade. However, **no machine class has a =cargo/packages.txt= yet** — not just Windows, none at all — so cargo is plumbed but never actually exercised. (The legacy =package-management-config.sh= referenced by the original TODO no longer exists; the project migrated to Python-based PM modules in =src/dotfiles_pm/pms/=.)
+**** Status
+- [X] Python PM module: commands implemented (=cargo install-update --list / -a=, =cargo install=)
+- [ ] No machine class has =cargo/packages.txt=
+- [ ] Rust toolchain bootstrap not yet handled
+- [ ] =cargo-update= crate must be installed first (provides =cargo install-update=)
+**** Implementation
+- Decide which machine classes should ship cargo-installed binaries
+- Document/automate Rust toolchain bootstrap (=rustup= on macOS/Linux, =scoop install rustup= on Windows)
+- Ensure =cargo install cargo-update= runs at setup time so check/upgrade work
+- Add =cargo/packages.txt= for the chosen machine classes
 
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description
@@ -56,7 +63,7 @@ Following the pip implementation pattern, add cargo support for Rust packages.
 Following the successful implementation of the Dotfiles API architecture for zsh/zinit, extend this pattern to other app-based package managers to maintain consistent conversational configuration management.
 **** Implementation Requirements:
 ***** Emacs API Functions:
-- =lgreen-emacs-status=: Query elpaca package manager state  
+- =lgreen-emacs-status=: Query elpaca package manager state
 - =lgreen-await-emacs-ready=: Wait for packages to finish loading
 - =lgreen-ensure-packages-updated=: Update all packages via elpaca
 ***** Neovim API Functions:
@@ -92,14 +99,14 @@ CLOSED: [2025-07-29 Tue]
 - Added `just stow`, `just check-health`, `just system-check`, `just system-upgrade`
 - Created tiered approach with goto-sys-maintenance for platform-specific operations
 
-*** DONE Add steps/scripts for updating packages  
+*** DONE Add steps/scripts for updating packages
 CLOSED: [2025-07-29 Tue]
 - Implemented unified package management with `just update-check` and `just update-upgrade`
 - Created two-step update process: preview available updates, then upgrade
 - Added support for multiple package managers per platform (brew/mas, pacman/AUR, apt/brew, scoop/choco/winget/pacman)
 
 *** DONE Add section with steps for setting a new machine
-CLOSED: [2025-07-29 Tue]  
+CLOSED: [2025-07-29 Tue]
 - Partially complete with existing setup scripts in `setup_*` directories
 - Bootstrap scripts in `bootstrap/` provide transparency for system preparation
 - Environment-driven configuration via `.dotfiles.env` simplifies setup
