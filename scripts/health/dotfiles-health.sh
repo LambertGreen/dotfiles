@@ -943,12 +943,19 @@ _check_ssh_config_permissions() {
             # Check if group/world writable (security issue)
             local group_write=$(echo "$perms" | cut -c2)
             local world_write=$(echo "$perms" | cut -c3)
-            if [[ "${group_write:-0}" -ge 2 ]] || [[ "${world_write:-0}" -ge 2 ]]; then
-                $log_output "  • ❌ SSH config permissions: $perms (insecure - group/world writable)"
-                ERRORS+=("SSH config has insecure permissions: $perms (should be 600 or 644)")
+            # Validate we got valid permission digits before comparison
+            if [[ -n "$group_write" ]] && [[ -n "$world_write" ]] && \
+               [[ "$group_write" =~ ^[0-7]$ ]] && [[ "$world_write" =~ ^[0-7]$ ]]; then
+                if [[ "$group_write" -ge 2 ]] || [[ "$world_write" -ge 2 ]]; then
+                    $log_output "  • ❌ SSH config permissions: $perms (insecure - group/world writable)"
+                    ERRORS+=("SSH config has insecure permissions: $perms (should be 600 or 644)")
+                else
+                    $log_output "  • ⚠️  SSH config permissions: $perms (unusual but may work)"
+                    WARNINGS+=("SSH config has unusual permissions: $perms (recommend 600)")
+                fi
             else
-                $log_output "  • ⚠️  SSH config permissions: $perms (unusual but may work)"
-                WARNINGS+=("SSH config has unusual permissions: $perms (recommend 600)")
+                $log_output "  • ⚠️  SSH config permissions: $perms (unable to validate - unusual format)"
+                WARNINGS+=("SSH config has unusual permissions format: $perms")
             fi
         fi
     else

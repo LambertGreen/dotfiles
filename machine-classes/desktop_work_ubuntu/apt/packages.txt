@@ -19,5 +19,8 @@ zsh
 psmisc
 tmux
 
+# GPG/Security
+pinentry-tty
+
 # Development tools (adjust based on actual work machine)
 windsurf
