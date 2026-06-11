@@ -8,6 +8,8 @@ Replaces the various shell scripts with a consistent Python interface.
 
 import argparse
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
@@ -17,6 +19,24 @@ from .pm_check import check_all_pms
 from .pm_upgrade import upgrade_all_pms
 from .pm_configure import configure_pms, save_pm_config
 from .terminal_executor import _save_terminal_registry, spawn_tracked
+
+
+def _log_duration(operation: str, selected_pms: List[str], duration_secs: float, successful: int, total: int):
+    """Append a duration record to the upgrade history log."""
+    log_dir = Path.home() / '.dotfiles' / 'logs'
+    log_dir.mkdir(parents=True, exist_ok=True)
+    history_file = log_dir / 'upgrade-history.log'
+
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    minutes = int(duration_secs // 60)
+    seconds = int(duration_secs % 60)
+    duration_str = f"{minutes}m{seconds:02d}s" if minutes > 0 else f"{seconds}s"
+    pms_str = ','.join(selected_pms)
+
+    entry = f"{timestamp}  {operation:<10}  {duration_str:<8}  {successful}/{total} ok  pms=[{pms_str}]\n"
+
+    with open(history_file, 'a') as f:
+        f.write(entry)
 
 
 def cmd_list(args):
@@ -87,7 +107,9 @@ def cmd_check(args):
     print()
 
     # Check all selected package managers (parallel by default)
+    start_time = time.time()
     results = check_all_pms(selected_pms, parallel=True)
+    duration = time.time() - start_time
 
     # Summary with raw output
     print("\n📊 Outdated Packages")
@@ -122,7 +144,14 @@ def cmd_check(args):
     if not has_outdated:
         print("🎉 All packages are up to date!")
 
+    minutes = int(duration // 60)
+    seconds = int(duration % 60)
+    duration_str = f"{minutes}m{seconds:02d}s" if minutes > 0 else f"{seconds}s"
+
     print(f"\n🎯 Successful checks: {successful_checks}/{len(selected_pms)}")
+    print(f"⏱️  Duration: {duration_str}")
+
+    _log_duration('check', selected_pms, duration, successful_checks, len(selected_pms))
 
     # Offer to close spawned terminals
     from .terminal_executor import prompt_close_terminals
@@ -166,7 +195,9 @@ def cmd_upgrade(args):
     print()
 
     # Upgrade all selected package managers (sequential by default for safety)
+    start_time = time.time()
     results = upgrade_all_pms(selected_pms, parallel=False)
+    duration = time.time() - start_time
 
     # Summary
     print("\n📊 Upgrade Summary")
@@ -184,8 +215,15 @@ def cmd_upgrade(args):
         else:
             print(f"{status} {pm}: Upgrade failed")
 
+    minutes = int(duration // 60)
+    seconds = int(duration % 60)
+    duration_str = f"{minutes}m{seconds:02d}s" if minutes > 0 else f"{seconds}s"
+
     print()
     print(f"🎯 Successful upgrades: {successful_upgrades}/{len(selected_pms)}")
+    print(f"⏱️  Duration: {duration_str}")
+
+    _log_duration('upgrade', selected_pms, duration, successful_upgrades, len(selected_pms))
 
     # Offer to close spawned terminals
     from .terminal_executor import prompt_close_terminals
@@ -394,7 +432,9 @@ def cmd_install(args):
 
     # Install packages for all selected package managers
     level = getattr(args, 'level', 'all')
+    start_time = time.time()
     results = install_all_pms(selected_pms, level)
+    duration = time.time() - start_time
 
     # Summary
     print("\n📊 Installation Summary")
@@ -418,9 +458,16 @@ def cmd_install(args):
         else:
             print(f"{status} {pm}: Installation failed")
 
+    minutes = int(duration // 60)
+    seconds = int(duration % 60)
+    duration_str = f"{minutes}m{seconds:02d}s" if minutes > 0 else f"{seconds}s"
+
     print()
     print(f"📈 Total packages installed: {total_installed}")
     print(f"🎯 Successful installations: {successful_installs}/{len(selected_pms)}")
+    print(f"⏱️  Duration: {duration_str}")
+
+    _log_duration('install', selected_pms, duration, successful_installs, len(selected_pms))
 
     # Offer to close spawned terminals
     from .terminal_executor import prompt_close_terminals
