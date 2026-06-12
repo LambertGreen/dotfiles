@@ -38,7 +38,7 @@ class BrewCaskPM(PackageManager):
 
     @property
     def upgrade_command(self) -> List[str]:
-        from ..sudo_helper import wrap_command_with_askpass, get_sudo_mode
+        from sudo_helper import wrap_command_with_askpass, get_sudo_mode
         mode = get_sudo_mode()
         if mode == 'gui':
             wrapped = wrap_command_with_askpass("brew upgrade --cask --greedy")
