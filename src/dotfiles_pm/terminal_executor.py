@@ -277,7 +277,7 @@ class DarwinTerminalExecutor(TerminalExecutor):
         try:
             script = f'''
             tell application "Terminal"
-                close window id {window_id} saving no
+                close window id {window_id}
             end tell
             '''
             result = subprocess.run(['osascript', '-e', script], capture_output=True)
@@ -286,14 +286,12 @@ class DarwinTerminalExecutor(TerminalExecutor):
             return False
 
     def close_all_terminals(self) -> int:
-        """Close all spawned Terminal.app windows using registry"""
+        """Close all spawned Terminal.app windows by killing the app"""
         try:
-            # Use registry-based cleanup since we can't reliably identify windows by title
             spawned_terminals = _load_terminal_registry()
-            closed_count = 0
-            for terminal_info in spawned_terminals:
-                if self.close_terminal(terminal_info):
-                    closed_count += 1
+            closed_count = len(spawned_terminals)
+            # Kill Terminal.app — we only use it for spawned commands (user's terminal is Wezterm/etc)
+            subprocess.run(['pkill', '-x', 'Terminal'], capture_output=True)
             return closed_count
         except Exception:
             return 0
