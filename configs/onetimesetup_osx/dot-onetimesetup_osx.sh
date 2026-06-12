@@ -120,6 +120,28 @@ lgreen_onetimesetup_macos_minimap_font() {
     fi
 }
 
+lgreen_onetimesetup_macos_terminal() {
+    _onetimesetup_log "==> macOS Terminal.app Configuration"
+
+    local plist="$HOME/Library/Preferences/com.apple.Terminal.plist"
+    local profile
+    profile=$(defaults read com.apple.Terminal "Default Window Settings" 2>/dev/null)
+
+    if _onetimesetup_is_dryrun; then
+        _onetimesetup_log "  DRYRUN: Would set Terminal.app profile '$profile' to close on clean shell exit"
+    else
+        # shellExitAction: 0=don't close, 1=close if clean exit, 2=always close
+        if [ -n "$profile" ] && [ -f "$plist" ]; then
+            /usr/libexec/PlistBuddy -c "Set ':Window Settings:${profile}:shellExitAction' 1" "$plist" 2>/dev/null || \
+            /usr/libexec/PlistBuddy -c "Add ':Window Settings:${profile}:shellExitAction' integer 1" "$plist" 2>/dev/null
+        fi
+        defaults write com.apple.Terminal shellExitAction -int 1
+    fi
+
+    _onetimesetup_log "  ✓ Terminal.app configured to close window on clean shell exit"
+    lgreen_onetimesetup_record_task "macos_terminal"
+}
+
 lgreen_onetimesetup_macos_tcc_reset() {
     _onetimesetup_log "==> macOS TCC Database Reset (Accessibility)"
     _onetimesetup_log ""
@@ -150,6 +172,7 @@ lgreen_onetimesetup_run_platform() {
     lgreen_onetimesetup_macos_ssh_keychain
     lgreen_onetimesetup_macos_finder
     lgreen_onetimesetup_macos_scroll
+    lgreen_onetimesetup_macos_terminal
     lgreen_onetimesetup_macos_minimap_font
 
     # Note: TCC reset available as lgreen_onetimesetup_macos_tcc_reset
