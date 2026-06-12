@@ -389,6 +389,94 @@ doctor-pm-versions:
     @echo "👩‍⚕️ Checking package manager versions..."
     @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; python3 -m src.dotfiles_pm.pm version'
 
+# Check Homebrew tap state against Brewfile declarations
+[group('4-👩‍⚕️-Doctor')]
+doctor-check-taps:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "👩‍⚕️ Checking Homebrew tap state..."
+
+    # Determine machine class
+    if [ -f "$HOME/.dotfiles.env" ]; then
+        source "$HOME/.dotfiles.env"
+    fi
+    MACHINE_CLASS="${DOTFILES_MACHINE_CLASS:-}"
+    if [ -z "$MACHINE_CLASS" ]; then
+        echo "❌ DOTFILES_MACHINE_CLASS not set. Cannot determine expected taps."
+        exit 1
+    fi
+
+    BREWFILE="machine-classes/${MACHINE_CLASS}/brew/Brewfile"
+    if [ ! -f "$BREWFILE" ]; then
+        echo "❌ Brewfile not found: $BREWFILE"
+        exit 1
+    fi
+
+    echo "  Machine class: $MACHINE_CLASS"
+    echo "  Brewfile: $BREWFILE"
+    echo ""
+
+    # Get declared taps from Brewfile (excluding homebrew/core and homebrew/cask)
+    declared_taps=$(grep '^tap ' "$BREWFILE" | sed 's/tap "//;s/".*//' | grep -v '^homebrew/' | sort)
+
+    # Get installed taps (excluding homebrew/core and homebrew/cask)
+    installed_taps=$(brew tap 2>/dev/null | grep -v '^homebrew/' | sort)
+
+    # Get untrusted taps (brew 6.0+: third-party taps not in trust.json)
+    trust_file="$HOME/.homebrew/trust.json"
+    if [ ! -f "$trust_file" ]; then
+        trust_file="${XDG_CONFIG_HOME:-$HOME/.config}/homebrew/trust.json"
+    fi
+    if [ -f "$trust_file" ]; then
+        trusted=$(python3 -c "import json; d=json.load(open('$trust_file')); print('\n'.join(d.get('trustedtaps', [])))" 2>/dev/null | sort)
+    else
+        trusted=""
+    fi
+    untrusted_taps=$(comm -23 <(echo "$installed_taps") <(echo "$trusted"))
+
+    # Compare
+    extra_taps=$(comm -23 <(echo "$installed_taps") <(echo "$declared_taps"))
+    missing_taps=$(comm -13 <(echo "$installed_taps") <(echo "$declared_taps"))
+
+    issues=0
+
+    if [ -n "$missing_taps" ]; then
+        echo "📦 Missing taps (in Brewfile but not installed):"
+        echo "$missing_taps" | while read tap; do
+            echo "  • $tap"
+        done
+        echo "  💡 Fix: brew tap <tap-name>"
+        echo ""
+        issues=$((issues + 1))
+    fi
+
+    if [ -n "$extra_taps" ]; then
+        echo "🗑️  Extra taps (installed but not in Brewfile):"
+        echo "$extra_taps" | while read tap; do
+            echo "  • $tap"
+        done
+        echo "  💡 Fix: brew untap <tap-name> (if no longer needed)"
+        echo ""
+        issues=$((issues + 1))
+    fi
+
+    if [ -n "$untrusted_taps" ]; then
+        echo "🔒 Untrusted taps (brew 6.0+ requires explicit trust):"
+        echo "$untrusted_taps" | while read tap; do
+            echo "  • $tap"
+        done
+        echo "  💡 Fix: brew trust <tap-name>"
+        echo ""
+        issues=$((issues + 1))
+    fi
+
+    if [ "$issues" -eq 0 ]; then
+        echo "✅ All taps in sync and trusted"
+    else
+        echo "---"
+        echo "Found $issues issue(s). Run suggested fix commands above."
+    fi
+
 # Fix broken symlinks (destructive)
 [group('4-👩‍⚕️-Doctor')]
 doctor-fix-broken-links:
