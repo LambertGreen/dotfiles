@@ -27,6 +27,16 @@
         "PAT_NAME": "mcp",
         "PAT_VALUE": "<redacted>"
       }
+    },
+    "mcp-adaptor": {
+      "command": "/Users/lambert.green/.mcp-adaptor/bin/mcp-adaptor",
+      "args": [],
+      "transport": "stdio",
+      "env": {
+        "MCP_ADAPTOR_ENV": "prod",
+        "MCP_IDE_CLIENT": "windsurf",
+        "GW_PROFILE": "default"
+      }
     }
   }
 }

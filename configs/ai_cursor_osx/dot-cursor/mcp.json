@@ -9,12 +9,6 @@
         "SFDX_TARGET_ALIAS": "GUS"
       }
     },
-    "a11y_expert": {
-      "url": "http://127.0.0.1:29051/mcp/servers/a11y_expert",
-      "headers": {
-        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
-      }
-    },
     "aisuite": {
       "url": "http://127.0.0.1:29051/mcp",
       "headers": {
@@ -35,6 +29,48 @@
     },
     "columbo": {
       "url": "http://127.0.0.1:29051/mcp/servers/columbo",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-argus": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-argus",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-codesearch": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-codesearch",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-docsearch": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-docsearch",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-falcon-addons": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-falcon-addons",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-fit": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-fit",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-gus": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-gus",
+      "headers": {
+        "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
+      }
+    },
+    "dxmcp-sfci-managed": {
+      "url": "http://127.0.0.1:29051/mcp/servers/dxmcp-sfci-managed",
       "headers": {
         "Authorization": "Bearer e09c0263-50f7-4221-aae7-b265164eafbd"
       }
