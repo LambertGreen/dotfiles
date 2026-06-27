@@ -1,8 +1,6 @@
 # Taps
 tap "buo/cask-upgrade"
 tap "equalsraf/neovim-qt"
-tap "kegworks-app/kegworks"
-tap "koekeishiya/formulae"
 tap "martido/graph"
 tap "mongodb/brew"
 tap "nikitabobko/tap"
@@ -243,7 +241,6 @@ cask "yt-music"
 
 # GUI Applications - Gaming & Windows Compatibility
 cask "crossover"
-cask "kegworks"
 cask "steam"
 cask "steamcmd"
 cask "whisky"
