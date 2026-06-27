@@ -1,0 +1,229 @@
+{
+  "alwaysThinkingEnabled": false,
+  "apiKeyHelper": "'/Applications/devbar.app/Contents/MacOS/devbar' auth claude",
+  "autoUpdatesChannel": "stable",
+  "defaultMode": "auto",
+  "enabledPlugins": {
+    "a11y_expert@aisuite": true,
+    "aisuite-nfr-analysis@aisuite": true,
+    "aisuite@aisuite": true,
+    "api-expert@aisuite": true,
+    "browser@aisuite": true,
+    "claude-unleashed@aisuite": true,
+    "codesearch@aisuite": true,
+    "columbo@aisuite": true,
+    "dxmcp-argus@aisuite": true,
+    "dxmcp-codesearch@aisuite": true,
+    "dxmcp-docsearch@aisuite": true,
+    "dxmcp-falcon-addons@aisuite": true,
+    "dxmcp-fit@aisuite": true,
+    "dxmcp-gus@aisuite": true,
+    "dxmcp-sfci-managed@aisuite": true,
+    "falcon@salesforce-native-ai-stack": true,
+    "git-emu@salesforce-native-ai-stack": true,
+    "git-soma@salesforce-native-ai-stack": true,
+    "github@aisuite": true,
+    "gmail@aisuite": true,
+    "google-workspace@salesforce-native-ai-stack": true,
+    "google@aisuite": true,
+    "gus-pm@salesforce-native-ai-stack": true,
+    "gus-stories@salesforce-native-ai-stack": true,
+    "gus-toolkit@aisuite": true,
+    "gus-workflows@salesforce-native-ai-stack": true,
+    "gus@salesforce-native-ai-stack": true,
+    "innerloop@aisuite": true,
+    "monitoring@salesforce-native-ai-stack": true,
+    "rca-investigator@salesforce-native-ai-stack": true,
+    "salesforce-trust-foundations@salesforce-native-ai-stack": true,
+    "search@aisuite": true,
+    "sfcli@aisuite": true,
+    "slack@aisuite": true,
+    "tabcore@salesforce-native-ai-stack": true,
+    "udd@aisuite": true,
+    "v2mom@salesforce-native-ai-stack": true
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://eng-ai-model-gateway.sfproxy.devx-preprod.aws-esvc1-useast2.aws.sfdc.cl",
+    "ANTHROPIC_BEDROCK_BASE_URL": "https://eng-ai-model-gateway.sfproxy.devx-preprod.aws-esvc1-useast2.aws.sfdc.cl/bedrock",
+    "CLAUDE_CODE_ENABLE_AUTO_MODE": "1",
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "CLAUDE_CODE_SKIP_BEDROCK_AUTH": "1",
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "DISABLE_AUTOUPDATER": "0",
+    "DISABLE_BUG_COMMAND": "1",
+    "DISABLE_ERROR_REPORTING": "1",
+    "DISABLE_TELEMETRY": "1",
+    "FORCE_AUTOUPDATE_PLUGINS": "1",
+    "NODE_EXTRA_CA_CERTS": "/Users/lambert.green/.aisuite/conf/npm-sfdc-certs.pem",
+    "NODE_TLS_REJECT_UNAUTHORIZED": "1",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://internal-ai-telemetry.sfproxy.monitoring.test1-uswest2.aws.sfdc.cl",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_LOG_TOOL_CONTENT": "1",
+    "OTEL_LOG_TOOL_DETAILS": "1",
+    "OTEL_LOG_USER_PROMPTS": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_SERVICE_NAME": "claude-code"
+  },
+  "extraKnownMarketplaces": {
+    "aisuite": {
+      "source": {
+        "path": "/Users/lambert.green/.aisuite/marketplaces/aisuite",
+        "source": "directory"
+      }
+    },
+    "salesforce-native-ai-stack": {
+      "source": {
+        "source": "git",
+        "url": "git@git.soma.salesforce.com:codeai/awesome-context.git"
+      }
+    }
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      },
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.aisuite/hooks/security_reminder_hook.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": "Edit|Write|MultiEdit"
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          },
+          {
+            "command": "/Users/lambert.green/.aisuite/hooks/session-start.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          },
+          {
+            "command": "/Users/lambert.green/.aisuite/hooks/stop-hook.sh",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/lambert.green/.devbar/bin/telemetry-usage-hook",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
+  },
+  "model": "opus",
+  "modelOverrides": {
+    "claude-haiku-4-5": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
+    "claude-opus-4-6": "global.anthropic.claude-opus-4-6-v1",
+    "claude-opus-4-7": "global.anthropic.claude-opus-4-7",
+    "claude-sonnet-4-6": "global.anthropic.claude-sonnet-4-6"
+  },
+  "permissions": {
+    "allow": [
+      "mcp__tools__list",
+      "mcp__tools__call",
+      "WebFetch",
+      "WebSearch",
+      "mcp__plugin_slack_slack__slack_read_channel",
+      "mcp__plugin_slack_slack__slack_read_thread",
+      "mcp__plugin_slack_slack__slack_read_canvas",
+      "mcp__plugin_slack_slack__slack_read_user_profile",
+      "mcp__plugin_slack_slack__slack_search_channels",
+      "mcp__plugin_slack_slack__slack_search_public",
+      "mcp__plugin_slack_slack__slack_search_public_and_private",
+      "mcp__plugin_slack_slack__slack_search_users"
+    ]
+  },
+  "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "command": "/bin/bash /Users/lambert.green/.claude/statusline.sh",
+    "type": "command"
+  },
+  "theme": "light-ansi"
+}

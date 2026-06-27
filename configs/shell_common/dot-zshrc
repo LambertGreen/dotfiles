@@ -21,8 +21,9 @@ if [[ -d "$HOME/.devbar" ]]; then
 fi
 
 # >>> aisuite >>>
-# Minimal aisuite setup - only add PATH
-if [[ -d "$HOME/.aisuite/bin" ]]; then
-  export PATH="$HOME/.aisuite/bin:$PATH"
-fi
+export NODE_EXTRA_CA_CERTS="/Users/lambert.green/.aisuite/conf/npm-sfdc-certs.pem"
+export PATH="$PATH:/Users/lambert.green/.aisuite/bin:/Users/lambert.green/.aisuite/bin/aliases"
 # <<< aisuite <<<
+# devbar-managed-start
+export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+# devbar-managed-end

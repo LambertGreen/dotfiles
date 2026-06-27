@@ -1,8 +1,12 @@
 # Homebrew Formulas - Non-Admin
 # CLI tools and libraries that don't require admin privileges
 
+tap "d12frosted/emacs-plus"
+tap "hashicorp/tap"
+tap "local/gpg"
 tap "microsoft/mssql-release", "https://github.com/Microsoft/homebrew-mssql-release"
 tap "pkryger/emacsmacport-exp"
+tap "theseal/ssh-askpass"
 
 # Core CLI Tools
 brew "awscli"

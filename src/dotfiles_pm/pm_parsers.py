@@ -33,30 +33,10 @@ def parse_zinit_status(output: str) -> int:
 
 
 def parse_brew_cask_output(output: str) -> int:
-    """
-    Parse brew cu output to count only apps marked as [ FORCED ].
-
-    brew cu shows apps with either [ OK ] (up to date) or [ FORCED ] (outdated).
-    Only count [ FORCED ] apps as needing updates.
-
-    Args:
-        output: Output from 'brew cu' command
-
-    Returns:
-        Number of apps that need updates ([ FORCED ] status)
-    """
+    """Parse brew outdated --cask --greedy output (one package per line)."""
     if not output:
         return 0
-
-    count = 0
-    lines = output.split('\n')
-
-    for line in lines:
-        # Only count lines that contain app entries with [ FORCED ] status
-        if "/" in line and "[ FORCED ]" in line:
-            count += 1
-
-    return count
+    return len([line for line in output.strip().split('\n') if line.strip()])
 
 
 def parse_default_output(output: str) -> int:

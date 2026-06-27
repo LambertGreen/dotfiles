@@ -51,7 +51,7 @@ echo "{\"status\": \"completed\", \"exit_code\": $EXIT_CODE, \"timestamp\": $(da
 # Footer
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-if [ $EXIT_CODE -eq 0 ]; then
+if [ "$EXIT_CODE" -eq 0 ]; then
     echo "✅ $OPERATION completed successfully"
     if [ "$AUTO_CLOSE" = "true" ]; then
         # Quick operations - no need to wait
@@ -69,3 +69,5 @@ else
     echo "🖥️  Terminal ready for closure via automation"
     # Terminal will be closed by automation - no sleep needed
 fi
+
+exit "$EXIT_CODE"

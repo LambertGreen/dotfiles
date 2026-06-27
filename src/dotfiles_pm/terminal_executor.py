@@ -186,9 +186,8 @@ class TerminalExecutor(ABC):
 
         wrapper_script = str(wrapper_script)
 
-        # Use wrapper script for clean output
         auto_close_arg = 'true' if auto_close else 'false'
-        tracked_cmd = f'{wrapper_script} "{operation}" "{base_cmd}" "{log_file}" "{status_file}" {auto_close_arg}'
+        tracked_cmd = f'{wrapper_script} "{operation}" "{base_cmd}" "{log_file}" "{status_file}" {auto_close_arg}; exit'
 
         return tracked_cmd, log_file, status_file
 
@@ -239,18 +238,11 @@ class DarwinTerminalExecutor(TerminalExecutor):
         try:
             # Escape quotes in command for AppleScript
             escaped_cmd = command.replace('"', '\\"')
-            # Use default shell with user's profile for proper PATH
-            # Capture window count before and after to identify new window
             script = f'''
             tell application "Terminal"
-                set windowsBefore to count of windows
                 set newTab to do script "{escaped_cmd}"
-                set windowsAfter to count of windows
-                if windowsAfter > windowsBefore then
-                    return id of window 1
-                else
-                    return "same_window"
-                end if
+                set newWindow to window 1 whose tabs contains newTab
+                return id of newWindow
             end tell
             '''
             result = subprocess.run(['osascript', '-e', script], capture_output=True, text=True)
@@ -294,14 +286,12 @@ class DarwinTerminalExecutor(TerminalExecutor):
             return False
 
     def close_all_terminals(self) -> int:
-        """Close all spawned Terminal.app windows using registry"""
+        """Close all spawned Terminal.app windows by killing the app"""
         try:
-            # Use registry-based cleanup since we can't reliably identify windows by title
             spawned_terminals = _load_terminal_registry()
-            closed_count = 0
-            for terminal_info in spawned_terminals:
-                if self.close_terminal(terminal_info):
-                    closed_count += 1
+            closed_count = len(spawned_terminals)
+            # Kill Terminal.app — we only use it for spawned commands (user's terminal is Wezterm/etc)
+            subprocess.run(['pkill', '-x', 'Terminal'], capture_output=True)
             return closed_count
         except Exception:
             return 0
