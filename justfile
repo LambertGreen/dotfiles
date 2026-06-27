@@ -38,6 +38,7 @@ _check-windows-env:
     @echo "" > /dev/null
 
 # Show configuration and available commands
+[default]
 default:
     @echo "🚀 New user? Start with: just configure → just bootstrap → just sync-submodules → just stow → just onetimesetup → just install"
     @echo ""
