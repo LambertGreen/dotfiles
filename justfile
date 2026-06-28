@@ -214,6 +214,11 @@ upgrade:
     @echo "🔄 Upgrading packages (interactive)..."
     @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm upgrade" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm upgrade; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
+# Upgrade the macOS emacs-mac-exp@31 HEAD build (backup/restore safety; macOS-only)
+[group('2-📦-Package-Management')]
+upgrade-emacs-mac-exp:
+    @{{ if os() == "macos" { "bash scripts/package-management/emacs/upgrade-emacs-mac-exp.sh" } else { "echo '⏭️  upgrade-emacs-mac-exp is macOS-only (emacs-mac-exp@31); Linux/Windows Emacs is managed separately.'" } }}
+
 # Show available package managers
 [group('3-ℹ️-Info')]
 show-package-managers:
