@@ -29,11 +29,16 @@ repos:
       - id: check-shebang-scripts-are-executable
         exclude: '^\.envrc$|dot-zprofile|dot-zshrc|dot-zshenv|dot-bashrc|dot-bash_profile'
 
-  # Shell script linting
-  - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.9.0
+  # Shell script linting (local: uses system shellcheck, no Docker required)
+  # Requires shellcheck on PATH (brew install shellcheck / apt install shellcheck)
+  - repo: local
     hooks:
       - id: shellcheck
+        name: shellcheck
+        entry: shellcheck
+        language: system
+        types: [shell]
+        exclude_types: [zsh]
         args: [-e, SC1091, -e, SC2034]  # Ignore source/unused vars common in dotfiles
         exclude: '^\.envrc$|dot-zsh|dot-zprofile'
 
