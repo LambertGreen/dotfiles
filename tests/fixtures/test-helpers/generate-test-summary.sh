@@ -34,6 +34,21 @@ extract_value() {
     fi
 }
 
+# Print the most recently modified file matching the given glob(s), or nothing.
+# Args are the glob-expanded paths; an unmatched glob arrives as a literal and
+# is skipped by the -f test, so this is safe without nullglob.
+newest_log() {
+    local newest="" f
+    for f in "$@"; do
+        [[ -f "$f" ]] || continue
+        if [[ -z "$newest" || "$f" -nt "$newest" ]]; then
+            newest="$f"
+        fi
+    done
+    [[ -n "$newest" ]] && printf '%s\n' "$newest"
+    return 0  # never fail: an empty result is valid (caller checks with -n)
+}
+
 # Generate report
 cat <<EOF
 # Docker Test Summary Report
@@ -42,7 +57,7 @@ cat <<EOF
 **Machine Class:** $MACHINE_CLASS
 **Platform:** $PLATFORM
 **Build Status:** $(if [[ "$BUILD_SUCCESS" == "true" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)
-**Test Duration:** $(if [[ -f "$TEST_DIR/docker-build-output.log" ]]; then echo "$(stat -f %Sm -t '%H:%M:%S' "$TEST_DIR/docker-build-output.log" 2>/dev/null || echo 'unknown')"; else echo "unknown"; fi)
+**Test Duration:** $(if [[ -f "$TEST_DIR/docker-build-output.log" ]]; then stat -f %Sm -t '%H:%M:%S' "$TEST_DIR/docker-build-output.log" 2>/dev/null || echo 'unknown'; else echo "unknown"; fi)
 
 ---
 
@@ -52,14 +67,9 @@ cat <<EOF
 
 EOF
 
-# Check for both initialization and verification logs
-INIT_LOG_PATTERN="$TEST_DIR/logs/init-dev-packages"*.log
-VERIFY_LOG_PATTERN="$TEST_DIR/logs/verify-dev-package-install"*.log
-
 # Extract initialization timing if available
-if ls $INIT_LOG_PATTERN 1> /dev/null 2>&1; then
-    INIT_LOG=$(ls -t $INIT_LOG_PATTERN | head -1)
-
+INIT_LOG=$(newest_log "$TEST_DIR/logs/init-dev-packages"*.log)
+if [[ -n "$INIT_LOG" ]]; then
     # Extract initialization timing
     EMACS_INIT_TIME=$(extract_value "$INIT_LOG" "Emacs.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
     NVIM_INIT_TIME=$(extract_value "$INIT_LOG" "Neovim.*completed.*\([0-9]+s\)" | grep -oE '\([0-9]+s\)' | tr -d '()' || echo "")
@@ -67,9 +77,8 @@ if ls $INIT_LOG_PATTERN 1> /dev/null 2>&1; then
 fi
 
 # Check for package installation results
-if ls $VERIFY_LOG_PATTERN 1> /dev/null 2>&1; then
-    VERIFY_LOG=$(ls -t $VERIFY_LOG_PATTERN | head -1)
-
+VERIFY_LOG=$(newest_log "$TEST_DIR/logs/verify-dev-package-install"*.log)
+if [[ -n "$VERIFY_LOG" ]]; then
     # Extract verification results
     EMACS_RESULT=$(extract_value "$VERIFY_LOG" "Emacs:.*packages")
     NEOVIM_RESULT=$(extract_value "$VERIFY_LOG" "Neovim:.*plugins")
@@ -127,19 +136,19 @@ if [[ -d "$TEST_DIR/machine-class-config" ]]; then
             case "$PM_NAME" in
                 pacman|apt)
                     if [[ -f "$pm_dir/packages.txt" ]]; then
-                        COUNT=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                        COUNT=$(grep -cvE '^#|^$' "$pm_dir/packages.txt" 2>/dev/null || true)
                         echo "| **$PM_NAME** | $COUNT |"
                     fi
                     ;;
                 npm)
                     if [[ -f "$pm_dir/packages.txt" ]]; then
-                        COUNT=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                        COUNT=$(grep -cvE '^#|^$' "$pm_dir/packages.txt" 2>/dev/null || true)
                         echo "| **npm** | $COUNT |"
                     fi
                     ;;
                 pip)
                     if [[ -f "$pm_dir/requirements.txt" ]]; then
-                        COUNT=$(grep -v '^#' "$pm_dir/requirements.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                        COUNT=$(grep -cvE '^#|^$' "$pm_dir/requirements.txt" 2>/dev/null || true)
                         echo "| **pip** | $COUNT |"
                     fi
                     ;;
@@ -153,9 +162,8 @@ fi
 echo "## 🏥 Health Check Results"
 echo ""
 
-if [[ -f "$TEST_DIR/logs/health-check"*.log ]]; then
-    HEALTH_LOG=$(ls -t "$TEST_DIR/logs/health-check"*.log | head -1)
-
+HEALTH_LOG=$(newest_log "$TEST_DIR/logs/health-check"*.log)
+if [[ -n "$HEALTH_LOG" ]]; then
     # Extract health status
     HEALTH_STATUS=$(extract_value "$HEALTH_LOG" "Status:.*")
     if [[ -n "$HEALTH_STATUS" ]]; then
