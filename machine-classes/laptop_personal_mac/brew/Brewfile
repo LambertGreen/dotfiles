@@ -84,7 +84,6 @@ brew "zellij"
 brew "zoxide"
 
 # System Utilities
-brew "ctags"
 brew "diffutils"
 brew "editorconfig"
 brew "fastfetch"
