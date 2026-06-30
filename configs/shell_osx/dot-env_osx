@@ -33,6 +33,11 @@ lgreen_setup_homebrew() {
         if [ -d "/opt/homebrew/opt/ruby/bin" ]; then
             export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
         fi
+
+        # Add keg-only PostgreSQL 14 tools to PATH (psql, pg_dump, pg_ctl, ...)
+        if [ -d "/opt/homebrew/opt/postgresql@14/bin" ]; then
+            export PATH="/opt/homebrew/opt/postgresql@14/bin:$PATH"
+        fi
     fi
 
     # Configure cask installs to use ~/Applications (user-local, consistent with dotfiles)
