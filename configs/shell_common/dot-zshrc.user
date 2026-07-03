@@ -178,10 +178,15 @@ lgreen_emacs() {
             ;;
     esac
 
-    # On macOS, use 'open -a' to properly launch GUI Emacs detached from terminal
-    # This prevents keyboard input from going to the terminal instead of Emacs
+    # On macOS, use 'open -n' to launch a NEW instance (not activate existing)
+    # and specify the exact Emacs.app path to ensure we get the right version
     if [ "$(uname_cached)" = "Darwin" ]; then
-        open -a Emacs --args --init-directory="$init_dir"
+        local emacs_app="/opt/homebrew/opt/emacs-mac-exp@31/Emacs.app"
+        if [ ! -d "$emacs_app" ]; then
+            # Fallback to system Emacs if emacs-mac-exp not found
+            emacs_app="/Applications/Emacs.app"
+        fi
+        open -n "$emacs_app" --args --init-directory="$init_dir"
     else
         # On Linux/other platforms, launch normally in background
         emacs --init-directory="$init_dir" &
