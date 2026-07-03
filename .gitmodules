@@ -51,3 +51,7 @@
 	path = configs/ssh_common/dot-ssh
 	url = git@github.com-personal:LambertGreen/sshconfig.git
 	branch = main
+[submodule "configs/emacs_common/dot-emacs.purgatory"]
+	path = configs/emacs_common/dot-emacs.purgatory
+	url = git@github.com-personal:LambertGreen/dot-emacs-purgatory.git
+	branch = main
