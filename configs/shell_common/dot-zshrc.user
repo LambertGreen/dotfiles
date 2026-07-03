@@ -153,11 +153,51 @@ lgreen_init_p10k() {
     # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
     [ ! -f ~/.p10k.zsh ] || source ~/.p10k.zsh
 }
+# * Emacs Launcher
+lgreen_emacs() {
+    local config="${1:-default}"
+    local init_dir=""
+
+    case "$config" in
+        default)
+            init_dir="$HOME/.emacs.d"
+            ;;
+        purgatory)
+            init_dir="$HOME/.emacs.purgatory"
+            ;;
+        doom)
+            init_dir="$HOME/.emacs.doom"
+            ;;
+        spacemacs)
+            init_dir="$HOME/.emacs.spacemacs"
+            ;;
+        *)
+            echo "Unknown Emacs config: $config"
+            echo "Available: default, purgatory, doom, spacemacs"
+            return 1
+            ;;
+    esac
+
+    # On macOS, use 'open -a' to properly launch GUI Emacs detached from terminal
+    # This prevents keyboard input from going to the terminal instead of Emacs
+    if [ "$(uname_cached)" = "Darwin" ]; then
+        open -a Emacs --args --init-directory="$init_dir"
+    else
+        # On Linux/other platforms, launch normally in background
+        emacs --init-directory="$init_dir" &
+    fi
+}
+
 # * Shell aliases
 lgreen_setup_aliases() {
     # shellcheck disable=SC2139
     alias e="$EDITOR"
     alias ec=emacsclient
+    alias em=lgreen_emacs
+    alias em-default="lgreen_emacs default"
+    alias em-purgatory="lgreen_emacs purgatory"
+    alias em-doom="lgreen_emacs doom"
+    alias em-spacemacs="lgreen_emacs spacemacs"
     alias g=git
     alias groot='pushd "$(git rev-parse --show-toplevel)"'
     # TODO: Decide on the gw alias. Removing it be cause it interferes with an gw script in the monolith
