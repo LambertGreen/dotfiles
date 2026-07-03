@@ -156,6 +156,7 @@ lgreen_init_p10k() {
 # * Emacs Launcher
 lgreen_emacs() {
     local config="${1:-default}"
+    shift  # Remove first arg so $@ contains remaining args
     local init_dir=""
 
     case "$config" in
@@ -186,10 +187,10 @@ lgreen_emacs() {
             # Fallback to system Emacs if emacs-mac-exp not found
             emacs_app="/Applications/Emacs.app"
         fi
-        open -n "$emacs_app" --args --init-directory="$init_dir"
+        open -n "$emacs_app" --args --init-directory="$init_dir" "$@"
     else
         # On Linux/other platforms, launch normally in background
-        emacs --init-directory="$init_dir" &
+        emacs --init-directory="$init_dir" "$@" &
     fi
 }
 
