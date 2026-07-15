@@ -1,0 +1,75 @@
+# herdr configuration
+# Matching tmux config with C-a prefix
+
+[theme]
+# Using catppuccin to match tmux theme
+# Manual theme switching via ~/.config/herdr/toggle-theme.sh
+name = "catppuccin"
+
+# Auto-switch disabled - use manual toggle to match Wezterm theme
+auto_switch = false
+dark_name = "catppuccin"
+light_name = "catppuccin-latte"
+
+[terminal]
+# Use default shell from environment
+default_shell = ""
+shell_mode = "auto"
+
+# Follow CWD like tmux does
+new_cwd = "follow"
+
+[update]
+channel = "stable"
+version_check = true
+manifest_check = true
+
+[keys]
+# Match tmux prefix: C-a instead of default C-b
+prefix = "ctrl+a"
+
+# Prefix-mode actions (keeping tmux-like defaults)
+help = "prefix+?"
+settings = "prefix+shift+s"  # Moved to avoid conflict with split
+detach = "prefix+q"
+reload_config = "prefix+r"  # Like tmux 'prefix+r' for reload
+
+# Workspace management (similar to tmux sessions)
+workspace_picker = "prefix+w"
+new_workspace = "prefix+shift+n"
+rename_workspace = "prefix+shift+w"
+close_workspace = "prefix+shift+d"
+
+# Tab management (similar to tmux windows)
+new_tab = "prefix+c"
+rename_tab = "prefix+shift+t"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+close_tab = "prefix+shift+x"
+
+# Pane navigation (matching your tmux h/j/k/l bindings)
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+
+# Pane splitting (matching your tmux v/s bindings)
+split_vertical = "prefix+v"    # vertical split (side by side)
+split_horizontal = "prefix+s"  # horizontal split (top/bottom)
+
+# Pane management
+rename_pane = "prefix+shift+p"
+close_pane = "prefix+x"
+zoom_pane = "prefix+z"
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+
+# Scrollback editing (like tmux copy mode)
+edit_scrollback = "prefix+e"
+
+# Git worktree integration
+new_worktree = "prefix+shift+g"
+
+# Note: Pane resizing (H/J/K/L) not available in prefix bindings yet
+# Use mouse dragging or right-click menu for now

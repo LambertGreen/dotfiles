@@ -103,9 +103,16 @@ config.keys = {
    -- Enter copy mode with Leader+]
    { key = '[', mods = 'LEADER', action = wezterm.action.ActivateCopyMode },
 
-  -- Full screen and theme toggle (keeping your existing ones)
+  -- Full screen and theme toggle
   { key = 'f', mods = 'LEADER', action = 'ToggleFullScreen' },
-  { key = 't', mods = 'LEADER', action = wezterm.action_callback(ToggleTheme) },
+  -- Alt+a t: Toggle Wezterm + shell themes (synced)
+  { key = 't', mods = 'LEADER', action = wezterm.action_callback(function(window, pane)
+    ToggleTheme(window, pane)
+    -- Also toggle shell themes (tt alias)
+    pane:send_text("tt\r")
+  end) },
+  -- Alt+a T: Toggle only Wezterm theme (independent)
+  { key = 'T', mods = 'LEADER', action = wezterm.action_callback(ToggleTheme) },
 
   -- Splits
   {
