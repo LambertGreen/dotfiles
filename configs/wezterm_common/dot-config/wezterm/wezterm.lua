@@ -4,13 +4,16 @@ local wezterm = require('wezterm')
 local light_theme = 'OneHalfLight'
 local dark_theme = 'OneHalfDark'
 
-local function scheme_for_appearance(appearance)
-  if appearance:find('Dark') then
-    return dark_theme
-  else
-    return light_theme
-  end
-end
+-- Disabled: follow OS appearance. Preferred behavior but causes mismatch with
+-- internal shells that cannot dynamically switch (see docs/THEME_STRATEGY.org).
+-- Uncomment to re-enable if shell theme propagation is solved.
+-- local function scheme_for_appearance(appearance)
+--   if appearance:find('Dark') then
+--     return dark_theme
+--   else
+--     return light_theme
+--   end
+-- end
 
 -- Allow working with both the current release and the nightly
 local config = {}
@@ -54,28 +57,24 @@ end
 -- Tab bar
 config.hide_tab_bar_if_only_one_tab = true
 
--- Background transparency
+-- Background transparency (Windows-specific; macOS handled in platform block above)
 if wezterm.target_triple:find('windows') then
   config.window_background_opacity = 0.95
 -- TODO: This option is still pretty new, and hence one should check for
 -- existence before use
 -- config.win32_system_backdrop = 'Acrylic'
-elseif wezterm.target_triple:find('apple') then
-  config.window_background_opacity = 0.95
-  config.macos_window_background_blur = 20
-  config.window_decorations = 'TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
 end
 
--- Color Scheme
-local appearance = wezterm.gui.get_appearance()
-config.color_scheme = scheme_for_appearance(appearance)
-
--- Set shell environment variable to indicate theme is light/dark
-local theme_mode = appearance:find('Dark') and 'dark' or 'light'
-config.color_scheme = scheme_for_appearance(appearance)
+-- Color Scheme: hardcode dark. See docs/THEME_STRATEGY.org for rationale.
+-- Disabled: follow OS appearance. Uncomment to re-enable.
+-- local appearance = wezterm.gui.get_appearance()
+-- config.color_scheme = scheme_for_appearance(appearance)
+-- local theme_mode = appearance:find('Dark') and 'dark' or 'light'
+config.color_scheme = dark_theme
 config.set_environment_variables = {
-  LGREEN_SHELL_THEME_MODE = theme_mode,
+  LGREEN_SHELL_THEME_MODE = 'dark',
 }
+
 
 -- Function to toggle the theme
 local function ToggleTheme(window, _)

@@ -1,0 +1,246 @@
+#+TITLE: Theme Strategy: Dark/Light Mode
+#+AUTHOR: Lambert Green
+#+DATE: 2026-07-18
+
+* Core Problem
+
+Shell processes cannot update their environment variables after spawn. Any app that
+hosts a shell (terminal emulators, editors with embedded terminals) therefore cannot
+dynamically switch its internal shells between dark and light mode. The shell is the
+weakest link in the theme propagation chain.
+
+* Constraints
+
+1. *Env vars are immutable in running processes.* A parent can set them at spawn
+   but cannot update them afterward.
+2. *Apps that host shells must match the shell default.* Otherwise shell tools
+   (fzf, bat, ls_colors, delta) render with wrong colors against the container's
+   background.
+3. *OS window chrome is independent of content theme.* Most apps cannot request
+   dark window chrome while the system is in light mode (or vice versa). This is an
+   OS limitation on all platforms.
+4. *Not all apps support OS appearance change events.* macOS has
+   =NSAppearanceDidChangeNotification=, Windows has registry watchers, Linux has
+   no standard. Support varies per app.
+
+* Decision
+
+*Default to DARK for the entire editor/terminal/shell stack on all platforms.*
+
+Rationale:
+- The shell cannot auto-switch, so its containers must commit to one default.
+- Dark mode is the common case for development ("hacker hat on for code").
+- Window transparency/blur softens the contrast when ambient light is moderate.
+- Light mode is available via manual switching for bright environments.
+
+The system appearance setting is irrelevant to the terminal stack. Apps that do not
+host shells (browsers, doc editors, etc.) can follow the system freely.
+
+* Container Hierarchy
+
+#+begin_example
+OS System Appearance (irrelevant to this stack)
+|
++-- Terminal Emulator (WezTerm)
+|   +-- Multiplexer (tmux, Herdr)  [optional layer]
+|       +-- Shell (zsh)
+|           +-- TUI Editor (Emacs TUI, Neovim TUI)
+|           |   +-- Editor-hosted shell (rare: nested terminal)
+|           +-- CLI tools (bat, fzf, delta, ls)
+|           +-- AI tools (Claude Code)
+|
++-- GUI Editor (Emacs GUI, Neovide)
+|   +-- Editor-hosted terminal (EAT, vterm, :terminal)
+|       +-- Shell (zsh)
+|           +-- CLI tools
+|           +-- AI tools (Claude Code)
+|
++-- Other GUI apps (follow system freely)
+#+end_example
+
+Rule: every layer must match or be compatible with its children. Since the shell
+(deepest layer) is fixed at spawn, the entire chain above it defaults to the same
+mode.
+
+* Per-App Specification
+
+** WezTerm (terminal emulator, all platforms)
+
+| Attribute      | Value                                               |
+|----------------+-----------------------------------------------------|
+| Default        | Dark (OneHalfDark)                                  |
+| Follow system? | No -- hardcoded dark                                |
+| Manual switch  | =Leader+t= toggles WezTerm color scheme             |
+| Env propagation| Sets =LGREEN_SHELL_THEME_MODE=dark= for spawned shells |
+| Platform notes | Same config across macOS/Windows/Linux              |
+
+** Shell / Zsh (all platforms)
+
+| Attribute      | Value                                                    |
+|----------------+----------------------------------------------------------|
+| Default        | Dark (reads =LGREEN_SHELL_THEME_MODE=, defaults dark if unset) |
+| Follow system? | No -- reads env at init, immutable after                 |
+| Manual switch  | =tt= alias (toggles fzf, bat, ls_colors, tmux, Herdr)   |
+| Scope          | Per-session only; does not affect other shells           |
+
+** Tmux (multiplexer, all platforms)
+
+| Attribute      | Value                                      |
+|----------------+--------------------------------------------|
+| Default        | Dark (catppuccin-mocha)                    |
+| Follow system? | No                                         |
+| Manual switch  | =tt= in shell (sed on config + tmux source-file) |
+
+** Herdr (multiplexer, all platforms)
+
+| Attribute      | Value                                         |
+|----------------+-----------------------------------------------|
+| Default        | Dark (catppuccin)                             |
+| Follow system? | No                                            |
+| Manual switch  | =tt= in shell (sed on config.toml + reload-config) |
+| Caveat         | Must NOT mutate config during shell init (causes notification spam) |
+
+** Emacs GUI (macOS/Windows/Linux)
+
+| Attribute       | Value                                          |
+|-----------------+------------------------------------------------|
+| Default         | Dark (doom-one)                                |
+| Follow system?  | *No* -- hosts internal shells, must match stack default |
+| Manual switch   | =M-x consult-theme= or custom toggle command  |
+| Env propagation | =eat-mode= / =vterm-mode= hooks call =lgreen/set-shell-theme-env= at terminal creation |
+| Window chrome   | Will show dark chrome on macOS (matches content). On Windows/Linux, follows system (mismatch acceptable). |
+
+*Key change*: Emacs on macOS currently auto-follows system appearance via
+=ns-system-appearance-change-functions=. This must be changed to hardcode dark,
+same as Windows/Linux. The hook should be removed or replaced with a manual
+toggle that also updates =LGREEN_SHELL_THEME_MODE= in the process env.
+
+*Ideal behavior (unavailable today)*: Emacs could tell the OS "give me dark window
+chrome" regardless of system appearance. macOS does not support per-window appearance
+requests from the app side in a practical way.
+
+** Emacs TUI (all platforms)
+
+| Attribute      | Value                                               |
+|----------------+-----------------------------------------------------|
+| Default        | Inherits terminal colors                            |
+| Follow system? | No -- it is a child of the terminal                 |
+| Manual switch  | Same as terminal; Emacs detects =background-mode= from terminal |
+| Notes          | Just another TUI inside the shell; no special handling needed |
+
+** Neovim TUI (all platforms)
+
+| Attribute      | Value                                      |
+|----------------+--------------------------------------------|
+| Default        | Dark (onedark)                             |
+| Follow system? | No                                         |
+| Manual switch  | =:colorscheme onelight= or future toggle mapping |
+| Future         | =f-person/auto-dark-mode.nvim= exists but pointless inside a dark terminal |
+
+** Neovim GUI / Neovide (all platforms)
+
+| Attribute      | Value                                          |
+|----------------+------------------------------------------------|
+| Default        | Dark (onedark) -- same colorscheme as TUI      |
+| Follow system? | *No* -- same reasoning as Emacs GUI; hosts =:terminal= shells |
+| Manual switch  | Same as Neovim TUI (=:colorscheme=)            |
+| Window chrome  | Controlled by Neovide settings; default dark   |
+| Notes          | Neovide inherits Neovim colorscheme. If Neovim adds system-follow later, it must still default dark. |
+
+** Claude Code (AI tool, all platforms)
+
+| Attribute      | Value                                          |
+|----------------+------------------------------------------------|
+| Default        | =theme: auto=                                  |
+| Follow system? | Effectively yes -- queries terminal background via OSC 11 at runtime |
+| Manual switch  | =/config theme=                                |
+| Notes          | Auto works correctly because it detects the actual terminal background, not the OS setting. Adapts on re-render. No change needed. |
+
+** CLI Tools (bat, fzf, delta, vivid/ls_colors)
+
+| Attribute      | Value                                |
+|----------------+--------------------------------------|
+| Default        | Dark (via env vars set by shell init) |
+| Follow system? | No                                   |
+| Manual switch  | =tt= toggles all of them             |
+| Env vars       | =BAT_THEME=, =FZF_DEFAULT_OPTS=, =LS_COLORS= |
+
+* Switching to Light Mode (Manual Workflow)
+
+For rare bright-environment use. Switch top-down through the container stack.
+
+** From WezTerm
+
+1. =Leader+t= -- switches WezTerm color scheme to light
+2. =tt= in each open shell -- switches shell tools for that session
+3. New shells spawned after step 1 still get =LGREEN_SHELL_THEME_MODE=dark= from
+   WezTerm's env (the toggle does not update =set_environment_variables=)
+4. For full consistency, restart shells after toggling WezTerm
+
+** From Emacs GUI
+
+1. =M-x consult-theme= (or toggle command) -- switches Emacs theme to light
+2. Toggle should also call =(setenv "LGREEN_SHELL_THEME_MODE" "light")= so new
+   EAT/vterm buffers spawn shells in light mode
+3. =tt= in existing EAT shells -- switches their running shell tools
+4. New EAT shells after step 1+2 will be correct automatically
+
+** From Neovide
+
+1. =:colorscheme onelight= -- switches Neovim colors
+2. Any =:terminal= shells still have dark env -- =tt= to fix
+
+** Returning to Dark
+
+Same process in reverse. Or close and reopen terminals (they inherit the dark default).
+
+* Platform-Specific Notes
+
+** macOS
+
+- System appearance: System Settings > Appearance, or auto schedule
+- Apps can detect via =NSAppearanceDidChangeNotification=
+- Window chrome follows app's effective appearance
+- *We ignore this for the terminal/editor stack*
+
+** Windows
+
+- System appearance: Settings > Personalization > Colors
+- Apps can detect via registry key =AppsUseLightTheme=
+- WezTerm on Windows: same config, hardcode dark
+- Emacs on Windows: already hardcodes dark (no system hook available)
+
+** Linux
+
+- No standard system appearance API (varies by DE)
+- Some DEs expose =prefer-dark= via XDG portal/dbus
+- Irrelevant -- everything hardcodes dark anyway
+
+* Future: When to Revisit
+
+This strategy can be relaxed IF:
+
+1. *Terminal emulators gain shell-notification on theme change* -- e.g., WezTerm
+   =user-var-changed= event or a standard escape sequence that tells the shell
+   "theme changed, re-read your colors."
+2. *Shells gain a theme-change hook* -- a signal or trap that triggers re-sourcing
+   of color configuration.
+3. *A cross-process theme bus exists* -- something like a Unix socket or dbus
+   protocol that all tools subscribe to.
+4. *Per-window appearance API* -- allowing an app to request dark window chrome
+   regardless of system appearance setting.
+
+Until then, the manual top-down switch is the only reliable approach. The cost is
+low (bright-environment coding is rare) and the benefit of a stable default is high.
+
+* Implementation Checklist
+
+- [ ] WezTerm: remove =scheme_for_appearance= / =get_appearance=, hardcode dark
+- [ ] Emacs macOS: remove =ns-system-appearance-change-functions= auto-switch,
+  hardcode dark theme, add manual toggle that also updates env
+- [ ] Emacs: ensure manual toggle updates =LGREEN_SHELL_THEME_MODE= (for new terminals)
+- [ ] Neovim: no change needed (already dark-only)
+- [ ] Neovide: no change needed (inherits Neovim config)
+- [ ] Claude Code: no change needed (=auto= works correctly)
+- [ ] Shell: no change needed (already defaults dark)
+- [ ] Tmux/Herdr: no change needed (already defaults dark, toggled by =tt=)
