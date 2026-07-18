@@ -32,7 +32,10 @@ class BrewPM(PackageManager):
         from sudo_helper import wrap_command_with_askpass, get_sudo_mode
         mode = get_sudo_mode()
         if mode == 'gui':
-            wrapped = wrap_command_with_askpass("brew upgrade")
+            wrapped = wrap_command_with_askpass(
+                "brew upgrade",
+                reason="Homebrew needs to update system-linked packages",
+            )
             return ["bash", "-c", wrapped]
         return ["brew", "upgrade"]
 

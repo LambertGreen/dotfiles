@@ -36,14 +36,19 @@ def _get_askpass_path() -> Path:
     return Path.home() / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
 
 
-def _ensure_macos_askpass() -> str:
+def _ensure_macos_askpass(reason: str = "") -> str:
     """Create/verify the macOS askpass script using osascript."""
     askpass_path = _get_askpass_path()
     askpass_path.parent.mkdir(parents=True, exist_ok=True)
 
+    if reason:
+        message = f"Administrator password required\\n\\n{reason}"
+    else:
+        message = "Administrator password required"
+
     askpass_path.write_text(
         '#!/bin/bash\n'
-        '/usr/bin/osascript -e \'display dialog "Administrator password required" '
+        f'/usr/bin/osascript -e \'display dialog "{message}" '
         'default answer "" with hidden answer with title "sudo" with icon caution\' '
         '-e \'text returned of result\' 2>/dev/null\n'
     )
@@ -82,12 +87,15 @@ def get_sudo_mode() -> str:
     return 'tty'
 
 
-def get_sudo_askpass_env() -> dict:
+def get_sudo_askpass_env(reason: str = "") -> dict:
     """
     Get environment variables to set SUDO_ASKPASS for GUI mode.
 
     When SUDO_ASKPASS is set, brew automatically passes -A to sudo,
     which triggers the askpass program (GUI dialog) instead of TTY input.
+
+    Args:
+        reason: Context shown in the dialog explaining why sudo is needed.
 
     Returns a dict of env vars to export, or empty dict for tty/skip modes.
     """
@@ -98,7 +106,7 @@ def get_sudo_askpass_env() -> dict:
 
     system = platform.system()
     if system == 'Darwin':
-        askpass = _ensure_macos_askpass()
+        askpass = _ensure_macos_askpass(reason)
         return {'SUDO_ASKPASS': askpass}
     elif system == 'Linux':
         askpass = _find_linux_askpass()
@@ -107,14 +115,18 @@ def get_sudo_askpass_env() -> dict:
     return {}
 
 
-def wrap_command_with_askpass(command: str) -> str:
+def wrap_command_with_askpass(command: str, reason: str = "") -> str:
     """
     Wrap a shell command with SUDO_ASKPASS export if GUI mode is active.
 
     When brew hits a cask needing sudo, it will see SUDO_ASKPASS in env
     and show the GUI dialog — same flow as pkexec on Linux.
+
+    Args:
+        command: The shell command to wrap.
+        reason: Context shown in the dialog explaining why sudo is needed.
     """
-    env_vars = get_sudo_askpass_env()
+    env_vars = get_sudo_askpass_env(reason)
     if not env_vars:
         return command
 
