@@ -105,14 +105,7 @@ config.keys = {
 
   -- Full screen and theme toggle
   { key = 'f', mods = 'LEADER', action = 'ToggleFullScreen' },
-  -- Alt+a t: Toggle Wezterm + shell themes (synced)
-  { key = 't', mods = 'LEADER', action = wezterm.action_callback(function(window, pane)
-    ToggleTheme(window, pane)
-    -- Also toggle shell themes (tt alias)
-    pane:send_text("tt\r")
-  end) },
-  -- Alt+a T: Toggle only Wezterm theme (independent)
-  { key = 'T', mods = 'LEADER', action = wezterm.action_callback(ToggleTheme) },
+  { key = 't', mods = 'LEADER', action = wezterm.action_callback(ToggleTheme) },
 
   -- Splits
   {
