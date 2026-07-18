@@ -362,10 +362,6 @@ lgreen_setup_shell_theme_mode_light() {
         # lgreen_source_tmux_theme_light
         lgreen_setup_tmux_theme_catpuccin_latte
     fi
-    # Toggle Herdr theme if running inside Herdr
-    if [ -n "$HERDR_ENV" ] && command -v herdr >/dev/null 2>&1; then
-        lgreen_setup_herdr_theme_light
-    fi
 }
 lgreen_setup_shell_theme_mode_dark() {
     export LGREEN_SHELL_THEME_MODE="dark"
@@ -375,10 +371,6 @@ lgreen_setup_shell_theme_mode_dark() {
     if [ -n "$TMUX" ]; then
         # lgreen_source_tmux_theme_dark
         lgreen_setup_tmux_theme_catpuccin_mocha
-    fi
-    # Toggle Herdr theme if running inside Herdr
-    if [ -n "$HERDR_ENV" ] && command -v herdr >/dev/null 2>&1; then
-        lgreen_setup_herdr_theme_dark
     fi
 }
 lgreen_setup_shell_theme_mode() {
@@ -392,8 +384,14 @@ lgreen_setup_shell_theme_mode() {
 lgreen_toggle_shell_theme_mode() {
     if [ "$LGREEN_SHELL_THEME_MODE" = "light" ]; then
         lgreen_setup_shell_theme_mode_dark
+        if [ -n "$HERDR_ENV" ] && command -v herdr >/dev/null 2>&1; then
+            lgreen_setup_herdr_theme_dark
+        fi
     else
         lgreen_setup_shell_theme_mode_light
+        if [ -n "$HERDR_ENV" ] && command -v herdr >/dev/null 2>&1; then
+            lgreen_setup_herdr_theme_light
+        fi
     fi
 }
 lgreen_setup_fzf-tab_styles() {
