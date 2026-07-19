@@ -47,15 +47,24 @@ elseif wezterm.target_triple:find('apple') then
   config.font_size = 13
   config.window_background_opacity = 0.95
   config.macos_window_background_blur = 20
-  config.window_decorations = 'TITLE | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
+  config.window_decorations = 'INTEGRATED_BUTTONS | RESIZE | MACOS_FORCE_ENABLE_SHADOW'
   config.default_prog = { 'zsh', '-l' }
 else
   -- Linux: explicitly use zsh as login shell
   config.default_prog = { 'zsh', '-l' }
 end
 
--- Tab bar
-config.hide_tab_bar_if_only_one_tab = true
+-- Tab bar: always show fancy tab bar so WezTerm draws its own dark title area
+-- (native macOS title bar follows system appearance and can't be forced dark)
+config.use_fancy_tab_bar = true
+config.show_new_tab_button_in_tab_bar = false
+config.hide_tab_bar_if_only_one_tab = false
+config.window_frame = {
+  active_titlebar_bg = '#282c34',
+  inactive_titlebar_bg = '#282c34',
+  font = wezterm.font({ family = 'Aporetic Sans Mono', weight = 'Bold' }),
+  font_size = 12.0,
+}
 
 -- Background transparency (Windows-specific; macOS handled in platform block above)
 if wezterm.target_triple:find('windows') then
