@@ -43,7 +43,9 @@ osx_common
 # AI tool configs
 ai_claude
 ai_cursor
-ai_windsurfalacritty_osx
+ai_windsurf
+cortana_common
+alacritty_osx
 skhd
 yabai
 vscode_osx

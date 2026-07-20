@@ -39,3 +39,5 @@
 [gpg]
 	program = /opt/homebrew/bin/gpg
 	use-agent = true
+[url "git@git.soma.salesforce.com:"]
+	insteadOf = https://git.soma.salesforce.com/

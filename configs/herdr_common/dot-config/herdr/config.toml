@@ -1,3 +1,4 @@
+onboarding = false
 # herdr configuration
 # Matching tmux config with C-a prefix
 
@@ -73,3 +74,12 @@ new_worktree = "prefix+shift+g"
 
 # Note: Pane resizing (H/J/K/L) not available in prefix bindings yet
 # Use mouse dragging or right-click menu for now
+
+[ui.toast]
+delivery = "system"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+
+[experimental]
+pane_history = false

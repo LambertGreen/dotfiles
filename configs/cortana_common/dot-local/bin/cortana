@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+AI_DIR="$HOME/dev/my/ai"
+AI_REPO="git@github.com-personal:LambertGreen/ai.git"
+
+ensure_ai_repo() {
+    if [ -d "$AI_DIR" ]; then
+        return 0
+    fi
+
+    echo "AI workspace not found at $AI_DIR — cloning..."
+    if ! command -v git &>/dev/null; then
+        echo "Error: git is not installed."
+        exit 1
+    fi
+
+    mkdir -p "$(dirname "$AI_DIR")"
+    if ! git clone "$AI_REPO" "$AI_DIR" 2>/dev/null; then
+        echo "Failed to clone $AI_REPO"
+        echo "Possible causes:"
+        echo "  - No network connectivity"
+        echo "  - SSH key not configured for github.com-personal"
+        echo "  - Repository does not exist yet"
+        echo ""
+        echo "To create manually: git clone $AI_REPO $AI_DIR"
+        exit 1
+    fi
+    echo "Cloned AI workspace to $AI_DIR"
+}
+
+ensure_herdr() {
+    if ! command -v herdr &>/dev/null; then
+        echo "Error: herdr is not installed."
+        echo ""
+        echo "Install via:"
+        echo "  brew install herdr  (macOS)"
+        echo "  cargo install herdr (from source)"
+        echo "  https://herdr.dev   (other platforms)"
+        exit 1
+    fi
+}
+
+set_wezterm_title() {
+    if command -v wezterm &>/dev/null; then
+        wezterm cli set-window-title "Cortana" 2>/dev/null || true
+        wezterm cli set-tab-title "Cortana" 2>/dev/null || true
+    fi
+}
+
+main() {
+    ensure_ai_repo
+    ensure_herdr
+
+    cd "$AI_DIR"
+    set_wezterm_title
+
+    exec herdr
+}
+
+main
