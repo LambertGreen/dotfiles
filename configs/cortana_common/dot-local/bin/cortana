@@ -1,61 +1,161 @@
 #!/usr/bin/env bash
+#
+# cortana — single entry point for Lambert's AI orchestrator (Cortana).
+#
+# Cortana is a persistent cortex: she's almost always resuming a prior session,
+# not starting fresh. This script is idempotent — running `cortana` from any
+# state moves you closer to: herdr up → Cortana workspace → Claude running.
+#
+# Usage:
+#   cortana            Wake Cortana (resume most recent Claude session)
+#   cortana --fresh    Start a fresh Claude session
+#   cortana --pick     Interactive session picker (claude --resume)
+#   cortana --help
+#
+# Behavior:
+#   Outside herdr:
+#     - ~/dev/my/ai missing → prints copy-paste clone command, exits (no auto-clone)
+#     - herdr not installed → prints install hint, exits
+#     - otherwise           → sets WezTerm title, execs herdr (attach/create default session)
+#     After herdr opens, run `cortana` again inside it to launch Claude.
+#
+#   Inside herdr, workspace label = "Cortana":
+#     - Claude already running in this pane → prints notice, exits 0
+#     - otherwise                          → execs claude in ~/dev/my/ai
+#
+#   Inside herdr, other workspace:
+#     - Prints message with the herdr command to switch. Exits 0.
+#
 set -euo pipefail
 
 AI_DIR="$HOME/dev/my/ai"
 AI_REPO="git@github.com-personal:LambertGreen/ai.git"
+CORTANA_WORKSPACE_LABEL="Cortana"
 
-ensure_ai_repo() {
-    if [ -d "$AI_DIR" ]; then
-        return 0
-    fi
+# --- claude launch mode ---------------------------------------------------
+CLAUDE_MODE="resume"
+for arg in "$@"; do
+    case "$arg" in
+        --fresh) CLAUDE_MODE="fresh" ;;
+        --pick)  CLAUDE_MODE="pick" ;;
+        --resume) CLAUDE_MODE="resume" ;;
+        -h|--help)
+            sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0
+            ;;
+        *)
+            echo "cortana: unknown flag '$arg' (try --help)" >&2
+            exit 2
+            ;;
+    esac
+done
 
-    echo "AI workspace not found at $AI_DIR — cloning..."
-    if ! command -v git &>/dev/null; then
-        echo "Error: git is not installed."
-        exit 1
-    fi
-
-    mkdir -p "$(dirname "$AI_DIR")"
-    if ! git clone "$AI_REPO" "$AI_DIR" 2>/dev/null; then
-        echo "Failed to clone $AI_REPO"
-        echo "Possible causes:"
-        echo "  - No network connectivity"
-        echo "  - SSH key not configured for github.com-personal"
-        echo "  - Repository does not exist yet"
-        echo ""
-        echo "To create manually: git clone $AI_REPO $AI_DIR"
-        exit 1
-    fi
-    echo "Cloned AI workspace to $AI_DIR"
+claude_argv() {
+    case "$CLAUDE_MODE" in
+        resume) echo "claude --continue" ;;
+        fresh)  echo "claude" ;;
+        pick)   echo "claude --resume" ;;
+    esac
 }
 
-ensure_herdr() {
-    if ! command -v herdr &>/dev/null; then
-        echo "Error: herdr is not installed."
-        echo ""
-        echo "Install via:"
-        echo "  brew install herdr  (macOS)"
-        echo "  cargo install herdr (from source)"
-        echo "  https://herdr.dev   (other platforms)"
-        exit 1
-    fi
-}
+# --- helpers --------------------------------------------------------------
+have() { command -v "$1" &>/dev/null; }
 
 set_wezterm_title() {
-    if command -v wezterm &>/dev/null; then
+    if have wezterm; then
         wezterm cli set-window-title "Cortana" 2>/dev/null || true
-        wezterm cli set-tab-title "Cortana" 2>/dev/null || true
+        wezterm cli set-tab-title    "Cortana" 2>/dev/null || true
     fi
 }
 
-main() {
-    ensure_ai_repo
-    ensure_herdr
+# --- outside-herdr path ---------------------------------------------------
+launch_herdr() {
+    if [ ! -d "$AI_DIR" ]; then
+        cat >&2 <<EOF
+cortana: AI workspace not found at $AI_DIR
 
-    cd "$AI_DIR"
+To create it, run:
+    git clone $AI_REPO $AI_DIR
+
+Then re-run: cortana
+EOF
+        exit 1
+    fi
+
+    if ! have herdr; then
+        cat >&2 <<EOF
+cortana: herdr is not installed.
+
+Install options:
+    brew install herdr
+    https://herdr.dev
+
+Then re-run: cortana
+EOF
+        exit 1
+    fi
+
     set_wezterm_title
-
+    echo "cortana: launching herdr — once inside, run \`cortana\` again to wake Claude."
     exec herdr
 }
 
-main
+# --- inside-herdr path ----------------------------------------------------
+current_workspace_label() {
+    local wsid="${HERDR_WORKSPACE_ID:-}"
+    [ -z "$wsid" ] && return 1
+    herdr workspace get "$wsid" 2>/dev/null | jq -r '.result.workspace.label // empty'
+}
+
+claude_running_in_pane() {
+    herdr pane process-info --current 2>/dev/null \
+        | jq -e '.result.process_info.foreground_processes[] | select(.argv0 == "claude")' \
+        >/dev/null
+}
+
+wake_claude() {
+    local label
+    label="$(current_workspace_label || true)"
+
+    if [ "$label" != "$CORTANA_WORKSPACE_LABEL" ]; then
+        cat <<EOF
+cortana: you're in workspace "${label:-?}", not "$CORTANA_WORKSPACE_LABEL".
+
+To switch (or create) the Cortana workspace, exit herdr and re-run cortana
+from a plain shell — or use herdr's workspace picker (default: prefix + w).
+EOF
+        exit 0
+    fi
+
+    if claude_running_in_pane; then
+        echo "cortana: Claude is already running in this pane."
+        exit 0
+    fi
+
+    if ! have claude; then
+        echo "cortana: claude CLI not found on PATH." >&2
+        exit 1
+    fi
+
+    cd "$AI_DIR" 2>/dev/null || {
+        echo "cortana: cannot cd into $AI_DIR" >&2
+        exit 1
+    }
+
+    local mode_label
+    case "$CLAUDE_MODE" in
+        resume) mode_label="resuming last session" ;;
+        fresh)  mode_label="fresh session" ;;
+        pick)   mode_label="session picker" ;;
+    esac
+    echo "cortana: waking Claude ($mode_label). Flags: --fresh, --pick"
+    # shellcheck disable=SC2086
+    exec $(claude_argv)
+}
+
+# --- dispatch -------------------------------------------------------------
+if [ "${HERDR_ENV:-0}" = "1" ]; then
+    wake_claude
+else
+    launch_herdr
+fi
