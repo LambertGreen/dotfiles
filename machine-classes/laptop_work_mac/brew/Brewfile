@@ -3,7 +3,6 @@
 
 tap "d12frosted/emacs-plus"
 tap "hashicorp/tap"
-tap "local/gpg"
 tap "microsoft/mssql-release", "https://github.com/Microsoft/homebrew-mssql-release"
 tap "pkryger/emacsmacport-exp"
 tap "theseal/ssh-askpass"
