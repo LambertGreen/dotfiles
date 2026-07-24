@@ -160,7 +160,6 @@ cask "bing-wallpaper"
 cask "browserosaurus"
 cask "caffeine"
 cask "contexts"
-cask "cursor"
 cask "cursorcerer"
 cask "dbeaver-community"
 cask "divvy"
@@ -172,7 +171,6 @@ cask "google-chrome@beta"
 cask "google-drive"
 cask "grandperspective"
 cask "keycastr"
-cask "macdown"
 cask "mos"
 cask "openmtp"
 cask "pgadmin4"
@@ -184,7 +182,6 @@ cask "vanilla"
 cask "vlc"
 cask "wezterm@nightly"
 cask "whatsapp"
-cask "zed"
 cask "zoom"
 
 # Fonts
@@ -213,7 +210,6 @@ brew "postgresql@14"
 # Development Tools with Services
 cask "docker"
 cask "docker-desktop"
-cask "visual-studio-code"    # May require password for launchctl services
 
 # System Tools & Integration
 cask "1password"             # System integration, browser extensions
