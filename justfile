@@ -172,6 +172,11 @@ onetimesetup:
     @echo "Next step:"
     @echo "  just install"
 
+# Apply macOS file associations from ~/.config/duti/defaults.duti (macOS-Only)
+[group('1-🚀-Setup')]
+apply-file-associations:
+    @{{ if os() == "macos" { "bash scripts/os-post-install/macos/apply-file-associations.sh" } else { "echo '⏭️  apply-file-associations is macOS-only'" } }}
+
 # Generate Windows Start Menu shortcuts (Windows-Only)
 [group('1-🚀-Setup (Windows-Only)')]
 gen-win-startmenu-links:

@@ -51,6 +51,7 @@ finicky
 gnupg_osx
 Xresources_osx
 osx_common
+duti_osx
 alacritty_osx
 raycast_osx
 skhd

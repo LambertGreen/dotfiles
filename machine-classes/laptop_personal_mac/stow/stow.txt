@@ -39,6 +39,7 @@ finicky
 gnupg_osx
 Xresources_osx
 osx_common
+duti_osx
 
 # AI tool configs
 ai_claude

@@ -1,0 +1,23 @@
+# duti defaults for Lambert's macOS machines
+#
+# Format: <bundle-id> <UTI-or-extension> <role>
+# Roles: viewer | editor | all | none
+#
+# Apply with:  just apply-file-associations
+# Or directly: duti ~/.config/duti/defaults.duti
+#
+# Philosophy (from retros/decisions/2026-07-23-app-strategy-macdown-and-general-tools.md):
+#   Rendering / passive viewing → general host (Chrome, Preview).
+#   Editing / annotating       → programmable substrate (Emacs).
+#
+# This file is intentionally sparse. We only codify what has been explicitly
+# decided. Other candidate extensions (.txt, .json, .yaml, .html, images, PDFs)
+# are currently claimed by sensible defaults (TextEdit/Emacs/Finicky/Preview) —
+# a codification pass will happen after we discuss each one.
+
+# ─── Markdown: Chrome (with Markdown Viewer extension) ──────────────────────
+# Retro decision (2026-07-23): `.md` should render immediately without a context
+# switch into Emacs authoring UI. Chrome + Markdown Viewer extension does this.
+# Emacs is still the correct home for authoring — this only affects the
+# double-click / `open` path.
+com.google.Chrome  .md  all
