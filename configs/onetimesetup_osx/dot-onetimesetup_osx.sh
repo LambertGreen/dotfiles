@@ -142,6 +142,33 @@ lgreen_onetimesetup_macos_terminal() {
     lgreen_onetimesetup_record_task "macos_terminal"
 }
 
+lgreen_onetimesetup_macos_screenshot_location() {
+    _onetimesetup_log "==> macOS Screenshot Save Location"
+
+    local target="$HOME/Pictures/Screenshots"
+    local current
+    current=$(defaults read com.apple.screencapture location 2>/dev/null || echo "")
+
+    if [ "$current" = "$target" ]; then
+        _onetimesetup_log "  ✓ Already set to $target"
+        lgreen_onetimesetup_record_task "macos_screenshot_location"
+        return 0
+    fi
+
+    if _onetimesetup_is_dryrun; then
+        _onetimesetup_log "  DRYRUN: Would create $target"
+        _onetimesetup_log "  DRYRUN: Would run: defaults write com.apple.screencapture location $target"
+        _onetimesetup_log "  DRYRUN: Would run: killall SystemUIServer"
+    else
+        mkdir -p "$target"
+        defaults write com.apple.screencapture location "$target"
+        killall SystemUIServer 2>/dev/null || true
+    fi
+
+    _onetimesetup_log "  ✓ Screenshots will now save to $target"
+    lgreen_onetimesetup_record_task "macos_screenshot_location"
+}
+
 lgreen_onetimesetup_macos_tcc_reset() {
     _onetimesetup_log "==> macOS TCC Database Reset (Accessibility)"
     _onetimesetup_log ""
@@ -174,6 +201,7 @@ lgreen_onetimesetup_run_platform() {
     lgreen_onetimesetup_macos_scroll
     lgreen_onetimesetup_macos_terminal
     lgreen_onetimesetup_macos_minimap_font
+    lgreen_onetimesetup_macos_screenshot_location
 
     # Note: TCC reset available as lgreen_onetimesetup_macos_tcc_reset
     # but not run automatically due to destructive nature
