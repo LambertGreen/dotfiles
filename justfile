@@ -400,6 +400,11 @@ doctor-pm-versions:
     @echo "👩‍⚕️ Checking package manager versions..."
     @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; python3 -m src.dotfiles_pm.pm version'
 
+# Check macOS file associations against ~/.config/duti/defaults.duti (macOS-Only)
+[group('4-👩‍⚕️-Doctor')]
+doctor-check-file-associations:
+    @{{ if os() == "macos" { "bash -c 'source scripts/health/dotfiles-health.sh && _check_file_associations echo'" } else { "echo '⏭️  doctor-check-file-associations is macOS-only'" } }}
+
 # Check Homebrew tap state against Brewfile declarations
 [group('4-👩‍⚕️-Doctor')]
 doctor-check-taps:

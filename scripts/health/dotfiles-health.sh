@@ -15,9 +15,7 @@ set -euo pipefail
 # =============================================================================
 
 # Use environment variables if set (for testing), otherwise use defaults
-if [[ -n "${DOTFILES_DIR:-}" ]]; then
-    DOTFILES_DIR="${DOTFILES_DIR}"
-else
+if [[ -z "${DOTFILES_DIR:-}" ]]; then
     # Find dotfiles directory based on script location
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
     DOTFILES_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -43,10 +41,11 @@ OLD_SYSTEM_PACKAGES=(emacs hammerspoon nvim alfred-settings autohotkey)
 # Returns: 0 if broken, 1 if valid
 _is_symlink_broken() {
     local link="$1"
-    local target=$(readlink "$link" 2>/dev/null || true)
+    local target link_dir
+    target=$(readlink "$link" 2>/dev/null || true)
 
     # Test target existence from the symlink's directory context (handles relative paths)
-    local link_dir=$(dirname "$link")
+    link_dir=$(dirname "$link")
     if [[ -z "$target" ]] || ! (cd "$link_dir" && test -e "$target"); then
         return 0  # Broken
     else
@@ -117,7 +116,8 @@ _find_broken_symlinks() {
 # Helper function to check if broken symlink points to dotfiles directory
 _check_dotfile_symlink() {
     local link="$1"
-    local target=$(readlink "$link" 2>/dev/null || true)
+    local target link_dir
+    target=$(readlink "$link" 2>/dev/null || true)
 
     # Check if target contains the actual dotfiles directory path
     if [[ "$target" == *"$DOTFILES_DIR"* ]]; then
@@ -125,7 +125,7 @@ _check_dotfile_symlink() {
     fi
 
     # For relative paths, resolve from the link's directory
-    local link_dir=$(dirname "$link")
+    link_dir=$(dirname "$link")
     local resolved_target=""
     if [[ -n "$target" ]]; then
         if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -180,8 +180,8 @@ _categorize_symlinks() {
     # Find all non-broken symlinks that point to dotfiles
     if command -v fd >/dev/null 2>&1; then
         for dir in "${search_dirs[@]}"; do
-            local depth_args=""
-            [[ "$dir" == "$TEST_HOME" ]] && depth_args="--max-depth 1"
+            local depth_args=()
+            [[ "$dir" == "$TEST_HOME" ]] && depth_args=(--max-depth 1)
 
             while IFS= read -r link; do
                 # Skip if broken (already handled)
@@ -195,11 +195,14 @@ _categorize_symlinks() {
 
                 # Only process symlinks that point to dotfiles
                 if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
-                    local target=$(readlink "$link" 2>/dev/null || continue)
+                    local target
+                    if ! target=$(readlink "$link" 2>/dev/null); then
+                        continue
+                    fi
                     local display_link="$link"
 
                     # Make display path relative to home if possible
-                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
+                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#"$TEST_HOME"/}"
 
                     if [[ "$target" == *"/configs/"* ]]; then
                         # New system link
@@ -220,18 +223,18 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(fd --hidden --type symlink $depth_args . "$dir" 2>/dev/null)
+            done < <(fd --hidden --type symlink "${depth_args[@]}" . "$dir" 2>/dev/null)
         done
     else
         # Fallback to find (same logic as fd version)
         for dir in "${search_dirs[@]}"; do
-            local depth_args=""
-            [[ "$dir" == "$TEST_HOME" ]] && depth_args="-maxdepth 1"
+            local find_depth_args=""
+            [[ "$dir" == "$TEST_HOME" ]] && find_depth_args="-maxdepth 1"
 
             # Exclude Temp directory on Windows
-            local exclude_args=""
+            local find_exclude_args=""
             if [[ "$dir" == *"AppData/Local"* ]]; then
-                exclude_args="-path '*/Temp/*' -prune -o"
+                find_exclude_args="-path '*/Temp/*' -prune -o"
             fi
 
             while IFS= read -r link; do
@@ -246,11 +249,14 @@ _categorize_symlinks() {
 
                 # Only process symlinks that point to dotfiles
                 if [[ -L "$link" ]] && [[ -e "$link" ]] && _check_dotfile_symlink "$link"; then
-                    local target=$(readlink "$link" 2>/dev/null || continue)
+                    local target
+                    if ! target=$(readlink "$link" 2>/dev/null); then
+                        continue
+                    fi
                     local display_link="$link"
 
                     # Make display path relative to home if possible
-                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#$TEST_HOME/}"
+                    [[ "$link" == "$TEST_HOME/"* ]] && display_link="${link#"$TEST_HOME"/}"
 
                     if [[ "$target" == *"/configs/"* ]]; then
                         # New system link
@@ -271,7 +277,7 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(eval "find \"$dir\" $depth_args $exclude_args -type l -print" 2>/dev/null)
+            done < <(eval "find \"$dir\" $find_depth_args $find_exclude_args -type l -print" 2>/dev/null)
         done
     fi
 }
@@ -341,6 +347,7 @@ _check_package_health() {
         return
     fi
 
+    # shellcheck disable=SC1090
     source "$machine_class_env"
     if [[ -z "${DOTFILES_MACHINE_CLASS:-}" ]]; then
         $log_output "  • ⚠️  DOTFILES_MACHINE_CLASS not set"
@@ -387,7 +394,8 @@ _check_package_health() {
             continue
         fi
 
-        local pm_name=$(basename "$pm_dir")
+        local pm_name
+        pm_name=$(basename "$pm_dir")
 
         # Skip stow directory - it's for configuration, not package management
         if [[ "$pm_name" == "stow" ]]; then
@@ -411,17 +419,19 @@ _check_package_health() {
                     $log_output "    - ✅ Using standard Brewfile"
 
                     # Count packages in Brewfile
-                    local brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
-                    local cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    local brew_count cask_count
+                    brew_count=$(grep -c '^brew ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
+                    cask_count=$(grep -c '^cask ' "$pm_dir/Brewfile" 2>/dev/null || echo 0)
                     # Strip any newlines or carriage returns from grep output
                     brew_count="${brew_count//[$'\r\n']/}"
                     cask_count="${cask_count//[$'\r\n']/}"
                     local total_brewfile=$((${brew_count:-0} + ${cask_count:-0}))
 
                     # Get system info
-                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
-                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
-                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
+                    local brew_info installed_formulae installed_casks
+                    brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
+                    installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
 
                     $log_output "    - 📊 $brew_info"
                     $log_output "    - 📦 Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
@@ -455,15 +465,16 @@ _check_package_health() {
 
                     for brewfile in "$pm_dir"/Brewfile.*; do
                         if [[ -f "$brewfile" ]]; then
-                            local filename=$(basename "$brewfile")
+                            local filename count
+                            filename=$(basename "$brewfile")
                             if [[ "$filename" == *"formulas"* ]]; then
-                                local count=$(grep -c '^brew ' "$brewfile" 2>/dev/null || echo 0)
+                                count=$(grep -c '^brew ' "$brewfile" 2>/dev/null || echo 0)
                                 total_formulae=$((total_formulae + count))
                             elif [[ "$filename" == *"casks"* ]]; then
-                                local count=$(grep -c '^cask ' "$brewfile" 2>/dev/null || echo 0)
+                                count=$(grep -c '^cask ' "$brewfile" 2>/dev/null || echo 0)
                                 total_casks=$((total_casks + count))
                             elif [[ "$filename" == *"mas"* ]]; then
-                                local count=$(grep -c '^mas ' "$brewfile" 2>/dev/null || echo 0)
+                                count=$(grep -c '^mas ' "$brewfile" 2>/dev/null || echo 0)
                                 total_mas=$((total_mas + count))
                             fi
                             brewfile_count=$((brewfile_count + 1))
@@ -471,9 +482,10 @@ _check_package_health() {
                     done
 
                     # Get system info
-                    local brew_info=$(brew --version 2>/dev/null | head -n 1)
-                    local installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
-                    local installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
+                    local brew_info installed_formulae installed_casks
+                    brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
+                    installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
 
                     $log_output "    - 📊 $brew_info"
                     $log_output "    - 📦 Split Brewfiles: $total_formulae formulae, $total_casks casks, $total_mas mas ($brewfile_count files)"
@@ -490,12 +502,14 @@ _check_package_health() {
                     command -v pip3 >/dev/null 2>&1 || pip_cmd="pip"
 
                     # Count packages in requirements.txt
-                    local req_count=$(grep -v '^#' "$pm_dir/requirements.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    local req_count
+                    req_count=$(grep -cvE '^(#|$)' "$pm_dir/requirements.txt" 2>/dev/null | tr -d ' ')
 
                     if command -v "$pip_cmd" >/dev/null 2>&1; then
                         # Get pip info and installed packages count
-                        local pip_info=$($pip_cmd --version 2>/dev/null || echo "pip version unknown")
-                        local installed_count=$($pip_cmd list --user 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')
+                        local pip_info installed_count
+                        pip_info=$($pip_cmd --version 2>/dev/null || echo "pip version unknown")
+                        installed_count=$($pip_cmd list --user 2>/dev/null | tail -n +3 | wc -l | tr -d ' ')
 
                         $log_output "    - 📊 $pip_info"
                         $log_output "    - 📦 requirements.txt: $req_count packages"
@@ -516,13 +530,15 @@ _check_package_health() {
             npm)
                 if [[ -f "$pm_dir/packages.txt" ]]; then
                     # Count packages in packages.txt
-                    local npm_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    local npm_count
+                    npm_count=$(grep -cvE '^(#|$)' "$pm_dir/packages.txt" 2>/dev/null | tr -d ' ')
 
                     if command -v npm >/dev/null 2>&1; then
                         # Get npm info and global packages count
-                        local npm_info=$(npm --version 2>/dev/null | sed 's/^/npm v/' || echo "npm version unknown")
-                        local node_info=$(node --version 2>/dev/null | sed 's/^/Node /' || echo "Node version unknown")
-                        local installed_count=$(npm list -g --depth=0 2>/dev/null | grep -c '^├──\|^└──' || echo "0")
+                        local npm_info node_info installed_count
+                        npm_info=$(npm --version 2>/dev/null | sed 's/^/npm v/' || echo "npm version unknown")
+                        node_info=$(node --version 2>/dev/null | sed 's/^/Node /' || echo "Node version unknown")
+                        installed_count=$(npm list -g --depth=0 2>/dev/null | grep -c '^├──\|^└──' || echo "0")
 
                         $log_output "    - 📊 $npm_info, $node_info"
                         $log_output "    - 📦 packages.txt: $npm_count packages"
@@ -543,20 +559,22 @@ _check_package_health() {
             apt|pacman)
                 if [[ -f "$pm_dir/packages.txt" ]]; then
                     # Count packages in packages.txt
-                    local pkg_count=$(grep -v '^#' "$pm_dir/packages.txt" 2>/dev/null | grep -v '^$' | wc -l | tr -d ' ')
+                    local pkg_count
+                    pkg_count=$(grep -cvE '^(#|$)' "$pm_dir/packages.txt" 2>/dev/null | tr -d ' ')
 
                     if command -v "$pm_name" >/dev/null 2>&1; then
                         # Get package manager info
                         local pm_info=""
+                        local installed_count
                         if [[ "$pm_name" == "apt" ]]; then
                             pm_info=$(apt --version 2>/dev/null | head -1 || echo "apt version unknown")
-                            local installed_count=$(dpkg -l 2>/dev/null | grep '^ii' | wc -l | tr -d ' ')
+                            installed_count=$(dpkg -l 2>/dev/null | grep -c '^ii' | tr -d ' ')
                             $log_output "    - 📊 $pm_info"
                             $log_output "    - 📦 packages.txt: $pkg_count packages"
                             $log_output "    - 🏠 Installed: $installed_count packages"
                         elif [[ "$pm_name" == "pacman" ]]; then
                             pm_info=$(pacman --version 2>/dev/null | head -1 || echo "pacman version unknown")
-                            local installed_count=$(pacman -Q 2>/dev/null | wc -l | tr -d ' ')
+                            installed_count=$(pacman -Q 2>/dev/null | wc -l | tr -d ' ')
                             $log_output "    - 📊 $pm_info"
                             $log_output "    - 📦 packages.txt: $pkg_count packages"
                             $log_output "    - 🏠 Installed: $installed_count packages"
@@ -577,15 +595,17 @@ _check_package_health() {
             gem)
                 if [[ -f "$pm_dir/Gemfile" ]]; then
                     # Count gems in Gemfile
-                    local gem_count=$(grep -c "^gem " "$pm_dir/Gemfile" 2>/dev/null || echo 0)
+                    local gem_count
+                    gem_count=$(grep -c "^gem " "$pm_dir/Gemfile" 2>/dev/null || echo 0)
                     # Strip any newlines or carriage returns from grep output
                     gem_count="${gem_count//[$'\r\n']/}"
 
                     if command -v gem >/dev/null 2>&1; then
                         # Get Ruby and gem info
-                        local ruby_info=$(ruby --version 2>/dev/null | cut -d' ' -f1-2 || echo "Ruby version unknown")
-                        local gem_info=$(gem --version 2>/dev/null | sed 's/^/RubyGems v/' || echo "RubyGems version unknown")
-                        local installed_count=$(gem list 2>/dev/null | wc -l | tr -d ' ')
+                        local ruby_info gem_info installed_count
+                        ruby_info=$(ruby --version 2>/dev/null | cut -d' ' -f1-2 || echo "Ruby version unknown")
+                        gem_info=$(gem --version 2>/dev/null | sed 's/^/RubyGems v/' || echo "RubyGems version unknown")
+                        installed_count=$(gem list 2>/dev/null | wc -l | tr -d ' ')
 
                         $log_output "    - 📊 $ruby_info, $gem_info"
                         $log_output "    - 📦 Gemfile: $gem_count gems"
@@ -698,6 +718,7 @@ dotfiles_check_health() {
     _check_git_status log_output
     _check_stow_availability log_output
     _check_ssh_config_permissions log_output
+    _check_file_associations log_output
     _check_package_health log_output
 
     log_output "🔍 Checking symlinks..."
@@ -861,8 +882,9 @@ _check_git_status() {
 
     if [[ -d "$DOTFILES_DIR/.git" ]]; then
         cd "$DOTFILES_DIR"
-        local branch=$(git branch --show-current 2>/dev/null || echo "unknown")
-        local git_status=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
+        local branch git_status
+        branch=$(git branch --show-current 2>/dev/null || echo "unknown")
+        git_status=$(git status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 
         $log_output "📍 Repository Information"
         $log_output "  • Directory: $DOTFILES_DIR"
@@ -941,8 +963,9 @@ _check_ssh_config_permissions() {
             $log_output "  • ✅ SSH config permissions: $perms (secure)"
         else
             # Check if group/world writable (security issue)
-            local group_write=$(echo "$perms" | cut -c2)
-            local world_write=$(echo "$perms" | cut -c3)
+            local group_write world_write
+            group_write=$(echo "$perms" | cut -c2)
+            world_write=$(echo "$perms" | cut -c3)
             # Validate we got valid permission digits before comparison
             if [[ -n "$group_write" ]] && [[ -n "$world_write" ]] && \
                [[ "$group_write" =~ ^[0-7]$ ]] && [[ "$world_write" =~ ^[0-7]$ ]]; then
@@ -960,6 +983,117 @@ _check_ssh_config_permissions() {
         fi
     else
         $log_output "  • ℹ️  SSH config not found (not yet stowed)"
+    fi
+    $log_output
+}
+
+# Check macOS file associations against ~/.config/duti/defaults.duti
+# macOS-only; skips gracefully on other platforms.
+_check_file_associations() {
+    local log_output="$1"
+
+    # macOS-only
+    [[ "$OSTYPE" == "darwin"* ]] || return 0
+
+    local config="$TEST_HOME/.config/duti/defaults.duti"
+    if [[ ! -f "$config" ]]; then
+        # No config = nothing to check. Silent skip (not a warning — user may not
+        # care about codifying file-associations yet).
+        return 0
+    fi
+
+    $log_output "📎 macOS File Associations"
+
+    # Need swift to query LaunchServices natively. If unavailable, degrade to
+    # a warning rather than blocking the whole health check.
+    if ! command -v swift &> /dev/null; then
+        $log_output "  • ⚠️  swift not available — cannot verify file-association state"
+        WARNINGS+=("swift not available; skipping file-association drift check")
+        $log_output
+        return 0
+    fi
+
+    # Parse rules from config into two parallel arrays.
+    local targets=()
+    local specs=()
+    local line target_bundle ut_or_ext
+    while IFS= read -r line; do
+        case "$line" in
+            \#*|"") continue ;;
+        esac
+        # shellcheck disable=SC2086
+        set -- $line
+        [[ $# -ge 2 ]] || continue
+        target_bundle="$1"
+        ut_or_ext="$2"
+        targets+=("$target_bundle")
+        specs+=("$ut_or_ext")
+    done < "$config"
+
+    local rule_count=${#specs[@]}
+    if [[ $rule_count -eq 0 ]]; then
+        $log_output "  • ℹ️  No rules configured in $config"
+        $log_output
+        return 0
+    fi
+
+    # Query all current handlers in a single swift invocation for speed.
+    # Input: one spec per line on stdin. Output: one handler per line (empty if none).
+    local swift_script='
+import Foundation
+import UniformTypeIdentifiers
+import CoreServices
+
+while let spec = readLine() {
+    var uti: String? = nil
+    if spec.hasPrefix(".") {
+        let ext = String(spec.dropFirst())
+        uti = UTType(filenameExtension: ext)?.identifier
+    } else {
+        uti = spec
+    }
+    guard let uti = uti else { print(""); continue }
+    if let h = LSCopyDefaultRoleHandlerForContentType(uti as CFString, .all)?.takeRetainedValue() as String? {
+        print(h)
+    } else {
+        print("")
+    }
+}
+'
+    local handlers_output
+    handlers_output=$(printf '%s\n' "${specs[@]}" | swift -e "$swift_script" 2>/dev/null)
+
+    # Read the swift output back into an array in the same order as specs.
+    local handlers=()
+    while IFS= read -r line; do
+        handlers+=("$line")
+    done <<< "$handlers_output"
+
+    local drift_count=0
+    local drift_lines=()
+    local i
+    for (( i=0; i<rule_count; i++ )); do
+        local spec="${specs[$i]}"
+        local target="${targets[$i]}"
+        local current="${handlers[$i]:-}"
+
+        if [[ -z "$current" ]]; then
+            drift_lines+=("  • ⚠️  $spec → <no handler> (config wants: $target)")
+            drift_count=$((drift_count + 1))
+        elif [[ "$current" != "$target" ]]; then
+            drift_lines+=("  • ⚠️  $spec → $current (config wants: $target)")
+            drift_count=$((drift_count + 1))
+        fi
+    done
+
+    if [[ $drift_count -eq 0 ]]; then
+        $log_output "  • ✅ All $rule_count file-association rule(s) in sync"
+    else
+        for line in "${drift_lines[@]}"; do
+            $log_output "$line"
+        done
+        $log_output "  • 💡 Fix: just apply-file-associations"
+        WARNINGS+=("$drift_count file-association rule(s) drifted from config; run 'just apply-file-associations'")
     fi
     $log_output
 }
