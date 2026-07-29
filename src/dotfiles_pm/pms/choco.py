@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from pm_base import PackageManager
+from sudo_helper import get_windows_elevation_command
 
 
 class ChocoPM(PackageManager):
@@ -22,11 +23,14 @@ class ChocoPM(PackageManager):
 
     @property
     def upgrade_command(self) -> List[str]:
-        return ["sudo", "choco", "upgrade", "all", "-y"]  # sudo = gsudo from scoop
+        # Elevate via gsudo (falls back to native sudo). Native Windows `sudo` is
+        # often disabled by org policy, so we resolve the binary at runtime.
+        return get_windows_elevation_command(["choco", "upgrade", "all", "-y"])
 
     @property
     def install_command(self) -> List[str]:
-        return ["sudo", "choco", "install", "-y"]  # sudo = gsudo from scoop
+        # Elevate via gsudo (falls back to native sudo) — see upgrade_command.
+        return get_windows_elevation_command(["choco", "install", "-y"])
 
     @property
     def requires_sudo(self) -> bool:

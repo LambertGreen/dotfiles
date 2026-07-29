@@ -10,6 +10,10 @@ dialog and piped directly to sudo — same security model as pkexec/polkit.
 - Linux: ssh-askpass or similar installed helper
 
 Override with DOTFILES_SUDO_MODE=gui|tty|skip
+
+On Windows the model is different: elevation is done by a separate binary
+(gsudo/sudo) rather than an askpass dialog, so see get_windows_elevation_command()
+for how the elevation binary is resolved for commands like `choco upgrade`.
 """
 
 import os
@@ -17,6 +21,7 @@ import platform
 import shutil
 import stat
 from pathlib import Path
+from typing import List
 
 
 def _has_display() -> bool:
@@ -85,6 +90,56 @@ def get_sudo_mode() -> str:
     if _has_display():
         return 'gui'
     return 'tty'
+
+
+# Windows elevation binaries, in order of preference.
+#
+# gsudo is the reliable, org-friendly elevation tool (installed via scoop).
+# The native Windows `sudo` (shipped in newer Windows builds as
+# C:\Windows\System32\sudo.exe) is often DISABLED by organization policy, in
+# which case it fails with "Sudo is disabled by your organization's policy"
+# (exit code -2147023636). We therefore prefer gsudo and only fall back to the
+# native sudo if gsudo is not on PATH.
+_WINDOWS_ELEVATION_BINARIES = ('gsudo', 'sudo')
+
+
+def get_windows_elevation_binary() -> str:
+    """
+    Resolve the elevation binary to use on Windows.
+
+    Prefers gsudo (scoop-installed, org-friendly) and falls back to the native
+    Windows `sudo` only if gsudo is not available. Resolution happens at runtime
+    via shutil.which so the correct binary is chosen per machine.
+
+    Override with DOTFILES_WINDOWS_ELEVATION=<binary> (e.g. 'gsudo', 'sudo').
+
+    Returns the resolved binary name (found on PATH), the override value, or the
+    first preference ('gsudo') as a last-resort default if none are found.
+    """
+    override = os.environ.get('DOTFILES_WINDOWS_ELEVATION', '').strip()
+    if override:
+        return override
+
+    for binary in _WINDOWS_ELEVATION_BINARIES:
+        if shutil.which(binary):
+            return binary
+
+    # Nothing found on PATH — default to the preferred binary. The command will
+    # surface a clear "not found" error rather than silently using the wrong one.
+    return _WINDOWS_ELEVATION_BINARIES[0]
+
+
+def get_windows_elevation_command(command: List[str]) -> List[str]:
+    """
+    Prefix a command with the resolved Windows elevation binary.
+
+    Example: ["choco", "upgrade", "all", "-y"]
+          -> ["gsudo", "choco", "upgrade", "all", "-y"]
+
+    Args:
+        command: The command (as a list) that needs elevation.
+    """
+    return [get_windows_elevation_binary(), *command]
 
 
 def get_sudo_askpass_env(reason: str = "") -> dict:
