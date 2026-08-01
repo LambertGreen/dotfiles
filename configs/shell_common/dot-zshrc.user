@@ -49,7 +49,25 @@ lgreen_setup_custom_completions() {
     fpath=(~/.config/zsh/completions $fpath)
 }
 lgreen_zsh_init_completions() {
-    autoload -Uz compinit && compinit
+    # AD-joined Linux workstation only: compaudit's RedHat per-user-group
+    # branch resolves the group via zsh's (^g:...) glob qualifier, which
+    # calls libc getgrnam(). On this SSSD/AD box that lookup fails for our
+    # group (even by numeric gid), while `getent group` works fine -- so any
+    # group-writable dir in fpath OR its parents (we run umask 002, and the
+    # shared ~/.config/zsh, ~/.cache/zinit, ~/.zinit parents are group-
+    # writable) trips a bogus "compaudit:142: unknown group" on every shell.
+    # The audit provides zero security value here since the group can't be
+    # resolved at all, so skip it with -u. macOS pays nothing: $OSTYPE is a
+    # zsh builtin (no fork) and this short-circuits.
+    local -a _compinit_opts=()
+    if [[ $OSTYPE == linux* ]]; then
+        _compinit_opts=(-u)
+        # zpcompinit (fast-syntax-highlighting atinit ice) runs its own
+        # compinit; make it skip the broken audit too.
+        typeset -gA ZINIT
+        ZINIT[COMPINIT_OPTS]="-u"
+    fi
+    autoload -Uz compinit && compinit $_compinit_opts
 
     if command -v zinit &>/dev/null; then
         zinit cdreplay -q
