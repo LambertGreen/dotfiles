@@ -117,6 +117,25 @@ sync-submodules:
     echo "Next step:"
     echo "  just stow"
 
+# Update submodules to latest on their tracked branch (avoids detached-HEAD drift)
+[group('1-🚀-Setup')]
+update-submodules:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Why: `git submodule update` checks out the pinned commit as a DETACHED
+    # HEAD. Editing/committing there strands the commit off-branch and silently
+    # diverges the working tree from the parent pin (root cause of the SSH
+    # config drift, 2026-08). --remote --merge lands each submodule on the
+    # branch declared in .gitmodules instead. See docs/submodules.md.
+    echo "🔄 Updating submodules to latest on their tracked branch..."
+    git submodule sync --recursive
+    git submodule update --init --remote --merge --recursive
+    echo ""
+    echo "📌 Submodule pins moved. Review and commit the parent-repo changes:"
+    git submodule status
+    echo ""
+    echo "   git add <submodule paths> && git commit -m 'chore: bump submodule pins'"
+
 # Deploy configuration files (symlink configs to home directory)
 [group('1-🚀-Setup')]
 stow:
@@ -404,6 +423,39 @@ doctor-pm-versions:
 [group('4-👩‍⚕️-Doctor')]
 doctor-check-file-associations:
     @{{ if os() == "macos" { "bash -c 'source scripts/health/dotfiles-health.sh && _check_file_associations echo'" } else { "echo '⏭️  doctor-check-file-associations is macOS-only'" } }}
+
+# Check submodules for detached-HEAD drift or divergence from their tracked branch
+[group('4-👩‍⚕️-Doctor')]
+doctor-check-submodules:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "👩‍⚕️ Checking submodules for drift from their pins..."
+    # NOTE: a detached HEAD *at the pinned commit* is the NORMAL, correct state
+    # for a submodule — `git submodule update` always leaves them that way. So
+    # we do NOT flag detached HEAD by itself (that would cry wolf on every
+    # submodule). We flag only genuine divergence, per `git submodule status`:
+    #   '+' checked-out commit differs from the pin (local drift — the bug that
+    #       broke the SSH config on 2026-08: edits committed on a detached HEAD)
+    #   'U' merge conflicts
+    #   '-' not initialized
+    drift=0
+    while read -r line; do
+        [ -z "$line" ] && continue
+        prefix=${line:0:1}
+        path=$(echo "$line" | sed 's/^.//' | awk '{print $2}')
+        case "$prefix" in
+            '+') echo "  ⚠ $path: checked-out commit differs from pin — commit the bump or reset to pin"; drift=1 ;;
+            'U') echo "  ⚠ $path: merge conflicts"; drift=1 ;;
+            '-') echo "  ⚠ $path: not initialized — run: just sync-submodules"; drift=1 ;;
+        esac
+    done < <(git submodule status)
+    if [ "$drift" -eq 0 ]; then
+        echo "  ✓ All submodules match their pins"
+    else
+        echo ""
+        echo "  To move pins to latest on the tracked branch: just update-submodules"
+        echo "  To discard local submodule drift: git submodule update --recursive"
+    fi
 
 # Check Homebrew tap state against Brewfile declarations
 [group('4-👩‍⚕️-Doctor')]

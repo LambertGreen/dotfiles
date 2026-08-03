@@ -1,1 +1,7 @@
 \.stowrc
+# Docs live in the dot-ssh submodule but must NOT be symlinked into ~/.ssh.
+# A local ignore file overrides stow's built-in defaults (incl. README.*),
+# so every doc must be listed explicitly.
+README\.md
+AUDIT\.md
+SETUP\.md
