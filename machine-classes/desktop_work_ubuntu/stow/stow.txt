@@ -11,6 +11,7 @@ vim_common
 wezterm_common
 herdr_common
 cortana_common
+ulauncher_common
 spelling_common
 emacs_common
 nvim_common
