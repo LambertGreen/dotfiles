@@ -10,6 +10,7 @@ tmux_common
 vim_common
 wezterm_common
 herdr_common
+cortana_common
 spelling_common
 emacs_common
 nvim_common
