@@ -12,6 +12,7 @@ wezterm_common
 herdr_common
 cortana_common
 ulauncher_common
+xdg-autostart
 spelling_common
 emacs_common
 nvim_common

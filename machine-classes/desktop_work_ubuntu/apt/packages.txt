@@ -22,6 +22,14 @@ tmux
 # Screenshot tool (macOS-style: interactive region select + annotate + clipboard)
 flameshot
 
+# Remap Ctrl (tap) -> Escape; autostarted via xdg-autostart stow package
+xcape
+
+# App launcher (Alfred-style). Requires PPA (not in default apt):
+#   sudo add-apt-repository ppa:agornostal/ulauncher
+# Config: ulauncher_common stow package; autostart: xdg-autostart
+ulauncher
+
 # GPG/Security
 pinentry-tty
 
