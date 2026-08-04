@@ -8,6 +8,7 @@ tap "pkryger/emacsmacport-exp"
 tap "theseal/ssh-askpass"
 
 # Core CLI Tools
+brew "ast-grep"
 brew "awscli"
 # brew "bash-language-server"  # Let editors manage language servers
 brew "bat"
@@ -122,6 +123,7 @@ brew "rust"
 brew "rustup"
 brew "samba"
 brew "scc"
+brew "sd"
 brew "sdl2"
 # brew "shellcheck"  # Let projects manage linters via dev dependencies
 # brew "shfmt"  # Let projects manage formatters via dev dependencies
@@ -161,6 +163,7 @@ cask "bing-wallpaper"
 cask "browserosaurus"
 cask "caffeine"
 cask "contexts"
+cask "crossover"           # Run Windows apps/games via Wine + Rosetta (paid; trialing)
 cask "cursorcerer"
 cask "dbeaver-community"
 cask "divvy"
