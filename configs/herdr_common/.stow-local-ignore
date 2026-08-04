@@ -1,0 +1,8 @@
+\.stowrc
+# herdr writes runtime state (logs, session, plugin lock) into ~/.config/herdr.
+# With --no-folding that dir is real (not a folded symlink), so these land in
+# HOME, not the repo. Ignore them here so stow never tries to manage them.
+herdr-client\.log
+herdr-server\.log
+session\.json
+\.plugins\.lock
