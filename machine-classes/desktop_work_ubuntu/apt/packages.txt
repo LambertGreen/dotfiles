@@ -19,6 +19,9 @@ zsh
 psmisc
 tmux
 
+# Screenshot tool (macOS-style: interactive region select + annotate + clipboard)
+flameshot
+
 # GPG/Security
 pinentry-tty
 
