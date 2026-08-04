@@ -20,7 +20,7 @@
 #             ai/retros/dotfiles-maintenance/.
 
 * TODOs
-** Open [0/23]
+** Open [0/24]
 
 *** TODO Cask upgrade output is blind under =tee= (looks hung)           :design:
 **** Context
@@ -186,6 +186,27 @@ longer blocked — it just wants a session with the wider context loaded.
 **** Requirements [0/2]
 ***** [ ] Show mouse cursor
 ***** [ ] Zoom in/out
+
+*** TODO Automate apt PPA registration (apt's equivalent of =brew tap=)
+**** Context
+Some apt packages live in PPAs, not the default archive, so a bare
+=apt install <pkg>= fails on a fresh box until the PPA is added — directly
+analogous to needing =brew tap= before =brew install=, or a =scoop bucket=.
+The setup flow has no PPA automation today (=rg 'add-apt-repository|ppa:'=
+over =scripts/= returns nothing), so PPAs are only documented as comments.
+**** Current gaps (documented, not automated)
+- =ulauncher= (=desktop_work_ubuntu=): requires =ppa:agornostal/ulauncher=;
+  noted as a comment in =apt/packages.txt=
+**** Implementation ideas
+- Add a per-machine-class =apt/ppas.txt= (mirrors the =brew "tap ..."= lines
+  in a Brewfile), registered via =sudo add-apt-repository -y <ppa>= before the
+  =apt install= loop in the import step
+- Add a =doctor= check comparing declared PPAs vs =apt-cache policy= sources
+  (mirrors =just doctor-check-taps= for brew)
+**** Reference
+See closed TODO "Add application install steps/scripts" — same class of
+problem (provider must be registered before install) previously handled for
+=brew tap= / =scoop bucket= via README instructions.
 
 *** TODO Implement Dotfiles API for emacs and neovim                    :design:
 **** Context
