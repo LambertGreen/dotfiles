@@ -4,6 +4,8 @@
 # Packages not available in apt or need newer versions
 brew "fastfetch"
 brew "herdr"
+# X11 clipboard CLI — lets Claude Code read images pasted from Flameshot
+brew "xclip"
 
 # Node.js 20+ required for SFDX CLI and mcp-server-gus
 brew "node@20"
