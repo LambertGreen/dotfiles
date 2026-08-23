@@ -62,7 +62,8 @@ split_horizontal = "prefix+s"  # horizontal split (top/bottom)
 # Pane management
 rename_pane = "prefix+shift+p"
 close_pane = "prefix+x"
-zoom_pane = "prefix+z"
+# zoom_pane removed: no longer a valid [keys] binding in current herdr (flagged by `herdr config check`).
+# Zoom is now driven by UI/status config, not a keybinding. Re-add here if herdr reintroduces a bindable zoom action.
 cycle_pane_next = "prefix+tab"
 cycle_pane_previous = "prefix+shift+tab"
 
