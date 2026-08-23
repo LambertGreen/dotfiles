@@ -40,6 +40,10 @@ logs/
 # NOTE: We do NOT ignore *.log files - any .log files written to the repo
 # are bugs that should be caught. All logs should go to ~/.dotfiles/logs/
 
+# AI tooling runtime state (written into the repo when run from here)
+.gus/
+.playwright-mcp/
+
 # Python cache files
 __pycache__/
 *.pyc
