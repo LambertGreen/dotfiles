@@ -1,0 +1,410 @@
+#+TITLE: Theme Palette Strategy: Coordinated Cross-App Palette Switching
+#+AUTHOR: Lambert Green
+#+DATE: 2026-07-20
+#+STATUS: IN PROGRESS -- research/design phase, no implementation yet
+
+* Purpose
+
+Companion to =THEME_STRATEGY.org=, which covers the *light/dark* dimension.
+This doc covers the *palette/aesthetic* dimension: switching between named
+theme families (Doom One, Rosé Pine, Catppuccin, Gruvbox, Tokyo Night, Nord,
+Dracula, etc.) across all configured apps in a coordinated way.
+
+Goal: a parameterized system where the palette is a knob, not a fixed choice --
+even if in practice the value stays on "One" family most of the time.
+
+* Current State (as of 2026-07-20)
+
+The current stack is *not* unified under a single palette family. Different
+apps use different theme families that happen to look similar (all dark, warm-ish).
+
+** Theme Configuration Audit
+
+| App              | File                                                                  | Current Theme               | Family        |
+|------------------+-----------------------------------------------------------------------+-----------------------------+---------------|
+| WezTerm          | =configs/wezterm_common/dot-config/wezterm/wezterm.lua=                | OneHalfDark                 | One Half      |
+| bat              | =configs/shell_common/dot-zshrc.user= (env var)                       | OneHalfDark                 | One Half      |
+| fzf              | =configs/shell_common/dot-zshrc.user= (env var)                       | Custom One Dark palette     | One Dark      |
+| delta            | =configs/git_osx/dot-gitconfig=                                       | inherits BAT_THEME          | One Half      |
+| Neovim           | =configs/nvim_common/dot-config/nvim/lua/lgreen/plugins/colorscheme.lua= | onedark (onedarkpro.nvim)   | One Dark      |
+| Emacs (custom)   | =configs/emacs_common/dot-emacs.d/config/init-themes.el=              | doom-one                    | Doom One      |
+| Emacs (Doom)     | =configs/emacs_common/dot-doom.d/config.el=                           | doom-one                    | Doom One      |
+| tmux             | =configs/tmux_common/dot-tmux.conf=                                   | catppuccin (mocha)          | Catppuccin    |
+| Herdr            | =configs/herdr_common/dot-config/herdr/config.toml=                   | catppuccin                  | Catppuccin    |
+| Vim (legacy)     | =configs/vim_common/dot-vimrc=                                        | palenight                   | Palenight     |
+| Windows Terminal | =configs/WindowsTerminal/.../settings.json=                           | One Half Dark               | One Half      |
+| Mintty           | =configs/mintty/dot-minttyrc=                                         | flat-ui                     | Flat UI       |
+| Xresources       | =configs/Xresources_osx/dot-Xresources=                               | OneHalfDark                 | One Half      |
+| Alacritty        | =configs/alacritty_osx/dot-config/alacritty/alacritty.yml=            | (none/default)              | --            |
+| LS_COLORS        | =configs/shell_common/dot-zshrc.user= (vivid)                         | one-dark                    | One Dark      |
+| Shell prompt     | =configs/shell_common/dot-p10k.zsh=                                   | Powerlevel10k default       | P10k          |
+| MSYS2 prompt     | =configs/shell_msys2/dot-shell_msys2=                                 | oh-my-posh amro             | Amro          |
+| Claude Code      | =configs/ai_claude_osx/dot-claude/settings.json=                      | =theme: auto= (light/dark)  | (partial ANSI)|
+
+** Existing Toggle Mechanism
+
+The =tt= alias (=lgreen_toggle_shell_theme_mode= in =dot-zshrc.user=) coordinates
+*light/dark* switching across:
+- fzf (via =FZF_DEFAULT_OPTS=)
+- bat (via =BAT_THEME=)
+- LS_COLORS (via vivid)
+- tmux (sed on =~/.tmux.local.conf= + =source-file=)
+- Herdr (sed on =config.toml= + =reload-config=)
+
+There is currently *no* palette-switching mechanism. All the above are hardcoded
+to a specific palette per app.
+
+* Color Inheritance Model (Terminal/Shell Stack)
+
+Unlike light/dark, the palette dimension has *very little inheritance* between
+apps. Most apps define their colors independently. Understanding this is critical
+before designing a switcher, since we won't be able to rely on a cascade.
+
+** Layer Diagram
+
+#+begin_example
+┌─────────────────────────────────────────────────────────────┐
+│  LAYER 1: Terminal Emulator (WezTerm)                       │
+│  Defines: 16 ANSI palette + fg/bg/cursor + UI chrome        │
+│  Source: config.color_scheme = 'OneHalfDark'                │
+│  Also sets: tab bar colors (hardcoded #282c34)              │
+│  Propagates: 16 ANSI colors to all child processes          │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│  LAYER 2a: Multiplexer (tmux / Herdr)  [optional]           │
+│  Inherits: terminal's 16 ANSI palette (pass-through)        │
+│  Defines OWN: status bar colors, pane borders               │
+│  Source: catppuccin plugin (tmux), catppuccin theme (herdr) │
+│  Uses hardcoded truecolor hex -- independent of Layer 1     │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│  LAYER 2b: Shell (zsh)                                      │
+│  Inherits: terminal's ANSI palette (P10k prompt, basic      │
+│    grep/ls output)                                          │
+│  Defines env vars for CLI tools:                            │
+│    - BAT_THEME       (bat's internal named theme)           │
+│    - FZF_DEFAULT_OPTS (hardcoded hex)                       │
+│    - LS_COLORS       (hardcoded hex, via vivid)             │
+└─────────────────┬───────────────────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│  LAYER 3: TUI Apps (Neovim, Emacs TUI, Claude Code)         │
+│  Neovim: truecolor, own colorscheme (onedarkpro)            │
+│  Emacs: truecolor, own theme (doom-one)                     │
+│  Claude Code: partial ANSI inherit + own hardcoded accents  │
+│    (theme: auto only picks light/dark, no palette knob)     │
+└─────────────────────────────────────────────────────────────┘
+#+end_example
+
+** The Three Color Domains
+
+Rather than a strict parent/child chain, there are *three independent domains*:
+
+*** Domain 1: Terminal ANSI palette (16 colors)
+- *Set by:* WezTerm =color_scheme=
+- *Used by:* shell prompt (P10k), basic ANSI output (=ls=, =grep --color=),
+  Claude Code (partial), and *only* these
+- *NOT used by:* fzf, bat, vivid/LS_COLORS, neovim, emacs -- they all define
+  their own colors
+
+*** Domain 2: App-specific UI chrome (truecolor hex)
+- *tmux status bar:* catppuccin plugin
+- *Herdr status bar:* catppuccin theme
+- *WezTerm tab bar:* hardcoded =#282c34=
+- Completely independent of Domain 1 and each other
+
+*** Domain 3: Content-rendering apps (truecolor hex)
+- *Neovim* -- onedarkpro
+- *Emacs* -- doom-one
+- *fzf* -- hardcoded hex in =FZF_DEFAULT_OPTS=
+- *bat* -- named internal theme (OneHalfDark)
+- *vivid/LS_COLORS* -- hardcoded hex
+- Each independent
+
+** Implication
+
+Switching palette means touching every domain separately. There is *no single
+cascade point* to control them all. The switcher will need to know about each
+knob explicitly.
+
+The only meaningful inheritance:
+- =delta= inherits =BAT_THEME= (free)
+- Programs using raw ANSI codes inherit from WezTerm's palette (P10k, =grep --color=)
+- Claude Code partially inherits ANSI colors but cannot be themed to a specific palette
+
+* Research: Coordinated Theme Switchers
+
+** Tinty (https://github.com/tinted-theming/tinty)
+
+The most actively maintained option. Rust-based, part of the Tinted Theming
+ecosystem (successor to base16-shell and flavours).
+
+- *Cross-platform:* macOS (brew), Linux (cargo/nix/AUR), Windows (cargo)
+- *Installation:* =brew tap tinted-theming/tinted && brew install tinty=
+- *Themes:* 327 base16 schemes (Catppuccin, Rosé Pine, Gruvbox, Nord, Dracula, Tokyo Night)
+- *Templates:* 70+ apps (shell, neovim, tmux, fzf, emacs officially; WezTerm
+  community-only; no bat/delta/Herdr)
+- *No Doom One* in the base16 collection (would need custom YAML)
+
+*** How it works
+- Reads =~/.config/tinted-theming/tinty/config.toml= with =[[items]]= entries
+- For each item: writes a generated color file, injects between markers in
+  existing files (=write-to-file=), or runs a shell =hook= command
+- =tinty apply <scheme>= runs the pipeline
+- =tinty init= (in shell rc) restores last-applied scheme on new shells
+- No daemon, no ownership of config files (with hooks approach)
+- Reversible: remove =tinty init= line and marker blocks
+
+*** Ecosystem context: base16
+- Base16 spec: 16 named color slots (=base00=-=base0F=) covering bg-fg gradient
+  + 8 accents
+- Schemes are YAML files (16 hex colors) -- trivial to author
+- Templates are Mustache files mapping =base00-hex= etc. into app-specific syntax
+- Base24 extends to 24 slots for richer ANSI palettes
+- 327 community schemes, 70+ app templates
+
+*** Trade-off for our stack
+Base16-generated themes replace WezTerm's/Emacs's/Neovim's rich native themes
+with 16-color derivations. A "base16-catppuccin-mocha" WezTerm scheme is *not*
+the same as WezTerm's curated "Catppuccin Mocha" scheme -- less polish, but
+consistent with all other base16-styled apps.
+
+Two ways to use Tinty:
+1. *Native mode:* let it generate color files, apps use them directly
+2. *Dispatcher mode:* hooks only -- Tinty just triggers your existing per-app
+   switch scripts, ignoring its generated files
+
+Dispatcher mode gives us the scheme registry + state persistence + single-command
+UX without giving up native app themes. But most of the value is then just the
+scheme name registry, which we already have implicitly.
+
+** Alternatives Evaluated
+
+| Tool                | Status              | Verdict                                       |
+|---------------------+---------------------+-----------------------------------------------|
+| Flavours            | Stale (2023)        | Predecessor to Tinty; Tinty is successor       |
+| base16-shell        | Active (foundation) | Tinty uses this internally                     |
+| theme.sh            | Stale (2021)        | Terminal-only, no ecosystem                    |
+| Catppuccin whiskers | Active              | Template engine for authors, NOT a switcher    |
+| pywal               | Archived (2024)     | Dead                                           |
+| wpgtk               | Stale, Linux-only   | Not viable on macOS                            |
+| Gogh                | Active              | Theme installer, not switcher; iTerm2-focused  |
+| themer.dev          | Active              | Generator, not switcher                        |
+
+* Solution Options
+
+Ordered from lightest-touch to heaviest.
+
+** Option 1: Extend Existing Shell Functions (Status Quo Plus)
+- Add =LGREEN_THEME_PALETTE= env var + =lgreen_set_palette()= alongside existing
+  =lgreen_setup_shell_theme_mode_*= functions
+- One shell function per palette; each sets the ~9 knobs
+- =tp= alias parallel to =tt= for switching
+- *Deps:* None
+- *Scope:* Shell-driven; WezTerm/Neovim/Emacs need their own trigger mechanisms
+- *Effort:* Low
+- *Reversibility:* High
+
+** Option 2: Config File as Single Source of Truth
+- Single =~/.config/lgreen-themes/active.toml= defines palette + per-app native
+  theme names
+- All apps read from this file (shell env vars, WezTerm Lua reads TOML/JSON,
+  neovim/emacs read via helper)
+- Switching = edit file + trigger reloads
+- *Deps:* TOML/JSON parser in each language (usually available)
+- *Scope:* All apps become participants
+- *Effort:* Medium
+- *Reversibility:* High
+
+** Option 3: Tinty as Dispatcher (Hook-Only Mode)
+- Use Tinty's config + hook system, ignore its generated color files
+- Each item's hook calls our per-app switch functions
+- Tinty provides scheme registry, state persistence, single-command UX
+- We provide the per-app apply logic
+- *Deps:* Tinty (brew); optionally custom Doom One YAML
+- *Scope:* Same coverage as Option 1, external orchestration
+- *Effort:* Medium
+- *Reversibility:* High
+
+** Option 4: Tinty with Native Base16 Templates
+- Full Tinty integration -- apps load generated color files
+- WezTerm loads generated =colors.lua=, tmux loads generated =theme.conf=, etc.
+- Give up native per-app themes for base16-generated equivalents
+- Gaps: WezTerm (community template only), bat, delta, Herdr (no templates)
+- *Deps:* Tinty + templates (some missing)
+- *Scope:* Partial coverage; requires custom templates for gaps
+- *Effort:* High
+- *Reversibility:* Medium
+
+** Option 5: Hybrid -- Tinty for Core, Custom for Gaps
+- Tinty handles shell, neovim, tmux, fzf, emacs (base16-emacs)
+- Custom scripts handle WezTerm native, Herdr, bat native, vivid, delta
+- Two coordination points -- OR -- custom script wraps =tinty apply=
+- *Deps:* Tinty + custom scripts
+- *Scope:* Best coverage overall; two systems to reason about
+- *Effort:* High
+- *Reversibility:* Medium
+
+** Option 6: Just-Command Orchestrator
+- Add =just theme <palette>= to existing =just= interface
+- Recipe reads =themes.toml= (palette → per-app native names) + triggers reloads
+- Integrates with existing dotfiles/packages tooling
+- *Deps:* =just= (already have) + per-app switching + IPC to running apps
+- *Scope:* Discoverable command surface
+- *Effort:* Medium
+- *Reversibility:* High
+
+** Option 7: Do Nothing / Manual Per-App
+- Keep current setup. Edit per-app config to try new palettes.
+- *Deps:* None
+- *Scope:* No coordination
+- *Effort:* Zero
+- *Reversibility:* N/A
+
+** Comparison Matrix
+
+| Option              | New Deps      | Coverage | Palette Registry     | Reversibility | Effort |
+|---------------------+---------------+----------+----------------------+---------------+--------|
+| 1. Extend shell     | None          | Full     | Manual (our funcs)   | High          | Low    |
+| 2. Config file SoT  | Minor         | Full     | Manual               | High          | Medium |
+| 3. Tinty dispatcher | Tinty         | Full     | 327 base16 names     | High          | Medium |
+| 4. Tinty native     | Tinty+tmpls   | Partial  | 327 base16 schemes   | Medium        | High   |
+| 5. Hybrid           | Tinty         | Full     | Best of both         | Medium        | High   |
+| 6. Just orchestrator| None          | Full     | Manual               | High          | Medium |
+| 7. Do nothing       | None          | N/A      | N/A                  | N/A           | Zero   |
+
+* Open Design Questions
+
+These cut across all options and should be answered before choosing one.
+
+** Q1: Where does the "active palette" live?
+Options:
+- Env var (per-shell, ephemeral) -- current pattern for light/dark
+- Config file (global, persists across sessions, cross-app readable)
+- Both (env var derived from file at shell init)
+
+Trade-off: env var is simple but each shell reads it independently; file is
+authoritative but requires reads/parsing. The light/dark strategy uses env var
+because shells cannot re-read after spawn -- but *palette* might tolerate a
+file-based approach if apps can reload on file change.
+
+** Q2: How do running apps get notified of a palette change?
+Options:
+- Restart-only (kill terminals, respawn everything)
+- Live reload via IPC:
+  - WezTerm: =wezterm cli set-option= or user-var events
+  - tmux: =tmux source-file=
+  - Herdr: =herdr server reload-config=
+  - Emacs: =emacsclient -e "(load-theme '...)"=
+  - Neovim: =nvim --server /tmp/nvim.sock --remote-send=
+  - Claude Code: no live-reload; auto mode re-detects on next render
+
+Live reload is nicer UX but adds complexity per app. Restart-only is simpler
+but disruptive.
+
+** Q3: Is palette orthogonal to light/dark, or coupled?
+Options:
+- *Orthogonal:* two independent knobs. "catppuccin" is the family; light/dark
+  picks =latte= vs =mocha=. Same for rose-pine (=dawn= vs =main=), etc.
+- *Coupled:* each palette is a specific point (=catppuccin-mocha= is one
+  choice, =catppuccin-latte= is another). Fewer distinct concepts but more
+  named options.
+
+Orthogonal is cleaner conceptually and matches how these theme families are
+authored (Catppuccin/Rosé Pine both ship light+dark variants together).
+Coupled matches how base16 schemes are cataloged (each variant is its own scheme).
+
+** Q4: New machine bootstrap: what's the default palette?
+Options:
+- Hardcoded in shell init (e.g., =LGREEN_THEME_PALETTE=doom-one= as default)
+- Read from a repo-committed file (=configs/theme_common/palette.toml=)
+- Discovered at bootstrap time (interactive prompt during =just configure=)
+
+Should the palette be a repo-level decision, a machine-level decision, or both
+(repo default + per-machine override)?
+
+** Q5: Per-machine overrides
+Precedent: =~/.tmux.local.conf= is per-machine (used to distinguish visually
+between hosts). Does palette need similar per-host state? E.g., work laptop
+uses =catppuccin=, personal machine uses =rose-pine=.
+
+If yes: the file-based SoT needs a =local.toml= override mechanism.
+
+** Q6: Which palettes do we actually want to support?
+Committed set drives the effort estimate:
+- Minimum viable: One family (already what we have), Catppuccin, Rosé Pine
+- Extended: + Gruvbox, Tokyo Night, Nord, Dracula
+- Doom One is special: not in base16, needs custom scheme YAML if using Tinty
+
+Every added palette = one row in the per-app lookup table (Options 1, 2, 6) or
+one hook mapping (Option 3).
+
+** Q7: Are we committing to Tinty or building custom?
+This is the big architectural fork. Answer depends heavily on Q6:
+- If ≤5 palettes and stable set → custom likely easier
+- If exploring many palettes / want browsing → Tinty pays off
+- If mostly staying on One family and this is future-proofing → custom is enough
+
+** Q8: How much of the current =tt= toggle infrastructure gets reused?
+The existing =lgreen_setup_*= functions are well-factored. A palette dimension
+could:
+- Add a new set of parallel functions (=lgreen_setup_palette_*=), keep =tt= for light/dark
+- Merge palette + mode into a single =lgreen_apply_theme <palette> <mode>= function
+- Introduce a two-level structure: palette selects the "family," mode picks variant
+
+** Q9: Claude Code integration
+Claude Code has =theme: auto= (light/dark only, no palette knob). It partially
+inherits WezTerm's ANSI palette but has hardcoded accent colors. Two questions:
+- Do we care about Claude Code aesthetically matching? (Probably no -- it'll
+  drift close enough via ANSI inheritance for dark palettes)
+- Should the switcher trigger any Claude Code action? (Probably no -- =auto=
+  mode already handles re-detection on next render)
+
+Recommend: no explicit Claude Code integration; it goes along for the ride.
+
+** Q10: WezTerm ANSI palette vs. app content colors
+For visual coherence, WezTerm's =color_scheme= (the 16 ANSI colors) should
+aesthetically match the palettes chosen for fzf/bat/neovim/emacs. Otherwise
+raw ANSI output (P10k, =grep --color=, Claude Code chrome) will clash with
+truecolor content.
+
+Question: do we require every supported palette to have a WezTerm native
+scheme with the same name? Or generate one from base16 when the native version
+is missing?
+
+* Path Forward (Not Committed)
+
+Working assumption if we resume: *Option 1 (Extend Existing Shell Functions)*
+plus a *committed palette registry file* is the lightest lift that solves 80%
+of the problem. Tinty stays on the shelf as an escape hatch if the manual
+lookup table becomes unwieldy.
+
+Reasoning:
+- We likely care about ≤5 palettes
+- Existing =tt= pattern already works and is understood
+- File-based SoT (Q1) lets non-shell apps participate
+- Live reload (Q2) can be added incrementally per app
+- Q3-Q10 answered pragmatically as we implement
+
+Not committing to this. Revisit when time allows.
+
+* Next Steps When Resumed
+
+1. Answer Q1-Q10 (or accept the working assumptions above)
+2. Pick an option (or hybrid of options)
+3. If Option 1/2/6: define the palette registry data model
+4. If Option 3/4/5: install Tinty, prototype config
+5. Prototype with 2-3 palettes (Doom One + Catppuccin + Rosé Pine)
+6. Wire up 2-3 apps end-to-end before expanding
+7. Update =THEME_STRATEGY.org= to reference this doc for the palette dimension
+
+* Related Documents
+
+- =docs/THEME_STRATEGY.org= -- light/dark dimension strategy
+- =configs/shell_common/dot-zshrc.user= -- current =tt= toggle implementation
+  (lines 278-396, "* Color Theme" section)
