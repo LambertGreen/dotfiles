@@ -40,7 +40,8 @@ _check-windows-env:
 # Show configuration and available commands
 [default]
 default:
-    @echo "🚀 New user? Start with: just configure → just bootstrap → just sync-submodules → just stow → just onetimesetup → just install"
+    @echo "🚀 New user? Start with: just configure → just bootstrap → just git-sync-submodules → just stow → just onetimesetup → just install"
+    @echo "🔄 Returning to a machine? just git-sync   (pull repo + submodules)  ·  just git-status"
     @echo ""
     @just --list
     @echo ""
@@ -64,77 +65,83 @@ bootstrap:
     @{{ if os() == "windows" { "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -NoProfile -ExecutionPolicy Bypass -File bootstrap.ps1" } else { "./bootstrap.sh" } }}
     @echo ""
     @echo "Next step:"
-    @echo "  just sync-submodules"
+    @echo "  just git-sync-submodules"
 
-# Sync git submodules (clone/update private config repos, required before stow)
-[group('1-🚀-Setup')]
-sync-submodules:
+# ═══════════════════════════════════════════════════════════════════════════════
+# Git / Submodules
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Submodule work runs in two directions, and conflating them is how machines
+# drift apart:
+#
+#   CONSUMER  git-sync / git-sync-submodules
+#             The pins are the truth. Move working trees TO the pins.
+#             Never moves a pin. This is what you run on a second machine.
+#
+#   PRODUCER  git-update-submodules
+#             The remote branch is the truth. Move working trees PAST the pins,
+#             then you commit the new pins. This is a deliberate act.
+#
+# The old names (sync-submodules / update-submodules) still work as aliases:
+# they are referenced in the bootstrap flow and in the dot-ssh submodule's own
+# SETUP.md, which lives in a different repo.
+
+# Ensure an SSH config exists that can reach the private submodule remotes.
+# Chicken-and-egg: the real ssh config IS a private submodule, so a fresh
+# machine needs a bootstrap config before it can clone anything.
+[private]
+_ensure-ssh-bootstrap:
     #!/usr/bin/env bash
     set -euo pipefail
-    echo "🔗 Syncing git submodules..."
-
-    # Check if SSH config exists with github.com-personal host
     if [ -f ~/.ssh/config ] && grep -q "github.com-personal" ~/.ssh/config; then
-        echo "✅ SSH config with github.com-personal found"
-    else
-        echo "⚠️  No SSH config with github.com-personal found"
-
-        # Check for SSH keys
-        if [ -f ~/.ssh/id_ed25519 ] || [ -f ~/.ssh/id_rsa ]; then
-            echo "📝 Creating bootstrap SSH config..."
-
-            # Backup existing config if present
-            if [ -f ~/.ssh/config ]; then
-                cp ~/.ssh/config ~/.ssh/config.backup-$(date +%Y%m%d%H%M%S)
-                echo "   Backed up existing config"
-            fi
-
-            # Create bootstrap config
-            mkdir -p ~/.ssh
-            cp scripts/bootstrap/ssh-config-bootstrap ~/.ssh/config
-            chmod 600 ~/.ssh/config
-            echo "✅ Bootstrap SSH config created"
-            echo "   (Will be replaced by full config after 'just stow')"
-        else
-            echo "❌ No SSH keys found in ~/.ssh/"
-            echo "   Please set up SSH keys first:"
-            echo "   1. Generate: ssh-keygen -t ed25519 -C 'your_email@example.com'"
-            echo "   2. Add to GitHub: https://github.com/settings/keys"
-            echo "   3. Run: just sync-submodules"
-            exit 1
+        exit 0
+    fi
+    echo "⚠️  No SSH config with github.com-personal found"
+    if [ -f ~/.ssh/id_ed25519 ] || [ -f ~/.ssh/id_rsa ]; then
+        echo "📝 Creating bootstrap SSH config..."
+        if [ -f ~/.ssh/config ]; then
+            cp ~/.ssh/config ~/.ssh/config.backup-$(date +%Y%m%d%H%M%S)
+            echo "   Backed up existing config"
         fi
+        mkdir -p ~/.ssh
+        cp scripts/bootstrap/ssh-config-bootstrap ~/.ssh/config
+        echo "✅ Bootstrap SSH config created"
+        echo "   (Will be replaced by the real config after 'just stow')"
+        bash scripts/ssh/fix-perms.sh
+    else
+        echo "❌ No SSH keys found in ~/.ssh/"
+        echo "   Please set up SSH keys first:"
+        echo "   1. Generate: ssh-keygen -t ed25519 -C 'your_email@example.com'"
+        echo "   2. Add to GitHub: https://github.com/settings/keys"
+        echo "   3. Run: just git-sync-submodules"
+        exit 1
     fi
 
-    # Sync and initialize submodules
-    echo ""
-    echo "📦 Syncing submodules (clone new, update existing)..."
-    git submodule sync --recursive
-    git submodule update --init --recursive
+# Bring this machine current: pull the repo, then land submodules on their pins
+[group('2-🔗-Git')]
+git-sync: _ensure-ssh-bootstrap
+    @bash scripts/git/sync.sh
 
-    echo ""
-    echo "✅ Submodules synced"
-    echo ""
-    echo "Next step:"
-    echo "  just stow"
+# Land submodules on their pins without touching the parent repo
+[group('2-🔗-Git')]
+git-sync-submodules: _ensure-ssh-bootstrap
+    @bash scripts/git/sync.sh --submodules
+    @echo ""
+    @echo "Next step:"
+    @echo "  just stow"
 
-# Update submodules to latest on their tracked branch (avoids detached-HEAD drift)
-[group('1-🚀-Setup')]
-update-submodules:
-    #!/usr/bin/env bash
-    set -euo pipefail
-    # Why: `git submodule update` checks out the pinned commit as a DETACHED
-    # HEAD. Editing/committing there strands the commit off-branch and silently
-    # diverges the working tree from the parent pin (root cause of the SSH
-    # config drift, 2026-08). --remote --merge lands each submodule on the
-    # branch declared in .gitmodules instead. See docs/submodules.md.
-    echo "🔄 Updating submodules to latest on their tracked branch..."
-    git submodule sync --recursive
-    git submodule update --init --remote --merge --recursive
-    echo ""
-    echo "📌 Submodule pins moved. Review and commit the parent-repo changes:"
-    git submodule status
-    echo ""
-    echo "   git add <submodule paths> && git commit -m 'chore: bump submodule pins'"
+# Advance submodules to their branch tips so you can bump the pins
+[group('2-🔗-Git')]
+git-update-submodules: _ensure-ssh-bootstrap
+    @bash scripts/git/update.sh
+
+# Show repo + submodule state: drift from pins, detached HEADs, unpushed commits
+[group('2-🔗-Git')]
+git-status:
+    @bash scripts/git/status.sh
+
+alias sync-submodules := git-sync-submodules
+alias update-submodules := git-update-submodules
 
 # Deploy configuration files (symlink configs to home directory)
 [group('1-🚀-Setup')]
@@ -144,7 +151,7 @@ stow:
         exit 1; \
     fi
     @if git submodule status | grep -q "^-"; then \
-        echo "⚠️  Some submodules not initialized. Run: just sync-submodules"; \
+        echo "⚠️  Some submodules not initialized. Run: just git-sync-submodules"; \
         echo "   (Continuing anyway - some configs may be empty)"; \
     fi
     @. "$HOME/.dotfiles.env" && ./scripts/stow/stow.sh "$DOTFILES_PLATFORM"
@@ -176,7 +183,7 @@ sync-configs:
 onetimesetup:
     @if [ ! -f "$HOME/.onetimesetup.sh" ]; then \
         echo "❌ Onetimesetup script not found at ~/.onetimesetup.sh"; \
-        echo "   Run the setup flow: just sync-submodules → just stow"; \
+        echo "   Run the setup flow: just git-sync-submodules → just stow"; \
         exit 1; \
     fi
     @bash -c 'source ~/.onetimesetup.sh && \
@@ -218,39 +225,39 @@ import-win-regkeys:
     @echo "✅ Registry import completed (see ~/.dotfiles/logs/ for details)"
 
 # Install packages via all package managers
-[group('2-📦-Package-Management')]
+[group('3-📦-Package-Management')]
 install:
     @just _check-windows-env
     @echo "📦 Installing packages for current machine class..."
     @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm install" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm install; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Update package registries and check for available updates
-[group('2-📦-Package-Management')]
+[group('3-📦-Package-Management')]
 update:
     @just _check-windows-env
     @echo "🔄 Updating package registries and checking for updates..."
     @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm check" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm check; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Upgrade packages across package managers
-[group('2-📦-Package-Management')]
+[group('3-📦-Package-Management')]
 upgrade:
     @just _check-windows-env
     @echo "🔄 Upgrading packages (interactive)..."
     @{{ if os() == "windows" { "py -3 -m src.dotfiles_pm.pm upgrade" } else { "bash -c 'if [ -f \"$HOME/.dotfiles.env\" ]; then . \"$HOME/.dotfiles.env\"; fi; EXIT_CODE=0; python3 -m src.dotfiles_pm.pm upgrade; EXIT_CODE=$?; if [ \"$EXIT_CODE\" -eq 41 ]; then echo \"❌ Brew locked. Fix with: just doctor-fix-brew-lock\"; exit 1; fi; exit \"$EXIT_CODE\"'" } }}
 
 # Upgrade the macOS emacs-mac-exp@31 HEAD build (backup/restore safety; macOS-only)
-[group('2-📦-Package-Management')]
+[group('3-📦-Package-Management')]
 upgrade-emacs-mac-exp:
     @{{ if os() == "macos" { "bash scripts/package-management/emacs/upgrade-emacs-mac-exp.sh" } else { "echo '⏭️  upgrade-emacs-mac-exp is macOS-only (emacs-mac-exp@31); Linux/Windows Emacs is managed separately.'" } }}
 
 # Show available package managers
-[group('3-ℹ️-Info')]
+[group('4-ℹ️-Info')]
 show-package-managers:
     @just _check-windows-env
     @bash -c 'EXIT_CODE=0; python3 -m src.dotfiles_pm.pm list; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; exit "$EXIT_CODE"'
 
 # Show package counts summary
-[group('3-ℹ️-Info')]
+[group('4-ℹ️-Info')]
 show-package-summary:
     @./scripts/package-management/show-package-stats.sh
     @echo ""
@@ -258,7 +265,7 @@ show-package-summary:
     @echo "  just show-package-list"
 
 # Show detailed package lists
-[group('3-ℹ️-Info')]
+[group('4-ℹ️-Info')]
 show-package-list:
     @./scripts/package-management/show-packages.sh
     @echo ""
@@ -271,7 +278,7 @@ show-package-list:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Diagnose and fix Homebrew lock issues
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-fix-brew-lock:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -387,45 +394,45 @@ doctor-fix-brew-lock:
     fi
 
 # Disable problematic package managers
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-disable-a-package-manager:
     @just _check-windows-env
     @echo "👩‍⚕️ Disabling problematic package managers..."
     @bash -c 'EXIT_CODE=0; python3 -m src.dotfiles_pm.pm configure; EXIT_CODE=$?; if [ "$EXIT_CODE" -eq 41 ]; then echo "❌ Brew locked. Fix with: just doctor-fix-brew-lock"; exit 1; fi; if [ "$EXIT_CODE" -eq 0 ]; then echo ""; echo "Next steps:"; echo "  just doctor-check-health   # Verify symlinks were created successfully"; fi; exit "$EXIT_CODE"'
 
 # Check system health
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-health:
     @echo "👩‍⚕️ Running comprehensive system health check..."
     @bash -c "source scripts/health/dotfiles-health.sh && dotfiles_check_health"
 
 # Check PATH for broken entries, version-specific paths, and duplicates (cross-platform)
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-path:
     @just _check-windows-env
     @echo "👩‍⚕️ Checking PATH health (cross-platform)..."
     @python3 src/dotfiles_pm/doctor.py
 
 # Check Emacs version compatibility and suggest elpaca cleanup if needed
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-emacs-version:
     @echo "👩‍⚕️ Checking Emacs version compatibility..."
     @bash -c "source scripts/health/doctor-emacs-version-change.sh && doctor_emacs_version_change"
 
 # Check package manager versions (terminal spawning regression test)
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-pm-versions:
     @just _check-windows-env
     @echo "👩‍⚕️ Checking package manager versions..."
     @bash -c 'if [ -f "$HOME/.dotfiles.env" ]; then . "$HOME/.dotfiles.env"; fi; python3 -m src.dotfiles_pm.pm version'
 
 # Check macOS file associations against ~/.config/duti/defaults.duti (macOS-Only)
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-file-associations:
     @{{ if os() == "macos" { "bash -c 'source scripts/health/dotfiles-health.sh && _check_file_associations echo'" } else { "echo '⏭️  doctor-check-file-associations is macOS-only'" } }}
 
 # Check submodules for detached-HEAD drift or divergence from their tracked branch
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-submodules:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -446,19 +453,36 @@ doctor-check-submodules:
         case "$prefix" in
             '+') echo "  ⚠ $path: checked-out commit differs from pin — commit the bump or reset to pin"; drift=1 ;;
             'U') echo "  ⚠ $path: merge conflicts"; drift=1 ;;
-            '-') echo "  ⚠ $path: not initialized — run: just sync-submodules"; drift=1 ;;
+            '-') echo "  ⚠ $path: not initialized — run: just git-sync-submodules"; drift=1 ;;
         esac
     done < <(git submodule status)
+
+    # Also validate the .gitmodules branch declarations themselves. A branch
+    # that does not exist on the remote silently breaks git-update-submodules,
+    # and the failure surfaces months later on a different machine.
+    # (dot-spacemacs.d declared `master` against a repo that only has `main`.)
+    while read -r key spath; do
+        name="${key#submodule.}"; name="${name%.path}"
+        declared=$(git config -f .gitmodules --get "submodule.$name.branch" 2>/dev/null || true)
+        [ -n "$declared" ] || continue
+        [ -e "$spath/.git" ] || continue
+        if ! git -C "$spath" show-ref --verify --quiet "refs/remotes/origin/$declared"; then
+            echo "  ⚠ $spath: .gitmodules declares branch '$declared', which does not exist on origin"
+            drift=1
+        fi
+    done < <(git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null || true)
+
     if [ "$drift" -eq 0 ]; then
         echo "  ✓ All submodules match their pins"
     else
         echo ""
-        echo "  To move pins to latest on the tracked branch: just update-submodules"
-        echo "  To discard local submodule drift: git submodule update --recursive"
+        echo "  Adopt the pins (discard local drift): just git-sync"
+        echo "  Move the pins to the branch tips:     just git-update-submodules"
+        echo "  Full picture:                         just git-status"
     fi
 
 # Check Homebrew tap state against Brewfile declarations
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-check-taps:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -545,8 +569,13 @@ doctor-check-taps:
         echo "Found $issues issue(s). Run suggested fix commands above."
     fi
 
+# Re-assert SSH file permissions (git checkouts write them group-writable)
+[group('5-👩‍⚕️-Doctor')]
+doctor-fix-ssh-perms:
+    @bash scripts/ssh/fix-perms.sh
+
 # Fix broken symlinks (destructive)
-[group('4-👩‍⚕️-Doctor')]
+[group('5-👩‍⚕️-Doctor')]
 doctor-fix-broken-links:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -566,7 +595,7 @@ doctor-fix-broken-links:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Check development prerequisites
-[group('5-🧪-Dev-Testing')]
+[group('6-🧪-Dev-Testing')]
 check-dev-prerequisites:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -574,7 +603,7 @@ check-dev-prerequisites:
     ./devsetup/check-prerequisites.sh
 
 # Run unit tests (uses mocks, fast feedback)
-[group('5-🧪-Dev-Testing')]
+[group('6-🧪-Dev-Testing')]
 test-unit:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -583,7 +612,7 @@ test-unit:
     python -m pytest tests/ -v || echo "⚠️  Some tests failed (expected during development)"
 
 # Run functional tests (uses fake package managers)
-[group('5-🧪-Dev-Testing')]
+[group('6-🧪-Dev-Testing')]
 test-functional:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -596,7 +625,7 @@ test-functional:
     echo "✅ Functional tests completed"
 
 # Run integration tests (uses Docker containers)
-[group('5-🧪-Dev-Testing')]
+[group('6-🧪-Dev-Testing')]
 test-integration:
     #!/usr/bin/env bash
     set -euo pipefail
@@ -608,7 +637,7 @@ test-integration:
     echo "✅ Integration test setup (TODO: implement actual tests)"
 
 # Run all tests
-[group('5-🧪-Dev-Testing')]
+[group('6-🧪-Dev-Testing')]
 test-all:
     #!/usr/bin/env bash
     set -euo pipefail

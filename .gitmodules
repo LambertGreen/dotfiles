@@ -9,7 +9,7 @@
 [submodule "configs/emacs_common/dot-spacemacs.d"]
 	path = configs/emacs_common/dot-spacemacs.d
 	url = git@github.com-personal:LambertGreen/dot-spacemacs.git
-	branch = master
+	branch = main
 [submodule "configs/emacs_common/dot-emacs.spacemacs"]
 	path = configs/emacs_common/dot-emacs.spacemacs
 	url = https://github.com/syl20bnr/spacemacs
@@ -18,16 +18,10 @@
 	path = configs/emacs_common/dot-emacs.d
 	url = git@github.com-personal:LambertGreen/dot-emacs-default.git
 	branch = main
-[submodule "configs/nvim_common/dot-config/nvim-doom"]
-	path = configs/nvim_common/dot-config/nvim-doom
-	url = git@github.com-personal:LambertGreen/doom-nvim.git
-	branch = my-config
-[submodule "configs/nvim_common/dot-config/nvim-nyoom"]
-	path = configs/nvim_common/dot-config/nvim-nyoom
-	url = git@github.com-personal:LambertGreen/nyoom.nvim.git
 [submodule "configs/nvim_common/dot-config/nvim-lazy"]
 	path = configs/nvim_common/dot-config/nvim-lazy
 	url = git@github.com-personal:LambertGreen/dot-nvim-lazy.git
+	branch = main
 [submodule "configs/nvim_common/dot-config/nvim"]
 	path = configs/nvim_common/dot-config/nvim
 	url = git@github.com-personal:LambertGreen/dot-nvim.git
@@ -47,6 +41,7 @@
 [submodule "win_reg_configs"]
 	path = win_reg_configs
 	url = git@github.com-personal:LambertGreen/win_reg_configs.git
+	branch = main
 [submodule "configs/ssh_common/dot-ssh"]
 	path = configs/ssh_common/dot-ssh
 	url = git@github.com-personal:LambertGreen/sshconfig.git

@@ -3,6 +3,9 @@
 
 set -euo pipefail
 
+# Normally exported by the justfile; derive it when run directly.
+DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+
 # Set up logging
 LOG_DIR="${HOME}/.dotfiles/logs"
 LOG_FILE="${LOG_DIR}/stow-$(date +%Y%m%d-%H%M%S).log"
@@ -93,6 +96,7 @@ while IFS= read -r stow_entry; do
 
         # Allow explicit override via environment: STOW_CMD="/path/to/stow"
         if [ -n "${STOW_CMD:-}" ]; then
+            # shellcheck disable=SC2206  # word splitting of $stow_opts is intended
             STOW_ARGS=($stow_opts "$stow_package")
         # On Windows, prefer MSYS2's perl via msys2_shell.cmd to avoid Git's perl
         elif [[ "$(uname -s)" == MINGW* || "$(uname -s)" == MSYS* ]]; then
@@ -117,6 +121,7 @@ while IFS= read -r stow_entry; do
                 if command -v stow >/dev/null 2>&1; then
                     log_output "⚠️  MSYS2 not found; using stow from PATH"
                     STOW_CMD="stow"
+                    # shellcheck disable=SC2206  # word splitting of $stow_opts is intended
                     STOW_ARGS=($stow_opts "$stow_package")
                 else
                     log_output "❌ Cannot find MSYS2 stow and no 'stow' on PATH. Install MSYS2+stow or set STOW_CMD"
@@ -126,6 +131,7 @@ while IFS= read -r stow_entry; do
         else
             # Non-Windows: use stow from PATH
             STOW_CMD="stow"
+            # shellcheck disable=SC2206  # word splitting of $stow_opts is intended
             STOW_ARGS=($stow_opts "$stow_package")
         fi
 
@@ -146,12 +152,12 @@ while IFS= read -r stow_entry; do
             log_verbose "Successfully stowed: $stow_package"
             successes+=("$stow_package")
 
-            # Fix SSH config permissions (SSH requires restrictive permissions)
+            # Re-assert SSH permissions. Single source of truth so that every
+            # path which lays down the config (stow AND the git-* recipes) fixes
+            # it the same way. See scripts/ssh/fix-perms.sh for why.
             if [ "$stow_package" = "ssh_common" ]; then
-                if [ -f "$HOME/.ssh/config" ]; then
-                    chmod 600 "$HOME/.ssh/config"
-                    log_verbose "Fixed SSH config permissions: chmod 600 ~/.ssh/config"
-                fi
+                bash "$DOTFILES_DIR/scripts/ssh/fix-perms.sh" >/dev/null
+                log_verbose "Re-asserted SSH permissions"
             fi
         else
             # Check if failure is due to conflicts (existing files)
@@ -198,12 +204,11 @@ while IFS= read -r stow_entry; do
                         log_verbose "Successfully stowed: $stow_package (after conflict resolution)"
                         successes+=("$stow_package")
 
-                        # Fix SSH config permissions (SSH requires restrictive permissions)
+                        # See the matching call above; scripts/ssh/fix-perms.sh
+                        # is the single source of truth for these modes.
                         if [ "$stow_package" = "ssh_common" ]; then
-                            if [ -f "$HOME/.ssh/config" ]; then
-                                chmod 600 "$HOME/.ssh/config"
-                                log_verbose "Fixed SSH config permissions: chmod 600 ~/.ssh/config"
-                            fi
+                            bash "$DOTFILES_DIR/scripts/ssh/fix-perms.sh" >/dev/null
+                            log_verbose "Re-asserted SSH permissions"
                         fi
                     else
                         log_verbose "Failed to stow: $stow_package after conflict resolution (exit code: $?)"
