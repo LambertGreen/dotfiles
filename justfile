@@ -135,6 +135,16 @@ git-sync-submodules: _ensure-ssh-bootstrap
 git-update-submodules: _ensure-ssh-bootstrap
     @bash scripts/git/update.sh
 
+# Record moved submodules as new pins (refuses unpublished commits)
+[group('2-🔗-Git')]
+git-bump-pins *ARGS:
+    @bash scripts/git/bump-pins.sh {{ ARGS }}
+
+# Publish local work: submodules first, then the parent repo
+[group('2-🔗-Git')]
+git-push:
+    @bash scripts/git/push.sh
+
 # Show repo + submodule state: drift from pins, detached HEADs, unpushed commits
 [group('2-🔗-Git')]
 git-status:

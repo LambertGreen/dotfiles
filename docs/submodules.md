@@ -15,8 +15,8 @@ apart, so every `just git-*` recipe picks a side and stays on it:
 | What is the truth? | The **pins** in the parent repo | The **remote branch** |
 | Moves working trees | *to* the pins | *past* the pins |
 | Moves pins? | **Never** | Yes — you commit the bump |
-| When | Sitting down at a machine | Deliberately adopting new work |
-| Command | `just git-sync` | `just git-update-submodules` |
+| When | Sitting down at a machine | Deliberately publishing or adopting work |
+| Commands | `git-sync`, `git-sync-submodules` | `git-push`, `git-bump-pins`, `git-update-submodules` |
 
 `git-sync` is the one you want almost always. If you just pulled and something
 looks stale, you wanted `git-sync`.
@@ -28,9 +28,38 @@ looks stale, you wanted `git-sync`.
 | `just git-sync` | **The daily driver.** Fast-forwards the parent repo, lands every submodule on its pin, re-asserts SSH permissions, and tells you what moved and what needs a reload. |
 | `just git-sync-submodules` | Submodules only; leaves the parent repo alone. Also the setup-flow step (aliased as `sync-submodules`). |
 | `just git-update-submodules` | Producer direction: advance each submodule to its branch tip so you can commit new pins (aliased as `update-submodules`). |
+| `just git-bump-pins` | Record moved submodules as new pins. **Refuses** to pin an unpublished commit. Takes `--yes` to skip the prompt. |
+| `just git-push` | Publish local work: submodules first, then the parent. |
 | `just git-status` | Parent repo + every submodule on one screen: drift from pins, detached HEADs, unpushed commits. |
 | `just doctor-check-submodules` | Reports drift and invalid `.gitmodules` branch declarations. |
 | `just doctor-fix-ssh-perms` | Re-asserts SSH file modes on demand. |
+
+## Publishing work you did inside a submodule
+
+```bash
+cd configs/ssh_common/dot-ssh
+# ...edit, then commit as normal (git-sync already put you on the branch)
+cd -
+just git-push        # pushes the submodule
+just git-bump-pins   # records the new pin in the parent
+just git-push        # publishes the parent
+```
+
+**Why the pin has to be pushed last.** A pin is just a sha. If the parent
+commit lands on the remote while the submodule commit it references is still
+local-only, every other machine gets a repo it cannot populate — `git submodule
+update` fails with *"direct fetch of that commit failed"*. The repo looks
+perfectly healthy on the machine that made it and is broken everywhere else.
+
+Two guards enforce this, so the ordering is not something you have to remember:
+
+- `git-bump-pins` **refuses** to record a pin whose commit is not reachable from
+  the submodule's remote branch, and tells you to `just git-push` first.
+- `git-push` always pushes submodules *before* the parent.
+
+If you committed on a detached HEAD anyway, `git-push` detects that the commits
+are on no branch, declines to guess a refspec, and prints the exact recovery
+(`git branch -f <branch> <sha> && git checkout <branch> && git push`).
 
 The old names `sync-submodules` and `update-submodules` still work — they are
 `just` aliases, because they are referenced by the bootstrap flow and by
@@ -83,16 +112,10 @@ Fix it by hand any time with `just doctor-fix-ssh-perms`.
 
 1. **Before editing a submodule**, run `just git-sync` — it puts you on the
    tracked branch rather than a detached HEAD.
-2. **After committing in a submodule**, push it, *then* re-pin in the parent:
-   ```bash
-   cd <submodule> && git push
-   cd <repo root>
-   git add -- <submodule path>
-   git commit -m "chore: bump <submodule> pin"
-   ```
-   Push **before** committing the bump: a pin pointing at an unpushed commit
-   cannot be fetched by any other machine. `just git-status` flags unpushed
-   submodule commits for this reason.
+2. **After committing in a submodule**, run `just git-push` → `just
+   git-bump-pins` → `just git-push` (see above). Push **before** committing the
+   bump: a pin pointing at an unpushed commit cannot be fetched by any other
+   machine. `git-bump-pins` enforces this rather than trusting you to remember.
 3. **Never** commit on a detached HEAD inside a submodule.
 
 ## Recovering from drift

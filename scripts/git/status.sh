@@ -76,7 +76,7 @@ while IFS=$'\t' read -r pin spath; do
         drift=1
     elif git -C "$spath" merge-base --is-ancestor "$pin" "$head" 2>/dev/null; then
         n=$(git -C "$spath" rev-list --count "$pin..$head")
-        state="$n AHEAD of pin — commit the bump"
+        state="$n AHEAD of pin — just git-bump-pins"
         mark="⬆"
         drift=1
     else
@@ -93,8 +93,15 @@ while IFS=$'\t' read -r pin spath; do
     # git-sync deliberately leaves it detached. That is the intended outcome,
     # not drift — flagging it would cry wolf on every vendored upstream.
     if [ "$sbranch" = "(detached)" ] && [ -n "$declared" ]; then
-        if git -C "$spath" show-ref --verify --quiet "refs/heads/$declared" &&
-           git -C "$spath" merge-base --is-ancestor "$pin" "refs/heads/$declared" 2>/dev/null; then
+        if [ "$head" != "$pin" ]; then
+            # Detached AND not at the pin: whatever is here is already off any
+            # branch. This is the 2026-08 failure mode, not a benign state --
+            # never describe it as intentional.
+            state="$state · detached — commits here are STRANDED off-branch"
+            mark="⚠"
+            detached=1
+        elif git -C "$spath" show-ref --verify --quiet "refs/heads/$declared" &&
+             git -C "$spath" merge-base --is-ancestor "$pin" "refs/heads/$declared" 2>/dev/null; then
             state="$state · detached, pinned behind $declared on purpose"
         else
             state="$state · detached (edits here would be stranded)"
