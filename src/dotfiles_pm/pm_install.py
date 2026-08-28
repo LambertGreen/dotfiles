@@ -14,6 +14,7 @@ from typing import List, Dict, Any, Optional
 
 from .pm_detect import detect_all_pms
 from .pm_select import select_pms
+from .sudo_helper import wrap_command_with_askpass
 from .terminal_executor import spawn_tracked, create_terminal_executor
 
 
@@ -103,6 +104,31 @@ def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
         print(f"  📦 Installing all packages...")
 
     cmd_str = f"{env_prefix}brew bundle install --file={brewfile} --no-upgrade"
+
+    # Configure SUDO_ASKPASS, exactly as the upgrade workstream does
+    # (see BrewPM.upgrade_command / BrewCaskPM.upgrade_command).
+    #
+    # Why install needs it too: `brew bundle` processes `mas` and `cask` lines,
+    # and those shell out to sudo. Two different things then happen:
+    #
+    #   - Homebrew's own sudo calls pass -A when SUDO_ASKPASS is set, so casks
+    #     get the GUI dialog instead of a terminal prompt.
+    #   - `mas` re-execs itself under plain `sudo` (no -A). Per sudo(8),
+    #     SUDO_ASKPASS is used "if no terminal is available or if the -A option
+    #     is specified" -- so this is what stops a non-interactive run from
+    #     blocking forever on a password prompt nothing can answer.
+    #
+    # Without this, `just install` run without a TTY wedges indefinitely at the
+    # first mas entry: observed 2026-08-26 sitting 10h44m on "Windows App" with
+    # 0.29s of CPU, blocking every remaining Brewfile entry. Each retry spawned
+    # a fresh sudo, so killing it did not help.
+    #
+    # wrap_command_with_askpass is a no-op in tty/skip mode, so behaviour is
+    # unchanged where a real terminal is present and DOTFILES_SUDO_MODE=tty.
+    cmd_str = wrap_command_with_askpass(
+        cmd_str,
+        reason="Homebrew Bundle is installing App Store apps and system-linked packages",
+    )
 
     # Spawn terminal for interactive execution
     terminal_result = spawn_tracked(
@@ -499,11 +525,11 @@ def install_gem_packages() -> Dict[str, Any]:
 def install_generic_packages(pm_name: str, install_cmd: str) -> Dict[str, Any]:
     """
     Generic installer for package managers that use packages.txt files.
-    
+
     Args:
         pm_name: Name of the package manager
         install_cmd: Base install command (e.g., "pacman -S", "scoop install")
-    
+
     Returns:
         Dict with installation results
     """
