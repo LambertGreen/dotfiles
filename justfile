@@ -579,6 +579,11 @@ doctor-check-taps:
         echo "Found $issues issue(s). Run suggested fix commands above."
     fi
 
+# Report packages installed on this machine but declared in no Brewfile
+[group('5-👩‍⚕️-Doctor')]
+doctor-check-undeclared:
+    @bash scripts/health/check-undeclared-packages.sh
+
 # Re-assert SSH file permissions (git checkouts write them group-writable)
 [group('5-👩‍⚕️-Doctor')]
 doctor-fix-ssh-perms:
