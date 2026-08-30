@@ -54,6 +54,7 @@ brew "ruby-build"
 brew "rustup"
 
 # Editors & Language Servers
+brew "helix"
 brew "neovim"
 brew "tree-sitter"
 brew "pkryger/emacsmacport-exp/emacs-mac-exp@31", args: ["HEAD", "with-optimization-flags", "with-arc", "with-modern-icon"]
@@ -92,6 +93,7 @@ brew "diffutils"
 brew "editorconfig"
 brew "fastfetch"
 brew "gnu-sed"
+brew "htop"
 brew "just"
 brew "keychain"
 brew "mas"
@@ -166,6 +168,7 @@ brew "enchant"
 brew "gnuplot"
 brew "ispell"
 brew "markdown"
+brew "mupdf"
 brew "pandoc"
 brew "sword"
 
@@ -187,6 +190,27 @@ brew "hyperfine"
 brew "shellcheck"
 brew "shfmt"
 brew "stylua"
+
+# Project-Tool Fallbacks
+#
+# These are TIER 3 tools: a wrong version silently changes output for a given
+# repo, so a project that cares must pin its own copy and direnv puts it first
+# on PATH. They are declared here anyway, deliberately, as the fallback for
+# projects that have not set that up yet.
+#
+# Declaring them is the honest move: they get installed regardless (by you, by
+# an editor, by an agent), so the choice is a declared fallback or silent drift.
+# Undeclared is how isort lingered for a year and then broke `brew upgrade`.
+#
+# CAUTION on formatters: do NOT wire format-on-save to a global fallback. A
+# global black against a repo pinned to an older one reformats the whole file
+# and hands you a diff you never asked for. Prefer the editor formatting only
+# when a project-local formatter resolves.
+#
+# See docs/PACKAGE_POLICY.md.
+brew "black"     # fallback only — projects pin their own
+brew "yapf"      # fallback only — projects pin their own
+brew "pyright"   # fallback only — eglot resolves project-local first (init-prog-modes.el)
 
 # Miscellaneous
 brew "jq"
@@ -225,6 +249,7 @@ cask "whatsapp"
 # GUI Applications - Development
 cask "claude"
 cask "claude-code"
+cask "docker-desktop"
 cask "jd-gui"
 cask "mongodb-compass"
 cask "odbc-manager"
@@ -253,8 +278,10 @@ cask "basictex"
 cask "fx-cast-bridge"
 cask "google-drive"
 cask "kindle"
+cask "knockknock"    # persistent-login/startup-item auditor
+cask "lulu"          # outbound firewall
 cask "mos"
-cask "neovide"
+cask "neovide-app"   # renamed upstream from "neovide"
 cask "openmtp"
 cask "osquery"
 cask "virtualbox"

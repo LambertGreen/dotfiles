@@ -1,7 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/6]
+** Open [0/7]
 
 *** TODO Install remaining missing packages via correct package managers
 **** Context
@@ -48,6 +48,37 @@ The =cargo= package manager is fully implemented (=src/dotfiles_pm/pms/cargo.py=
 - Document/automate Rust toolchain bootstrap (=rustup= on macOS/Linux, =scoop install rustup= on Windows)
 - Ensure =cargo install cargo-update= runs at setup time so check/upgrade work
 - Add =cargo/packages.txt= for the chosen machine classes
+
+*** TODO Add direnv integration to Neovim (editor parity for project-local tools)
+**** Context
+Policy (=docs/PACKAGE_POLICY.md=) is *prefer project-local tools over global*,
+with =direnv= as the mechanism: entering a project puts its tools first on
+=PATH=, so shells, editors and AI agents all resolve the right version without
+having to know anything about it.
+
+Emacs already honours this via =envrc-global-mode=
+(=configs/emacs_common/dot-emacs.d/config/init-utils.el=). *Neovim does not* —
+no direnv integration was found in =configs/nvim_common/dot-config/nvim/=.
+
+So today Emacs and Neovim disagree about the same project: Emacs picks up the
+project's =black= / =pyright= / etc., Neovim silently falls back to whatever is
+global. That is the exact silent version-skew the policy exists to prevent.
+
+Verified working on the Emacs side: an agent shell in this repo resolves
+=python3= and =pytest= to =.direnv/python-3.13/bin/=, not Homebrew.
+**** Action Items
+1. Add a direnv plugin to the =nvim= config (e.g. =direnv.vim= / =direnv.nvim=),
+   or have nvim inherit the environment the way =envrc= does per-buffer.
+2. Verify parity: in a project with a pinned formatter/LSP, confirm Emacs and
+   Neovim resolve the *same* binary.
+3. Confirm LSP servers launched by nvim inherit the project =PATH= (this is the
+   case that actually matters — name-based resolution like
+   ="pyright-langserver"= only works if =PATH= is right).
+4. Do NOT wire format-on-save to a global fallback formatter — see the
+   formatter caution in =docs/PACKAGE_POLICY.md=.
+**** Notes
+Deferred: to be picked up alongside =~/dev/my/ai= (Cortana), which is not set up
+on this machine yet and carries the broader cross-project context.
 
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description

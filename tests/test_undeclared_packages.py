@@ -126,6 +126,24 @@ class TestUndeclaredPackages:
         )
         assert 'Everything installed is declared' in out
 
+    def test_declared_cask_does_not_vouch_for_installed_formula(self, tmp_path):
+        """
+        Formula and cask namespaces must stay separate.
+
+        A flat name set let `cask "neovide"` silently satisfy an installed
+        neovide FORMULA -- concealing that the same app was installed from two
+        sources at once, which is the isort failure mode exactly.
+        """
+        out = _run_check(
+            tmp_path,
+            'cask "neovide"\n',
+            leaves='neovide\n',      # the FORMULA is installed
+            formulae='neovide\n',
+            casks='neovide\n',       # and so is the cask
+        )
+        assert 'neovide' in out
+        assert 'not in the Brewfile' in out
+
     def test_dependencies_are_not_flagged(self, tmp_path):
         """
         Only leaves installed on request are candidates. A formula that is

@@ -62,9 +62,6 @@ fi
 echo "  Machine class: $MACHINE_CLASS"
 echo ""
 
-DECLARED=$(mktemp)
-trap 'rm -f "$DECLARED"' EXIT
-
 # Declared names. Note the '^' anchors: a commented-out line (`# brew "isort"`)
 # must NOT count as declared -- that retirement is precisely the signal we want
 # this check to respect.
@@ -72,6 +69,15 @@ trap 'rm -f "$DECLARED"' EXIT
 # Handles `brew "name"`, `brew "name", link: false`, and tap-qualified
 # `brew "tap/repo/name"`. Both the full string and the basename are recorded,
 # because `brew leaves` may print either form.
+#
+# Formulae and casks are tracked SEPARATELY. A flat name set lets a declared
+# cask vouch for an installed formula of the same name, which is exactly wrong:
+# `cask "neovide"` silently satisfied an installed neovide FORMULA, hiding that
+# the same app was installed from both sources.
+DECLARED=$(mktemp)
+DECLARED_C=$(mktemp)
+trap 'rm -f "$DECLARED" "$DECLARED_C"' EXIT
+
 while read -r name; do
     [ -n "$name" ] || continue
     printf '%s\n%s\n' "$name" "${name##*/}" >> "$DECLARED"
@@ -79,23 +85,26 @@ done < <(sed -n 's/^brew "\([^"]*\)".*/\1/p' "$BREWFILE")
 
 while read -r name; do
     [ -n "$name" ] || continue
-    printf '%s\n%s\n' "$name" "${name##*/}" >> "$DECLARED"
+    printf '%s\n%s\n' "$name" "${name##*/}" >> "$DECLARED_C"
 done < <(sed -n 's/^cask "\([^"]*\)".*/\1/p' "$BREWFILE")
 
 _is_declared() {
     grep -qxF "$1" "$DECLARED" 2>/dev/null
 }
 
-# Resolve a declared name to the token Homebrew currently uses for it.
+_is_declared_cask() {
+    grep -qxF "$1" "$DECLARED_C" 2>/dev/null
+}
+
+# Resolve a declared name to the token Homebrew currently uses for it, so an
+# upstream rename is not mistaken for drift. `neovide` became `neovide-app`:
+# the cask installs under the new token while the Brewfile still says the old
+# one. That is a stale declaration, not an undeclared package, and calling it
+# drift would be crying wolf.
 #
-# Upstream renames packages, and the Brewfile keeps the old name. `neovide` was
-# renamed to `neovide-app`, so the cask installs as `neovide-app` while the
-# Brewfile still says `neovide` -- which looks exactly like undeclared drift
-# unless we resolve it. Reporting that as drift would be crying wolf; it is a
-# stale declaration, which is a different (and easily fixed) problem.
+# Only called for declared names not installed under their own name, so this
+# costs a brew call for a handful of entries at most.
 #
-# Only called for declared names that are not installed under their own name,
-# so this costs a brew call for a handful of entries at most.
 # Emits "<current-name>\t<is-true-rename>" where is-true-rename is 1 only when
 # the declared name appears in Homebrew's oldnames/old_tokens for the package.
 #
@@ -127,7 +136,7 @@ print(d['name'], int(declared in (d.get('oldnames') or [])), sep='\t')
 
 RENAMES=$(mktemp)
 ACCOUNTED=$(mktemp)
-trap 'rm -f "$DECLARED" "$RENAMES" "$ACCOUNTED"' EXIT
+trap 'rm -f "$DECLARED" "$DECLARED_C" "$RENAMES" "$ACCOUNTED"' EXIT
 
 # For each declared name absent from the installed list under its own name,
 # check whether it now lives under a new token that IS installed.
@@ -167,11 +176,27 @@ findings=0
 INSTALLED_F=$(mktemp)      # leaves only — the candidates for "undeclared"
 INSTALLED_ALL_F=$(mktemp)  # every formula — used for rename resolution
 INSTALLED_C=$(mktemp)
-trap 'rm -f "$DECLARED" "$RENAMES" "$ACCOUNTED" "$INSTALLED_F" "$INSTALLED_ALL_F" "$INSTALLED_C"' EXIT
+trap 'rm -f "$DECLARED" "$DECLARED_C" "$RENAMES" "$ACCOUNTED" "$INSTALLED_F" "$INSTALLED_ALL_F" "$INSTALLED_C"' EXIT
 
 brew leaves --installed-on-request 2>/dev/null > "$INSTALLED_F" || true
 brew list --formula 2>/dev/null > "$INSTALLED_ALL_F" || true
-brew list --cask 2>/dev/null > "$INSTALLED_C" || true
+
+# `brew list --cask` reports Homebrew's own backward-compatibility shims as if
+# they were separately installed casks. When a cask is renamed, the Caskroom
+# keeps a SYMLINK at the old token pointing to the new directory:
+#
+#     Caskroom/alfred@4/4.8,1312          <- the real install
+#     Caskroom/alfred4 -> alfred@4        <- compat shim, same app
+#
+# Both get listed, so the old token looks undeclared while the Brewfile
+# correctly declares the new one. Skipping symlinked entries counts each cask
+# once, by its current name.
+CASKROOM="$(brew --prefix 2>/dev/null)/Caskroom"
+while read -r c; do
+    [ -n "$c" ] || continue
+    [ -L "$CASKROOM/$c" ] && continue
+    printf '%s\n' "$c"
+done < <(brew list --cask 2>/dev/null || true) > "$INSTALLED_C"
 
 # Account for upstream renames before judging anything as undeclared.
 #
@@ -203,7 +228,7 @@ fi
 undeclared_casks=()
 while read -r c; do
     [ -n "$c" ] || continue
-    _is_declared "$c" || _is_declared "${c##*/}" || _is_accounted "$c" \
+    _is_declared_cask "$c" || _is_declared_cask "${c##*/}" || _is_accounted "$c" \
         || undeclared_casks+=("$c")
 done < "$INSTALLED_C"
 
@@ -232,15 +257,19 @@ fi
 if [ "$findings" -eq 0 ]; then
     echo "  ✓ Everything installed is declared"
 else
-    echo "  Each of these is drift: it will be upgraded by 'just upgrade' but"
-    echo "  will not appear on a rebuilt machine. Resolve each one:"
+    echo "  These are installed but undeclared: 'just upgrade' will upgrade them,"
+    echo "  yet a rebuilt machine will not have them. Decide, do not ignore:"
     echo ""
-    echo "    keep it   → add it to $BREWFILE"
-    echo "    drop it   → brew uninstall <name>   (brew uninstall --cask <name>)"
+    echo "    declare it → add to $BREWFILE"
+    echo "                 A global that projects fall back to is FINE — declare"
+    echo "                 it in the Project-Tool Fallbacks section and say so."
+    echo "    remove it  → brew uninstall <name>   (brew uninstall --cask <name>)"
     echo ""
-    echo "  Check for a second copy from another package manager before adding:"
-    echo "  isort was installed by BOTH brew and pip, and the pip script"
-    echo "  squatting in /opt/homebrew/bin is what broke 'brew upgrade'."
+    echo "  Before declaring, check for a second copy from another package"
+    echo "  manager (pip/npm/cargo). Two copies of one tool is what broke"
+    echo "  'brew upgrade': a pip isort script squatted on brew's link target."
+    echo ""
+    echo "  See docs/PACKAGE_POLICY.md for which tier a tool belongs in."
 fi
 
 exit 0
