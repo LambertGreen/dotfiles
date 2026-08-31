@@ -1,7 +1,7 @@
 #+title: TODOs for Dotfiles Project
 
 * TODOs
-** Open [0/7]
+** Open [0/8]
 
 *** TODO Install remaining missing packages via correct package managers
 **** Context
@@ -49,6 +49,58 @@ The =cargo= package manager is fully implemented (=src/dotfiles_pm/pms/cargo.py=
 - Ensure =cargo install cargo-update= runs at setup time so check/upgrade work
 - Add =cargo/packages.txt= for the chosen machine classes
 
+*** TODO Retire the =deprecated/= folder (clears 41 Dependabot alerts)
+**** Context
+=deprecated/= is 37 tracked files / 336K. Its only *active* effect today is
+generating **41 open Dependabot alerts** (13 high, 25 medium, 3 low) on the
+default branch — every single one from three dead pip export files:
+
+| 19 alerts | =deprecated/legacy-exports/python/MacbookAir/requirements.txt= |
+| 16 alerts | =deprecated/legacy-exports/python/MacBookPro/requirements.txt= |
+| 6 alerts  | =deprecated/legacy-exports/python/CentOS7_dev_machine/requirements.txt= |
+
+The live =requirements.txt= has **zero** alerts. Those files were retired
+2025-08-12 (commit =5dd49b0=, "clean up legacy package management and
+reorganization artifacts") and nothing installs from them, so exploitability is
+nil. The real cost is *alert fatigue*: a genuine future alert on the live
+manifest arrives as #42 in a list already tuned out.
+
+**The folder is NOT uniformly dead** — six live files still point into it, so
+this cannot be a blind =rm -rf=:
+- =configs/onetimesetup_win/dot-onetimesetup_win.sh= (a *stowed* script) tells
+  the user to "See: =deprecated/setup_win/setup.ps1=" for two un-ported Windows
+  tasks: the Divvy scheduled task, and the WSL sshd firewall/port-proxy.
+  It only *prints* the path — deletion breaks no execution, but orphans the
+  pointer.
+- =ONETIMESETUP_PLAN.md= cites =deprecated/setup*/setup.sh= as **Source** for
+  many entries, incl. "TODO: Implement from =deprecated/setup/setup.sh=".
+- =docs/WINDOWS_REBUILD_ISSUES.md= says that functionality "exists in
+  =deprecated/setup_*= but is not integrated into current system".
+- =machine-classes/desktop_work_win/README.md= cites the legacy scoop/pacman
+  exports.
+- =docs/archive/*= — archived, ignorable.
+**** Action Items (staged — quick win first)
+1. [ ] Delete =deprecated/legacy-exports/python/= only. Zero references, kills
+   all 41 alerts immediately. Independent of everything below.
+2. [ ] Port or inline the two un-ported Windows tasks so
+   =dot-onetimesetup_win.sh= no longer points at a path being deleted.
+3. [ ] Resolve =ONETIMESETUP_PLAN.md= / =WINDOWS_REBUILD_ISSUES.md=: either
+   finish porting =deprecated/setup*=, or rewrite those "Source:" references to
+   point at a git SHA instead of a live path.
+4. [ ] Check =deprecated/toml-package-management/= (14 files) — no references
+   found outside =deprecated/= itself; likely a clean delete.
+5. [ ] Update =machine-classes/desktop_work_win/README.md= before removing the
+   scoop/pacman exports.
+6. [ ] Delete the remainder of =deprecated/=.
+**** Notes
+Nothing is truly lost: git history retains every file, so any of these can be
+recovered by SHA. Prefer citing a SHA over keeping a live path for
+"reference-only" material — a live path keeps generating alerts, a SHA does not.
+
+Alternatives considered and rejected for step 1: a =.github/dependabot.yml=
+ignore rule, or dismissing the 41 in the UI. Both leave dead files that
+re-alert on every new CVE against a pinned 2023 package.
+
 *** TODO Add direnv integration to Neovim (editor parity for project-local tools)
 **** Context
 Policy (=docs/PACKAGE_POLICY.md=) is *prefer project-local tools over global*,
@@ -77,8 +129,10 @@ Verified working on the Emacs side: an agent shell in this repo resolves
 4. Do NOT wire format-on-save to a global fallback formatter — see the
    formatter caution in =docs/PACKAGE_POLICY.md=.
 **** Notes
-Deferred: to be picked up alongside =~/dev/my/ai= (Cortana), which is not set up
-on this machine yet and carries the broader cross-project context.
+To be picked up via =~/dev/my/ai= (Cortana), which carries the broader
+cross-project context. As of 2026-08-31 that workspace *is* bootstrapped on this
+machine (repo cloned, =cortana= stowed, herdr workspace live), so this is no
+longer blocked — it just wants a session with the wider context loaded.
 
 *** TODO Add =fortune= to =nvim= startup screen
 **** Description
