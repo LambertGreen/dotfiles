@@ -61,6 +61,7 @@ brew "pkryger/emacsmacport-exp/emacs-mac-exp@31", args: ["HEAD", "with-optimizat
 brew "equalsraf/neovim-qt/neovim-qt"
 
 # Git & Version Control
+brew "gh"          # GitHub CLI — repo/PR/issue access from the terminal
 brew "git"
 brew "git-delta"
 
