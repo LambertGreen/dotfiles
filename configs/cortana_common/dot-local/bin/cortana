@@ -23,8 +23,10 @@
 #     - Claude already running in this pane → prints notice, exits 0
 #     - otherwise                          → execs claude in ~/dev/my/ai
 #
-#   Inside herdr, other workspace:
-#     - Prints message with the herdr command to switch. Exits 0.
+#   Inside herdr, other workspace (e.g. the "~" workspace you land in right
+#   after herdr opens):
+#     - Cortana workspace exists  → focuses it, wakes Claude there if needed
+#     - otherwise                 → creates it (cwd ~/dev/my/ai) and wakes Claude
 #
 set -euo pipefail
 
@@ -55,6 +57,14 @@ claude_argv() {
         resume) echo "claude --continue" ;;
         fresh)  echo "claude" ;;
         pick)   echo "claude --resume" ;;
+    esac
+}
+
+mode_label() {
+    case "$CLAUDE_MODE" in
+        resume) echo "resuming last session" ;;
+        fresh)  echo "fresh session" ;;
+        pick)   echo "session picker" ;;
     esac
 }
 
@@ -113,17 +123,55 @@ claude_running_in_pane() {
         >/dev/null
 }
 
+claude_running_in_workspace() {
+    herdr pane process-info --pane "$1:p1" 2>/dev/null \
+        | jq -e '.result.process_info.foreground_processes[] | select(.argv0 == "claude")' \
+        >/dev/null
+}
+
+cortana_workspace_id() {
+    herdr workspace list 2>/dev/null \
+        | jq -r --arg l "$CORTANA_WORKSPACE_LABEL" \
+            'first(.result.workspaces[] | select(.label == $l) | .workspace_id) // empty'
+}
+
+# Find-or-create the Cortana workspace, then make sure Claude is awake in it.
+# This is the path taken when `cortana` runs inside herdr from some *other*
+# workspace — notably the plain "~" workspace herdr drops you into on a fresh
+# machine, where no "Cortana"-labeled workspace has ever been created.
+enter_cortana_workspace() {
+    local wsid
+    wsid="$(cortana_workspace_id || true)"
+
+    if [ -n "$wsid" ]; then
+        herdr workspace focus "$wsid" >/dev/null 2>&1 || true
+    else
+        echo "cortana: no \"$CORTANA_WORKSPACE_LABEL\" workspace yet — creating it."
+        wsid="$(herdr workspace create --cwd "$AI_DIR" \
+                    --label "$CORTANA_WORKSPACE_LABEL" --focus 2>/dev/null \
+                | jq -r '.result.workspace.workspace_id // empty')"
+        if [ -z "$wsid" ]; then
+            echo "cortana: failed to create the \"$CORTANA_WORKSPACE_LABEL\" workspace." >&2
+            exit 1
+        fi
+    fi
+
+    if claude_running_in_workspace "$wsid"; then
+        echo "cortana: Claude already awake in \"$CORTANA_WORKSPACE_LABEL\" — switched to it."
+        return 0
+    fi
+
+    echo "cortana: waking Claude in \"$CORTANA_WORKSPACE_LABEL\" ($(mode_label))."
+    # shellcheck disable=SC2046
+    herdr pane run "$wsid:p1" $(claude_argv) >/dev/null
+}
+
 wake_claude() {
     local label
     label="$(current_workspace_label || true)"
 
     if [ "$label" != "$CORTANA_WORKSPACE_LABEL" ]; then
-        cat <<EOF
-cortana: you're in workspace "${label:-?}", not "$CORTANA_WORKSPACE_LABEL".
-
-To switch (or create) the Cortana workspace, exit herdr and re-run cortana
-from a plain shell — or use herdr's workspace picker (default: prefix + w).
-EOF
+        enter_cortana_workspace
         exit 0
     fi
 
@@ -142,13 +190,7 @@ EOF
         exit 1
     }
 
-    local mode_label
-    case "$CLAUDE_MODE" in
-        resume) mode_label="resuming last session" ;;
-        fresh)  mode_label="fresh session" ;;
-        pick)   mode_label="session picker" ;;
-    esac
-    echo "cortana: waking Claude ($mode_label). Flags: --fresh, --pick"
+    echo "cortana: waking Claude ($(mode_label)). Flags: --fresh, --pick"
     # shellcheck disable=SC2086
     exec $(claude_argv)
 }
