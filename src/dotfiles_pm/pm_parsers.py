@@ -10,6 +10,8 @@ defined in pm_base.py. New code should use the OOP classes directly.
 
 from typing import Dict, Callable
 
+from pm_base import BrewCaskParser, BrewOutdatedParser, DefaultParser, NpmParser
+
 
 def parse_zinit_status(output: str) -> int:
     """
@@ -32,11 +34,19 @@ def parse_zinit_status(output: str) -> int:
     return output.count('Your branch is behind')
 
 
+def parse_brew_output(output: str) -> int:
+    """Parse `brew update && brew outdated --verbose` output."""
+    return BrewOutdatedParser().count_outdated(output)
+
+
 def parse_brew_cask_output(output: str) -> int:
     """Parse brew outdated --cask --greedy output (one package per line)."""
-    if not output:
-        return 0
-    return len([line for line in output.strip().split('\n') if line.strip()])
+    return BrewCaskParser().count_outdated(output)
+
+
+def parse_npm_output(output: str) -> int:
+    """Parse `npm outdated -g` table output."""
+    return NpmParser().count_outdated(output)
 
 
 def parse_default_output(output: str) -> int:
@@ -49,17 +59,17 @@ def parse_default_output(output: str) -> int:
     Returns:
         Number of non-empty lines
     """
-    if not output:
-        return 0
-
-    lines = [line for line in output.split('\n') if line.strip()]
-    return len(lines)
+    return DefaultParser().count_outdated(output)
 
 
-# Registry of PM-specific parsers
+# Registry of PM-specific parsers. Must stay in step with the `_parser` each
+# PackageManager wires up in pms/ — both routes go through the same classes so
+# the functional and OOP paths cannot report different counts.
 PM_PARSERS: Dict[str, Callable[[str], int]] = {
     'zinit': parse_zinit_status,
+    'brew': parse_brew_output,
     'brew-cask': parse_brew_cask_output,
+    'npm': parse_npm_output,
 }
 
 

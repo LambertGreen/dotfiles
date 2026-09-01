@@ -8,16 +8,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pm_base import PackageManager, PMParser
+# BrewCaskParser lives in pm_base alongside the other parsers; re-exported here
+# so existing `from pms.brew_cask import BrewCaskParser` imports keep working.
+from pm_base import PackageManager, BrewCaskParser
 
-
-class BrewCaskParser(PMParser):
-    """Parser for brew outdated --cask --greedy output (one package per line)"""
-
-    def count_outdated(self, output: str) -> int:
-        if not output:
-            return 0
-        return len([line for line in output.strip().split('\n') if line.strip()])
+__all__ = ['BrewCaskParser', 'BrewCaskPM']
 
 
 class BrewCaskPM(PackageManager):

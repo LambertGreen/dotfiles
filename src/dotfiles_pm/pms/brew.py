@@ -8,7 +8,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pm_base import PackageManager
+from pm_base import PackageManager, BrewOutdatedParser
 
 
 class BrewPM(PackageManager):
@@ -16,6 +16,7 @@ class BrewPM(PackageManager):
 
     def __init__(self):
         super().__init__('brew')
+        self._parser = BrewOutdatedParser()
         # Import here to avoid circular dependencies
         try:
             from .brew_utils import brew_lock_manager

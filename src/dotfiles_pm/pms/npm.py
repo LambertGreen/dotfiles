@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from pm_base import PackageManager
+from pm_base import PackageManager, NpmParser
 
 
 class NpmPM(PackageManager):
@@ -15,6 +15,7 @@ class NpmPM(PackageManager):
 
     def __init__(self):
         super().__init__('npm')
+        self._parser = NpmParser()
 
     @property
     def check_command(self) -> List[str]:
