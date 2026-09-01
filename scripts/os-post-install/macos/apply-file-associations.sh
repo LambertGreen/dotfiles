@@ -71,10 +71,15 @@ fi
 
 echo "🚀 Applying with duti..."
 duti "$CONFIG"
-echo "✅ Applied"
 
 echo ""
 echo "State after apply:"
+
+# duti exits 0 even when LaunchServices silently refuses the change - most
+# often because the target bundle id is not installed. Verify each rule landed
+# rather than trusting the exit code; otherwise this reports "Applied" while
+# printing evidence to the contrary.
+unapplied=0
 while IFS= read -r line; do
     case "$line" in
         \#*|"") continue ;;
@@ -82,10 +87,29 @@ while IFS= read -r line; do
     # shellcheck disable=SC2086
     set -- $line
     [ $# -ge 2 ] || continue
+    target_bundle="$1"
     ut_or_ext="$2"
     if [[ "$ut_or_ext" == .* ]]; then
         ext="${ut_or_ext#.}"
-        current=$(duti -x "$ext" 2>/dev/null | head -1 || true)
-        printf "  %-14s  → %s\n" ".$ext" "${current:-<none>}"
+        # `duti -x` prints: app name / app path / bundle id
+        current_app=$(duti -x "$ext" 2>/dev/null | sed -n '1p' || true)
+        current_bundle=$(duti -x "$ext" 2>/dev/null | sed -n '3p' || true)
+        if [ "$current_bundle" = "$target_bundle" ]; then
+            printf "  %-14s  ✅ → %s\n" ".$ext" "${current_app:-<none>}"
+        else
+            unapplied=$((unapplied + 1))
+            printf "  %-14s  ❌ → %s (wanted %s)\n" \
+                ".$ext" "${current_app:-<none>}" "$target_bundle"
+        fi
     fi
 done < "$CONFIG"
+
+echo ""
+if [ "$unapplied" -gt 0 ]; then
+    echo "❌ $unapplied association(s) did not apply."
+    echo "   Most likely the target app is not installed on this machine."
+    echo "   Check with: osascript -e 'id of app \"<App Name>\"'"
+    exit 1
+fi
+
+echo "✅ Applied"
