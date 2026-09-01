@@ -67,6 +67,11 @@ class BrewPM(PackageManager):
             # Fallback to standard execution
             return self._execute_standard(command)
 
+        # Import here to avoid circular imports. Safe at this point: reaching
+        # here means brew_utils imported successfully in __init__, otherwise
+        # lock_manager would be None and we'd have returned above.
+        from .brew_utils import BrewLockError
+
         try:
             # Use lock detection (no retry - just detect and raise)
             result = self.lock_manager.execute_with_lock_detection(command)
@@ -79,16 +84,9 @@ class BrewPM(PackageManager):
                 'recovery_used': False
             }
 
-        except Exception as e:
-            # Import here to avoid circular imports
-            from .brew_utils import BrewLockError
-
-            if isinstance(e, BrewLockError):
-                # Brew lock detected - let justfile handle with doctor command
-                raise SystemExit(41)  # Specific exit code for brew lock
-
-            # Re-raise other exceptions
-            raise
+        except BrewLockError:
+            # Brew lock detected - let justfile handle with doctor command
+            raise SystemExit(41)  # Specific exit code for brew lock
 
         except subprocess.CalledProcessError as e:
             # Other brew errors (not lock-related)

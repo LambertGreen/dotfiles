@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Zinit Package Manager (Zsh plugin manager)"""
 
-from typing import List
+from typing import List, Optional
 import sys
 from pathlib import Path
 
@@ -14,7 +14,7 @@ from pm_base import PackageManager, PMParser
 class ZinitParser(PMParser):
     """Parser for zinit status output"""
 
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         if not output:
             return 0
         # Count occurrences of "Your branch is behind"

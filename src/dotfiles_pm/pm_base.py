@@ -7,7 +7,7 @@ Defines the base architecture for package manager operations.
 
 import re
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from dataclasses import dataclass
 
 
@@ -25,7 +25,7 @@ class PMParser(ABC):
     """Base class for package manager output parsers"""
 
     @abstractmethod
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         """
         Count outdated packages from check command output.
 
@@ -41,7 +41,7 @@ class PMParser(ABC):
 class DefaultParser(PMParser):
     """Default parser - counts non-empty lines"""
 
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         if not output:
             return 0
         lines = [line for line in output.split('\n') if line.strip()]
@@ -87,7 +87,7 @@ class BrewOutdatedParser(PMParser):
     to formulae or casks.") and would be reported as 3 outdated packages.
     """
 
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         if not output:
             return 0
         return sum(
@@ -103,7 +103,7 @@ class BrewCaskParser(PMParser):
     Skips the API-download progress lines brew prints before the list.
     """
 
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         if not output:
             return 0
         return sum(
@@ -122,7 +122,7 @@ class NpmParser(PMParser):
     warning lines npm wrote to stderr.
     """
 
-    def count_outdated(self, output: str) -> int:
+    def count_outdated(self, output: Optional[str]) -> int:
         if not output:
             return 0
 
@@ -190,7 +190,7 @@ class PackageManager(ABC):
         """Output parser for this PM"""
         return self._parser
 
-    def parse_check_output(self, output: str) -> int:
+    def parse_check_output(self, output: Optional[str]) -> int:
         """
         Parse check command output to count outdated packages.
 

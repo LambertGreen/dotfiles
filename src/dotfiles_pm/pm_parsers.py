@@ -8,12 +8,12 @@ NOTE: This module provides functional wrappers around the OOP parser classes
 defined in pm_base.py. New code should use the OOP classes directly.
 """
 
-from typing import Dict, Callable
+from typing import Callable, Dict, Optional
 
 from pm_base import BrewCaskParser, BrewOutdatedParser, DefaultParser, NpmParser
 
 
-def parse_zinit_status(output: str) -> int:
+def parse_zinit_status(output: Optional[str]) -> int:
     """
     Parse zinit status --all output to count plugins needing updates.
 
@@ -34,22 +34,22 @@ def parse_zinit_status(output: str) -> int:
     return output.count('Your branch is behind')
 
 
-def parse_brew_output(output: str) -> int:
+def parse_brew_output(output: Optional[str]) -> int:
     """Parse `brew update && brew outdated --verbose` output."""
     return BrewOutdatedParser().count_outdated(output)
 
 
-def parse_brew_cask_output(output: str) -> int:
+def parse_brew_cask_output(output: Optional[str]) -> int:
     """Parse brew outdated --cask --greedy output (one package per line)."""
     return BrewCaskParser().count_outdated(output)
 
 
-def parse_npm_output(output: str) -> int:
+def parse_npm_output(output: Optional[str]) -> int:
     """Parse `npm outdated -g` table output."""
     return NpmParser().count_outdated(output)
 
 
-def parse_default_output(output: str) -> int:
+def parse_default_output(output: Optional[str]) -> int:
     """
     Default parser - count non-empty lines as outdated packages.
 
@@ -65,7 +65,7 @@ def parse_default_output(output: str) -> int:
 # Registry of PM-specific parsers. Must stay in step with the `_parser` each
 # PackageManager wires up in pms/ — both routes go through the same classes so
 # the functional and OOP paths cannot report different counts.
-PM_PARSERS: Dict[str, Callable[[str], int]] = {
+PM_PARSERS: Dict[str, Callable[[Optional[str]], int]] = {
     'zinit': parse_zinit_status,
     'brew': parse_brew_output,
     'brew-cask': parse_brew_cask_output,
@@ -73,7 +73,7 @@ PM_PARSERS: Dict[str, Callable[[str], int]] = {
 }
 
 
-def parse_pm_output(pm_name: str, output: str) -> int:
+def parse_pm_output(pm_name: str, output: Optional[str]) -> int:
     """
     Parse PM check output to count outdated packages.
 

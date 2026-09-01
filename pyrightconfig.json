@@ -1,0 +1,18 @@
+{
+  "//": "Tests and pms/ modules reach their imports via sys.path.insert at runtime, which a static analyzer cannot follow. extraPaths mirrors those inserts so editors resolve `pm_base`, `pm_parsers`, `sudo_helper` etc. instead of flagging every import as missing.",
+  "include": [
+    "src",
+    "tests"
+  ],
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    ".direnv",
+    ".test",
+    "deprecated"
+  ],
+  "extraPaths": [
+    "src",
+    "src/dotfiles_pm"
+  ]
+}
