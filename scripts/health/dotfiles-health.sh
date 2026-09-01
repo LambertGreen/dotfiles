@@ -223,7 +223,11 @@ _categorize_symlinks() {
                         fi
                     fi
                 fi
-            done < <(fd --hidden --type symlink "${depth_args[@]}" . "$dir" 2>/dev/null)
+            # ${a[@]+"${a[@]}"} (not "${a[@]}"): macOS ships bash 3.2, where
+            # expanding an empty array under `set -u` is an "unbound variable"
+            # error. That killed this subshell for every dir without a depth
+            # limit, silently skipping those dirs in the symlink audit.
+            done < <(fd --hidden --type symlink ${depth_args[@]+"${depth_args[@]}"} . "$dir" 2>/dev/null)
         done
     else
         # Fallback to find (same logic as fd version)
@@ -429,7 +433,10 @@ _check_package_health() {
 
                     # Get system info
                     local brew_info installed_formulae installed_casks
-                    brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    # sed -n '1p' (not head -n 1): head closes the pipe after the
+                    # first line, and brew 6.x prints three — the resulting SIGPIPE
+                    # is fatal under `set -euo pipefail`. sed drains the stream.
+                    brew_info=$(brew --version 2>/dev/null | sed -n '1p')
                     installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
                     installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
 
@@ -483,7 +490,10 @@ _check_package_health() {
 
                     # Get system info
                     local brew_info installed_formulae installed_casks
-                    brew_info=$(brew --version 2>/dev/null | head -n 1)
+                    # sed -n '1p' (not head -n 1): head closes the pipe after the
+                    # first line, and brew 6.x prints three — the resulting SIGPIPE
+                    # is fatal under `set -euo pipefail`. sed drains the stream.
+                    brew_info=$(brew --version 2>/dev/null | sed -n '1p')
                     installed_formulae=$(brew list --formula 2>/dev/null | wc -l | tr -d ' ')
                     installed_casks=$(brew list --cask 2>/dev/null | wc -l | tr -d ' ')
 
