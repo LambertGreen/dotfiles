@@ -10,7 +10,8 @@ import subprocess
 import time
 import re
 import os
-from typing import List, Dict, Optional, Tuple
+import fcntl
+from typing import Any, List, Dict, Optional, Tuple
 from dataclasses import dataclass
 
 
@@ -248,7 +249,36 @@ class BrewLockManager:
 brew_lock_manager = BrewLockManager()
 
 
-def check_orphaned_locks() -> Dict[str, any]:
+def _is_flock_held(lock_file: str, errors: List[str]) -> bool:
+    """
+    True if some process currently holds an exclusive flock on lock_file.
+
+    Acquiring the lock ourselves proves nothing holds it; we release it
+    immediately. Failing with EWOULDBLOCK proves something does — and since
+    callers only reach here after establishing that no brew process is
+    running, that is a genuinely orphaned lock.
+    """
+    fd = None
+    try:
+        fd = os.open(lock_file, os.O_RDWR)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            return True  # held by someone else
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        return False
+    except OSError as e:
+        errors.append(f"Failed to test lock on {os.path.basename(lock_file)}: {e}")
+        return False
+    finally:
+        if fd is not None:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+
+def check_orphaned_locks() -> Dict[str, Any]:
     """Check for orphaned lock files (locks without running processes)"""
     import platform
 
@@ -286,21 +316,27 @@ def check_orphaned_locks() -> Dict[str, any]:
             # There are actual brew processes running
             return {'orphaned_locks': [], 'errors': ['Real brew processes detected, no orphaned locks']}
 
-        # No real processes, check for lock files
-        for filename in os.listdir(lock_dir):
+        # No real processes. A lock file merely *existing* means nothing:
+        # Homebrew uses advisory flock() and never deletes these files, so a
+        # healthy prefix accumulates one empty file per formula ever touched
+        # (~137 here) plus a permanent `update`. Test whether each is actually
+        # held rather than guessing from size or mtime — every brew lock file
+        # is 0 bytes, and a *recent* mtime means brew just ran, which is the
+        # least suspicious case, not the most.
+        for filename in sorted(os.listdir(lock_dir)):
             if filename.endswith('.lock') or filename == 'update':
                 lock_file = os.path.join(lock_dir, filename)
+                if not _is_flock_held(lock_file, errors):
+                    continue
                 try:
-                    # Check if file is actually locked (has content or is recent)
                     stat = os.stat(lock_file)
-                    if stat.st_size > 0 or (time.time() - stat.st_mtime) < 3600:  # 1 hour
-                        orphaned_locks.append({
-                            'filename': filename,
-                            'size': stat.st_size,
-                            'age_seconds': int(time.time() - stat.st_mtime)
-                        })
-                except Exception as e:
-                    errors.append(f"Failed to check {filename}: {e}")
+                    orphaned_locks.append({
+                        'filename': filename,
+                        'size': stat.st_size,
+                        'age_seconds': int(time.time() - stat.st_mtime)
+                    })
+                except OSError as e:
+                    errors.append(f"Failed to stat {filename}: {e}")
 
     except Exception as e:
         errors.append(f"Error during orphaned lock check: {e}")
@@ -311,7 +347,7 @@ def check_orphaned_locks() -> Dict[str, any]:
     }
 
 
-def get_brew_status_report() -> Dict[str, any]:
+def get_brew_status_report() -> Dict[str, Any]:
     """Get comprehensive brew status for troubleshooting"""
     manager = brew_lock_manager
 

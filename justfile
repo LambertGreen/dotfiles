@@ -323,8 +323,17 @@ doctor-fix-brew-lock:
         echo "      - Wait for them to finish naturally"
         echo "      - Kill them if they're stuck (see below)"
         echo ""
-        read -p "   ❓ Kill these processes? (y/N): " -n 1 -r
-        echo
+        REPLY=n
+        if [ -t 0 ]; then
+            read -p "   ❓ Kill these processes? (y/N): " -n 1 -r
+            echo
+        elif [ "${DOTFILES_ASSUME_YES:-0}" = "1" ]; then
+            REPLY=y
+            echo "   ▶️  Non-interactive, DOTFILES_ASSUME_YES=1 — killing without prompting"
+        else
+            echo "   ⏭️  Non-interactive (no TTY) — skipping."
+            echo "      Re-run with DOTFILES_ASSUME_YES=1 to kill them."
+        fi
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "   🔪 Killing processes..."
             python3 -m src.dotfiles_pm.pms.brew_utils kill
@@ -351,8 +360,17 @@ doctor-fix-brew-lock:
         echo "   🤔 Found $orphaned_result orphaned lock files."
         echo "   💡 These are lock files without running processes."
         echo ""
-        read -p "   ❓ Remove orphaned lock files? (y/N): " -n 1 -r
-        echo
+        REPLY=n
+        if [ -t 0 ]; then
+            read -p "   ❓ Remove orphaned lock files? (y/N): " -n 1 -r
+            echo
+        elif [ "${DOTFILES_ASSUME_YES:-0}" = "1" ]; then
+            REPLY=y
+            echo "   ▶️  Non-interactive, DOTFILES_ASSUME_YES=1 — removing without prompting"
+        else
+            echo "   ⏭️  Non-interactive (no TTY) — skipping."
+            echo "      Re-run with DOTFILES_ASSUME_YES=1 to remove them."
+        fi
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             echo "   🧹 Removing orphaned locks..."
             # Remove lock files (platform-specific paths)
