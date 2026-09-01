@@ -298,6 +298,10 @@ def cmd_version(args):
     # Map PM to version command
     version_commands = {
         'brew': 'brew --version',
+        # brew-cask is Homebrew wearing a different hat - same binary, same
+        # version. Without this it looked like a failure every run.
+        'brew-cask': 'brew --version',
+        'mas': 'mas version',
         'apt': 'apt --version',
         'pacman': 'pacman --version',
         'scoop': 'scoop --version',
@@ -317,12 +321,17 @@ def cmd_version(args):
         result = {
             'pm': pm,
             'success': False,
+            'skipped': False,
             'error': ''
         }
 
         if pm not in version_commands:
+            # Not a terminal-spawning failure, which is what this check exists
+            # to test - there is simply nothing to ask the version of.
+            result['skipped'] = True
             result['error'] = f'No version command defined for {pm}'
             results.append(result)
+            print(f"  ⏭️  {pm}: no version command defined, skipping")
             print()
             continue
 
@@ -358,16 +367,24 @@ def cmd_version(args):
     print("=" * 60)
 
     successful = [r for r in results if r['success']]
-    failed = [r for r in results if not r['success']]
+    skipped = [r for r in results if r.get('skipped')]
+    failed = [r for r in results if not r['success'] and not r.get('skipped')]
 
     for result in successful:
         print(f"✅ {result['pm']}: Terminal spawned successfully")
+
+    for result in skipped:
+        print(f"⏭️  {result['pm']}: {result['error']}")
 
     for result in failed:
         print(f"❌ {result['pm']}: {result['error']}")
 
     print()
-    print(f"📈 Success: {len(successful)}/{len(results)}")
+    attempted = len(successful) + len(failed)
+    summary = f"📈 Success: {len(successful)}/{attempted}"
+    if skipped:
+        summary += f" ({len(skipped)} skipped)"
+    print(summary)
 
     if failed:
         print()

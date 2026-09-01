@@ -299,6 +299,16 @@ check_package_manager() {
         brew)
             command -v brew >/dev/null 2>&1
             ;;
+        brew-cask)
+            # brew-cask is Homebrew, not a separate binary. Falling through to
+            # the catch-all below reported "not available on this system" on
+            # every macOS run, contradicting `just update`, which detects and
+            # checks it.
+            command -v brew >/dev/null 2>&1
+            ;;
+        mas)
+            command -v mas >/dev/null 2>&1
+            ;;
         apt)
             command -v apt >/dev/null 2>&1
             ;;
@@ -631,6 +641,17 @@ _check_package_health() {
                     fi
                     checked_packages=$((checked_packages + 1))
                 fi
+                ;;
+
+            brew-cask)
+                # The brew-cask/ machine-class dir is intentionally empty:
+                # casks are declared in brew/Brewfile and already counted under
+                # `brew` above. brew-cask exists as its own PM so that
+                # `brew outdated --cask --greedy` runs, which catches greedy
+                # and auto-updating casks that plain `brew outdated` misses.
+                $log_output "    - ℹ️  Casks declared in brew/Brewfile (counted under brew)"
+                PACKAGE_PASSED+=("$pm_name (via brew Brewfile)")
+                checked_packages=$((checked_packages + 1))
                 ;;
 
             *)
