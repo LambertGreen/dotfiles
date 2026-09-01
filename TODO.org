@@ -20,7 +20,7 @@
 #             ai/retros/dotfiles-maintenance/.
 
 * TODOs
-** Open [0/18]
+** Open [0/19]
 
 *** TODO Install remaining missing packages via correct package managers :design:
 **** Context
@@ -364,6 +364,41 @@ breakage, but it removed the obvious remedy for it.
 Upstream, not ours: https://github.com/pkryger/homebrew-emacsmacport-exp/issues
 Check whether it is already reported before filing. Until fixed, Emacs is
 effectively pinned to =HEAD-3547928=.
+
+*** TODO Consolidate Emacs configs: retire Spacemacs + Doom + Chemacs, keep vanilla + purgatory :design:
+**** Context
+The Emacs setup has accumulated more configs than are actually used. The
+*primary* config is now =vanilla= — our own config, heavily inspired by Doom but
+standing on its own. Doom itself is no longer needed. Spacemacs is on the way
+out. Chemacs 2 (the profile switcher) is only there to juggle multiple configs;
+with the consolidation it becomes unnecessary.
+
+Keep:
+- *vanilla* — the primary, our own Doom-inspired config.
+- *purgatory* (=dot-emacs.purgatory=) — the exploration into a lighter,
+  non-Evil-mode config. Worth keeping as an alternate.
+
+Retire:
+- *Spacemacs* — =configs/emacs_common/dot-emacs.spacemacs= and its user config
+  =configs/emacs_common/dot-spacemacs.d= (both submodules).
+- *Doom* — =configs/emacs_common/dot-emacs.doom= and =configs/emacs_common/dot-doom.d=
+  (both submodules). Vanilla replaces it.
+- *Chemacs* — the =~/.emacs-profiles.el= / chemacs profile-switching machinery,
+  once there is no longer a set of parallel configs to switch between.
+**** Note
+The Spacemacs pin was just bumped 292 commits (2026-09-01 maintenance run) before
+this plan was captured; that bump is throwaway once Spacemacs is retired.
+**** Action Items
+1. [ ] Confirm =vanilla= is fully self-sufficient (no dependency on Doom/Chemacs).
+2. [ ] Decide launch mechanism for vanilla + purgatory without Chemacs (e.g. a
+   single default config + an explicit alternate-profile invocation).
+3. [ ] Remove the Spacemacs submodules (=dot-emacs.spacemacs=, =dot-spacemacs.d=)
+   from =.gitmodules= and the working tree.
+4. [ ] Remove the Doom submodules (=dot-emacs.doom=, =dot-doom.d=).
+5. [ ] Remove Chemacs wiring (=~/.emacs-profiles.el=, any stow/onetimesetup steps
+   that install it).
+6. [ ] Update the emacs-plus tap/install docs and any README "install emacs"
+   section to reflect the single vanilla config.
 
 ** Completed [15/15]
 *** DONE Elpaca source dirs stale after naming-scheme change            :bug:
