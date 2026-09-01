@@ -29,7 +29,13 @@ class BrewCaskPM(PackageManager):
 
     @property
     def check_command(self) -> List[str]:
-        return ["brew", "outdated", "--cask", "--greedy"]
+        # --greedy-auto-updates, not --greedy: `version :latest` casks (fonts,
+        # nightlies) have no version brew can compare, so --greedy reports them
+        # outdated on every run forever - font-montserrat showed up as outdated
+        # seconds after being upgraded. Excluding them lets this check reach
+        # zero and mean something. The upgrade below stays fully --greedy, so
+        # they still get refreshed.
+        return ["brew", "outdated", "--cask", "--greedy-auto-updates"]
 
     @property
     def upgrade_command(self) -> List[str]:
