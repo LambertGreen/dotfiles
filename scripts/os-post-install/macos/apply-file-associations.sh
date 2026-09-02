@@ -17,6 +17,7 @@ set -euo pipefail
 
 CONFIG="${HOME}/.config/duti/defaults.duti"
 DRYRUN="${LGREEN_APPLY_FA_DRYRUN:-0}"
+LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 
 if [ "$(uname)" != "Darwin" ]; then
     echo "❌ macOS-only (detected $(uname))"
@@ -107,8 +108,16 @@ done < "$CONFIG"
 echo ""
 if [ "$unapplied" -gt 0 ]; then
     echo "❌ $unapplied association(s) did not apply."
-    echo "   Most likely the target app is not installed on this machine."
-    echo "   Check with: osascript -e 'id of app \"<App Name>\"'"
+    echo ""
+    echo "   Two usual causes:"
+    echo "   1. The target app isn't installed. Check the machine-class Brewfile."
+    echo "   2. It IS installed but LaunchServices hasn't registered it yet —"
+    echo "      common right after 'just install' on a fresh machine, since a"
+    echo "      cask that has never been launched may not be indexed."
+    echo ""
+    echo "   Diagnose:  osascript -e 'id of app \"<App Name>\"'"
+    echo "   Register:  $LSREGISTER -f \"\$HOME/Applications/<App Name>.app\""
+    echo "   ...then re-run: just apply-file-associations"
     exit 1
 fi
 
