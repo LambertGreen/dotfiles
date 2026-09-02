@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
-# Landing pad for tool auto-injection (aisuite, devbar, etc.)
-# Machine-specific: tracked but expected to diverge
-# User configuration lives in ~/.bashrc.user
+# LANDING PAD — sacrificial by design. Keep it THIN.
+#
+# Tool installers (aisuite, devbar, …) auto-append to ~/.bashrc. This file IS
+# that target, so everything below the injection marker is written by tools,
+# not by us, and may be rewritten without warning. Do not put real config here.
+#
+# Your configuration lives in ~/.bashrc.user — that is the big common file, and
+# it is safe because no installer knows about it. Add things there.
+#
+# There is deliberately no ~/.bashrc.local hook. It was a false promise: the
+# installers only ever write to ~/.bashrc, so nothing would populate it and it
+# only made the split look more capable than it is. See
+# docs/SHELL_CONFIG_DESIGN.md.
 
 # Load user configuration FIRST (for proper precedence)
 [ -f ~/.bashrc.user ] && source ~/.bashrc.user
 
-# Load machine-local overrides (machine-specific, gitignored if exists)
-[ -f ~/.bashrc.local ] && source ~/.bashrc.local
-
 # ========================================
 # TOOL INJECTION ZONE
-# Tools may auto-modify below this line
+# Tools may auto-modify below this line.
+#
+# This file is tracked and stowed, so anything an installer writes here
+# travels to every other machine. Until that is fixed, every block below
+# MUST be $HOME-relative and MUST be guarded so it goes inert on machines
+# where the tool is not installed.
 # ========================================
 
 # DevBar: AI agent management tool (Salesforce internal)
@@ -21,9 +33,14 @@ if [ -d "$HOME/.devbar" ]; then
 fi
 
 # >>> aisuite >>>
-export NODE_EXTRA_CA_CERTS="/Users/lambert.green/.aisuite/conf/npm-sfdc-certs.pem"
-export PATH="$PATH:/Users/lambert.green/.aisuite/bin:/Users/lambert.green/.aisuite/bin/aliases"
+# Guarded + $HOME-relative by hand; the installer writes absolute work paths.
+if [ -d "$HOME/.aisuite" ]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.aisuite/conf/npm-sfdc-certs.pem"
+  export PATH="$PATH:$HOME/.aisuite/bin:$HOME/.aisuite/bin/aliases"
+fi
 # <<< aisuite <<<
 # devbar-managed-start
-export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+if [ -d "$HOME/.devbar" ]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+fi
 # devbar-managed-end
