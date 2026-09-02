@@ -20,10 +20,15 @@
 # TOOL INJECTION ZONE
 # Tools may auto-modify below this line.
 #
-# This file is tracked and stowed, so anything an installer writes here
-# travels to every other machine. Until that is fixed, every block below
-# MUST be $HOME-relative and MUST be guarded so it goes inert on machines
-# where the tool is not installed.
+# This file is tracked ON PURPOSE. The diff is the only window onto what a
+# tool did to your login shell, so do NOT gitignore or untrack it -- that
+# would trade a visible problem for an invisible one.
+#
+# When this shows up dirty: look, then choose -- leave it uncommitted, revert
+# it (it will come back), or commit it guarded. Anything committed here
+# travels to other machines, so every block MUST be $HOME-relative and MUST
+# be wrapped in a [[ -d ... ]] guard so it goes inert where the tool is not
+# installed. See docs/SHELL_CONFIG_DESIGN.md.
 # ========================================
 
 # DevBar: AI agent management tool (Salesforce internal)
