@@ -239,8 +239,17 @@ cask "hammerspoon"
 cask "karabiner-elements"
 
 # GUI Applications - Browsers
+#
+# Two Chromes, same split as laptop_work_mac: stable Chrome is the "work"
+# lane, @beta is the personal lane. On a personal machine the work lane is a
+# deliberately thin proxy - installed, largely unconfigured, quite possibly
+# without a profile - because corp rules mean no actual work access from here.
+# The point is that browsing rules and file associations resolve to the same
+# bundle ids on every machine, so nothing has to be reasoned about per-host,
+# and the work layer stays shallow enough to re-point if the company changes.
 cask "brave-browser"
 cask "firefox"
+cask "google-chrome"
 cask "google-chrome@beta"
 
 # GUI Applications - Communication
