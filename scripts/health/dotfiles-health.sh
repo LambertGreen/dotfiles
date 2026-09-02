@@ -146,17 +146,21 @@ _check_dotfile_symlink() {
 }
 
 # Categorize symlinks by type (new system, legacy, broken)
-# Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS, WARNINGS, ERRORS arrays
+# Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS (WARNINGS/ERRORS are owned by dotfiles_check_health)
 
 # Categorize symlinks by type (new system, legacy, broken)
-# Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS, WARNINGS, ERRORS arrays
+# Sets: NEW_LINKS, OLD_LINKS, BROKEN_LINKS (WARNINGS/ERRORS are owned by dotfiles_check_health)
 _categorize_symlinks() {
     # Initialize arrays
+    #
+    # NOTE: deliberately does NOT reset WARNINGS/ERRORS. This runs after the
+    # _check_* functions, so resetting them here discarded every finding they
+    # had accumulated — the summary then computed HEALTHY from an empty array
+    # while the report above it listed the problems. Those two arrays are
+    # owned by dotfiles_check_health and initialized there, once, up front.
     NEW_LINKS=()
     OLD_LINKS=()
     BROKEN_LINKS=()
-    WARNINGS=()
-    ERRORS=()
 
     # First, find broken symlinks pointing to dotfiles directory (filtered)
     _find_broken_symlinks true
@@ -760,6 +764,10 @@ dotfiles_check_health() {
     log_output "========================"
     log_output
 
+    # Owned here, initialized once, before anything can contribute to them.
+    WARNINGS=()
+    ERRORS=()
+
     _check_git_status log_output
     _check_stow_availability log_output
     _check_ssh_config_permissions log_output
@@ -985,7 +993,78 @@ _check_stow_availability() {
         $log_output "  • ⚠️  Just: not found (optional but recommended)"
         WARNINGS+=("Just command runner not installed")
     fi
+
+    _check_binaries_execute "$log_output"
     $log_output
+}
+
+# Verify that key binaries don't merely EXIST but actually execute.
+#
+# `command -v` only proves a file sits on PATH. A Homebrew binary linked against
+# a dependency's shared library keeps sitting there quite happily after that
+# dependency's soname changes — and fails at exec time with a dyld error.
+#
+# Observed 2026-09-01: `just upgrade` bumped tree-sitter 0.26.13 → 0.27.0,
+# replacing libtree-sitter.0.26.dylib. emacs-mac-exp@31 is a --HEAD build linked
+# against .0.26, so `emacs` stopped launching entirely. Every existing check
+# still reported HEALTHY, because nothing ever ran the binaries.
+#
+# This is most acute for --HEAD/source builds (emacs-mac-exp@31), which pin to
+# whatever ABI existed at build time and are not rebuilt when a dependency moves.
+_check_binaries_execute() {
+    local log_output="$1"
+
+    # "<command>:<version-flag>:<severity>"; severity is error|warn.
+    local checks=(
+        "emacs:--version:error"
+        "nvim:--version:error"
+        "git:--version:error"
+        "rg:--version:warn"
+        "fd:--version:warn"
+    )
+
+    local entry cmd flag severity err
+    local checked=0 broken=0
+
+    for entry in "${checks[@]}"; do
+        cmd="${entry%%:*}"
+        flag="${entry#*:}"; flag="${flag%%:*}"
+        severity="${entry##*:}"
+
+        # Absent is a different question (package management owns that);
+        # this check is only about present-but-non-functional.
+        command -v "$cmd" >/dev/null 2>&1 || continue
+        checked=$((checked + 1))
+
+        if "$cmd" "$flag" >/dev/null 2>&1; then
+            continue
+        fi
+
+        broken=$((broken + 1))
+        # First stderr line is the useful part (e.g. the dyld "Library not
+        # loaded" line). sed -n 1p rather than head -n 1: head closes the pipe
+        # and the resulting SIGPIPE is fatal under `set -euo pipefail`.
+        err=$("$cmd" "$flag" 2>&1 >/dev/null | sed -n '1p' || true)
+        [[ -z "$err" ]] && err="exited non-zero with no diagnostic"
+
+        if [[ "$severity" == "error" ]]; then
+            $log_output "  • ❌ $cmd: on PATH but does not execute"
+            $log_output "       $err"
+            ERRORS+=("$cmd is installed but fails to run: $err")
+        else
+            $log_output "  • ⚠️  $cmd: on PATH but does not execute"
+            $log_output "       $err"
+            WARNINGS+=("$cmd is installed but fails to run: $err")
+        fi
+    done
+
+    if [[ $broken -eq 0 ]]; then
+        $log_output "  • ✅ Binaries execute: $checked/$checked checked launch cleanly"
+    else
+        $log_output "  • 💡 A binary that is present but won't launch usually means a"
+        $log_output "       dependency's shared library moved. Rebuild it against the"
+        $log_output "       current dependencies (for emacs: just upgrade-emacs-mac-exp)."
+    fi
 }
 
 _check_ssh_config_permissions() {
