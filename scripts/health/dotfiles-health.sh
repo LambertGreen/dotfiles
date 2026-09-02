@@ -643,6 +643,20 @@ _check_package_health() {
                 fi
                 ;;
 
+            mas)
+                # Like brew-cask, the mas/ machine-class dir is just a marker
+                # that makes mas a detected PM; the apps are declared as
+                # `mas "Name", id: N` lines in brew/Brewfile.
+                local mas_declared mas_installed
+                mas_declared=$(grep -c '^mas ' "$machine_dir/brew/Brewfile" 2>/dev/null || echo 0)
+                mas_declared="${mas_declared//[$'\r\n']/}"
+                mas_installed=$(mas list 2>/dev/null | wc -l | tr -d ' ')
+                $log_output "    - 📦 Brewfile: ${mas_declared:-0} Mac App Store apps"
+                $log_output "    - 🏠 Installed: ${mas_installed:-0} apps"
+                PACKAGE_PASSED+=("$pm_name (via brew Brewfile)")
+                checked_packages=$((checked_packages + 1))
+                ;;
+
             brew-cask)
                 # The brew-cask/ machine-class dir is intentionally empty:
                 # casks are declared in brew/Brewfile and already counted under
