@@ -365,7 +365,57 @@ Upstream, not ours: https://github.com/pkryger/homebrew-emacsmacport-exp/issues
 Check whether it is already reported before filing. Until fixed, Emacs is
 effectively pinned to =HEAD-3547928=.
 
-** Completed [14/14]
+** Completed [15/15]
+*** DONE Elpaca source dirs stale after naming-scheme change            :bug:
+CLOSED: [2026-09-02 Wed 13:17]
+**** Symptom
+Emacs started but the config aborted with a =*Warnings*= buffer:
+#+begin_example
+Non-existant source dir: "/Users/lgreen/.emacs.d/elpaca/elpaca/sources/emacs-popon/"
+#+end_example
+**** Cause
+Not corruption. Elpaca changed how it names source directories: it now derives
+the name from the recipe's =:repo= rather than the package name. Directories
+cloned under the old scheme no longer match, so elpaca looks for
+=sources/emacs-popon/= and finds only =sources/popon/=.
+
+The rule is in =elpaca-git-repo-dir= (=elpaca-git.el=): repo basename with a
+trailing =.el= stripped, and =name.hostname.user= when two packages collide.
+**** Fix
+Rename the affected dirs — no re-clone needed. Only three were genuinely wrong:
+| =popon=          | → =emacs-popon=          |
+| =eat=            | → =emacs-eat=            |
+| =corfu-terminal= | → =emacs-corfu-terminal= |
+**** How to diagnose it next time (the useful part)
+Do **not** infer the expected name from the on-disk git remote. That is wrong
+often enough to bite: =pinentry='s clone has remote =pinentry-el=, but its
+recipe is =emacsmirror/pinentry=, so elpaca wants =sources/pinentry=. Renaming
+it "correctly" broke it.
+
+Ask elpaca instead — it computes the answer itself, and this reports the exact
+set in seconds:
+#+begin_src sh
+emacs --batch -l ~/.emacs.d/init.el --eval '(let (missing)
+  (dolist (cell (elpaca--queued))
+    (let* ((e (cdr cell))
+           (dir (ignore-errors (elpaca<-source-dir e))))
+      (when (and dir (not (file-exists-p dir)))
+        (push (format "%-22s wants %s" (elpaca<-package e)
+                      (file-name-nondirectory (directory-file-name dir)))
+              missing))))
+  (princ (format "MISSING: %d\n" (length missing)))
+  (dolist (m (delete-dups missing)) (princ (concat "  " m "\n"))))'
+#+end_src
+A crude scan comparing directory names to git remotes flagged **34** candidates;
+elpaca's own computation found the real answer. Verify with a full
+=emacs --batch -l init.el= plus =(elpaca-process-queues)= — exit 0 and no
+=Elpaca error= lines means clean.
+**** Note
+Wiping =elpaca/= also fixes this, and is the usual reflex — but it re-clones all
+204 packages (515 MB) to solve a three-directory naming problem.
+=elpaca/= is gitignored inside the =dot-emacs.d= submodule, so nothing here is
+tracked either way.
+
 *** DONE Fix Pacman command execution on Windows
 CLOSED: [2025-12-26 Thu]
 **** Problem
