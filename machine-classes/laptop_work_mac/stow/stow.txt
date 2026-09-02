@@ -47,7 +47,7 @@ git_osx
 shell_osx
 hammerspoon
 karabiner
-finicky
+finicky_work
 gnupg_osx
 Xresources_osx
 osx_common

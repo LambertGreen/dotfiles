@@ -35,7 +35,7 @@ shell_osx
 hammerspoon
 karabiner
 raycast_osx
-finicky
+finicky_my
 gnupg_osx
 Xresources_osx
 osx_common

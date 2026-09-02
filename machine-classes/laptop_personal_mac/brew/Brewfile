@@ -247,7 +247,14 @@ cask "karabiner-elements"
 # The point is that browsing rules and file associations resolve to the same
 # bundle ids on every machine, so nothing has to be reasoned about per-host,
 # and the work layer stays shallow enough to re-point if the company changes.
+#
+# finicky is what turns that split from a convention into a rule: it becomes
+# the default browser and routes each URL per ~/.finicky.js (stowed from
+# configs/finicky). stow.txt already listed finicky here and the config was
+# already symlinked, but the cask was never declared - so the rules sat inert
+# on this machine, pointing at a Chrome that wasn't installed either.
 cask "brave-browser"
+cask "finicky"
 cask "firefox"
 cask "google-chrome"
 cask "google-chrome@beta"
