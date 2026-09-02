@@ -1,9 +1,28 @@
 #+title: TODOs for Dotfiles Project
+#+TAGS: design(d) bug(b)
+
+# Two axes, kept separate on purpose:
+#   Open / Completed  — workflow STATE, expressed by the outline + TODO keyword
+#   :design: / :bug:  — what the item IS, expressed by tags
+#
+# Tags rather than TODO keywords because an Org item may hold exactly ONE todo
+# keyword. Making BUG a keyword would cost the STRT/WAIT/HOLD vocabulary for
+# precisely the items most likely to need it. A second sequence
+# (#+TODO: BUG | FIXED) would earn that cost only if bugs had a genuinely
+# different lifecycle here; they don't — found, worked, done, same as the rest.
+# Follows the split already in init-org.el, where (sequence ...) carries
+# workflow and (type PROJ IDEA) carries kind.
+#
+#   :design:  deliberate project-level work — a decision to make or a
+#             capability to add. Often ends as a record in ai/retros/decisions/.
+#   :bug:     defect found through usage; the system did something other than
+#             what it claims. Usually traceable to a retro under
+#             ai/retros/dotfiles-maintenance/.
 
 * TODOs
-** Open [0/8]
+** Open [0/18]
 
-*** TODO Install remaining missing packages via correct package managers
+*** TODO Install remaining missing packages via correct package managers :design:
 **** Context
 After implementing pip package manager support, several packages still fail health checks.
 **** Missing Windows packages by package manager:
@@ -24,7 +43,7 @@ After implementing pip package manager support, several packages still fail heal
 2. Update any packages that fail to install
 3. Add missing TOML entries for isort/rust-analyzer if needed
 
-*** TODO Wire npm into Windows machine classes
+*** TODO Wire npm into Windows machine classes                          :design:
 **** Context
 The =npm= package manager is fully implemented (=src/dotfiles_pm/pms/npm.py=) and works on macOS, Linux, and WSL where machine classes have an =npm/packages.txt=. Windows machine classes do not yet wire npm in. (The legacy =package-management-config.sh= referenced by the original TODO no longer exists; the project migrated to Python-based PM modules in =src/dotfiles_pm/pms/=.)
 **** Status
@@ -35,7 +54,7 @@ The =npm= package manager is fully implemented (=src/dotfiles_pm/pms/npm.py=) an
 - Add =npm/packages.txt= to each Windows machine class (depends on =nodejs= via scoop — see "Install remaining missing packages" TODO)
 - Test through MSYS2 environment
 
-*** TODO Wire cargo into machine classes
+*** TODO Wire cargo into machine classes                                :design:
 **** Context
 The =cargo= package manager is fully implemented (=src/dotfiles_pm/pms/cargo.py=) using =cargo install-update= for check/upgrade. However, **no machine class has a =cargo/packages.txt= yet** — not just Windows, none at all — so cargo is plumbed but never actually exercised. (The legacy =package-management-config.sh= referenced by the original TODO no longer exists; the project migrated to Python-based PM modules in =src/dotfiles_pm/pms/=.)
 **** Status
@@ -49,7 +68,7 @@ The =cargo= package manager is fully implemented (=src/dotfiles_pm/pms/cargo.py=
 - Ensure =cargo install cargo-update= runs at setup time so check/upgrade work
 - Add =cargo/packages.txt= for the chosen machine classes
 
-*** TODO Retire the =deprecated/= folder (clears 41 Dependabot alerts)
+*** TODO Retire the =deprecated/= folder (clears 41 Dependabot alerts)  :design:
 **** Context
 =deprecated/= is 37 tracked files / 336K. Its only *active* effect today is
 generating **41 open Dependabot alerts** (13 high, 25 medium, 3 low) on the
@@ -101,7 +120,7 @@ Alternatives considered and rejected for step 1: a =.github/dependabot.yml=
 ignore rule, or dismissing the 41 in the UI. Both leave dead files that
 re-alert on every new CVE against a pinned 2023 package.
 
-*** TODO Add direnv integration to Neovim (editor parity for project-local tools)
+*** TODO Add direnv integration to Neovim (editor parity for project-local tools) :design:
 **** Context
 Policy (=docs/PACKAGE_POLICY.md=) is *prefer project-local tools over global*,
 with =direnv= as the mechanism: entering a project puts its tools first on
@@ -134,16 +153,16 @@ cross-project context. As of 2026-08-31 that workspace *is* bootstrapped on this
 machine (repo cloned, =cortana= stowed, herdr workspace live), so this is no
 longer blocked — it just wants a session with the wider context loaded.
 
-*** TODO Add =fortune= to =nvim= startup screen
+*** TODO Add =fortune= to =nvim= startup screen                         :design:
 **** Description
 + Reference: https://www.reddit.com/r/neovim/comments/pj99r4/alphanvim_lua_powered_startup_screen/
 
-*** TODO Add app for doing presentations
+*** TODO Add app for doing presentations                                :design:
 **** Requirements [0/2]
 ***** [ ] Show mouse cursor
 ***** [ ] Zoom in/out
 
-*** TODO Implement Dotfiles API for emacs and neovim
+*** TODO Implement Dotfiles API for emacs and neovim                    :design:
 **** Context
 Following the successful implementation of the Dotfiles API architecture for zsh/zinit, extend this pattern to other app-based package managers to maintain consistent conversational configuration management.
 **** Implementation Requirements:
@@ -162,6 +181,189 @@ Following the successful implementation of the Dotfiles API architecture for zsh
 - Enables swapping plugin managers without changing Docker/CI configuration
 **** Reference:
 See =docs/DOTFILES_API_ARCHITECTURE.md= for the architectural philosophy and implementation patterns.
+
+*** TODO =sudo_helper.py= cannot be imported on Python 3.9              :bug:
+**** Context
+=src/dotfiles_pm/sudo_helper.py:64= declares =def _find_linux_askpass() -> str | None:=
+with no =from __future__ import annotations=. The =X | Y= union is evaluated at
+def time, so on Python 3.9 importing the module raises =TypeError=.
+**** Why it matters
+Bare =/usr/bin/python3= on macOS *is* 3.9 (3.9.6 on macOS 26.6.2). The direnv
+venv (3.13) and brew python (3.14) mask this on a configured machine — but the
+bootstrap path this repo owns is exactly the case where neither exists yet.
+**** Fix options
+- Add =from __future__ import annotations= (one line, restores 3.9 import), or
+- Use =Optional[str]=, or
+- Decide 3.10+ is the floor and *declare* it (nothing in the repo states a
+  minimum today, which is why this went unnoticed).
+**** Source
+ai/retros/dotfiles-maintenance/2026-09-01-personal.md
+
+*** TODO Nine pyright errors in =src/dotfiles_pm= (pre-existing)        :bug:
+**** Context
+Now visible since =pyrightconfig.json= (=ffd161c=) lets pyright resolve the
+=sys.path.insert= imports. All pre-date that commit; none were introduced by it.
+**** Known errors
+- =terminal_executor.py= — 3 × return type mismatch
+- =pm_executor.py= — =quote_arg= redeclaration; =execute_command= attribute access
+  on =PackageManager= (the duck-typed method isn't on the base class)
+- =log_reader.py= — 2 × dict assignment type
+- =pm_upgrade.py= / =pm_install.py= — =Optional= passed to =str= parameter
+**** Note
+The =pm_executor= one is arguably real: =execute_command= is called via
+=hasattr= duck-typing but is not declared on =PackageManager=, so only some PMs
+have it. Worth deciding whether it belongs on the base class.
+
+*** TODO Stale brew metadata: =openssl@1.1= and a =libtiff=/=webp= cycle :bug:
+**** Context
+=brew bundle check --verbose= emits two warnings unrelated to the Brewfile:
+#+begin_example
+Warning: 'openssl@1.1' formula is unreadable: No available formula with the name "openssl@1.1"
+Warning: Formulae dependency graph sorting found a circular dependency: libtiff, webp
+#+end_example
+=openssl@1.1= is long gone from homebrew-core, so something still references it.
+The cycle is stale dependency data in installed keg tabs.
+**** Fix
+Brew's own suggestion for the cycle:
+=brew uninstall --ignore-dependencies --force libtiff webp && brew install libtiff webp=.
+For openssl@1.1, find the referrer first — =brew uses --installed openssl@1.1=.
+Neither blocks anything today; both are noise on every =brew bundle check=.
+
+*** TODO Undeclared duplicate cask: =google-chrome-beta=                :bug:
+**** Context
+=brew list --cask= shows both =google-chrome-beta= and =google-chrome@beta=, but
+only =google-chrome@beta= is declared in
+=machine-classes/laptop_personal_mac/brew/Brewfile=. Looks like an upstream cask
+rename that left the old one installed.
+**** Action
+=just doctor-check-undeclared= to confirm, then uninstall the undeclared one.
+Check =laptop_work_mac= for the same duplicate before removing.
+
+*** TODO Unattended runs stall forever on sudo-requiring casks          :design:
+**** Context
+During the 2026-09-01 maintenance run, =brew upgrade --cask --greedy= reached
+=karabiner-elements=, whose uninstall script needs root. =SUDO_ASKPASS= points at
+=~/.dotfiles/bin/sudo-askpass.sh=, which shells out to an =osascript= password
+dialog. The run sat there ~13 minutes and only completed because a human was
+present to type the password. Nothing in the pipeline bounds that wait, and the
+parent emits no output while blocked — so a stall is indistinguishable from slow
+progress.
+**** Options
+- Pre-authorize sudo for the duration of the run
+- Exclude known sudo-requiring casks from the automated path, upgrade them manually
+- Give =sudo-askpass.sh= a timeout so a stalled dialog fails *that cask* rather
+  than hanging the whole run
+**** Constraint
+This is the single blocker to running =/dotfiles-maintenance= truly unattended on
+a Mac. The work machine has no equivalent (no karabiner cask).
+
+*** TODO Decide whether the =dot-zshrc= injection zone should be tracked :design:
+**** Context
+=configs/shell_common/dot-zshrc= is a deliberate landing pad — "tracked but
+expected to diverge" — for tools that auto-modify shell config (aisuite, devbar).
+Because it *is* tracked and stowed, a work-machine injection propagated to the
+personal machine: hardcoded =/Users/lambert.green/.aisuite/= paths in =PATH= and
+=NODE_EXTRA_CA_CERTS=, dead on this host.
+**** Status
+Machine identity no longer bleeds through (=cf28e18=), and the pads-are-tracked
+rationale is documented (=63ff92e=). The remaining question is structural.
+**** Options
+- Keep tracking (current): injections are visible in =git diff=, which is how
+  this was caught at all — but they sync to machines where they are wrong
+- Gitignore the injection zone: no cross-machine bleed, but tool edits become
+  invisible and a fresh machine loses them silently
+- Split: track the hand-written guard blocks, gitignore only the auto-injected
+  region between the markers
+**** Note
+Same =lambert.green= hardcoding also sits in
+=configs/ai_claude_osx/dot-claude/settings.json= (4 sites). Inert today — that
+package is not stowed on the personal machine — but a landmine if it ever is.
+
+*** TODO Re-test =just upgrade= with a >10-minute budget                :design:
+**** Context
+The work machine's 2026-08-06 retro recorded =just upgrade= timing out at 10
+minutes while its spawned children all succeeded. The 2026-09-01 personal run
+could not confirm or refute it: the observing tool's own timeout is also 10
+minutes, so the two are indistinguishable.
+**** What is known
+At SIGTERM the brew and npm children had both completed exit 0; only the cask
+child was outstanding, and it was blocked on a password dialog rather than a
+timeout. A prior local upgrade ran =181m31s= per =upgrade-history.log=, so there
+is no hard 10-minute ceiling on this machine.
+**** Action
+Run =just upgrade= with a >10m observation budget and check whether
+=~/.dotfiles/logs/upgrade-history.log= gains an =upgrade= entry. No entry is the
+defect signature.
+
+*** TODO =handlers= duplicated across =finicky_my= and =finicky_work=   :design:
+**** Context
+Finicky's config is a single sandboxed script with no =import=/=require=, so the
+=[include]= trick that keeps =git_common= DRY is unavailable. The shared
+=handlers= list is therefore copied into both variant packages, with a warning
+comment in each pointing at the other. Accepted knowingly (=fa1c6b4=).
+**** Revisit when
+The handler list grows beyond a few rules, or the two copies drift. Possible
+escapes: generate both files from one source at stow time, or add a =just=
+recipe that diffs the =handlers= blocks and fails if they disagree.
+**** Related
+=finicky_my= currently has no routing effect — its default and both handlers all
+point at Chrome Beta. That is correct, not a gap: a personal machine hosts only
+one browsing context, so there is nothing to route. It is the natural home for
+genuinely personal rules though (the original shared config carried a
+commented-out =x.com= → =xcancel.com= rewrite).
+
+*** TODO =emacs-mac-exp@31= breaks when a dependency's dylib bumps      :design:
+**** What happened (2026-09-01)
+=just upgrade= bumped =tree-sitter= 0.26.13 → 0.27.0, replacing
+=libtree-sitter.0.26.dylib=. =emacs-mac-exp@31= is a =--HEAD= build linked
+against =.0.26=, so =emacs --version= died with a dyld "Library not loaded".
+Routine package maintenance took out the primary editor.
+**** Why it recurs
+=upgrade-emacs-mac-exp.sh= guards the *forward* case — upgrading Emacs and
+finding the new build broken. Nothing guards the *reverse*: upgrading a
+**dependency** out from under a HEAD-built Emacs. Same fragility, from the side
+nobody instrumented. Any brew upgrade touching tree-sitter, jansson, gnutls,
+libgccjit… can do this again.
+**** Recovery that worked (keep this — it is not obvious)
+=just upgrade-emacs-mac-exp= did *not* help: advancing to the current HEAD
+(=ecf4b0e=) fails to build because the tap's =emacs-mac-31.1-multi-tty.diff= no
+longer applies (=src/frame.c= hunk rejected). The fix is to rebuild the *same*
+commit against the new dependency, using the formula's revision pin:
+#+begin_src sh
+HOMEBREW_EMACS_MAC_31_REVISION=<full-sha> \
+HOMEBREW_NO_INSTALL_CLEANUP=1 \
+  arch -arm64 brew reinstall --build-from-source \
+  pkryger/emacsmacport-exp/emacs-mac-exp@31
+#+end_src
+Recover =<full-sha>= from =INSTALL_RECEIPT.json= in the current keg, or
+=git -C ~/Library/Caches/Homebrew/emacs-mac-exp@31--git rev-parse <short>=.
+**** Options to stop it recurring
+- Teach =upgrade-emacs-mac-exp.sh= a =--rebuild-current= mode that pins
+  =HOMEBREW_EMACS_MAC_31_REVISION= to the installed keg's SHA — the exact
+  recovery above, as a first-class recipe
+- Have =just upgrade= smoke-test Emacs afterwards and rebuild automatically if
+  it stops launching
+- =brew pin tree-sitter= (blunt: freezes it for neovim too)
+**** Related
+Detection is now covered — =doctor-check-health= runs the binaries rather than
+just locating them (=e5634cf=). This item is about *prevention/recovery*.
+
+*** TODO Tap patch =emacs-mac-31.1-multi-tty.diff= fails on current HEAD :bug:
+**** Context
+=brew upgrade --fetch-HEAD pkryger/emacsmacport-exp/emacs-mac-exp@31= fails at
+the patch stage on =HEAD-ecf4b0e=:
+#+begin_example
+Applying emacs-mac-31.1-multi-tty.diff
+patching file 'src/frame.c'
+1 out of 1 hunks failed--saving rejects to 'src/frame.c.rej'
+#+end_example
+**** Impact
+Emacs cannot be advanced to current HEAD at all — unrelated to the tree-sitter
+breakage, but it removed the obvious remedy for it.
+**** Action
+Upstream, not ours: https://github.com/pkryger/homebrew-emacsmacport-exp/issues
+Check whether it is already reported before filing. Until fixed, Emacs is
+effectively pinned to =HEAD-3547928=.
 
 ** Completed [14/14]
 *** DONE Fix Pacman command execution on Windows
