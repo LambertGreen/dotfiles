@@ -167,7 +167,6 @@ cask "crossover"           # Run Windows apps/games via Wine + Rosetta (paid; tr
 cask "cursorcerer"
 cask "dbeaver-community"
 cask "divvy"
-cask "eqmac"
 cask "finicky"
 cask "firefox"
 cask "google-chrome"
