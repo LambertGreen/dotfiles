@@ -159,7 +159,6 @@ tap "homebrew/cask"
 cask "alacritty"
 cask "anki"
 cask "beyond-compare"
-cask "bing-wallpaper"
 cask "browserosaurus"
 cask "caffeine"
 cask "contexts"
@@ -195,6 +194,7 @@ cask "font-meslo-lg-nerd-font"
 # Mac App Store Apps
 # These use Apple ID authentication, not admin privileges
 
+mas "Irvue", id: 1039633667          # Daily wallpaper (Bing/Unsplash) — replaced bing-wallpaper cask (ad-free)
 mas "Windows App", id: 1295203466
 # Homebrew Formulas - Requires Admin
 # CLI tools that may require admin privileges (system integration, services, etc.)
