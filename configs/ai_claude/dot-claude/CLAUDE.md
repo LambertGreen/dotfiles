@@ -44,7 +44,7 @@ When running bash commands, prefer these modern tools (installed system-wide via
 | regex-based refactors | ast-grep | Structural (AST-aware) code search and rewrites — matches by syntax tree, not text |
 
 Notes:
-- Use rg for content search in files
+- Use rg for content search in files — but for `.twb`/minified one-line XML (single physical lines can be 100 KB+), a default match dumps the whole megaline and looks like escape corruption (stray `\n`/`\t`/`\\`); use `rg -o` / `rg -o -r '$1'` / `rg -c`, or Read the file
 - Use fd for finding files by name/path
 - Available on my Mac machine classes via Brewfile; respect .gitignore by default for speed - use `-uu` flag when searching outside version control (build artifacts, system configs, etc.)
 - Prefer the Edit tool over sd/sed for file edits I want reviewed; use sd for shell pipelines and one-shots
