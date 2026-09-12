@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+#
+# ai_council — single entry point for Lambert's AI orchestrator (the Council).
+#
+# The Council is a persistent cortex: it's almost always resuming a prior
+# session, not starting fresh. This script is idempotent — running `ai_council`
+# from any state moves you closer to: herdr up → Council workspace → Claude running.
+#
+# Usage:
+#   ai_council            Wake the Council (resume most recent Claude session)
+#   ai_council --fresh    Start a fresh Claude session
+#   ai_council --pick     Interactive session picker (claude --resume)
+#   ai_council --help
+#
+# Behavior:
+#   Outside herdr:
+#     - ~/dev/my/ai_council missing → prints copy-paste clone command, exits (no auto-clone)
+#     - herdr not installed → prints install hint, exits
+#     - otherwise           → sets WezTerm title, execs herdr (attach/create default session)
+#     After herdr opens, run `ai_council` again inside it to launch Claude.
+#
+#   Inside herdr, workspace label = "Jedi Council":
+#     - Claude already running in this pane → prints notice, exits 0
+#     - otherwise                          → execs claude in ~/dev/my/ai_council
+#
+#   Inside herdr, other workspace (e.g. the "~" workspace you land in right
+#   after herdr opens):
+#     - Jedi Council workspace exists  → focuses it, wakes Claude there if needed
+#     - otherwise                      → creates it (cwd ~/dev/my/ai_council) and wakes Claude
+#
+set -euo pipefail
+
+AI_DIR="$HOME/dev/my/ai_council"
+AI_REPO="git@github.com-personal:LambertGreen/ai_council.git"
+COUNCIL_WORKSPACE_LABEL="Jedi Council"
+
+# --- claude launch mode ---------------------------------------------------
+CLAUDE_MODE="resume"
+for arg in "$@"; do
+    case "$arg" in
+        --fresh) CLAUDE_MODE="fresh" ;;
+        --pick)  CLAUDE_MODE="pick" ;;
+        --resume) CLAUDE_MODE="resume" ;;
+        -h|--help)
+            sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0
+            ;;
+        *)
+            echo "ai_council: unknown flag '$arg' (try --help)" >&2
+            exit 2
+            ;;
+    esac
+done
+
+claude_argv() {
+    case "$CLAUDE_MODE" in
+        resume) echo "claude --continue" ;;
+        fresh)  echo "claude" ;;
+        pick)   echo "claude --resume" ;;
+    esac
+}
+
+mode_label() {
+    case "$CLAUDE_MODE" in
+        resume) echo "resuming last session" ;;
+        fresh)  echo "fresh session" ;;
+        pick)   echo "session picker" ;;
+    esac
+}
+
+# --- helpers --------------------------------------------------------------
+have() { command -v "$1" &>/dev/null; }
+
+set_wezterm_title() {
+    if have wezterm; then
+        wezterm cli set-window-title "Jedi Council" 2>/dev/null || true
+        wezterm cli set-tab-title    "Jedi Council" 2>/dev/null || true
+    fi
+}
+
+# --- outside-herdr path ---------------------------------------------------
+launch_herdr() {
+    if [ ! -d "$AI_DIR" ]; then
+        cat >&2 <<EOF
+ai_council: AI workspace not found at $AI_DIR
+
+To create it, run:
+    git clone $AI_REPO $AI_DIR
+
+Then re-run: ai_council
+EOF
+        exit 1
+    fi
+
+    if ! have herdr; then
+        cat >&2 <<EOF
+ai_council: herdr is not installed.
+
+Install options:
+    brew install herdr
+    https://herdr.dev
+
+Then re-run: ai_council
+EOF
+        exit 1
+    fi
+
+    set_wezterm_title
+    echo "ai_council: launching herdr — once inside, run \`ai_council\` again to wake Claude."
+    exec herdr
+}
+
+# --- inside-herdr path ----------------------------------------------------
+current_workspace_label() {
+    local wsid="${HERDR_WORKSPACE_ID:-}"
+    [ -z "$wsid" ] && return 1
+    herdr workspace get "$wsid" 2>/dev/null | jq -r '.result.workspace.label // empty'
+}
+
+claude_running_in_pane() {
+    herdr pane process-info --current 2>/dev/null \
+        | jq -e '.result.process_info.foreground_processes[] | select(.argv0 == "claude")' \
+        >/dev/null
+}
+
+claude_running_in_workspace() {
+    herdr pane process-info --pane "$1:p1" 2>/dev/null \
+        | jq -e '.result.process_info.foreground_processes[] | select(.argv0 == "claude")' \
+        >/dev/null
+}
+
+council_workspace_id() {
+    herdr workspace list 2>/dev/null \
+        | jq -r --arg l "$COUNCIL_WORKSPACE_LABEL" \
+            'first(.result.workspaces[] | select(.label == $l) | .workspace_id) // empty'
+}
+
+# Find-or-create the Jedi Council workspace, then make sure Claude is awake in it.
+# This is the path taken when `ai_council` runs inside herdr from some *other*
+# workspace — notably the plain "~" workspace herdr drops you into on a fresh
+# machine, where no "Jedi Council"-labeled workspace has ever been created.
+enter_council_workspace() {
+    local wsid
+    wsid="$(council_workspace_id || true)"
+
+    if [ -n "$wsid" ]; then
+        herdr workspace focus "$wsid" >/dev/null 2>&1 || true
+    else
+        echo "ai_council: no \"$COUNCIL_WORKSPACE_LABEL\" workspace yet — creating it."
+        wsid="$(herdr workspace create --cwd "$AI_DIR" \
+                    --label "$COUNCIL_WORKSPACE_LABEL" --focus 2>/dev/null \
+                | jq -r '.result.workspace.workspace_id // empty')"
+        if [ -z "$wsid" ]; then
+            echo "ai_council: failed to create the \"$COUNCIL_WORKSPACE_LABEL\" workspace." >&2
+            exit 1
+        fi
+    fi
+
+    if claude_running_in_workspace "$wsid"; then
+        echo "ai_council: Claude already awake in \"$COUNCIL_WORKSPACE_LABEL\" — switched to it."
+        return 0
+    fi
+
+    echo "ai_council: waking Claude in \"$COUNCIL_WORKSPACE_LABEL\" ($(mode_label))."
+    # shellcheck disable=SC2046
+    herdr pane run "$wsid:p1" $(claude_argv) >/dev/null
+}
+
+wake_claude() {
+    local label
+    label="$(current_workspace_label || true)"
+
+    if [ "$label" != "$COUNCIL_WORKSPACE_LABEL" ]; then
+        enter_council_workspace
+        exit 0
+    fi
+
+    if claude_running_in_pane; then
+        echo "ai_council: Claude is already running in this pane."
+        exit 0
+    fi
+
+    if ! have claude; then
+        echo "ai_council: claude CLI not found on PATH." >&2
+        exit 1
+    fi
+
+    cd "$AI_DIR" 2>/dev/null || {
+        echo "ai_council: cannot cd into $AI_DIR" >&2
+        exit 1
+    }
+
+    echo "ai_council: waking Claude ($(mode_label)). Flags: --fresh, --pick"
+    # shellcheck disable=SC2086
+    exec $(claude_argv)
+}
+
+# --- dispatch -------------------------------------------------------------
+if [ "${HERDR_ENV:-0}" = "1" ]; then
+    wake_claude
+else
+    launch_herdr
+fi
