@@ -33,6 +33,10 @@ set -euo pipefail
 AI_DIR="$HOME/dev/my/ai_council"
 AI_REPO="git@github.com-personal:LambertGreen/ai_council.git"
 COUNCIL_WORKSPACE_LABEL="Jedi Council"
+# The Council runs in its OWN persistent herdr session, separate from Cortana's
+# (bare `herdr`, the "default" session). This is what keeps the two side by side
+# instead of both attaching the same session.
+COUNCIL_HERDR_SESSION="council"
 
 # --- claude launch mode ---------------------------------------------------
 CLAUDE_MODE="resume"
@@ -106,8 +110,8 @@ EOF
     fi
 
     set_wezterm_title
-    echo "ai_council: launching herdr — once inside, run \`ai_council\` again to wake Claude."
-    exec herdr
+    echo "ai_council: launching herdr session \"$COUNCIL_HERDR_SESSION\" — once inside, run \`ai_council\` again to wake Claude."
+    exec herdr --session "$COUNCIL_HERDR_SESSION"
 }
 
 # --- inside-herdr path ----------------------------------------------------
