@@ -79,6 +79,32 @@ final state is 100% stow-managed.
 - Scoped commit: only the new launcher + the stow.txt line; 4 unrelated dirty files
   (emacs, shell rc ×3) left unstaged/untouched ✓
 
+## Follow-up fix (same session): dedicated herdr session for the Council
+
+First smoke test surfaced a coexistence bug: launching `ai_council` and `cortana` put **both in the
+same herdr session** (both WezTerm tabs titled "Jedi Council", identical spaces sidebar). Cause: the
+outside-herdr path did a bare `exec herdr`, and bare `herdr` "launch or **attach to the** [single]
+**persistent session**" (the `default` session, where Cortana + all mission worktrees already live).
+The `AI_DIR` flip only affects the inside-herdr `wake_claude` path, so it never mattered for the
+attach behavior. This is unchanged from original Cortana — fine when Cortana was the only orchestrator,
+wrong once two must coexist.
+
+**Decision (Lambert): two separate herdr sessions, non-destructively.** `ai_council` now execs
+`herdr --session council`; **`cortana` stays on bare `herdr` (the `default` session) — untouched**,
+preserving the cortana_common no-touch rule and the existing `default` session (Cortana workspace +
+6 mission worktrees). Asymmetric but non-destructive: Cortana keeps its current home; the Council gets
+its own clean session. Commit `798cb15`.
+
+- `COUNCIL_HERDR_SESSION="council"` constant + `exec herdr --session "$COUNCIL_HERDR_SESSION"`.
+- Inside-herdr path unchanged: `herdr workspace *` operates within whatever session the pane belongs
+  to, so it now finds-or-creates the "Jedi Council" workspace inside the `council` session.
+- shellcheck clean; cortana launcher still bare `exec herdr` (verified).
+
+**herdr facts learned:** bare `herdr` = attach the one default session; `herdr --session <name>` =
+use/create a named persistent session; `herdr session list` showed a single `default` session holding
+all workspaces (Cortana = workspace `w4`, not a session). So "coexistence" in this setup was always
+workspaces-in-one-session until this change gave the Council its own session.
+
 ## Open / deferred
 
 - **Workspace label `"Jedi Council"` is a cosmetic dotfiles choice.** The Council repo's
