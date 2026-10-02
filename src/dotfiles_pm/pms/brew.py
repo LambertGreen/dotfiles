@@ -30,15 +30,20 @@ class BrewPM(PackageManager):
 
     @property
     def upgrade_command(self) -> List[str]:
+        # HOMEBREW_ACCEPT_EULA=Y is a deliberate, Lambert-approved license
+        # acceptance (2026-10-02). The microsoft/mssql-release formulae
+        # (msodbcsql18, mssql-tools18) otherwise block on STDIN for a EULA
+        # prompt, hanging unattended runs. Mirrored in
+        # pm_install.install_brew_packages.
         from sudo_helper import wrap_command_with_askpass, get_sudo_mode
         mode = get_sudo_mode()
         if mode == 'gui':
             wrapped = wrap_command_with_askpass(
-                "brew upgrade",
+                "HOMEBREW_ACCEPT_EULA=Y brew upgrade",
                 reason="Homebrew needs to update system-linked packages",
             )
             return ["bash", "-c", wrapped]
-        return ["brew", "upgrade"]
+        return ["env", "HOMEBREW_ACCEPT_EULA=Y", "brew", "upgrade"]
 
     @property
     def install_command(self) -> List[str]:

@@ -92,14 +92,16 @@ def install_brew_packages(package_type: str = 'all') -> Dict[str, Any]:
 
     print(f"  📦 Installing from: {brewfile.name}")
 
-    # Build command with environment variables
-    env_prefix = ""
+    # Build command with environment variables.
+    # HOMEBREW_ACCEPT_EULA: deliberate license acceptance, see
+    # BrewPM.upgrade_command.
+    env_prefix = "HOMEBREW_ACCEPT_EULA=Y "
     if package_type == 'formulas':
         print(f"  🍺 Installing formulas only...")
-        env_prefix = "HOMEBREW_BUNDLE_CASK_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
+        env_prefix += "HOMEBREW_BUNDLE_CASK_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
     elif package_type == 'casks':
         print(f"  📦 Installing casks only...")
-        env_prefix = "HOMEBREW_BUNDLE_BREW_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
+        env_prefix += "HOMEBREW_BUNDLE_BREW_SKIP=1 HOMEBREW_BUNDLE_MAS_SKIP=1 "
     else:
         print(f"  📦 Installing all packages...")
 
