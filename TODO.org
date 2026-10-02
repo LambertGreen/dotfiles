@@ -249,9 +249,10 @@ casks by default) ran its sudo pkg installer and brought back
 =Microsoft Bing Wallpaper= 2.0.13 plus =/Applications/Microsoft Bing for Safari.app=.
 =just doctor-check-undeclared= had flagged it as an undeclared cask that morning.
 **** Action
-- =brew uninstall --cask --zap bing-wallpaper=; confirm the Safari extension
-  app and any login item / launch agent are gone too
-- Generalize: dropping a package from a Brewfile should also uninstall it, or
+- [X] =brew uninstall --cask --zap bing-wallpaper=; confirm the Safari extension
+  app and any login item / launch agent are gone too (done 2026-10-02: cask,
+  =/Applications/*Bing*=, =msbw*= launch agents and pkg receipts all gone)
+- [ ] Generalize: dropping a package from a Brewfile should also uninstall it, or
   the upgrade path should skip undeclared packages — otherwise every removal
   can come back the same way
 
