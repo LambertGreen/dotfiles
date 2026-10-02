@@ -20,7 +20,7 @@
 #             ai/retros/dotfiles-maintenance/.
 
 * TODOs
-** Open [0/19]
+** Open [0/20]
 
 *** TODO Install remaining missing packages via correct package managers :design:
 **** Context
@@ -238,6 +238,22 @@ rename that left the old one installed.
 **** Action
 =just doctor-check-undeclared= to confirm, then uninstall the undeclared one.
 Check =laptop_work_mac= for the same duplicate before removing.
+
+*** TODO =bing-wallpaper= resurrected by =just upgrade= (work)          :bug:
+**** Context
+=ea4e148= dropped the =bing-wallpaper= cask from
+=machine-classes/laptop_work_mac/brew/Brewfile= in favor of Irvue (mas), but the
+cask was never =brew uninstall=-ed, so its Caskroom record (1.1.12) survived.
+On the 2026-10-02 run, =brew upgrade= (Homebrew 7 now upgrades =auto_updates=
+casks by default) ran its sudo pkg installer and brought back
+=Microsoft Bing Wallpaper= 2.0.13 plus =/Applications/Microsoft Bing for Safari.app=.
+=just doctor-check-undeclared= had flagged it as an undeclared cask that morning.
+**** Action
+- =brew uninstall --cask --zap bing-wallpaper=; confirm the Safari extension
+  app and any login item / launch agent are gone too
+- Generalize: dropping a package from a Brewfile should also uninstall it, or
+  the upgrade path should skip undeclared packages — otherwise every removal
+  can come back the same way
 
 *** TODO Unattended runs stall forever on sudo-requiring casks          :design:
 **** Context
