@@ -266,6 +266,28 @@ firefox
         assert parse_brew_cask_output("") == 0
         assert parse_brew_cask_output(None) == 0
 
+    def test_skips_auto_update_chatter(self):
+        """
+        Regression: when `brew outdated --cask` triggers Homebrew's auto-update,
+        the hint text and the "New Formulae"/"New Casks" listings precede the
+        cask list. 30 outdated casks were reported as 48.
+        """
+        output = """==> Auto-updating Homebrew...
+Adjust how often this is run with `$HOMEBREW_AUTO_UPDATE_SECS` or disable with
+`$HOMEBREW_NO_AUTO_UPDATE=1`. Hide these hints with `$HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
+==> Auto-updated Homebrew!
+==> Updated Homebrew from 319df2375c to 2170a64c0f.
+Updated 4 taps (hashicorp/tap, d12frosted/emacs-plus, homebrew/core and homebrew/cask).
+==> New Formulae
+deja: Predictive ghost-text autosuggestions for zsh
+==> New Casks
+napari: Multi-dimensional image viewer for Python
+
+1password
+google-chrome@beta
+"""
+        assert parse_brew_cask_output(output) == 2
+
 
 class TestNpmParser:
     """Tests for `npm outdated -g` table output"""

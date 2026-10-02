@@ -74,6 +74,11 @@ def _is_noise(line: str) -> bool:
 # `brew update` chatter such as "Updated 2 taps (homebrew/core and …)."
 _BREW_OUTDATED_ROW = re.compile(r'^\S+ \(.+?\) (?:<|!=) \S')
 
+# A `brew outdated --cask` row is a bare cask token (optionally tap-qualified),
+# e.g. `google-chrome@beta`. Anything with whitespace is chatter: auto-update
+# hints and the "New Formulae"/"New Casks" listings (`napari: Multi-dim…`).
+_BREW_CASK_ROW = re.compile(r'^[\w@.+/-]+$')
+
 
 class BrewOutdatedParser(PMParser):
     """
@@ -100,7 +105,8 @@ class BrewCaskParser(PMParser):
     """
     Parser for `brew outdated --cask --greedy` (one cask name per line).
 
-    Skips the API-download progress lines brew prints before the list.
+    Skips the API-download progress lines brew prints before the list, and
+    the auto-update chatter it prints when the check triggers an auto-update.
     """
 
     def count_outdated(self, output: Optional[str]) -> int:
@@ -108,7 +114,7 @@ class BrewCaskParser(PMParser):
             return 0
         return sum(
             1 for line in (raw.strip() for raw in output.split('\n'))
-            if line and not _is_noise(line)
+            if line and not _is_noise(line) and _BREW_CASK_ROW.match(line)
         )
 
 
