@@ -318,6 +318,7 @@ cask "font-montserrat"
 mas "AmorphousDiskMark", id: 1168254295
 mas "GIPHY CAPTURE", id: 668208984
 mas "iMovie", id: 408981434
+mas "Irvue", id: 1039633667          # Daily wallpaper (Bing/Unsplash), same as laptop_work_mac
 mas "Time Out", id: 402592703
 mas "Windows App", id: 1295203466
 mas "Xcode", id: 497799835
