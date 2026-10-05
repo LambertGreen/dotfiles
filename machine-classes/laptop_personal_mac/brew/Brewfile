@@ -302,7 +302,6 @@ cask "neovide-app"   # renamed upstream from "neovide"
 cask "openmtp"
 cask "osquery"
 cask "virtualbox"
-cask "windows-app"
 cask "xquartz"
 
 # Fonts
