@@ -7,7 +7,8 @@
 # from any state moves you closer to: herdr up → Council workspace → Claude running.
 #
 # Usage:
-#   ai_council            Wake the Council (resume most recent Claude session)
+#   ai_council            Wake the Council (resume its recorded session id;
+#                         falls back to claude --continue, with a warning)
 #   ai_council --fresh    Start a fresh Claude session
 #   ai_council --pick     Interactive session picker (claude --resume)
 #   ai_council --help
@@ -46,7 +47,7 @@ for arg in "$@"; do
         --pick)  CLAUDE_MODE="pick" ;;
         --resume) CLAUDE_MODE="resume" ;;
         -h|--help)
-            sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *)
@@ -56,9 +57,43 @@ for arg in "$@"; do
     esac
 done
 
+# --- resume target --------------------------------------------------------
+# Resume the Council by its RECORDED session id, not `claude --continue`:
+# --continue picks the newest session in the cwd, and missions share $AI_DIR,
+# so after a restart a mission could take the Council's seat (retro
+# ai_council/retros/council/2026-10-04-recover-rekey.md). recover.sh reads the
+# sid from the start-stop log. --continue is only the fallback (fresh machine,
+# no log, recover.sh missing), and it says so on stderr.
+COUNCIL_RECOVER="$AI_DIR/.claude/orchestrator/recover.sh"
+RESUME_SID=""
+
+# Called once at top level before claude_argv/mode_label — they run inside
+# $(...), where an assignment would not survive.
+resolve_resume_sid() {
+    [ "$CLAUDE_MODE" = "resume" ] || return 0
+    local out why
+    if [ ! -x "$COUNCIL_RECOVER" ]; then
+        why="$COUNCIL_RECOVER not found or not executable"
+    elif ! out="$("$COUNCIL_RECOVER" --council-sid 2>&1)"; then
+        why="recover.sh --council-sid failed: ${out:-no output}"
+    elif [[ ! "$out" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$ ]]; then
+        why="recover.sh --council-sid printed no session id: ${out:-empty}"
+    else
+        RESUME_SID="$out"
+        return 0
+    fi
+    echo "ai_council: falling back to \`claude --continue\` (newest session in $AI_DIR — may not be the Council) — $why" >&2
+}
+
 claude_argv() {
     case "$CLAUDE_MODE" in
-        resume) echo "claude --continue" ;;
+        resume)
+            if [ -n "$RESUME_SID" ]; then
+                echo "claude --resume $RESUME_SID"
+            else
+                echo "claude --continue"
+            fi
+            ;;
         fresh)  echo "claude" ;;
         pick)   echo "claude --resume" ;;
     esac
@@ -66,7 +101,13 @@ claude_argv() {
 
 mode_label() {
     case "$CLAUDE_MODE" in
-        resume) echo "resuming last session" ;;
+        resume)
+            if [ -n "$RESUME_SID" ]; then
+                echo "resuming Council session $RESUME_SID"
+            else
+                echo "resuming newest session in cwd — fallback, no recorded Council sid"
+            fi
+            ;;
         fresh)  echo "fresh session" ;;
         pick)   echo "session picker" ;;
     esac
@@ -165,6 +206,7 @@ enter_council_workspace() {
         return 0
     fi
 
+    resolve_resume_sid
     echo "ai_council: waking Claude in \"$COUNCIL_WORKSPACE_LABEL\" ($(mode_label))."
     # shellcheck disable=SC2046
     herdr pane run "$wsid:p1" $(claude_argv) >/dev/null
@@ -194,6 +236,7 @@ wake_claude() {
         exit 1
     }
 
+    resolve_resume_sid
     echo "ai_council: waking Claude ($(mode_label)). Flags: --fresh, --pick"
     # shellcheck disable=SC2086
     exec $(claude_argv)
