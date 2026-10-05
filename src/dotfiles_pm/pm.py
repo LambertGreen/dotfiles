@@ -229,7 +229,9 @@ def cmd_upgrade(args):
     from .terminal_executor import prompt_close_terminals
     prompt_close_terminals()
 
-    return 0
+    # Fail when the summary does: 2026-10-05 printed "❌ brew: Upgrade failed"
+    # and "3/4" yet exited 0, so anything keying off the exit status saw success.
+    return 0 if successful_upgrades == len(selected_pms) else 1
 
 
 def cmd_configure(args):
