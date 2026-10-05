@@ -458,12 +458,22 @@ _check_package_health() {
                     $log_output "    - 📦 Brewfile: $brew_count formulae, $cask_count casks ($total_brewfile total)"
                     $log_output "    - 🏠 Installed: $installed_formulae formulae, $installed_casks casks"
 
-                    # Check if packages match Brewfile
-                    if brew bundle check --file="$pm_dir/Brewfile" >/dev/null 2>&1; then
+                    # Check if packages match Brewfile. --verbose names each
+                    # unsatisfied entry ("→ Formula docker needs to be unlinked.");
+                    # without it the warning said nothing actionable (2026-10-05).
+                    # No auto-update: a health check should not move brew's index.
+                    local bundle_out=""
+                    if bundle_out=$(HOMEBREW_NO_AUTO_UPDATE=1 brew bundle check --verbose --file="$pm_dir/Brewfile" 2>&1); then
                         $log_output "    - ✅ All Brewfile packages installed"
                         PACKAGE_PASSED+=("$pm_name (Brewfile)")
                     else
-                        $log_output "    - ⚠️  Some Brewfile packages missing or outdated"
+                        $log_output "    - ⚠️  Some Brewfile packages missing or outdated:"
+                        local bundle_line
+                        while IFS= read -r bundle_line; do
+                            case "$bundle_line" in
+                                "→ "*) $log_output "        $bundle_line" ;;
+                            esac
+                        done <<< "$bundle_out"
                         WARNINGS+=("$pm_name: Some packages missing or outdated")
                         PACKAGE_FAILED+=("$pm_name (Brewfile)")
                         failed_packages=$((failed_packages + 1))
