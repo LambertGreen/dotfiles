@@ -99,7 +99,7 @@ this cannot be a blind =rm -rf=:
   exports.
 - =docs/archive/*= — archived, ignorable.
 **** Action Items (staged — quick win first)
-1. [ ] Delete =deprecated/legacy-exports/python/= only. Zero references, kills
+1. [X] Delete =deprecated/legacy-exports/python/= only. Zero references, kills
    all 41 alerts immediately. Independent of everything below.
 2. [ ] Port or inline the two un-ported Windows tasks so
    =dot-onetimesetup_win.sh= no longer points at a path being deleted.
