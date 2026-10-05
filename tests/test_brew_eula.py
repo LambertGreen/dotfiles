@@ -32,13 +32,17 @@ class TestBrewUpgradeAcceptsEula:
              patch('sudo_helper.get_sudo_askpass_env',
                    return_value={'SUDO_ASKPASS': '/tmp/a.sh'}):
             cmd = BrewPM().upgrade_command
-        assert f'{EULA} brew upgrade' in cmd[2]
+        # brew upgrade runs through the herdr guard (tests/test_herdr_upgrade_guard.py).
+        assert f'{EULA} python3 ' in cmd[2]
+        assert 'herdr_guard.py' in cmd[2] and 'brew-upgrade' in cmd[2]
 
     def test_tty_mode(self):
         from pms.brew import BrewPM
         with patch.object(sudo_helper, 'get_sudo_mode', return_value='tty'):
             cmd = BrewPM().upgrade_command
-        assert cmd == ['env', EULA, 'brew', 'upgrade']
+        assert cmd[:3] == ['env', EULA, 'python3']
+        assert cmd[3].endswith('herdr_guard.py')
+        assert cmd[4:] == ['brew-upgrade']
 
 
 class TestBrewInstallAcceptsEula:
