@@ -158,6 +158,60 @@ class TestInstallUpgradeSymmetry:
         assert 'wrap_command_with_askpass(' in code
 
 
+class TestMasUpgrade:
+    """mas upgrade logs even when idle (2026-10-05) and can reach sudo (2026-10-02)."""
+
+    def _cmd(self):
+        from pms.mas import MasPM
+        with patch('sudo_helper.get_sudo_askpass_env',
+                   return_value={'SUDO_ASKPASS': '/tmp/a.sh'}):
+            return MasPM().upgrade_command
+
+    def test_wrapped_with_askpass(self):
+        cmd = self._cmd()
+        assert cmd[:2] == ['bash', '-c']
+        assert cmd[2].startswith('export SUDO_ASKPASS="/tmp/a.sh";')
+
+    def test_idle_run_still_writes_a_log(self, tmp_path):
+        """With nothing outdated the log says so, plus the exit status."""
+        bin_dir = tmp_path / 'bin'
+        bin_dir.mkdir()
+        stub = bin_dir / 'mas'
+        stub.write_text('#!/bin/bash\nexit 0\n')  # outdated and upgrade print nothing
+        stub.chmod(0o755)
+        import subprocess
+        r = subprocess.run(self._cmd(), capture_output=True, text=True,
+                           env={'PATH': f'{bin_dir}:/usr/bin:/bin'})
+        assert r.returncode == 0
+        assert '(nothing outdated)' in r.stdout
+        assert '==> mas upgrade exited 0' in r.stdout
+
+    def test_upgrade_failure_propagates(self, tmp_path):
+        bin_dir = tmp_path / 'bin'
+        bin_dir.mkdir()
+        stub = bin_dir / 'mas'
+        stub.write_text('#!/bin/bash\n[ "$1" = upgrade ] && exit 3\nexit 0\n')
+        stub.chmod(0o755)
+        import subprocess
+        r = subprocess.run(self._cmd(), capture_output=True, text=True,
+                           env={'PATH': f'{bin_dir}:/usr/bin:/bin'})
+        assert r.returncode == 3
+        assert '==> mas upgrade exited 3' in r.stdout
+
+
+class TestAskpassTimeout:
+    """The macOS dialog is bounded, so an unattended run cannot wait forever (2026-09-01)."""
+
+    def test_dialog_gives_up_and_fails(self, temp_home):
+        with patch.object(sudo_helper.platform, 'system', return_value='Darwin'):
+            path = sudo_helper._ensure_macos_askpass('reason')
+        script = Path(path).read_text()
+        assert f'giving up after {sudo_helper.ASKPASS_TIMEOUT_SECS}' in script
+        # A give-up must fail sudo, not hand it an empty password to retry.
+        assert 'if gave up of r then error' in script
+        assert sudo_helper.ASKPASS_TIMEOUT_SECS <= 600
+
+
 class TestSudoModeOverride:
     def test_explicit_override_wins(self):
         for mode in ('gui', 'tty', 'skip'):

@@ -41,6 +41,13 @@ def _get_askpass_path() -> Path:
     return Path.home() / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
 
 
+# How long the macOS password dialog waits before giving up. Without a bound an
+# unattended run waits forever: on 2026-09-01 karabiner-elements sat on this
+# dialog for 13m until a human happened by. On give-up (or Cancel) the script
+# exits non-zero, so sudo fails, that one package fails, and the run moves on.
+ASKPASS_TIMEOUT_SECS = 300
+
+
 def _ensure_macos_askpass(reason: str = "") -> str:
     """Create/verify the macOS askpass script using osascript."""
     askpass_path = _get_askpass_path()
@@ -51,11 +58,15 @@ def _ensure_macos_askpass(reason: str = "") -> str:
     else:
         message = "Administrator password required"
 
+    # `error number 1` makes osascript exit non-zero on timeout; printing the
+    # empty answer instead would have sudo try it, fail, and re-ask twice more.
     askpass_path.write_text(
         '#!/bin/bash\n'
-        f'/usr/bin/osascript -e \'display dialog "{message}" '
-        'default answer "" with hidden answer with title "sudo" with icon caution\' '
-        '-e \'text returned of result\' 2>/dev/null\n'
+        f'/usr/bin/osascript -e \'set r to display dialog "{message}" '
+        'default answer "" with hidden answer with title "sudo" with icon caution '
+        f'giving up after {ASKPASS_TIMEOUT_SECS}\' '
+        '-e \'if gave up of r then error "timed out" number 1\' '
+        '-e \'text returned of r\' 2>/dev/null\n'
     )
     askpass_path.chmod(stat.S_IRWXU)
     return str(askpass_path)

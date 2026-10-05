@@ -12,6 +12,30 @@ import pytest
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+# PM modules also import their siblings top-level (`from sudo_helper import …`).
+sys.path.insert(0, str(PROJECT_ROOT / 'src' / 'dotfiles_pm'))
+
+REAL_HOME = Path.home()
+
+
+@pytest.fixture(autouse=True)
+def _keep_askpass_out_of_real_home(tmp_path, monkeypatch):
+    """Never let a test rewrite the real ~/.dotfiles/bin/sudo-askpass.sh.
+
+    Reading a PM's `upgrade_command` in GUI mode (re)writes the askpass helper,
+    and pm_executor reads it for every PM. Tests that set their own HOME
+    (temp_home) keep their path; anything resolving to the real HOME is
+    redirected under tmp_path.
+    """
+    def askpass_path():
+        home = Path.home()
+        base = tmp_path / 'askpass-home' if home == REAL_HOME else home
+        return base / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
+
+    import importlib
+    # The module is importable under two names; patch both.
+    for name in ('sudo_helper', 'src.dotfiles_pm.sudo_helper'):
+        monkeypatch.setattr(importlib.import_module(name), '_get_askpass_path', askpass_path)
 
 @pytest.fixture
 def temp_home(tmp_path):
