@@ -260,6 +260,16 @@ upgrade:
 upgrade-emacs-mac-exp:
     @{{ if os() == "macos" { "bash scripts/package-management/emacs/upgrade-emacs-mac-exp.sh" } else { "echo '⏭️  upgrade-emacs-mac-exp is macOS-only (emacs-mac-exp@31); Linux/Windows Emacs is managed separately.'" } }}
 
+# Upgrade herdr on purpose: STOPS live herdr servers (kills ALL panes), then relaunches ai_council. Interactive only; run outside herdr.
+[group('3-📦-Package-Management')]
+herdr-upgrade:
+    @{{ if os() == "windows" { "echo '⏭️  herdr-upgrade: herdr is Homebrew-managed (macOS/Linux) only.'" } else { "bash scripts/package-management/herdr/herdr-upgrade.sh" } }}
+
+# Show whether `just upgrade` is holding herdr back (live server + newer version available)
+[group('3-📦-Package-Management')]
+herdr-upgrade-check:
+    @{{ if os() == "windows" { "echo '⏭️  herdr-upgrade-check: herdr is Homebrew-managed (macOS/Linux) only.'" } else { "python3 src/dotfiles_pm/herdr_guard.py status" } }}
+
 # Show available package managers
 [group('4-ℹ️-Info')]
 show-package-managers:

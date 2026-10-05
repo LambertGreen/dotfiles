@@ -35,15 +35,22 @@ class BrewPM(PackageManager):
         # (msodbcsql18, mssql-tools18) otherwise block on STDIN for a EULA
         # prompt, hanging unattended runs. Mirrored in
         # pm_install.install_brew_packages.
+        #
+        # brew upgrade goes through herdr_guard, which holds herdr back while a
+        # herdr server is live: a protocol bump would force a server restart
+        # and kill every pane (2026-10-03). It execs plain `brew upgrade` when
+        # no server runs. Deliberate path: `just herdr-upgrade`.
+        import shlex
         from sudo_helper import wrap_command_with_askpass, get_sudo_mode
+        guard = str(Path(__file__).resolve().parent.parent / 'herdr_guard.py')
         mode = get_sudo_mode()
         if mode == 'gui':
             wrapped = wrap_command_with_askpass(
-                "HOMEBREW_ACCEPT_EULA=Y brew upgrade",
+                f"HOMEBREW_ACCEPT_EULA=Y python3 {shlex.quote(guard)} brew-upgrade",
                 reason="Homebrew needs to update system-linked packages",
             )
             return ["bash", "-c", wrapped]
-        return ["env", "HOMEBREW_ACCEPT_EULA=Y", "brew", "upgrade"]
+        return ["env", "HOMEBREW_ACCEPT_EULA=Y", "python3", guard, "brew-upgrade"]
 
     @property
     def install_command(self) -> List[str]:
