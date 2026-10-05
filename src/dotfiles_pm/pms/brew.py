@@ -38,8 +38,10 @@ class BrewPM(PackageManager):
         #
         # brew upgrade goes through herdr_guard, which holds herdr back while a
         # herdr server is live: a protocol bump would force a server restart
-        # and kill every pane (2026-10-03). It execs plain `brew upgrade` when
-        # no server runs. Deliberate path: `just herdr-upgrade`.
+        # and kill every pane (2026-10-03). It runs plain `brew upgrade` when
+        # no server runs. Deliberate path: `just herdr-upgrade`. Afterwards it
+        # re-applies Brewfile `link: false` and checks a non-zero exit against
+        # what is still outdated (brew_post_upgrade, 2026-10-05).
         import shlex
         from sudo_helper import wrap_command_with_askpass, get_sudo_mode
         guard = str(Path(__file__).resolve().parent.parent / 'herdr_guard.py')

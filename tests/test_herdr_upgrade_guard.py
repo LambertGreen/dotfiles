@@ -54,12 +54,19 @@ case "$1" in
     if [ "$2" = "--json=v2" ]; then
       [ -n "$STUB_OUTDATED_FAIL" ] && exit 1
       echo "==> Auto-updating Homebrew..."
-      echo "$STUB_OUTDATED"
+      # After an upgrade, report the post-upgrade state when the test sets one.
+      if [ -f "$STUB_LOG.upgraded" ] && [ -n "${STUB_OUTDATED_AFTER+x}" ]; then
+        echo "$STUB_OUTDATED_AFTER"
+      else
+        echo "$STUB_OUTDATED"
+      fi
     else
       [ -n "$STUB_HERDR_OUTDATED" ] && { echo herdr; exit 1; }
     fi ;;
   upgrade)
     echo "env EULA=$HOMEBREW_ACCEPT_EULA NO_AUTO_UPDATE=$HOMEBREW_NO_AUTO_UPDATE" >> "$STUB_LOG"
+    touch "$STUB_LOG.upgraded"
+    [ -n "$STUB_UPGRADE_OUTPUT" ] && echo "$STUB_UPGRADE_OUTPUT"
     [ -n "$STUB_UPGRADE_FAIL" ] && exit 1 ;;
 esac
 exit 0
@@ -220,6 +227,67 @@ class TestBrewPMUsesGuard:
         assert r.returncode == 0, r.stderr
         assert stubs.upgrades() == ['brew upgrade ripgrep blender']
         assert 'env EULA=Y NO_AUTO_UPDATE=1' in stubs.calls()
+
+
+class TestUpgradeResultCheck:
+    """brew's exit status is checked against what is still outdated (2026-10-05).
+
+    That run's whatsapp pre-download failed with a curl HTTP/2 error, the
+    install step's retry succeeded, all 160 packages upgraded, and brew still
+    exited 1, so `just upgrade` reported "❌ brew: Upgrade failed".
+    """
+
+    def test_recovered_failure_is_success(self, stubs):
+        stubs.env['STUB_UPGRADE_FAIL'] = '1'
+        # Only the held-back herdr is left: everything we asked for upgraded.
+        stubs.env['STUB_OUTDATED_AFTER'] = json.dumps(
+            {'formulae': [_formula('herdr', '0.8.2', '0.9.3')], 'casks': []})
+        r = _guard(stubs, 'brew-upgrade')
+        assert r.returncode == 0, r.stderr
+        assert 'Treating as success' in r.stderr
+
+    def test_real_failure_names_what_is_left(self, stubs):
+        stubs.env['STUB_UPGRADE_FAIL'] = '1'
+        stubs.env['STUB_OUTDATED_AFTER'] = json.dumps(
+            {'formulae': [_formula('ripgrep', '14.0', '14.1')], 'casks': []})
+        r = _guard(stubs, 'brew-upgrade')
+        assert r.returncode == 1
+        assert 'still outdated: ripgrep' in r.stderr
+
+    def test_bare_upgrade_recovered_failure_is_success(self, stubs):
+        stubs.env['STUB_SESSIONS'] = _sessions(default=False, council=False)
+        stubs.env['STUB_UPGRADE_FAIL'] = '1'
+        stubs.env['STUB_OUTDATED_AFTER'] = json.dumps({'formulae': [], 'casks': []})
+        r = _guard(stubs, 'brew-upgrade')
+        assert stubs.upgrades() == ['brew upgrade']
+        assert r.returncode == 0, r.stderr
+
+    def test_unverifiable_failure_stays_a_failure(self, stubs):
+        stubs.env['STUB_SESSIONS'] = _sessions(default=False, council=False)
+        stubs.env['STUB_UPGRADE_FAIL'] = '1'
+        stubs.env['STUB_OUTDATED_FAIL'] = '1'
+        r = _guard(stubs, 'brew-upgrade')
+        assert r.returncode == 1
+        assert 'cannot be checked' in r.stderr
+
+    def test_success_does_not_recheck(self, stubs):
+        stubs.env['STUB_SESSIONS'] = _sessions(default=False, council=False)
+        r = _guard(stubs, 'brew-upgrade')
+        assert r.returncode == 0, r.stderr
+        assert 'brew outdated --json=v2' not in stubs.calls()
+
+    def test_upgrade_output_still_reaches_the_log(self, stubs):
+        stubs.env['STUB_UPGRADE_OUTPUT'] = '🍺  ripgrep was successfully upgraded!'
+        r = _guard(stubs, 'brew-upgrade')
+        assert '🍺  ripgrep was successfully upgraded!' in r.stdout
+
+    def test_overwritten_cask_is_relinked(self, stubs):
+        stubs.env['STUB_UPGRADE_OUTPUT'] = (
+            'Warning: Overwrote symlinks from the docker-desktop cask:\n'
+            '  /opt/homebrew/share/zsh/site-functions/_docker')
+        r = _guard(stubs, 'brew-upgrade')
+        assert r.returncode == 0, r.stderr
+        assert 'brew link --cask docker-desktop' in stubs.calls()
 
 
 def _recipe_pty(stubs, answer=''):

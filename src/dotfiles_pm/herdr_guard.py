@@ -28,14 +28,17 @@ import subprocess
 import sys
 from typing import Any, Dict, List, Optional
 
+from brew_post_upgrade import (machine_brewfile, overwritten_casks, reassert_unlinked,
+                               still_outdated, stream_and_capture)
+
 FORMULA = 'herdr'
 DELIBERATE_PATH = 'just herdr-upgrade'
 
 
-def _run_json(argv: List[str]) -> Optional[Any]:
+def _run_json(argv: List[str], env: Optional[Dict[str, str]] = None) -> Optional[Any]:
     """Run argv and parse stdout as JSON; None on any failure."""
     try:
-        result = subprocess.run(argv, capture_output=True, text=True, timeout=600)
+        result = subprocess.run(argv, capture_output=True, text=True, timeout=600, env=env)
     except (OSError, subprocess.TimeoutExpired):
         return None
     if result.returncode != 0:
@@ -154,12 +157,38 @@ def skew_message(p: Dict[str, Any]) -> str:
     ])
 
 
+def _run_upgrade(argv: List[str], env: Dict[str, str], targets: Optional[List[str]],
+                 held: List[str]) -> int:
+    """Run `brew upgrade`, then tidy links and judge the result by what is left outdated."""
+    rc, output = stream_and_capture(argv, env)
+    reassert_unlinked(machine_brewfile(), overwritten_casks(output))
+    if rc == 0:
+        return 0
+
+    # Ask without auto-updating, so releases published mid-run don't count as failures.
+    outdated = _run_json(['brew', 'outdated', '--json=v2'],
+                         env=dict(env, HOMEBREW_NO_AUTO_UPDATE='1'))
+    if outdated is None:
+        print(f'❌ brew upgrade exited {rc}, and `brew outdated` failed, so the result '
+              'cannot be checked.', file=sys.stderr)
+        return rc
+    remaining = still_outdated(targets, outdated, exclude=held)
+    if remaining:
+        print(f'❌ brew upgrade exited {rc}; still outdated: {", ".join(sorted(remaining))}.',
+              file=sys.stderr)
+        return rc
+    print(f'⚠️  brew upgrade exited {rc}, but nothing it was asked to upgrade is still '
+          'outdated (a transient error that brew recovered from). Treating as success.',
+          file=sys.stderr)
+    return 0
+
+
 def cmd_brew_upgrade(extra_env: Optional[Dict[str, str]] = None) -> int:
     p = plan()
     env = dict(os.environ, **(extra_env or {}))
 
     if p['action'] == 'upgrade-all':
-        os.execvpe('brew', ['brew', 'upgrade'], env)
+        return _run_upgrade(['brew', 'upgrade'], env, targets=None, held=[])
 
     if p['action'] == 'error':
         print(_banner([
@@ -185,7 +214,8 @@ def cmd_brew_upgrade(extra_env: Optional[Dict[str, str]] = None) -> int:
     # Explicit names never pick up herdr; skip the auto-update so the target
     # list we just computed is the one brew acts on.
     env['HOMEBREW_NO_AUTO_UPDATE'] = '1'
-    os.execvpe('brew', ['brew', 'upgrade', *p['targets']], env)
+    return _run_upgrade(['brew', 'upgrade', *p['targets']], env,
+                        targets=p['targets'], held=[FORMULA])
 
 
 def cmd_status() -> int:
