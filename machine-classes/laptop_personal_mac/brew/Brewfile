@@ -1,6 +1,5 @@
 # Taps
 tap "buo/cask-upgrade"
-tap "equalsraf/neovim-qt"
 tap "martido/graph"
 tap "mongodb/brew"
 tap "nikitabobko/tap"
@@ -58,7 +57,7 @@ brew "helix"
 brew "neovim"
 brew "tree-sitter"
 brew "pkryger/emacsmacport-exp/emacs-mac-exp@31", args: ["HEAD", "with-optimization-flags", "with-arc", "with-modern-icon"]
-brew "equalsraf/neovim-qt/neovim-qt"
+brew "neovim-qt"   # homebrew/core (Qt6, bottled); replaced the equalsraf tap's 2022 Qt5 build
 
 # Git & Version Control
 brew "gh"          # GitHub CLI — repo/PR/issue access from the terminal
