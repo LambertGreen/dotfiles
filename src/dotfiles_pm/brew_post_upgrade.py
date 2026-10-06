@@ -18,8 +18,10 @@ Background (2026-10-05 personal maintenance run):
    "Overwrote symlinks from the docker-desktop cask". After the upgrade we
    unlink every `link: false` formula that is linked again, then relink the
    casks brew said it overwrote. That is the restore brew itself suggests.
-   We relink only the named casks: one `brew link --cask` over every installed
-   cask aborts on the first one that left homebrew-cask (alfred4).
+   We relink only the named casks: one `brew link --cask` over every name
+   `brew list --cask` prints aborts on any it can't resolve, such as
+   `alfred4`, the Caskroom alias Homebrew left when it renamed that cask
+   to `alfred@4`.
 """
 
 import os
