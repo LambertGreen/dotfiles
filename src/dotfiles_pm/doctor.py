@@ -19,11 +19,39 @@ import platform
 class PathDoctor:
     """Cross-platform PATH health checker"""
 
-    def __init__(self):
+    def __init__(self, etc_dir: Path = Path('/etc')):
         self.platform = platform.system()
         self.path_separator = os.pathsep  # : on Unix, ; on Windows
+        self.etc_dir = etc_dir
         self.issues: List[Dict] = []
         self.warnings: List[Dict] = []
+
+    def get_path_helper_sources(self) -> Dict[str, str]:
+        """PATH entries macOS's path_helper adds, mapped to the file declaring each.
+
+        path_helper (run from /etc/zprofile) builds PATH from /etc/paths and
+        /etc/paths.d/*. Those files belong to macOS or to app installers, not
+        to dotfiles. On 2026-10-05, all 5 of this check's errors came from them:
+        cryptexd bootstrap dirs and /pkg/env/global/bin (shipped with macOS 27),
+        and rvictl's /Library/Apple/usr/bin.
+        """
+        if self.platform != 'Darwin':
+            return {}
+        files = [self.etc_dir / 'paths']
+        paths_d = self.etc_dir / 'paths.d'
+        if paths_d.is_dir():
+            files += sorted(p for p in paths_d.iterdir() if p.is_file())
+        sources: Dict[str, str] = {}
+        for f in files:
+            try:
+                lines = f.read_text().splitlines()
+            except OSError:
+                continue
+            for line in lines:
+                entry = line.strip()
+                if entry and not entry.startswith('#'):
+                    sources.setdefault(entry, str(f))
+        return sources
 
     def check_all(self) -> Tuple[List[Dict], List[Dict]]:
         """Run all PATH checks, return (issues, warnings)"""
@@ -40,10 +68,25 @@ class PathDoctor:
     def check_broken_paths(self):
         """Check for PATH entries that don't exist on disk"""
         entries = self.get_current_path_entries()
+        system_sources = self.get_path_helper_sources()
 
         for entry in entries:
             path_obj = Path(entry)
             if not path_obj.exists():
+                source = system_sources.get(entry)
+                if source:
+                    # Not dotfiles drift, so not an error: macOS ships some of
+                    # these missing, and the rest need sudo outside dotfiles.
+                    self.warnings.append({
+                        'type': 'broken_system_path',
+                        'severity': 'warning',
+                        'path': entry,
+                        'message': f'PATH entry does not exist: {entry} (from {source})',
+                        'suggestion': ('Added by macOS path_helper, not dotfiles. Expected for '
+                                       'macOS-owned files; if it belongs to an app you removed, '
+                                       f'delete {source} with sudo')
+                    })
+                    continue
                 self.issues.append({
                     'type': 'broken_path',
                     'severity': 'error',
