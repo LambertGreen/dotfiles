@@ -22,7 +22,10 @@ lgreen_profile_zsh() {
 # * ZSH Core Settings
 lgreen_setup_zsh_settings() {
 # ** Path
-    typeset -U path
+    # -g: inside a function, plain `typeset` makes a local `path`, so the
+    # unique attribute vanished on return and later prepends (Claude Code's
+    # ~/.local/bin) duplicated entries instead of moving them to the front.
+    typeset -gU path
 
 # ** Homebrew
     # Homebrew doctor recommends the below
@@ -491,9 +494,12 @@ lgreen_setup_claude_code() {
         export NODE_EXTRA_CA_CERTS="$claude_cert"
     fi
 
-    # Add local bin to PATH for Claude Code CLI tools
+    # Add local bin to PATH for Claude Code CLI tools. dot-env_osx added it
+    # already, but /etc/zprofile's path_helper pushed it behind the system
+    # dirs; move it back to the front. Array form so `typeset -gU path` drops
+    # the old entry (`export PATH=…` bypasses -U and left a duplicate).
     if [ -d "$HOME/.local/bin" ]; then
-        export PATH="$HOME/.local/bin:$PATH"
+        path=("$HOME/.local/bin" $path)
     fi
 }
 # ** Private Environment Variables
