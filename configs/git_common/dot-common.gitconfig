@@ -6,7 +6,10 @@
     pager = bash -c 'command -v delta >/dev/null && delta \"$@\" || less \"$@\"' -
     excludesfile = ~/.gitignore
     ignorecase = false
-	fsmonitor = true
+    # Never set fsmonitor here: each repo git touches (including throwaway
+    # test-suite repos under temp dirs) would spawn a daemon that never exits.
+    # Turn it on per repo where it pays off (`git config core.fsmonitor true`),
+    # e.g. from the work machine's ~/dev/work/setup "glove" for big repos.
 
 [alias]
     aa = add --all

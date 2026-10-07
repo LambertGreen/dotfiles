@@ -271,7 +271,7 @@ git submodule update --init --recursive
 - `TODO.org`: Current tasks and ongoing work
 - `.dotfiles.env`: Environment variables for configuration (e.g., DOTFILES_CLI_EDITORS=true)
 - Shell configs: `configs/common/shell/dot-zshrc`, `configs/common/shell/dot-shell_common`
-- Git configs: `configs/common/git/dot-common.gitconfig`, `configs/*/git_*/dot-gitconfig` (platform-specific)
+- Git configs: `configs/git_common/dot-common.gitconfig`, `configs/git_*/dot-gitconfig` (platform-specific). `core.fsmonitor` is never set in dotfiles: it's per repo, set by the repo's own setup (e.g. the work machine's `~/dev/work/setup`). `just doctor-check-fsmonitor` warns if it goes global.
 - Tmux: `configs/common/tmux/dot-tmux.conf` with theme system
 - Editor configs: `configs/common/emacs/dot-doom.d/`, `configs/common/nvim/dot-config/nvim-*/`
 
