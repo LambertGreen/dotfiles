@@ -535,7 +535,8 @@ doctor-check-fsmonitor max="20":
         echo "  ✓ core.fsmonitor is not global"
     fi
     if command -v pgrep >/dev/null 2>&1; then
-        count=$(pgrep -f 'fsmonitor--daemon' | wc -l | tr -d ' ')
+        # pgrep exits 1 on zero matches; under pipefail that would fail the healthy case.
+        count=$( (pgrep -f 'fsmonitor--daemon' || true) | wc -l | tr -d ' ')
         if [ "$count" -gt "{{max}}" ]; then
             echo "  ⚠ $count fsmonitor daemons running (threshold {{max}})"
             echo "    They restart on demand, so killing them is safe: pkill -f fsmonitor--daemon"
