@@ -519,6 +519,33 @@ doctor-check-submodules:
         echo "  Full picture:                         just git-status"
     fi
 
+# Check git fsmonitor is per-repo (not global) and its daemons aren't piling up
+[group('5-👩‍⚕️-Doctor')]
+doctor-check-fsmonitor max="20":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "👩‍⚕️ Checking git fsmonitor is per-repo and daemon count..."
+    # Each repo with core.fsmonitor=true keeps a `git fsmonitor--daemon` alive
+    # until killed, including throwaway test repos under temp dirs. On
+    # 2026-10-07 a global setting left ~270 of them running (load ~17).
+    # --includes: --global alone skips ~/.common.gitconfig, where it used to live
+    if [ "$(git config --global --includes --type=bool core.fsmonitor 2>/dev/null || true)" = "true" ]; then
+        echo "  ⚠ core.fsmonitor is set globally — remove it; enable per repo with: git config core.fsmonitor true"
+    else
+        echo "  ✓ core.fsmonitor is not global"
+    fi
+    if command -v pgrep >/dev/null 2>&1; then
+        count=$(pgrep -f 'fsmonitor--daemon' | wc -l | tr -d ' ')
+        if [ "$count" -gt "{{max}}" ]; then
+            echo "  ⚠ $count fsmonitor daemons running (threshold {{max}})"
+            echo "    They restart on demand, so killing them is safe: pkill -f fsmonitor--daemon"
+        else
+            echo "  ✓ $count fsmonitor daemons running (threshold {{max}})"
+        fi
+    else
+        echo "  ⏭️  pgrep not available; skipping daemon count"
+    fi
+
 # Check Homebrew tap state against Brewfile declarations
 [group('5-👩‍⚕️-Doctor')]
 doctor-check-taps:

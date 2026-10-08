@@ -6,7 +6,7 @@
 [core]
 	autocrlf = true
 	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
-	fsmonitor = true
+	# No fsmonitor here: it is set per repo, never globally (see ~/.common.gitconfig).
 
 	compression = 0
 [credential "helperselector"]
