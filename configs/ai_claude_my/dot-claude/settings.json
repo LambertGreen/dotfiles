@@ -1,0 +1,53 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "pyright-lsp@claude-plugins-official": true
+  },
+  "tui": "fullscreen",
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: Not queryable here (org/repo not derivable from origin remote); remote is github.com-personal:LambertGreen/dotfiles.git — assume private unless shown otherwise",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: default branch is master; protection status not queryable here",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo (github.com-personal:LambertGreen/dotfiles.git) and its remote(s) only",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material — includes .env, .envrc.local, Keypirinha-Notepad2.ini, Keypirinha.history per repo .gitignore; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (dotfiles management — Emacs, shell, brew, stow configuration)",
+      "**Trusted repo**: ~/dev/my/dotfiles, remote github.com-personal:LambertGreen/dotfiles.git",
+      "**Org-specific CLIs**: None configured — personal CLIs observed in routine use: emacs, brew, fd, sd, duti, mas, stow, direnv, just"
+    ],
+    "allow": [
+      "$defaults",
+      "Lambert delegates repo publishing to Claude for his own repos (github.com LambertGreen/*, local clones under ~/dev/my): git push of non-default branches (never --force, never push main/master except the ai_council Council merging its own main), git branch -d of merged branches, gh pr create --draft, gh pr edit, gh pr comment, gh pr view, gh api reads of PR comments/reviews, and gh pr ready ONLY after Lambert explicitly approved moving that PR to review. Lambert reviews and merges PRs himself unless he said fast forward."
+    ]
+  }
+}

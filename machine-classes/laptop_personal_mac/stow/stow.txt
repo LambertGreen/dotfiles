@@ -43,6 +43,7 @@ duti_osx
 
 # AI tool configs
 ai_claude
+ai_claude_my
 ai_cursor
 ai_windsurf
 cortana_common

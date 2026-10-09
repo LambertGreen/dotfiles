@@ -293,8 +293,9 @@ rationale is documented (=63ff92e=). The remaining question is structural.
   region between the markers
 **** Note
 Same =lambert.green= hardcoding also sits in
-=configs/ai_claude_osx/dot-claude/settings.json= (4 sites). Inert today — that
-package is not stowed on the personal machine — but a landmine if it ever is.
+=configs/ai_claude_work/dot-claude/settings.json= (moved from =ai_claude_osx=
+2026-10-08). Stowed only on =laptop_work_mac=, so inert elsewhere; the
+package README's adopt steps rewrite the shell-run ones to =$HOME=.
 
 *** TODO Re-test =just upgrade= with a >10-minute budget                :design:
 **** Context
