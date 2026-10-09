@@ -272,6 +272,7 @@ git submodule update --init --recursive
 - `.dotfiles.env`: Environment variables for configuration (e.g., DOTFILES_CLI_EDITORS=true)
 - Shell configs: `configs/common/shell/dot-zshrc`, `configs/common/shell/dot-shell_common`
 - Git configs: `configs/git_common/dot-common.gitconfig`, `configs/git_*/dot-gitconfig` (platform-specific). `core.fsmonitor` is never set in dotfiles: it's per repo, set by the repo's own setup (e.g. the work machine's `~/dev/work/setup`). `just doctor-check-fsmonitor` warns if it goes global.
+- Claude Code settings: `configs/ai_claude_my/` (personal) or `configs/ai_claude_work/` (work) provide `~/.claude/settings.json`, one per machine class. Claude Code writes through the symlink, so drift shows as `git diff`. `just doctor-check-claude-settings` warns if it isn't stowed.
 - Tmux: `configs/common/tmux/dot-tmux.conf` with theme system
 - Editor configs: `configs/common/emacs/dot-doom.d/`, `configs/common/nvim/dot-config/nvim-*/`
 
