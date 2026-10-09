@@ -2,6 +2,13 @@
 
 This directory contains Claude Code MCP server configuration template for macOS.
 
+`~/.claude/settings.json` is not here: it lives in `ai_claude_my` (personal)
+and `ai_claude_work` (work), split by machine class rather than by OS. The
+template stays here because it is one of an OS-split family
+(`ai_claude_osx`/`_linux`/`_win`, each with OS-specific paths) that
+`just sync-configs` treats generically. Its current content is work-only
+(GUS, mcp-adaptor), which is why only `laptop_work_mac` stows this package.
+
 ## Files
 
 - `dot-claude.json.template` - Template for MCP server configurations

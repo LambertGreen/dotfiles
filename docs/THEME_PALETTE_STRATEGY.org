@@ -39,7 +39,7 @@ apps use different theme families that happen to look similar (all dark, warm-is
 | LS_COLORS        | =configs/shell_common/dot-zshrc.user= (vivid)                         | one-dark                    | One Dark      |
 | Shell prompt     | =configs/shell_common/dot-p10k.zsh=                                   | Powerlevel10k default       | P10k          |
 | MSYS2 prompt     | =configs/shell_msys2/dot-shell_msys2=                                 | oh-my-posh amro             | Amro          |
-| Claude Code      | =configs/ai_claude_osx/dot-claude/settings.json=                      | =theme: auto= (light/dark)  | (partial ANSI)|
+| Claude Code      | =configs/ai_claude_work/dot-claude/settings.json=                     | =theme: auto= (light/dark)  | (partial ANSI)|
 
 ** Existing Toggle Mechanism
 
