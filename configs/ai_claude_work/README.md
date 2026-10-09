@@ -7,7 +7,15 @@ for the class table and for why Claude Code writing to this file through the
 symlink is intended (drift shows up as `git diff`).
 
 Moved here from `ai_claude_osx` on 2026-10-08. That copy was last updated
-2026-07-21, and the live work file has drifted past it since.
+2026-07-21, and the live work file has drifted past it since. Steps 1–3
+below were done on 2026-10-09 (the live file adopted); steps 4–5 remain.
+
+`autoMode.allow` holds the work publishing rule: Claude may push its own
+non-default branch and run `gh pr create --draft|edit|comment` on the
+`sf-analyticscloud` and `sf-analyticscloud-sandbox` orgs, and `gh pr ready`
+only on Lambert's say-so. AI Council work missions need it to publish (see
+`ai_council` `docs/protocols/mission-bootstrap.md`, "Work-machine
+prerequisite"). It mirrors the `LambertGreen/*` rule in `ai_claude_my`.
 
 ## Adopt the live work file — do this BEFORE the next `just stow`
 
