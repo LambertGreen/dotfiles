@@ -9,6 +9,9 @@
 //     Finicky's config is a single sandboxed script with no import/require, so
 //     unlike gitconfig there is no [include] to factor the shared part into.
 //     Change a handler here → change it there too.
+//     Exception: handlers marked WORK-ONLY carve personal URLs out to Chrome
+//     Beta. They live only here; on personal machines Beta is already the
+//     default, so they'd be no-ops in finicky_my.
 //
 // Browser lanes (both Macs):
 //   Google Chrome       → work lane, and the default on a work machine.
@@ -32,7 +35,7 @@ export default {
       browser: "Google Chrome Beta",
     },
     {
-      // Personal GitHub (github.com/LambertGreen and everything under it) → Chrome Beta
+      // WORK-ONLY. Personal GitHub (github.com/LambertGreen and everything under it) → Chrome Beta
       // Case-insensitive; the boundary stops it catching e.g. /LambertGreenX or other orgs.
       match: /^https?:\/\/github\.com\/lambertgreen(?:[\/?#]|$)/i,
       browser: "Google Chrome Beta",
