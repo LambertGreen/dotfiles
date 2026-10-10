@@ -31,5 +31,11 @@ export default {
       ],
       browser: "Google Chrome Beta",
     },
+    {
+      // Personal GitHub (github.com/LambertGreen and everything under it) → Chrome Beta
+      // Case-insensitive; the boundary stops it catching e.g. /LambertGreenX or other orgs.
+      match: /^https?:\/\/github\.com\/lambertgreen(?:[\/?#]|$)/i,
+      browser: "Google Chrome Beta",
+    },
   ],
 };
