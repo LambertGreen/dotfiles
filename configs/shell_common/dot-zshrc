@@ -37,6 +37,14 @@ if [[ -d "$HOME/.devbar" ]]; then
   export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
 fi
 
+# Block order mirrors what DevBar writes (1.12.1): devbar, then aisuite.
+# aisuite comes last, so its cert wins NODE_EXTRA_CA_CERTS.
+# devbar-managed-start
+if [[ -d "$HOME/.devbar" ]]; then
+  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
+fi
+# devbar-managed-end
+
 # >>> aisuite >>>
 # Guarded + $HOME-relative by hand; the installer writes absolute work paths.
 if [[ -d "$HOME/.aisuite" ]]; then
@@ -44,8 +52,3 @@ if [[ -d "$HOME/.aisuite" ]]; then
   export PATH="$PATH:$HOME/.aisuite/bin:$HOME/.aisuite/bin/aliases"
 fi
 # <<< aisuite <<<
-# devbar-managed-start
-if [[ -d "$HOME/.devbar" ]]; then
-  export NODE_EXTRA_CA_CERTS="$HOME/.devbar/certs/corporate-ca-bundle.pem"
-fi
-# devbar-managed-end
