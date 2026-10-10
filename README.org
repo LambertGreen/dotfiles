@@ -83,6 +83,9 @@ Browse the directory for concrete examples and native package lists:
 - GUI apps available in GUI_APPS categories
 - Emacs via homebrew tap (emacs-plus@31)
 - Platform-specific configs: git_osx, shell_osx, gnupg_osx
+- LuLu firewall: snapshot + restore, not stowed (=just lulu-export=, =just lulu-import=,
+  =just doctor-check-lulu=). Prefs are tracked per class; rules stay out of this public
+  repo. See ~machine-classes/laptop_personal_mac/lulu/README.md~
 
 ** Linux (Arch/Ubuntu)
 - Arch: pacman (core) + AUR via yay helper
