@@ -213,6 +213,16 @@ onetimesetup:
 apply-file-associations:
     @{{ if os() == "macos" { "bash scripts/os-post-install/macos/apply-file-associations.sh" } else { "echo '⏭️  apply-file-associations is macOS-only'" } }}
 
+# Snapshot LuLu firewall prefs (tracked) + rules ($LULU_RULES_SNAPSHOT, untracked) as JSON; --all for non-user rules too (macOS-Only)
+[group('1-🚀-Setup')]
+lulu-export *ARGS:
+    @{{ if os() == "macos" { "bash scripts/os-post-install/macos/lulu.sh export " + ARGS } else { "echo '⏭️  lulu-export is macOS-only'" } }}
+
+# Print the LuLu UI steps that restore the prefs + rules snapshots; changes nothing (macOS-Only)
+[group('1-🚀-Setup')]
+lulu-import:
+    @{{ if os() == "macos" { "bash scripts/os-post-install/macos/lulu.sh import" } else { "echo '⏭️  lulu-import is macOS-only'" } }}
+
 # Generate Windows Start Menu shortcuts (Windows-Only)
 [group('1-🚀-Setup (Windows-Only)')]
 gen-win-startmenu-links:
@@ -468,6 +478,11 @@ doctor-pm-versions:
 [group('5-👩‍⚕️-Doctor')]
 doctor-check-file-associations:
     @{{ if os() == "macos" { "bash -c 'source scripts/health/dotfiles-health.sh && _check_file_associations echo'" } else { "echo '⏭️  doctor-check-file-associations is macOS-only'" } }}
+
+# Check live LuLu firewall prefs + rules against the snapshots from `just lulu-export` (macOS-Only)
+[group('5-👩‍⚕️-Doctor')]
+doctor-check-lulu:
+    @{{ if os() == "macos" { "bash scripts/os-post-install/macos/lulu.sh check" } else { "echo '⏭️  doctor-check-lulu is macOS-only'" } }}
 
 # Check submodules for detached-HEAD drift or divergence from their tracked branch
 [group('5-👩‍⚕️-Doctor')]

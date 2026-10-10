@@ -30,6 +30,10 @@ Keypirinha.history
 # direnv
 .direnv/
 
+# LuLu firewall rules list every app + host on a machine; this repo is public.
+# Only preferences.json is tracked; rules snapshots live at $LULU_RULES_SNAPSHOT.
+machine-classes/*/lulu/rules*.json
+
 # Claude settings
 .claude/settings.local.json
 

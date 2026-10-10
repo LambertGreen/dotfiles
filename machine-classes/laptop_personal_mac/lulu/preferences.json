@@ -1,0 +1,19 @@
+{
+  "alertShowOptions": 1,
+  "allowApple": true,
+  "allowDNS": true,
+  "allowInstalled": true,
+  "allowList": "",
+  "allowLocalHost": true,
+  "allowSimulatorApps": false,
+  "blockList": "",
+  "blockMode": false,
+  "disabled": false,
+  "noIconMode": false,
+  "noVTMode": false,
+  "noupdateMode": false,
+  "passiveMode": false,
+  "passiveModeAction": 0,
+  "useAllowList": 0,
+  "useBlockList": 0
+}
