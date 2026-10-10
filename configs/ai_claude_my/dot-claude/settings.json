@@ -47,7 +47,7 @@
     ],
     "allow": [
       "$defaults",
-      "Lambert delegates repo publishing to Claude for his own repos (github.com LambertGreen/*, local clones under ~/dev/my): git push of non-default branches (never --force, never push main/master except the ai_council Council merging its own main), git branch -d of merged branches, gh pr create --draft, gh pr edit, gh pr comment, gh pr view, gh api reads of PR comments/reviews, and gh pr ready ONLY after Lambert explicitly approved moving that PR to review. Lambert reviews and merges PRs himself unless he said fast forward."
+      "Lambert delegates repo publishing to Claude for his own repos (github.com LambertGreen/*, local clones under ~/dev/my): git push of non-default branches, including git push --force-with-lease of a mission/feature branch Claude created after a rebase (never plain --force, never force-push and never push main/master, except the ai_council Council fast-forward pushing its own main), git branch -d of merged branches, gh pr create --draft, gh pr edit, gh pr comment, gh pr view, gh api reads of PR comments/reviews, and gh pr ready ONLY after Lambert explicitly approved moving that PR to review. Lambert reviews and merges PRs himself; fast forward only skips the ready-for-review gate."
     ]
   }
 }
