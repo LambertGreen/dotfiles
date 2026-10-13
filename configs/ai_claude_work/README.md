@@ -17,6 +17,14 @@ only on Lambert's say-so. AI Council work missions need it to publish (see
 `ai_council` `docs/protocols/mission-bootstrap.md`, "Work-machine
 prerequisite"). It mirrors the `LambertGreen/*` rule in `ai_claude_my`.
 
+The last `SessionStart` group is herdr's session-id hook: herdr only knows a
+pane's Claude session id if this hook reports it (`herdr agent list` →
+`agent_session`), and the AI Council's `recover.sh` keys on that.
+`herdr integration install claude` (0.9.3, integration v10) writes it into the
+live file with an absolute, single-quoted path; it's kept here in `$HOME` form.
+The v10 script ignores every event but `SessionStart`, so a
+`UserPromptSubmit` entry would be a no-op.
+
 ## Adopt the live work file — do this BEFORE the next `just stow`
 
 The work Mac was seen with a plain `~/.claude/settings.json`. `just stow`
