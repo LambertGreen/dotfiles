@@ -552,10 +552,10 @@ doctor-check-fsmonitor max="20":
         echo "  ⏭️  pgrep not available; skipping daemon count"
     fi
 
-# Check ~/.claude/settings.json is stowed from this class's ai_claude_my/ai_claude_work
+# Check ~/.claude is the folder link into this class's ai_claude_my/ai_claude_work, with no uncommitted changes
 [group('5-👩‍⚕️-Doctor')]
 doctor-check-claude-settings:
-    @echo "👩‍⚕️ Checking Claude Code settings.json is stowed..."
+    @echo "👩‍⚕️ Checking ~/.claude is the stowed folder link..."
     @bash scripts/health/check-claude-settings.sh
 
 # Check Homebrew tap state against Brewfile declarations

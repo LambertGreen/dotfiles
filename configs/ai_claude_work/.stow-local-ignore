@@ -1,0 +1,13 @@
+# Stow ignore list for this package (replaces stow's built-in list). Keep it in step with
+# the allow-list in dot-claude/.gitignore (the dot-claude-work submodule).
+#
+# Package root: docs, never stowed.
+^/README\.md$
+^/\.stow-local-ignore$
+#
+# Inside ~/.claude: an ALLOW-LIST. Normally stow folds ~/.claude into one link to
+# dot-claude/ and these rules never apply. They matter when ~/.claude is a real directory
+# (not migrated yet, or recreated by an app). Stow then links the curated files one by
+# one and never the runtime state (projects/, sessions/, history.jsonl, the submodule's
+# .git file, ...). With --dotfiles, stow matches the translated name (.claude/...).
+^/\.claude/(?!(settings\.json|CLAUDE\.md)$)[^/]+$

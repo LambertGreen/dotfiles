@@ -28,7 +28,8 @@ nix_common
 onetimesetup_common
 
 # AI tool configs
-ai_claude
+# ~/.claude is one folder link into ai_claude_work (CLAUDE.md included), so ai_claude
+# (a per-file CLAUDE.md link, for the other classes) is not stowed here.
 ai_claude_osx
 ai_claude_work
 ai_cursor
