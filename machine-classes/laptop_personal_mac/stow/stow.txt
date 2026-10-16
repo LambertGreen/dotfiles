@@ -46,7 +46,6 @@ ai_claude
 ai_claude_my
 ai_cursor
 ai_windsurf
-cortana_common
 ai_council_common
 alacritty_osx
 skhd

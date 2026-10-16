@@ -35,6 +35,8 @@ ai_cursor
 ai_cursor_osx
 ai_windsurf
 ai_windsurf_osx
+# TODO(B33): once this Mac's ~/dev/my/ai clone is retired, unstow cortana_common
+# (stow -D from configs/), drop it here, and delete configs/cortana_common.
 cortana_common
 ai_council_common
 

@@ -168,6 +168,11 @@ stow:
     @echo ""
     @echo "Next step:"
     @echo "  just sync-configs  # Sync configs that don't auto-update via stow"
+
+# Report-only: would `just stow` change anything? Exit 0 no, 1 yes (lists each change), 2 can't tell
+[group('1-🚀-Setup')]
+stow-check:
+    @bash scripts/stow/check.sh
     @echo "  just onetimesetup"
 
 # Sync configuration templates into live config files (apps that don't support separate config files)
