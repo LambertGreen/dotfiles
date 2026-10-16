@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-# Warn when ~/.claude/settings.json is not a symlink into the settings package
-# (ai_claude_my / ai_claude_work) that this machine class stows.
+# Warn when ~/.claude is not the folder link into the package this machine class
+# stows (ai_claude_my / ai_claude_work), or when that package has uncommitted changes.
 #
-# Claude Code rewrites that file itself (/config, autoMode edits). Stowed, those
-# writes land in the repo and show up as `git diff`; as a plain file they drift
-# silently. On 2026-10-08 both Macs were found with a plain file.
+# ~/.claude is one stow folder link into configs/<pkg>/dot-claude, a private
+# submodule (B25). AI tools and corp apps replace files by writing a temp file and
+# renaming it over the original, which breaks a per-file symlink. On 2026-10-09 the work
+# Mac's stowed settings.json was a plain file again two minutes after it was stowed.
+# Inside a linked folder the same rename lands in the repo, so it shows up here as
+# uncommitted changes instead of silent drift.
 #
+# Lines starting with ⚠ are what `just sync` (Council) reports as WARN.
 # Warn-only: always exits 0. TEST_HOME and DOTFILES_DIR override for tests.
 
 set -euo pipefail
@@ -38,28 +42,69 @@ for candidate in ai_claude_my ai_claude_work; do
     fi
 done
 if [ -z "$pkg" ]; then
-    echo "  ⏭️  $class stows no Claude settings package; skipping"
+    echo "  ⏭️  $class stows no Claude folder package; skipping"
     exit 0
 fi
 
-target="$TEST_HOME/.claude/settings.json"
-want_suffix="configs/$pkg/dot-claude/settings.json"
+target="$TEST_HOME/.claude"
+want_suffix="configs/$pkg/dot-claude"
 readme="configs/$pkg/README.md"
 
 if [ -L "$target" ]; then
     link=$(readlink "$target")
-    if [[ "$link" != *"$want_suffix" ]]; then
-        echo "  ⚠ ~/.claude/settings.json points at $link, not $pkg"
+    if [[ "${link%/}" != *"$want_suffix" ]]; then
+        echo "  ⚠ ~/.claude points at $link, not $pkg"
         echo "    See $readme"
-    elif [ ! -e "$target" ]; then
-        echo "  ⚠ ~/.claude/settings.json is a broken symlink ($link)"
-        echo "    Restow: just stow"
-    else
-        echo "  ✓ ~/.claude/settings.json → $pkg"
+        exit 0
+    elif [ ! -d "$target" ]; then
+        echo "  ⚠ ~/.claude is a broken folder link ($link)"
+        echo "    Initialize the submodule (just git-sync), then: just stow"
+        exit 0
     fi
+    echo "  ✓ ~/.claude → $pkg (folder link)"
+elif [ -d "$target" ]; then
+    echo "  ⚠ ~/.claude is a real directory, not the folder link into $pkg"
+    echo "    Migrate it with no Claude session running: scripts/claude/migrate-dir.sh (see $readme)"
+    exit 0
 elif [ -e "$target" ]; then
-    echo "  ⚠ ~/.claude/settings.json is a plain file, not stowed from $pkg"
-    echo "    Adopt it before stowing (just stow would back it up and replace it): see $readme"
+    echo "  ⚠ ~/.claude is not a directory"
+    exit 0
 else
-    echo "  ⚠ ~/.claude/settings.json is missing; stow it: just stow"
+    echo "  ⚠ ~/.claude is missing; stow it: just stow"
+    exit 0
+fi
+
+dir=$(cd "$target" && pwd -P)
+if [ ! -e "$dir/.git" ]; then
+    echo "  ⚠ $want_suffix is not an initialized submodule; run: just git-sync"
+    exit 0
+fi
+
+dirty=$(git -C "$dir" status --porcelain --untracked-files=all 2>/dev/null || echo "?? (git status failed)")
+if [ -n "$dirty" ]; then
+    names=$(printf '%s\n' "$dirty" | cut -c4- | head -n 3 | paste -sd ' ' -)
+    count=$(printf '%s\n' "$dirty" | wc -l | tr -d ' ')
+    echo "  ⚠ ~/.claude has $count uncommitted change(s): $names"
+    echo "    Something rewrote a curated file. Review: git -C $want_suffix diff (commit or revert)"
+else
+    echo "  ✓ ~/.claude curated files match the dot-claude repo"
+fi
+
+# New top-level names stay hidden by the allow-list .gitignore. That is safe, but a new
+# writer is worth knowing about, so name anything this script has not seen before.
+unknown=()
+for entry in "$dir"/* "$dir"/.[!.]*; do
+    [ -e "$entry" ] || [ -L "$entry" ] || continue
+    name=$(basename "$entry")
+    case "$name" in
+        .git | .gitignore | README.md | CLAUDE.md | settings.json) ;;
+        projects | sessions | session-env | history.jsonl | .credentials.json | plugins) ;;
+        file-history | paste-cache | shell-snapshots | todos | statsig | ide | debug) ;;
+        cache | telemetry | feedback | backups | stats-cache.json | skills | hooks) ;;
+        statusline.sh | settings.local.json | settings.json.* | .last-* | .DS_Store) ;;
+        *) unknown+=("$name") ;;
+    esac
+done
+if [ ${#unknown[@]} -gt 0 ]; then
+    echo "  ℹ New in ~/.claude (git-ignored; review what writes it): ${unknown[*]}"
 fi

@@ -50,3 +50,11 @@
 	path = configs/emacs_common/dot-emacs.purgatory
 	url = git@github.com-personal:LambertGreen/dot-emacs-purgatory.git
 	branch = main
+[submodule "configs/ai_claude_my/dot-claude"]
+	path = configs/ai_claude_my/dot-claude
+	url = git@github.com-personal:LambertGreen/dot-claude-my.git
+	branch = main
+[submodule "configs/ai_claude_work/dot-claude"]
+	path = configs/ai_claude_work/dot-claude
+	url = git@github.com-personal:LambertGreen/dot-claude-work.git
+	branch = main

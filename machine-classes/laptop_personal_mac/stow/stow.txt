@@ -42,11 +42,11 @@ osx_common
 duti_osx
 
 # AI tool configs
-ai_claude
+# ~/.claude is one folder link into ai_claude_my (CLAUDE.md included), so ai_claude
+# (a per-file CLAUDE.md link, for the other classes) is not stowed here.
 ai_claude_my
 ai_cursor
 ai_windsurf
-cortana_common
 ai_council_common
 alacritty_osx
 skhd

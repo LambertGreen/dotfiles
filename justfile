@@ -168,6 +168,11 @@ stow:
     @echo ""
     @echo "Next step:"
     @echo "  just sync-configs  # Sync configs that don't auto-update via stow"
+
+# Report-only: would `just stow` change anything? Exit 0 no, 1 yes (lists each change), 2 can't tell
+[group('1-🚀-Setup')]
+stow-check:
+    @bash scripts/stow/check.sh
     @echo "  just onetimesetup"
 
 # Sync configuration templates into live config files (apps that don't support separate config files)
@@ -547,10 +552,10 @@ doctor-check-fsmonitor max="20":
         echo "  ⏭️  pgrep not available; skipping daemon count"
     fi
 
-# Check ~/.claude/settings.json is stowed from this class's ai_claude_my/ai_claude_work
+# Check ~/.claude is the folder link into this class's ai_claude_my/ai_claude_work, with no uncommitted changes
 [group('5-👩‍⚕️-Doctor')]
 doctor-check-claude-settings:
-    @echo "👩‍⚕️ Checking Claude Code settings.json is stowed..."
+    @echo "👩‍⚕️ Checking ~/.claude is the stowed folder link..."
     @bash scripts/health/check-claude-settings.sh
 
 # Check Homebrew tap state against Brewfile declarations

@@ -5,6 +5,8 @@ set -euo pipefail
 
 # Normally exported by the justfile; derive it when run directly.
 DOTFILES_DIR="${DOTFILES_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+# shellcheck source=packages.sh
+source "$(dirname "${BASH_SOURCE[0]}")/packages.sh"
 
 # Set up logging
 LOG_DIR="${HOME}/.dotfiles/logs"
@@ -87,10 +89,11 @@ while IFS= read -r stow_entry; do
     fi
 
     if [ -d "$stow_package" ]; then
-        # Check if package has .stowrc with --no-folding (for file-level symlinking)
+        # A package's .stowrc marker asks for --no-folding (file-level symlinking)
         stow_opts="--restow --dotfiles --target=$HOME"
-        if [ -f "$stow_package/.stowrc" ] && grep -q "no-folding" "$stow_package/.stowrc"; then
-            stow_opts="$stow_opts --no-folding"
+        fold_opts=$(stow_fold_opts "$stow_package")
+        if [ -n "$fold_opts" ]; then
+            stow_opts="$stow_opts $fold_opts"
             log_verbose "Using --no-folding for: $stow_package (file-level symlinking)"
         fi
 

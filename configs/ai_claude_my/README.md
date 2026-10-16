@@ -1,53 +1,131 @@
-# ai_claude_my — Claude Code `settings.json` (personal)
+# ai_claude_my: `~/.claude` as one folder link (personal)
 
-Stows `~/.claude/settings.json` on personal machines. Its twin is
-`ai_claude_work`; each machine class stows exactly one, the same way
-`git_my`/`git_work` and `finicky_my`/`finicky_work` split.
+On personal machines, `~/.claude` is a single stow **folder link** to `dot-claude/`. That
+directory is a **private submodule**,
+[`dot-claude-my`](https://github.com/LambertGreen/dot-claude-my). Its twin is `ai_claude_work`
+(`dot-claude-work`). Each Mac class stows exactly one of the two, the same way
+`git_my`/`git_work` split.
 
-| Class | Package |
-|-------|---------|
-| `laptop_personal_mac` | `ai_claude_my` |
-| `laptop_work_mac` | `ai_claude_work` |
-| every other class | none (see below) |
+| Class | Package | `~/.claude` → |
+|-------|---------|---------------|
+| `laptop_personal_mac` | `ai_claude_my` | `configs/ai_claude_my/dot-claude` |
+| `laptop_work_mac` | `ai_claude_work` | `configs/ai_claude_work/dot-claude` |
+| every other class | `ai_claude` (per-file `~/.claude/CLAUDE.md` link only) | real directory |
 
-Shared, non-settings files (`CLAUDE.md`) stay in `ai_claude`. The MCP
-`dot-claude.json.template` stays in the OS packages (`ai_claude_osx`/`_linux`/`_win`).
+## Why a folder link (B25)
 
-## Claude Code writes to this file — on purpose
+AI tools and corp apps (DevBar, AI Suite, Claude Code itself) rewrite files in
+`~/.claude` by writing a temp file and renaming it over the original, or by
+copy/paste. Either one replaces a per-file stow symlink with a plain file. On 2026-10-09
+the work Mac's freshly stowed `settings.json` was a plain file again two minutes later,
+and nothing reported it.
 
-Claude Code rewrites `settings.json` itself: `/config`, plugin enables, and
-`autoMode` edits. Through the stow symlink those writes land in this repo.
-That is the point: drift shows up as `git diff`, and gets reviewed and
-committed (or reverted) like any other change.
+Inside a linked folder, the same rename lands in this tree. So every rewrite, from any
+app, shows up as uncommitted changes in the submodule and as a `⚠` from
+`just doctor-check-claude-settings` (which `just sync` in the Council reports).
 
-Keep it portable when you commit:
+This follows the repo's precedent for large config folders: `~/.emacs.d`, `~/.config/nvim`
+and `~/.hammerspoon` are folder links into submodules whose own `.gitignore` hides runtime
+state. Like `sshconfig`, the submodule is **private**, because `~/.claude` sits next to
+transcripts, memory and credentials.
 
-- No secrets. Credentials belong in `apiKeyHelper` or the environment, never here.
-- No absolute home paths. Hook and `statusLine` commands run through a shell,
-  so write `"$HOME/..."`; in `autoMode` prose write `~/...`.
+## The safety boundary: two allow-lists
 
-## Adopting a live file (first switch on a machine)
+Everything Claude Code writes to `~/.claude` (sessions, transcripts, project memory,
+plugins, caches, and on Linux `.credentials.json`) physically lives in
+`dot-claude/`. Two allow-lists keep it out of git and out of stow:
 
-Stow refuses to replace a plain file, and `just stow` would back it up and
-replace it with the repo copy, so adopt deliberately:
+1. **`dot-claude/.gitignore`** (in the submodule): `/*`, then `!/` lines for the curated
+   files only (`.gitignore`, `README.md`, `CLAUDE.md`, `settings.json`). A name nobody has
+   seen before stays ignored. The doctor check lists unknown top-level names with `ℹ`, so a
+   new writer is still noticed.
+2. **`.stow-local-ignore`** (here): stow folds `~/.claude` into one link. If `~/.claude` is
+   a real directory instead, stow links only `settings.json` and `CLAUDE.md`, never
+   runtime entries.
 
-1. Copy the live file over `configs/ai_claude_my/dot-claude/settings.json`,
-   then `git diff` it. Re-apply the portability rules above.
-2. Commit.
-3. Back up, trash and stow (run from anywhere, after the commit is on the
-   checkout at `~/dev/my/dotfiles`):
+`tests/test_claude_dir.py` proves both against a corpus of runtime names seen in a live
+`~/.claude`, plus names nobody has seen yet.
+
+**To track a new file** (e.g. `commands/`): add `!/commands/` to `dot-claude/.gitignore`,
+add it to the regex in `.stow-local-ignore`, and add it to `CURATED`/`STOWED` in
+`tests/test_claude_dir.py`. Review what writes it first.
+
+## Day to day
+
+- A `⚠ ~/.claude has N uncommitted change(s)` warning means something rewrote a curated
+  file. Review it with `git -C configs/ai_claude_my/dot-claude diff`, then commit there
+  (or `git checkout` to revert). Publish with `just git-push` (submodules first), then
+  `just git-bump-pins`.
+- Keep `settings.json` portable: no secrets (credentials belong in `apiKeyHelper` or the
+  environment), and write `"$HOME/..."` in hook and `statusLine` commands, not absolute
+  paths.
+
+## Hazards: live state is inside a git working tree
+
+`dot-claude/` in the **primary checkout** is the live `~/.claude`. A dotfiles worktree has
+only the curated files. In the primary, never:
+
+- `git clean -x`/`-X` or `git stash --all` in `dot-claude/` (they delete or stash ignored
+  files, i.e. every session, transcript and memory);
+- `git submodule deinit -f`, `git rm`, or trash `configs/ai_claude_my` (removes the working
+  tree);
+- `git add -f` anything under `dot-claude/`.
+
+`just git-sync` is safe: it never passes `--force`, and checkout leaves ignored files
+alone.
+
+## Migration: real directory → folder link
+
+`scripts/claude/migrate-dir.sh` does it, and `--rollback` undoes it. Every entry is `mv`'d
+(a rename on the same volume, so inodes and mtimes are kept); nothing is copied or
+dropped except the two old per-file links. A `ditto` backup is taken first anyway. The
+script refuses to change anything if an entry would be committable, already exists in
+the repo, or the submodule is dirty. After moving, it checks `git status` and rolls back on
+its own if anything other than a curated edit shows.
+
+Order: personal Mac first (rehearsed against a copy on 2026-10-16), then the work Mac.
+
+1. On the Mac: `just git-sync`. This pulls master with this change and initializes the
+   submodule. Until migration, the old per-file links keep working: `settings.json`
+   keeps its path inside the submodule, and the `ai_claude` `CLAUDE.md` link is left
+   alone.
+2. Preview, read-only, safe with Claude running:
 
    ```bash
-   cp -p ~/.claude/settings.json ~/.claude/settings.json.pre-stow && trash ~/.claude/settings.json && stow --dir="$HOME/dev/my/dotfiles/configs" --target="$HOME" --dotfiles --no-folding --ignore='\.stowrc' ai_claude_my && readlink ~/.claude/settings.json && jq . ~/.claude/settings.json
+   bash scripts/claude/migrate-dir.sh --dry-run
    ```
 
-4. `just doctor-check-claude-settings` should print `✓`.
+   It must end with `✅ Dry run: the migration would proceed.` On the work Mac, expect
+   `adopt: settings.json` if the live file drifted. That is fine: it becomes a diff to review.
+3. **Quit every Claude session on this machine**, the Council and missions included
+   (`pgrep -x claude` must print nothing). Then, from a plain terminal (the Council
+   stages it with `attune`):
 
-## Why only one class
+   ```bash
+   bash ~/dev/my/dotfiles/scripts/claude/migrate-dir.sh
+   ```
 
-`laptop_personal_mac` was seeded from its live file on 2026-10-08. Other
-personal classes (`desktop_home_ubuntu`, `vm_personal_ubuntu_arm64`,
-`desktop_gaming_win`, `vm_dev_windows_arm64`, the `docker_*` test images) are
-left out deliberately: the file carries a SessionStart hook for herdr, which
-only the Macs install, and their live files have never been reviewed. Add a
-class here only after adopting its live file with the steps above.
+4. Check:
+   - `just doctor-check-claude-settings` prints `✓ ~/.claude → ai_claude_my (folder link)`.
+   - `just stow-check` exits 0.
+   - Start Claude: `/memory` shows the project memory, and `claude --resume` lists past
+     sessions.
+5. After a few days with no problems, `trash ~/.claude.pre-dirstow-*`.
+
+**Rollback**, again with no Claude session running:
+
+```bash
+bash ~/dev/my/dotfiles/scripts/claude/migrate-dir.sh --rollback
+```
+
+That unstows the link, moves every runtime entry back into a real `~/.claude`, and
+re-links `settings.json` and `CLAUDE.md` per file. Last resort, the backup:
+`trash ~/.claude && ditto ~/.claude.pre-dirstow-<stamp> ~/.claude`.
+
+## Why only the two Macs
+
+Other personal classes (`desktop_home_ubuntu`, `vm_personal_ubuntu_arm64`,
+`desktop_gaming_win`, `vm_dev_windows_arm64`, the `docker_*` images) keep the per-file
+`ai_claude` `CLAUDE.md` link. Their live `settings.json` files were never reviewed, and
+`settings.json` carries a SessionStart hook for herdr, which only the Macs install.
+Adding a class means adding its package to its `stow.txt`, then migrating as above.
