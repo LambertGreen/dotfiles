@@ -213,6 +213,12 @@ def test_refuses_while_claude_runs(env):
     assert e['live'].is_dir() and not e['live'].is_symlink()
 
 
+def test_dry_run_only_warns_while_claude_runs(env):
+    e = env
+    r = run(e, '--dry-run', allow_running=False, extra_env=fake_pgrep(e))
+    assert r.returncode == 0 and '⚠ Claude is running (pids: 4242)' in r.stdout and 'would proceed' in r.stdout
+
+
 def test_running_override_is_ignored_for_the_real_home(env):
     e = env
     r = run(e, extra_env={**fake_pgrep(e), 'HOME': str(e['home'])})

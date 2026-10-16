@@ -88,7 +88,9 @@ say "repo: $dir"
 # --- preconditions shared by both directions -------------------------------------------------
 if [ "${CLAUDE_MIGRATE_ALLOW_RUNNING:-}" = 1 ] && [ "$TARGET_HOME" != "$HOME" ]; then
     say "running-session check skipped (rehearsal: TARGET_HOME is not \$HOME)"
-elif pids=$(pgrep -x claude); then
+elif pids=$(pgrep -x claude) && $dry_run; then
+    say "⚠ Claude is running (pids: $(echo "$pids" | paste -sd ' ' -)); quit every session before the real run"
+elif [ -n "${pids:-}" ]; then
     die "Claude is running (pids: $(echo "$pids" | paste -sd ' ' -)). Quit every Claude session on this machine (the Council and missions included), then re-run."
 fi
 [ -e "$dir/.git" ] || die "$dir is not an initialized submodule. Run: just git-sync"
