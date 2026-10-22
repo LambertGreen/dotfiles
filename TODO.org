@@ -20,7 +20,32 @@
 #             ai/retros/dotfiles-maintenance/.
 
 * TODOs
-** Open [0/20]
+** Open [0/23]
+
+*** TODO Cask upgrade output is blind under =tee= (looks hung)           :design:
+**** Context
+Found in the 2026-10-19 work-Mac maintenance run. =brew upgrade --cask --greedy= runs through
+=scripts/run_tracked.sh= piped to =tee=, so brew drops its progress bar and prints nothing until a
+cask finishes. Large downloads over VPN (Docker.dmg, Microsoft Word) look hung for an hour.
+**** Action Items
+- Give the child a pty (=script -q /dev/null …=) or pass =--verbose= so progress shows.
+
+*** TODO mas child that never starts leaves =just upgrade= waiting forever :design:
+**** Context
+2026-10-19 work-Mac run: the parent spawned the mas Terminal window, but no =.log= or =.status=
+file appeared and no child process existed. The parent waited ~2 days until killed, so no
+=upgrade-history.log= entry was written. Different from the fixed 0-byte mas log (=bcd5fdd=).
+**** Action Items
+- Time out the wait for a status file that never appears; fail that PM and continue.
+
+*** TODO Worktree runs: venv fallback and false CRITICAL in doctor-check-health :design:
+**** Context
+In a git worktree there is no =.direnv= venv, so =just update= falls back to system python 3.9 and
+fails on =str | None= in =sudo_helper.py=. =doctor-check-health= also reports CRITICAL "Not a git
+repository" because =.git= is a file in a worktree.
+**** Action Items
+- Justfile: fall back to the primary checkout's venv, or document the =PATH= workaround.
+- Health: accept a =.git= file (=git rev-parse --git-dir=) as a repository.
 
 *** TODO Install remaining missing packages via correct package managers :design:
 **** Context
