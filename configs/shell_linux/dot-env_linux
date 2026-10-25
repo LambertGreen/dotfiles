@@ -31,7 +31,10 @@ lgreen_setup-nix-profile() {
 }
 
 lgreen_setup-homebrew-on-linux() {
-    if [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
+    # Guard on $HOME: `brew shellenv` aborts with "$HOME must be set to run brew"
+    # when invoked without $HOME (e.g. early in the NX/gnome-session Xsession startup
+    # chain), which previously killed the desktop session with exit 127.
+    if [ -n "$HOME" ] && [ -f "/home/linuxbrew/.linuxbrew/bin/brew" ]; then
         # TODO: Find a long-term fix for PATH env setting and build systems
         #
         # Instead of prepending linuxbrew we instead append it to

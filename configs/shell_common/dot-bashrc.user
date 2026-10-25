@@ -10,4 +10,6 @@ export PATH="$PATH:/opt/mssql-tools/bin"
 # export NODE_EXTRA_CA_CERTS="/home/lambert.green/.claude/certs/salesforce-ca-bundle.pem"
 
 source /home/lambert.green/.config/broot/launcher/bash/br
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Guard on $HOME: brew aborts ("$HOME must be set to run brew") when $HOME is unset,
+# which killed NX/gnome-session desktop startup (exit 127). See also dot-env_linux.
+[ -n "$HOME" ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
