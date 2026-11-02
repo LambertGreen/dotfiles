@@ -27,12 +27,14 @@ def _keep_askpass_out_of_real_home(tmp_path, monkeypatch):
     (temp_home) keep their path; anything resolving to the real HOME is
     redirected under tmp_path.
     """
-    def askpass_path():
+    import importlib
+    real = importlib.import_module('sudo_helper')._get_askpass_path
+
+    def askpass_path(reason=""):
         home = Path.home()
         base = tmp_path / 'askpass-home' if home == REAL_HOME else home
-        return base / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
+        return base / '.dotfiles' / 'bin' / real(reason).name
 
-    import importlib
     # The module is importable under two names; patch both.
     for name in ('sudo_helper', 'src.dotfiles_pm.sudo_helper'):
         monkeypatch.setattr(importlib.import_module(name), '_get_askpass_path', askpass_path)

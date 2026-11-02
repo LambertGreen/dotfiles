@@ -18,6 +18,8 @@ for how the elevation binary is resolved for commands like `choco upgrade`.
 
 import os
 import platform
+import re
+import shlex
 import shutil
 import stat
 from pathlib import Path
@@ -36,9 +38,19 @@ def _has_display() -> bool:
     return False
 
 
-def _get_askpass_path() -> Path:
-    """Get the path for the askpass helper script."""
-    return Path.home() / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
+def _get_askpass_path(reason: str = "") -> Path:
+    """
+    Get the path for the askpass helper script.
+
+    One script per reason. A single shared script was rewritten by every caller,
+    and get_pm_commands() builds every PM's command up front, so the last
+    writer won: on 2026-10-31 every brew-cask dialog said "Mac App Store needs
+    to update apps". The reason is baked into the file rather than passed in
+    the environment because brew sanitizes the environment it hands to sudo.
+    """
+    slug = re.sub(r'[^a-z0-9]+', '-', reason.lower()).strip('-')[:40].rstrip('-')
+    name = f'sudo-askpass-{slug}.sh' if slug else 'sudo-askpass.sh'
+    return Path.home() / '.dotfiles' / 'bin' / name
 
 
 # How long the macOS password dialog waits before giving up. Without a bound an
@@ -47,10 +59,13 @@ def _get_askpass_path() -> Path:
 # exits non-zero, so sudo fails, that one package fails, and the run moves on.
 ASKPASS_TIMEOUT_SECS = 300
 
+# Patched by tests; the generated script calls it by absolute path.
+_OSASCRIPT = '/usr/bin/osascript'
+
 
 def _ensure_macos_askpass(reason: str = "") -> str:
     """Create/verify the macOS askpass script using osascript."""
-    askpass_path = _get_askpass_path()
+    askpass_path = _get_askpass_path(reason)
     askpass_path.parent.mkdir(parents=True, exist_ok=True)
 
     if reason:
@@ -58,15 +73,31 @@ def _ensure_macos_askpass(reason: str = "") -> str:
     else:
         message = "Administrator password required"
 
+    # The timeout bounds one dialog, but brew makes several sudo calls per cask
+    # (launchctl print/list/remove ...): on 2026-10-31 discord alone raised four
+    # 300s dialogs back to back. After one give-up or Cancel, this marker makes
+    # every later prompt from the same script fail at once. Regenerating the
+    # script (each run) clears it.
+    declined = askpass_path.with_name(askpass_path.name + '.declined')
+    declined.unlink(missing_ok=True)
+
     # `error number 1` makes osascript exit non-zero on timeout; printing the
     # empty answer instead would have sudo try it, fail, and re-ask twice more.
     askpass_path.write_text(
         '#!/bin/bash\n'
-        f'/usr/bin/osascript -e \'set r to display dialog "{message}" '
+        f'declined={shlex.quote(str(declined))}\n'
+        'if [ -e "$declined" ]; then\n'
+        '    echo "sudo-askpass: password declined earlier in this run; failing fast" >&2\n'
+        '    exit 1\n'
+        'fi\n'
+        f'{_OSASCRIPT} -e \'set r to display dialog "{message}" '
         'default answer "" with hidden answer with title "sudo" with icon caution '
         f'giving up after {ASKPASS_TIMEOUT_SECS}\' '
         '-e \'if gave up of r then error "timed out" number 1\' '
         '-e \'text returned of r\' 2>/dev/null\n'
+        'rc=$?\n'
+        '[ "$rc" -eq 0 ] || : > "$declined"\n'
+        'exit "$rc"\n'
     )
     askpass_path.chmod(stat.S_IRWXU)
     return str(askpass_path)
