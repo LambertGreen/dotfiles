@@ -8,6 +8,7 @@ Designed to be extensible for future tmux integration.
 
 import os
 import sys
+import shlex
 import subprocess
 import shutil
 import time
@@ -56,6 +57,12 @@ class TerminalSpawnResult:
 
 # Global registry to track spawned terminals
 _spawned_terminals: List[Dict[str, Any]] = []
+
+# How long a spawned terminal has to start run_tracked.sh before the operation
+# counts as failed. Without it a terminal that never ran the wrapper is polled
+# forever: on 2026-10-31 the mas upgrade line failed to parse in Terminal.app,
+# no status file ever appeared, and `just upgrade` waited indefinitely.
+SPAWN_START_TIMEOUT_SECS = 120
 
 def _get_registry_file() -> Path:
     """Get the path to the terminal registry file"""
@@ -187,7 +194,18 @@ class TerminalExecutor(ABC):
         wrapper_script = str(wrapper_script)
 
         auto_close_arg = 'true' if auto_close else 'false'
-        tracked_cmd = f'{wrapper_script} "{operation}" "{base_cmd}" "{log_file}" "{status_file}" {auto_close_arg}; exit'
+        # shlex.quote, not "...": run_tracked.sh evals $COMMAND itself, so the
+        # spawning shell must hand it over verbatim. Double quotes broke on any
+        # command containing `"` -- the mas upgrade script left
+        # `(before upgrade):` unquoted, zsh aborted the line with "no matches
+        # found", and run_tracked.sh never ran (2026-10-31).
+        args = ' '.join(shlex.quote(a) for a in (wrapper_script, operation, base_cmd, log_file, status_file))
+        tracked_cmd = f'{args} {auto_close_arg}; exit'
+
+        # run_tracked.sh overwrites this with "running" as soon as it starts, so
+        # check_status can tell "slow" apart from "never started".
+        Path(status_file).write_text(json.dumps(
+            {'status': 'spawned', 'timestamp': int(time.time()), 'operation': operation}))
 
         return tracked_cmd, log_file, status_file
 
@@ -204,7 +222,16 @@ class TerminalExecutor(ABC):
         try:
             status_path = Path(status_file)
             if status_path.exists():
-                return json.loads(status_path.read_text())
+                info = json.loads(status_path.read_text())
+                if info.get('status') == 'spawned':
+                    waited = time.time() - info.get('timestamp', 0)
+                    if waited > SPAWN_START_TIMEOUT_SECS:
+                        return {'status': 'error',
+                                'error': f"{info.get('operation', 'command')} never started: "
+                                         f"the terminal did not run run_tracked.sh within "
+                                         f"{SPAWN_START_TIMEOUT_SECS}s (check the spawned window)"}
+                    return {'status': 'running'}
+                return info
             return {'status': 'running'}
         except Exception as e:
             return {'status': 'error', 'error': str(e)}
@@ -236,8 +263,8 @@ class DarwinTerminalExecutor(TerminalExecutor):
     def spawn(self, command: str, title: Optional[str] = None) -> TerminalSpawnResult:
         """Spawn command in Terminal.app using osascript"""
         try:
-            # Escape quotes in command for AppleScript
-            escaped_cmd = command.replace('"', '\\"')
+            # Escape for an AppleScript string literal: backslashes first, then quotes
+            escaped_cmd = command.replace('\\', '\\\\').replace('"', '\\"')
             script = f'''
             tell application "Terminal"
                 set newTab to do script "{escaped_cmd}"

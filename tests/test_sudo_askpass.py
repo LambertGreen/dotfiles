@@ -121,9 +121,12 @@ class TestInstallUsesAskpass:
         assert 'export SUDO_ASKPASS=' in cmd
         assert 'brew bundle install' in cmd
 
-        helper = Path(temp_home) / '.dotfiles' / 'bin' / 'sudo-askpass.sh'
+        helper = sudo_helper._get_askpass_path(
+            "Homebrew Bundle is installing App Store apps and system-linked packages")
+        assert helper.parent == Path(temp_home) / '.dotfiles' / 'bin'
         assert helper.exists(), "askpass helper script should have been created"
         assert 'osascript' in helper.read_text()
+        assert f'export SUDO_ASKPASS="{helper}"' in cmd
 
 
 class TestInstallUpgradeSymmetry:
@@ -186,6 +189,38 @@ class TestMasUpgrade:
         assert '(nothing outdated)' in r.stdout
         assert '==> mas upgrade exited 0' in r.stdout
 
+    def _stubs(self, tmp_path, sudo_exit=0):
+        """mas reports one app outdated; sudo records how it was called."""
+        bin_dir = tmp_path / 'bin'
+        bin_dir.mkdir()
+        calls = tmp_path / 'calls'
+        (bin_dir / 'mas').write_text(
+            f'#!/bin/bash\necho "mas $*" >> {calls}\n'
+            '[ "$1" = outdated ] && echo "402592703  Time Out  (3.1 -> 4.0)"\nexit 0\n')
+        (bin_dir / 'sudo').write_text(f'#!/bin/bash\necho "sudo $*" >> {calls}\nexit {sudo_exit}\n')
+        for f in bin_dir.iterdir():
+            f.chmod(0o755)
+        return bin_dir, calls
+
+    def test_authenticates_with_askpass_before_mas_sudo(self, tmp_path):
+        """2026-10-31: mas's own sudo ignores SUDO_ASKPASS in a terminal with a TTY."""
+        bin_dir, calls = self._stubs(tmp_path)
+        import subprocess
+        r = subprocess.run(self._cmd(), capture_output=True, text=True,
+                           env={'PATH': f'{bin_dir}:/usr/bin:/bin'})
+        assert r.returncode == 0
+        lines = calls.read_text().splitlines()
+        assert lines == ['mas outdated', 'sudo -A -v', 'mas upgrade']
+
+    def test_failed_authentication_skips_the_upgrade(self, tmp_path):
+        bin_dir, calls = self._stubs(tmp_path, sudo_exit=1)
+        import subprocess
+        r = subprocess.run(self._cmd(), capture_output=True, text=True,
+                           env={'PATH': f'{bin_dir}:/usr/bin:/bin'})
+        assert r.returncode == 1
+        assert 'mas upgrade skipped' in r.stdout
+        assert 'mas upgrade' not in calls.read_text().splitlines()
+
     def test_upgrade_failure_propagates(self, tmp_path):
         bin_dir = tmp_path / 'bin'
         bin_dir.mkdir()
@@ -210,6 +245,71 @@ class TestAskpassTimeout:
         # A give-up must fail sudo, not hand it an empty password to retry.
         assert 'if gave up of r then error' in script
         assert sudo_helper.ASKPASS_TIMEOUT_SECS <= 600
+
+
+class TestAskpassPerReason:
+    """One script per reason, so a dialog says who is asking (2026-10-31)."""
+
+    def test_reasons_get_separate_scripts(self, temp_home):
+        with patch.object(sudo_helper.platform, 'system', return_value='Darwin'):
+            cask = sudo_helper._ensure_macos_askpass('Homebrew Cask needs to install/update apps')
+            mas = sudo_helper._ensure_macos_askpass('Mac App Store needs to update apps')
+        assert cask != mas
+        # Writing mas's script last must not change what the cask dialog says.
+        assert 'Homebrew Cask needs' in Path(cask).read_text()
+        assert 'Mac App Store' not in Path(cask).read_text()
+
+    def test_every_pm_reason_is_distinct(self):
+        reasons = [
+            "Homebrew needs to update system-linked packages",
+            "Homebrew Cask needs to install/update apps in /Applications",
+            "Mac App Store needs to update apps",
+            "Homebrew Bundle is installing App Store apps and system-linked packages",
+        ]
+        assert len({sudo_helper._get_askpass_path(r).name for r in reasons}) == len(reasons)
+
+    def test_no_reason_keeps_the_legacy_name(self):
+        assert sudo_helper._get_askpass_path('').name == 'sudo-askpass.sh'
+
+
+class TestAskpassFailsFastAfterDecline:
+    """One timeout/Cancel stops the dialogs for that script (2026-10-31: 4×300s for one cask)."""
+
+    def _script_with_stub(self, temp_home, tmp_path, osascript_body):
+        calls = tmp_path / 'osascript-calls'
+        stub = tmp_path / 'osascript'
+        stub.write_text(f'#!/bin/bash\necho x >> {calls}\n{osascript_body}\n')
+        stub.chmod(0o755)
+        with patch.object(sudo_helper, '_OSASCRIPT', str(stub)), \
+             patch.object(sudo_helper.platform, 'system', return_value='Darwin'):
+            script = sudo_helper._ensure_macos_askpass('reason')
+        return script, calls
+
+    def _ask(self, script):
+        import subprocess
+        return subprocess.run([script, 'Password:'], capture_output=True, text=True)
+
+    def test_second_prompt_fails_without_a_dialog(self, temp_home, tmp_path):
+        script, calls = self._script_with_stub(temp_home, tmp_path, 'exit 1')
+        assert self._ask(script).returncode == 1
+        r = self._ask(script)
+        assert r.returncode == 1
+        assert 'failing fast' in r.stderr
+        assert calls.read_text().count('x') == 1, "the dialog must not be shown again"
+
+    def test_answered_prompt_keeps_asking(self, temp_home, tmp_path):
+        script, calls = self._script_with_stub(temp_home, tmp_path, 'echo hunter2')
+        for _ in range(2):
+            r = self._ask(script)
+            assert r.returncode == 0 and r.stdout.strip() == 'hunter2'
+        assert calls.read_text().count('x') == 2
+
+    def test_regenerating_clears_the_decline(self, temp_home, tmp_path):
+        script, calls = self._script_with_stub(temp_home, tmp_path, 'exit 1')
+        self._ask(script)
+        script, _ = self._script_with_stub(temp_home, tmp_path, 'exit 1')
+        self._ask(script)
+        assert calls.read_text().count('x') == 2, "a new run must get a fresh dialog"
 
 
 class TestSudoModeOverride:
