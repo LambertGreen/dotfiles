@@ -291,7 +291,6 @@ cask "whisky"
 
 # GUI Applications - Utilities
 cask "basictex"
-cask "fx-cast-bridge"
 cask "google-drive"
 cask "kindle"
 cask "knockknock"    # persistent-login/startup-item auditor
