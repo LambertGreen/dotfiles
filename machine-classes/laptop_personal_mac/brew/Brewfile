@@ -226,7 +226,6 @@ cask "grandperspective"
 cask "hiddenbar"
 cask "homerow"
 cask "keycastr"
-cask "platypus"
 cask "shortcat"
 cask "stats"
 cask "vanilla"
@@ -267,6 +266,10 @@ cask "claude"
 cask "claude-code"
 cask "docker-desktop"
 cask "jd-gui"
+# Java 8 for jd-gui: its launcher asks java_home for exactly 1.8. Native
+# arm64 (openjdk@8 has no arm64 bottle; temurin@8 is x64 only). Replaced
+# the legacy Oracle JRE 8 plugin on 2026-11-09.
+cask "zulu@8"
 cask "mongodb-compass"
 cask "odbc-manager"
 cask "pgadmin4"
@@ -291,7 +294,6 @@ cask "whisky"
 
 # GUI Applications - Utilities
 cask "basictex"
-cask "fx-cast-bridge"
 cask "google-drive"
 cask "kindle"
 cask "knockknock"    # persistent-login/startup-item auditor
