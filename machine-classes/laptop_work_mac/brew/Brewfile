@@ -180,6 +180,7 @@ cask "postman"
 cask "raycast"
 cask "slack"
 cask "stats"
+cask "tableau-prep"        # Prep Builder: customer-channel build (replaces internal install)
 cask "vanilla"
 cask "vlc"
 cask "wezterm@nightly"
