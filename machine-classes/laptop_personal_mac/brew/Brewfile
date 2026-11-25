@@ -288,9 +288,9 @@ cask "yt-music"
 
 # GUI Applications - Gaming & Windows Compatibility
 cask "crossover"
+cask "nvidia-geforce-now"
 cask "steam"
 cask "steamcmd"
-cask "whisky"
 
 # GUI Applications - Utilities
 cask "basictex"
