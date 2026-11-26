@@ -163,7 +163,7 @@ cask "contexts"
 cask "crossover"           # Run Windows apps/games via Wine + Rosetta (paid; trialing)
 cask "cursorcerer"
 cask "dbeaver-community"
-cask "divvy"
+cask "divvy"                # TODO: remove before Rosetta 2 goes (Intel-only, unmaintained); Hammerspoon WindowManagement now drives native tiling
 cask "finicky"
 cask "firefox"
 cask "google-chrome"

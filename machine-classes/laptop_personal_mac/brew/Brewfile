@@ -221,7 +221,7 @@ cask "appcleaner"
 cask "caffeine"
 cask "contexts"
 cask "cursorcerer"
-cask "divvy"
+cask "divvy"                # TODO: remove before Rosetta 2 goes (Intel-only, unmaintained); Hammerspoon WindowManagement now drives native tiling
 cask "grandperspective"
 cask "hiddenbar"
 cask "homerow"
